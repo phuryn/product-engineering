@@ -1,0 +1,21 @@
+{
+  "name": "agent-teams",
+  "version": "0.2.0",
+  "description": "Work with other coding agents as partners: brief any delegate with the why, drive the Codex CLI as builder and peer, run an unsteered independent review through the Grok CLI or a fresh Claude session, and let other agents drive Claude Code headless.",
+  "author": {
+    "name": "Paweł Huryn",
+    "email": "pawel@productcompass.pm",
+    "url": "https://www.productcompass.pm"
+  },
+  "homepage": "https://www.productcompass.pm",
+  "license": "MIT",
+  "keywords": [
+    "delegation",
+    "subagents",
+    "codex",
+    "grok",
+    "claude-code",
+    "multi-agent",
+    "code-review"
+  ]
+}

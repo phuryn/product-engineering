@@ -1,0 +1,160 @@
+{
+  "_about": "Where each skill taken from a public repository came from. Skills taken from the author's private repositories, and the products whose lessons feed the collection, are recorded in sources.local.json on the maintainer's machine, never committed; tools/check_sources.py reads both. tools/check_sources.py lists upstream commits since `ref` that touched `paths`: port what is a lesson for everyone, then move `ref`, and record a deliberately unported change under `skipped` with the reason, in the file that records the skill. An upstream with `tracked: false` was a one-time copy: its entries record provenance only and are not checked. `python tools/check_sources.py --harvest` lists every product commit since `harvested` (commit bodies hold most receipts), marking those that touched `process_paths`: port the general lessons, then move `harvested` and `harvested_on`. Run it at each product release.",
+  "upstreams": {
+    "pm-skills": {
+      "github": "phuryn/pm-skills",
+      "branch": "main"
+    },
+    "work-humanizer": {
+      "github": "phuryn/work-humanizer",
+      "branch": "main"
+    }
+  },
+  "skills": [
+    {
+      "skill": "ai-shipping/skills/code-review",
+      "mode": "copy",
+      "upstream": "pm-skills",
+      "ref": "07b34f6",
+      "paths": [
+        "pm-ai-shipping/skills/code-review"
+      ]
+    },
+    {
+      "skill": "ai-shipping/skills/intended-vs-implemented",
+      "mode": "copy",
+      "upstream": "pm-skills",
+      "ref": "07b34f6",
+      "paths": [
+        "pm-ai-shipping/skills/intended-vs-implemented"
+      ]
+    },
+    {
+      "skill": "ai-shipping/skills/shipping-artifacts",
+      "mode": "copy",
+      "upstream": "pm-skills",
+      "ref": "07b34f6",
+      "paths": [
+        "pm-ai-shipping/skills/shipping-artifacts"
+      ]
+    },
+    {
+      "skill": "ai-shipping/skills/ship-check",
+      "mode": "copy",
+      "upstream": "pm-skills",
+      "ref": "07b34f6",
+      "paths": [
+        "pm-ai-shipping/commands/ship-check.md"
+      ],
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:"
+    },
+    {
+      "skill": "ai-shipping/skills/document-app",
+      "mode": "copy",
+      "upstream": "pm-skills",
+      "ref": "07b34f6",
+      "paths": [
+        "pm-ai-shipping/commands/document-app.md"
+      ],
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:"
+    },
+    {
+      "skill": "ai-shipping/skills/derive-tests",
+      "mode": "copy",
+      "upstream": "pm-skills",
+      "ref": "07b34f6",
+      "paths": [
+        "pm-ai-shipping/commands/derive-tests.md"
+      ],
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:"
+    },
+    {
+      "skill": "ai-shipping/skills/security-audit-static",
+      "mode": "copy",
+      "upstream": "pm-skills",
+      "ref": "07b34f6",
+      "paths": [
+        "pm-ai-shipping/commands/security-audit-static.md"
+      ],
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:"
+    },
+    {
+      "skill": "ai-shipping/skills/performance-audit-static",
+      "mode": "copy",
+      "upstream": "pm-skills",
+      "ref": "07b34f6",
+      "paths": [
+        "pm-ai-shipping/commands/performance-audit-static.md"
+      ],
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:"
+    },
+    {
+      "skill": "agent-teams/skills/claude-agents",
+      "mode": "new"
+    },
+    {
+      "skill": "agent-harness/skills/windows-agent-shell",
+      "mode": "new",
+      "notes": "drawn from local working notes in product repositories; no upstream to track"
+    },
+    {
+      "skill": "work-humanizer/skills/work-humanizer",
+      "mode": "copy",
+      "upstream": "work-humanizer",
+      "ref": "0a90657",
+      "paths": [
+        "skills/work-humanizer"
+      ]
+    },
+    {
+      "skill": "product/skills/competitor-analysis",
+      "mode": "copy",
+      "upstream": "pm-skills",
+      "ref": "07b34f6",
+      "paths": [
+        "pm-market-research/skills/competitor-analysis"
+      ],
+      "notes": "Further Reading moved to product/README.md"
+    },
+    {
+      "skill": "product/skills/market-segments",
+      "mode": "copy",
+      "upstream": "pm-skills",
+      "ref": "07b34f6",
+      "paths": [
+        "pm-market-research/skills/market-segments"
+      ],
+      "notes": "Further Reading moved to product/README.md"
+    },
+    {
+      "skill": "product/skills/value-proposition",
+      "mode": "copy",
+      "upstream": "pm-skills",
+      "ref": "07b34f6",
+      "paths": [
+        "pm-product-strategy/skills/value-proposition"
+      ],
+      "notes": "Further Reading moved to product/README.md; the value-curve note points at the value-curve skill"
+    },
+    {
+      "skill": "product/skills/beachhead-segment",
+      "mode": "copy",
+      "upstream": "pm-skills",
+      "ref": "07b34f6",
+      "paths": [
+        "pm-go-to-market/skills/beachhead-segment"
+      ],
+      "notes": "Further Reading moved to product/README.md"
+    },
+    {
+      "skill": "product/skills/growth-loops",
+      "mode": "copy",
+      "upstream": "pm-skills",
+      "ref": "07b34f6",
+      "paths": [
+        "pm-go-to-market/skills/growth-loops"
+      ],
+      "notes": "Further Reading moved to product/README.md"
+    }
+  ]
+}

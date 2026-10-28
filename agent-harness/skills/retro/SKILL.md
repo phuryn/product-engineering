@@ -1,0 +1,63 @@
+---
+name: retro
+description: "Turn a session's friction into a fix to the setup: what went wrong and why, then an improved instruction, route, hook or script, verified, or 'no setup change warranted'. Started by name only: /agent-harness:retro in Claude Code, $agent-harness:retro in Codex."
+argument-hint: "<optional: the friction you noticed>"
+disable-model-invocation: true
+---
+
+# Retro — a session's friction, turned into a setup fix
+
+At the end of a session, before its context goes: what slowed it down or went wrong, why, and what change to the agent's setup stops it happening again. The output is fixes made and checked, not a list of lessons.
+
+## Invocation
+
+```
+/agent-harness:retro                             Claude Code, plugin installed
+/agent-harness:retro it ran the tests against the wrong server twice
+$agent-harness:retro                             Codex, plugin installed
+/retro   ·   $retro                              the skill folder copied into a repository
+```
+
+## Steps
+
+### 1. List what actually happened
+
+From this session only, each item with the moment it happened:
+
+- the owner corrected the agent (quote the correction);
+- the agent missed a rule it had;
+- work was done twice, or undone;
+- an assumption turned out wrong;
+- a tool, script or command failed, or needed a workaround;
+- the owner waited on something the agent could have done.
+
+Leave out what went fine and what is only a guess about the future. **Evidence, not new rules**: an item with no moment behind it is not one.
+
+### 2. Find the cause of each
+
+| Cause | What it looks like | The fix goes in |
+|---|---|---|
+| **Missing** | nothing told the agent | an existing instruction or doc, at the place the agent reads when the moment comes |
+| **Present but not met** | the rule existed and the agent didn't apply it when it mattered | the route to it (the instructions' index of what to read when), or code |
+| **A tool gap** | a script, check or wrapper was missing or wrong | the tool |
+| **A one-off** | it won't recur | nowhere: say so |
+
+### 3. Fix it, code first
+
+In order of preference:
+
+1. **Code:** a script, a hook, a validation, a required argument, a test. If compliance depends on an agent remembering a sentence at the moment it matters, prose will lose. (`2026-06-15`, an agent-run repository: a two-line bug in a notification script was answered with a written convention; five weeks later the same bug killed a scheduled job for five days. Writing it down felt like fixing it.) Hooks and permission rules: the `guardrail-hooks` skill.
+2. **An existing instruction or route, improved:** reword the rule that was misread, or move it to where the agent will see it at the moment it applies. Replace or delete before adding. How instruction files are shaped: the `agent-instructions` skill.
+3. **A new rule**, only when the session gave it a receipt: the date and what happened.
+
+Make each reversible fix in the repository and **verify it**: run the hook on a sample that must trigger and one that must not; open the route where the agent will read it; run the script. A fix that wasn't checked is reported as unchecked. A change outside the repository (the user's own settings or global instructions) is proposed with its exact text, not made, unless the owner says so.
+
+### 4. Report
+
+One line per item: what happened, the cause, the fix and how it was verified. When nothing deserves a change, **"no setup change warranted"** is a valid result, and better than a rule that will never fire.
+
+Don't gate what the owner wouldn't want to click for: a guard that asks too often trains a reflexive yes. (`2026-10-12`: a one-way-door hook that also gated routine commands fired on a heredoc that merely mentioned one, the owner said "I don't want those questions", and it was narrowed the same day.)
+
+## How you can tell it worked
+
+Each fix names the moment it came from and was checked where it applies, and the next session doesn't hit the same friction.

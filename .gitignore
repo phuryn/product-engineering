@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.env
+.DS_Store
+reports/
+sources.local.json
+tools/leaks.local.txt

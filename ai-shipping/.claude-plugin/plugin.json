@@ -1,0 +1,20 @@
+{
+  "name": "ai-shipping",
+  "version": "0.2.0",
+  "description": "Ship AI-built apps: document the app, review it for correctness, security and performance, prove it with a test harness that fakes the right side, and release through a gate with the owner's go. Superset of the free pm-ai-shipping plugin.",
+  "author": {
+    "name": "Paweł Huryn",
+    "email": "pawel@productcompass.pm",
+    "url": "https://www.productcompass.pm"
+  },
+  "homepage": "https://www.productcompass.pm",
+  "license": "MIT",
+  "keywords": [
+    "ai-shipping",
+    "code-review",
+    "security-audit",
+    "release",
+    "testing",
+    "vibe-coding"
+  ]
+}

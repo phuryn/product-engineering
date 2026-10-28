@@ -1,0 +1,49 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "product-engineering",
+  "version": "0.2.0",
+  "description": "Agent skills for the whole product lifecycle with coding agents, from deciding what to build to shipping and growing it, from The Product Compass.",
+  "owner": {
+    "name": "Paweł Huryn",
+    "email": "pawel@productcompass.pm",
+    "url": "https://www.productcompass.pm"
+  },
+  "plugins": [
+    {
+      "name": "product",
+      "description": "Decide what to build before building it: find where the work stands, research an idea and propose hypotheses with their sources in a prototype you review, then competitors and segments, the value proposition, the value curve, the beachhead segment and growth loops.",
+      "source": "./product",
+      "category": "productivity"
+    },
+    {
+      "name": "ai-shipping",
+      "description": "Ship AI-built apps: document the app, review it for correctness, security and performance, prove it with a test harness that fakes the right side, and release through a gate with the owner's go. Superset of the free pm-ai-shipping plugin.",
+      "source": "./ai-shipping",
+      "category": "development"
+    },
+    {
+      "name": "agent-teams",
+      "description": "Work with other coding agents as partners: brief any delegate with the why, drive the Codex CLI as builder and peer, run an unsteered independent review through the Grok CLI or a fresh Claude session, and let other agents drive Claude Code headless.",
+      "source": "./agent-teams",
+      "category": "development"
+    },
+    {
+      "name": "agent-harness",
+      "description": "Make your own agent setup reliable: instruction files that are met at the moment they apply, rules held by hooks instead of prose, status that survives context compaction, the handover the next session starts from, a session's friction turned into a setup fix, and the Windows shell traps that break agents.",
+      "source": "./agent-harness",
+      "category": "development"
+    },
+    {
+      "name": "app-stack",
+      "description": "Build a SaaS app with coding agents on Next.js, Supabase, Clerk and Netlify: the path from idea to production, multi-tenant authorization, the production choices for Supabase and Clerk, environments and secrets, product design, uptime monitoring, remote MCP servers, ChatGPT plugins and embedded Claude agents.",
+      "source": "./app-stack",
+      "category": "development"
+    },
+    {
+      "name": "work-humanizer",
+      "description": "Edit AI-sounding work writing so it reads like a careful person wrote it, without changing what it says — or interview the writer and build the piece from their answers.",
+      "source": "./work-humanizer",
+      "category": "development"
+    }
+  ]
+}
