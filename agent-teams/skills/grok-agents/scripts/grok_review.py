@@ -497,6 +497,15 @@ def build_claude_command(claude_bin: str, args: argparse.Namespace, brief: Path)
     return cmd
 
 
+# Grok's own isolation, per process: its memory, and every Claude and Cursor compatibility cell (their
+# instructions, rules, skills, hooks and MCP servers). The environment wins over config.toml; measured with
+# `grok inspect --json` on Grok 1.0.70, 2026-10-29: 19 compatibility entries went from enabled to disabled.
+GROK_ISOLATION = {"GROK_MEMORY": "0", **{f"GROK_{tool}_{cell}_ENABLED": "false"
+                  for tool in ("CLAUDE", "CURSOR") for cell in ("AGENTS", "RULES", "SKILLS", "HOOKS", "MCPS")}}
+GROK_STILL_ON = ("still on, with no per-process switch: Grok's own ~/.grok/AGENTS.md and rules, its bundled "
+                 "skills, plugins' hooks, and a memory pin in requirements.toml; name them in the round's report")
+
+
 def build_command(grok_bin: str, args: argparse.Namespace, brief: Path) -> list[str]:
     cmd = [grok_bin, "--prompt-file", str(brief), "--cwd", str(args.cwd_resolved)]
     cmd += REVIEW_FLAGS
@@ -597,6 +606,8 @@ def main() -> None:
         if reviewer == "claude" and args.reviewer == "auto":
             print("  no Grok CLI: a fresh Claude Code session reviews, read-only, with no settings, "
                   "hooks, plugins, MCP servers, auto-memory or saved session")
+        if reviewer == "grok":
+            print("  memory and Claude and Cursor compatibility off for the run; " + GROK_STILL_ON)
         wanted = grok_flags + ["--reasoning-effort", "--sandbox", "--model"] if reviewer == "grok" \
             else claude_flags + ["--model"]
         for flag in wanted:
@@ -653,9 +664,7 @@ def main() -> None:
             args.max_turns = needed
     if reviewer == "grok":
         cmd = build_command(binary, args, prompt)
-        # Grok's cross-session memory off: GROK_MEMORY=0 wins over its settings, remote ones included
-        # (Grok 1.0.70, read 2026-10-29: managed settings had turned it on).
-        stdin, env = "", {**os.environ, "GROK_MEMORY": "0"}
+        stdin, env = "", {**os.environ, **GROK_ISOLATION}
     else:
         cmd = build_claude_command(binary, args, prompt)
         stdin = prompt.read_text(encoding="utf-8")
@@ -669,6 +678,8 @@ def main() -> None:
         if f:
             atexit.register(f.unlink, missing_ok=True)
     sys.stderr.write(f"[grok_review.py] {brief.name} -> {args.cwd_resolved} ({reviewer})\n")
+    if reviewer == "grok":
+        sys.stderr.write(f"[grok_review.py] {GROK_STILL_ON}\n")
     started = time.time()
     try:
         proc = subprocess.run(

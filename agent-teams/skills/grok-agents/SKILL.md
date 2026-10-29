@@ -12,8 +12,10 @@ round.
 
 **The tool is optional; the review is not.** The wrapper in this skill's `scripts/` picks the
 reviewer (`python <skill dir>/scripts/grok_review.py --check` says which): **Grok** when its CLI is
-installed (read-only tools and its memory off; it still loads the user's hooks and, through its Claude
-compatibility, the instructions in `~/.claude/`, which the wrapper does not switch off), otherwise a **fresh headless Claude Code session** — read-only tools, no settings, hooks,
+installed (read-only tools; its memory and its Claude and Cursor compatibility, their instructions, rules,
+skills, hooks and MCP servers, off for the run; what Grok can't switch off per process, its own
+`~/.grok/AGENTS.md` and rules, its bundled skills and plugins' hooks, the wrapper prints for the report),
+otherwise a **fresh headless Claude Code session** — read-only tools, no settings, hooks,
 plugins or MCP servers, no auto-memory, no saved session, so it starts from the repository and the
 brief alone. Never the building thread, resumed or forked, and never a subagent of it: the reviewer
 must not inherit what the builder believes. A same-model reviewer shares more of the builder's
@@ -27,8 +29,9 @@ that never saw the build, never a resume, fork or subagent of it, with read-only
 or connectors, its memory off, at its highest effort, and the project's and the user's own instructions off
 where the CLI allows; what it can't switch off, the round's report names. A sandbox flag alone is not that: in Codex, `-s read-only` binds only
 the shell commands the model runs, and the user's config can add tools that act outside it (Codex CLI 0.159.0,
-`2026-10-29`). A named reviewer that can't be run that way is not used: the wrapper's reviewer runs instead,
-and the round's report says why. Where they say nothing, the defaults below apply, and where a default
+`2026-10-29`). A named reviewer that can't be run that way is not replaced on your own: say what it lacks and ask
+the owner whether the wrapper's reviewer runs instead, naming it (Grok, so xAI, or Claude); the round
+waits for the answer, and its report records it. Where they say nothing, the defaults below apply, and where a default
 would need a fact only the owner has (which branch is released, what the last release was), ask.
 
 The loop is: fix → re-run the project's test gate **yourself** → a **fresh** reviewer reviews the

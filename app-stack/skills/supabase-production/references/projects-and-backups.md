@@ -39,7 +39,7 @@ The general split between development and production (branches, the host's envir
 
 - **No Supabase variable is ever `NEXT_PUBLIC_*`.**
 - **The env schema checks the secret key's shape** (`sb_secret_`) and refuses any secret-shaped value in a public variable, at build time. The schema's contract is in `environments`.
-- **Development's keys go into the development checkout's `.env`; production's never do.** The host's go into its production environment at `release-gate` go-live step 3; production's connection string goes into the operator machine's environment or a production operator file, under a name the app never reads (`PROD_DB_URL`). Never put one into a chat; a key that touched a chat is rotated. The host does not read `.env`, so every variable is set in the host's own environment.
+- **Development's keys go into the development checkout's `.env`; production's never do.** The host's go into its production environment at `release-gate` go-live step 3; production's connection string goes into a production operator file outside the development checkout, under a name the app never reads (`PROD_DB_URL`), expanded only for the command that needs it. Never put one into a chat; a key that touched a chat is rotated. The host does not read `.env`, so every variable is set in the host's own environment.
 
 ## Backups and restore
 
