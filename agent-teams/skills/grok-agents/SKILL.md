@@ -73,11 +73,10 @@ the round was stopped, the directory deleted and the round run again.)
 `$RELEASED` is what the repository says was last released — a production branch
 (`origin/<prod>`), a release tag, the deployed commit. If nothing has been released yet, round 1 is
 everything since the project started: `--subject HEAD`, for which the wrapper writes the log, one line a
-commit, every file HEAD holds, the first commit's included, and the history of each path HEAD no longer
-holds, since a push sends every commit (`<first commit>..HEAD` would leave that
+commit, every file HEAD holds, the first commit's included, and every line its history removed,
+since a push sends every commit (`<first commit>..HEAD` would leave that
 commit out). A product whose history began in another
-repository (a clone, or a fork) takes the same `--subject HEAD`, which reads the files it ships, not
-that repository's whole patch history; that repository's tags and branches are not the product's releases.
+repository (a clone, or a fork) takes the same `--subject HEAD`; that repository's tags and branches are not the product's releases.
 Before any release nothing is live yet, so the brief says every finding is INTRODUCED, code that came with the
 history included. Round 1 includes what is already pushed: when a push is the deploy, pushed code is
 exactly what users are running. **Never narrow the range by hand to make it fit**: too narrow skips
@@ -125,7 +124,7 @@ python <skill dir>/scripts/grok_review.py \
 echo "exit=$?"   # 2 means the round was too short: treat it as failed
 ```
 
-`--subject` takes the git range under review (`<sha>^!` for a single commit, `HEAD` for every file HEAD holds). The wrapper refuses
+`--subject` takes the git range under review (`<sha>^!` for a single commit, `HEAD` before the first release). The wrapper refuses
 an empty `--subject`, a range with no start, and one with no commits and a clean tree. The reviewer has no shell, so the wrapper writes the
 range's log and diffs, then everything uncommitted (untracked files listed one by one, with their
 content), to a file inside the git directory (never committed), and tells the reviewer its length
@@ -135,7 +134,7 @@ It raises the turn cap when the subject needs more turns than that to page throu
 **A range that contains a merge also carries the range's cumulative diff**, because `git log -p`
 shows a merge commit without its diff: a conflict resolution, or an edit made inside the merge,
 would otherwise never reach the reviewer. The wrapper adds it for an `A..B` or `<sha>^!` range (a bare
-ref such as `HEAD` needs none: its subject is every file it holds); it warns on any other shape. It repeats every commit's change once more, so it can nearly double the
+ref such as `HEAD` needs none: its subject is every file it holds and every line its history removed); it warns on any other shape. It repeats every commit's change once more, so it can nearly double the
 subject; size the round with it in mind.
 
 `--reviewer auto` is the default: Grok when installed, else `claude -p` with `--restricted`,
@@ -233,9 +232,10 @@ a release and still needs the owner's go.
     # 4. when a round closes with no INTRODUCED finding above Low and no High or Critical
     #    of any age, push the snapshot THAT round reviewed — never the branch tip, which may hold the next stage's commits. A
     #    round that found something is fixed, re-tested, re-snapshotted and reviewed again;
-    #    SNAP is always the last clean round's snapshot. The first push goes only where
-    #    the owner named (§ When)
-    git push origin "$SNAP:refs/heads/<branch>"
+    #    SNAP is the full sha the clean round reviewed: set it again in a new shell, since an
+    #    empty source turns the push into a delete, which `:?` refuses. The first push goes
+    #    only where the owner named (§ When)
+    git push origin "${SNAP:?}:refs/heads/<branch>"
     #    (if you linked node_modules into the worktree, delete that link first; see below)
     git worktree remove ../<repo>-review-<stage>
 
