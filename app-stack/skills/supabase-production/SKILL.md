@@ -65,7 +65,7 @@ If that listing is already aligned, stop: record *no migration*. Otherwise read 
 test "$(cat supabase/.temp/project-ref 2>/dev/null)" = "<dev-ref>" && npx supabase db push --linked && npx supabase migration list --linked
 ```
 
-**Production is its own run, only at a release and on the owner's go**, never in the same script or command list as development. It is never linked, and is reached by its own connection string, held in the environment of the operator's machine. Read first:
+**Production is its own run, only at a release and on the owner's go**, never in the same script or command list as development. It is never linked, and is reached by its own connection string, kept in the production operator file outside the development checkout and loaded only into the command that uses it, never into the session's environment, which everything the agent starts inherits: run each command below as `( set -a; . <production operator file>; set +a; <command> )`. Read first:
 
 ```sh
 npx supabase migration list --db-url "$PROD_DB_URL" && npx supabase db push --db-url "$PROD_DB_URL" --dry-run

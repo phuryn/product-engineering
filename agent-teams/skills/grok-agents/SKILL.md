@@ -12,10 +12,10 @@ round.
 
 **The tool is optional; the review is not.** The wrapper in this skill's `scripts/` picks the
 reviewer (`python <skill dir>/scripts/grok_review.py --check` says which): **Grok** when its CLI is
-installed (read-only tools; its memory and its Claude and Cursor compatibility, their instructions, rules,
-skills, hooks and MCP servers, off for the run; what Grok can't switch off per process, its own
-`~/.grok/AGENTS.md` and rules, its bundled skills and plugins' hooks, the wrapper prints for the report),
-otherwise a **fresh headless Claude Code session** — read-only tools, no settings, hooks,
+installed (read-only tools; its memory and its Claude and Cursor compatibility off for the run; what still
+loads, the wrapper reads from `grok inspect` and prints for the report: in a folder Grok trusts, that
+includes the project's own instruction files, a gitignored `CLAUDE.local.md` among them, which a review
+worktree of the snapshot doesn't hold), otherwise a **fresh headless Claude Code session** — read-only tools, no settings, hooks,
 plugins or MCP servers, no auto-memory, no saved session, so it starts from the repository and the
 brief alone. Never the building thread, resumed or forked, and never a subagent of it: the reviewer
 must not inherit what the builder believes. A same-model reviewer shares more of the builder's

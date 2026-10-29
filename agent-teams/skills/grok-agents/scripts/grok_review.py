@@ -65,6 +65,7 @@ Exit codes:
 
 import argparse
 import atexit
+import json
 import os
 import platform
 import shutil
@@ -502,8 +503,33 @@ def build_claude_command(claude_bin: str, args: argparse.Namespace, brief: Path)
 # `grok inspect --json` on Grok 1.0.70, 2026-10-29: 19 compatibility entries went from enabled to disabled.
 GROK_ISOLATION = {"GROK_MEMORY": "0", **{f"GROK_{tool}_{cell}_ENABLED": "false"
                   for tool in ("CLAUDE", "CURSOR") for cell in ("AGENTS", "RULES", "SKILLS", "HOOKS", "MCPS")}}
-GROK_STILL_ON = ("still on, with no per-process switch: Grok's own ~/.grok/AGENTS.md and rules, its bundled "
-                 "skills, plugins' hooks, and a memory pin in requirements.toml; name them in the round's report")
+
+
+def grok_still_on(grok_bin: str, cwd: str) -> str:
+    """What a Grok run in `cwd` still loads with GROK_ISOLATION set, read from `grok inspect --json`:
+    in a folder Grok trusts that includes the project's own instruction files, CLAUDE.local.md among them."""
+    try:
+        p = subprocess.run([grok_bin, "inspect", "--json"], cwd=cwd, env={**os.environ, **GROK_ISOLATION},
+                           capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120)
+        d = json.loads(p.stdout)
+    except (OSError, ValueError, subprocess.TimeoutExpired) as e:
+        return f"`grok inspect` failed ({e}): what the reviewer loads is unknown; say so in the round's report"
+
+    def on(key):
+        return [x for x in d.get(key) or [] if isinstance(x, dict) and x.get("compatibilityStatus") != "disabled"]
+
+    def label(x):
+        src = x.get("source") if isinstance(x.get("source"), dict) else {}
+        return str(x.get("path") or x.get("name") or src.get("path") or src.get("plugin_name") or "?")
+
+    skills = on("skills")
+    bundled = sum(1 for s in skills if (s.get("source") or {}).get("type") == "bundled")
+    parts = [f"{k}: {', '.join(label(x) for x in on(k)) or 'none'}" for k in ("projectInstructions", "hooks",
+                                                                       "plugins", "mcpServers")]
+    parts.append(f"skills: {bundled} bundled, others: "
+                 f"{', '.join(label(s) for s in skills if (s.get('source') or {}).get('type') != 'bundled') or 'none'}")
+    return ("still on for this run, from `grok inspect` (name them in the round's report; MCP calls stay denied): "
+            + "; ".join(parts))
 
 
 def build_command(grok_bin: str, args: argparse.Namespace, brief: Path) -> list[str]:
@@ -607,7 +633,8 @@ def main() -> None:
             print("  no Grok CLI: a fresh Claude Code session reviews, read-only, with no settings, "
                   "hooks, plugins, MCP servers, auto-memory or saved session")
         if reviewer == "grok":
-            print("  memory and Claude and Cursor compatibility off for the run; " + GROK_STILL_ON)
+            print("  memory and Claude and Cursor compatibility off for the run; "
+                  + grok_still_on(binary, args.cwd or os.getcwd()))
         wanted = grok_flags + ["--reasoning-effort", "--sandbox", "--model"] if reviewer == "grok" \
             else claude_flags + ["--model"]
         for flag in wanted:
@@ -679,7 +706,7 @@ def main() -> None:
             atexit.register(f.unlink, missing_ok=True)
     sys.stderr.write(f"[grok_review.py] {brief.name} -> {args.cwd_resolved} ({reviewer})\n")
     if reviewer == "grok":
-        sys.stderr.write(f"[grok_review.py] {GROK_STILL_ON}\n")
+        sys.stderr.write(f"[grok_review.py] {grok_still_on(binary, str(args.cwd_resolved))}\n")
     started = time.time()
     try:
         proc = subprocess.run(
