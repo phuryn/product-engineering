@@ -1,14 +1,14 @@
-# Product Engineering — skills for the whole product lifecycle with coding agents
+# Product Engineering
 
-Agent skills for building a real product with coding agents, from the first idea to paying users and the next round. From [The Product Compass](https://www.productcompass.pm).
+Agent skills for shipping real products with coding agents, from the first idea to paying users. No coding.
 
 **Lost at any point?** Type `/product:start-here` (Codex: `$product:start-here`) and say what you have. It tells you where the work stands and what's next. [Install](#install) first.
 
-The skills work in Claude Code, Codex, Cursor, Gemini CLI, OpenCode, GitHub Copilot and any other agent that reads `SKILL.md` folders. Free, under the MIT License.
+The skills work in Claude Code, Codex, Cursor, Gemini CLI, OpenCode, GitHub Copilot and any other agent that reads `SKILL.md` folders. Free, under the MIT License, from [The Product Compass](https://www.productcompass.pm).
 
 ## Who it's for
 
-- **Product managers, founders and designers who build with coding agents.** You check the product, not every line of the code.
+- **Product managers, founders and designers who ship with coding agents.** You check the product, not every line of the code.
 - **Engineers who build a product, not only the code.** That means deciding what to build, and running it in production with real users and real payments.
 - **Anyone working with more than one agent**, where one session coordinates, another builds and a third reviews.
 
@@ -194,7 +194,7 @@ Collections written for engineers who own their code do what they are for well: 
 | **You check** | The code, line by line | The product, by clicking through every change you can see |
 | **Tests** | Written first | Land with the change; every fix with a test that failed before it |
 | **Reviewed by** | The session that wrote the code, or its subagents | A fresh reviewer that never saw the build, from another model family when Grok is installed, or the one you name |
-| **Ends at** | The pull request, sometimes the deploy | Paying users: payments, sign-in, email and monitoring in production, then the next round |
+| **Ends at** | The pull request, sometimes the deploy | Paying users: legal pages, sign-in, payments, email, analytics and monitoring in production, through a release you say go to; then the next round |
 
 Three things can go wrong in any skill collection, and this one guards against them:
 - **Decisions get lost** between documents, and decision records pile up and go stale. Here there is one proposal, which the build reads, its recommendation rewritten, never appended to; for a SaaS, choices with real options go in one decision log (`app-lifecycle`), each with the trigger that reopens it.

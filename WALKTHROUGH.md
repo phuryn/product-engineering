@@ -7,7 +7,7 @@ You don't need to remember any of this. `/product:start-here` names the next ste
 ## Before you start
 
 1. **Install the packs** ([Install](README.md#install)). For this walkthrough: `product`, `ai-shipping`, `agent-teams` and `agent-harness`, plus `app-stack`: its `design` and `uptime-monitoring` apply to any product with screens and a URL, and the rest mostly assumes a SaaS on Next.js, Supabase, Clerk and Netlify.
-2. **Open your agent in a folder**: an empty one with `git init` for a new idea, or the repository of a product you already have.
+2. **Open your agent in a folder**: an empty one for a new idea (the agent sets it up), or the repository of a product you already have.
 3. **Optional, and worth it:** the Codex CLI as a second builder and peer (`codex-agents`), and the Grok CLI as a reviewer from another model family (`grok-agents`). Without Codex, the session you work in builds the change itself or briefs a Claude subagent. Without Grok, the review runs in a fresh Claude Code session with nothing carried over (with neither CLI, a fresh read-only session of your agent). The wrappers that drive them need Python 3.10 or later.
 
 ## 1. Say what you have
@@ -160,7 +160,7 @@ A rule that lives only in another repository doesn't get read. So for a product 
 - accept the proposal;
 - review a complex change's key assumptions;
 - pick and approve the design;
-- make the dashboard clicks the agent can't;
+- set up accounts and keys in dashboards, and paste the few commands the agent gives you;
 - click through each visible change;
 - decide where a doc and the code disagree;
 - before a release, perform what the stage promised and, when a screen or its words changed, look over every screen in every state, theme, width and role, signed out included;
