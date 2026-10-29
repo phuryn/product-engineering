@@ -54,15 +54,18 @@ A stage that offers options stops until you pick, such as two design directions.
 
 ## 4. Build
 
-One session coordinates. Another builds when one is available: Codex through `codex-agents`, or a Claude subagent briefed through `delegation`. A third reviews.
+One session coordinates. Another builds when one is available: Codex through `codex-agents`, or a Claude subagent briefed through `delegation`. A different session reviews every change, so no session reviews its own work.
 
-You don't review the code line by line. Two rules apply instead:
+You don't review the code line by line. Three rules apply instead:
 - **Every change lands with its tests and docs.**
 - **Every fix lands with a test that failed before it.** After two fixes that pass and leave the symptom, the agent stops and gets one real observation instead of guessing again (`test-harness`).
+- **A fresh reviewer that never saw the build reads each change**, round after round, until a round finds nothing the change introduced above low severity (`grok-agents`). It is Grok when it's installed, otherwise a fresh Claude Code session with nothing carried over (with neither CLI, a fresh read-only session of your agent), or the one your agent instructions name. For a correctness review of your own, say "review this with ai-shipping's code-review skill"; in Claude Code name it `/ai-shipping:code-review`, because Claude Code has its own `/code-review`.
+
+When the app needs accounts, keys or a domain, the agent asks you to set them up and walks you through it.
 
 ## 5. Your click-through
 
-After every change you can see, you get a link and the key user flows to try, each an action and what should happen:
+After the reviews, for every change you can see, you get a link and the key user flows to try, each an action and what should happen:
 
 ```
 1. Sign up as a tutor and add Tuesday 4-6 pm: a student's booking page shows those slots in the student's time zone.
@@ -71,19 +74,17 @@ After every change you can see, you get a link and the key user flows to try, ea
 Not built yet: the monthly plan's limits.
 ```
 
-Expect 15 to 20 minutes for a mid-size app, every time. Screenshots taken by agents miss what moves and what is visible only for a moment, so this check is yours. What you find is fixed in the same stage.
+Expect 15 to 20 minutes for a mid-size app, every time. Screenshots taken by agents miss what moves and what is visible only for a moment, so this check is yours. What you find goes back to the build and is reviewed again. Click first when the question is taste or whether it's the right thing; skip it when only code behind a screen changed.
 
-## 6. Agentic reviews
+## 6. Release review
 
-Each question has its own skill. Ask in plain words, or name the skill.
+Before a release, the agent proposes the deeper checks, and you pick what runs. Each question has its own skill; ask in plain words, or name the skill.
 
-1. **Are the docs right?** Say "check our docs against the code": `document-app` in check mode.
+1. **Are the docs right?** Say "check our docs against the code": `document-app` in check mode, with `intended-vs-implemented` reading the docs and the legal pages as intent.
 2. **Are the tests right?** Say "is our coverage map current?": `derive-tests` in check mode.
-3. **Is the code right?** Say "review this with ai-shipping's code-review skill" for correctness, or ask for security and performance as well, and check which one ran. In Claude Code, name it `/ai-shipping:code-review`, because Claude Code has its own `/code-review`. With the skill folder copied into the repository it has the same name as Claude Code's own `/code-review`, so say "review this with the code-review skill in .claude/skills", and check which one ran.
+3. **Security and performance?** Say "audit this release": `security-audit-static` and `performance-audit-static`, on the release's changes.
 
-Both check modes only report. Where a doc, a test and the code disagree about what the product should do, you decide which one moves, because a doc rewritten to match faulty code blesses the bug.
-
-Before every push that deploys, a fresh reviewer that never saw the build reads the change (`grok-agents`). At a release, "ship it" runs that review and both check modes, and proposes the security and performance audits. The reviewer is Grok when it's installed, otherwise a fresh Claude Code session with nothing carried over (with neither CLI, a fresh read-only session of your agent). Rounds repeat until one finds nothing the change introduced above low severity. Older high and critical findings are fixed too.
+The check modes and the audits only report. Where a doc, a test and the code disagree about what the product should do, you decide which one moves, because a doc rewritten to match faulty code blesses the bug. At the release, "ship it" also runs one more review round on everything unreleased. Older high and critical findings are fixed too.
 
 **An app built without docs** gets all of this in one long pass: `/ai-shipping:ship-check`. It writes the system docs from the code, refreshes the agent instructions, reviews, maps test coverage and ends in a packet you sign off on. Where docs already say what the product should do, it lists what it would overwrite and asks first.
 
