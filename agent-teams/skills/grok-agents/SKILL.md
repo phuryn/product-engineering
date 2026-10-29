@@ -12,7 +12,7 @@ round.
 
 **The tool is optional; the review is not.** The wrapper in this skill's `scripts/` picks the
 reviewer (`python <skill dir>/scripts/grok_review.py --check` says which): **Grok** when its CLI is
-installed (read-only tools; its memory and its Claude and Cursor compatibility off for the run; what still
+installed (read-only tools; its memory, its managed MCP servers and its Claude and Cursor compatibility off for the run; what still
 loads, the wrapper reads from `grok inspect` and prints for the report: in a folder Grok trusts, that
 includes the project's own instruction files, a gitignored `CLAUDE.local.md` among them, which a review
 worktree of the snapshot doesn't hold), otherwise a **fresh headless Claude Code session** — read-only tools, no settings, hooks,

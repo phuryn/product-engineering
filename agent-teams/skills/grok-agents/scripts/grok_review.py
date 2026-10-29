@@ -129,6 +129,8 @@ REVIEW_FLAGS = [
 # builder's notes. Measured the same day: with these flags no project instructions,
 # personal notes, memory or skills list is in its context, so like Grok it reads the
 # project's spec because the brief names it, not because it was handed it.
+# Re-measured on 2.1.311, 2026-10-30: a canary CLAUDE.md and CLAUDE.local.md loaded without
+# --restricted, and neither did with it.
 CLAUDE_READ_ONLY_TOOLS = "Read,Grep,Glob"
 CLAUDE_REVIEW_FLAGS = [
     "-p", "--restricted", "--tools", CLAUDE_READ_ONLY_TOOLS, "--strict-mcp-config",
@@ -498,7 +500,8 @@ def build_claude_command(claude_bin: str, args: argparse.Namespace, brief: Path)
     return cmd
 
 
-# Grok's own isolation, per process: its memory, and every Claude and Cursor compatibility cell (their
+# Grok's own isolation, per process: its memory, its managed MCP configs and gateway tools, and every Claude
+# and Cursor compatibility cell (their
 # instructions, rules, skills, hooks and MCP servers). The environment wins over config.toml; measured with
 # `grok inspect --json` on Grok 1.0.70, 2026-10-29: 19 compatibility entries went from enabled to disabled.
 GROK_ISOLATION = {"GROK_MEMORY": "0", "GROK_MANAGED_MCPS_ENABLED": "false",
@@ -638,7 +641,7 @@ def main() -> None:
             print("  no Grok CLI: a fresh Claude Code session reviews, read-only, with no settings, "
                   "hooks, plugins, MCP servers, auto-memory or saved session")
         if reviewer == "grok":
-            print("  memory and Claude and Cursor compatibility off for the run; "
+            print("  memory, managed MCP servers and Claude and Cursor compatibility off for the run; "
                   + grok_still_on(binary, args.cwd or os.getcwd()))
         wanted = grok_flags + ["--reasoning-effort", "--sandbox", "--model"] if reviewer == "grok" \
             else claude_flags + ["--model"]
@@ -701,6 +704,7 @@ def main() -> None:
         cmd = build_claude_command(binary, args, prompt)
         stdin = prompt.read_text(encoding="utf-8")
         env = {**os.environ, "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1"}
+        env.pop("CLAUDE_CODE_EFFORT_LEVEL", None)  # it overrides --effort and would lower the round
 
     if args.dry_run:
         print(" ".join(cmd) + ("" if reviewer == "grok" else f" < {prompt}"))
