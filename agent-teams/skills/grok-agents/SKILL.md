@@ -20,12 +20,13 @@ blind spots than a different model does; that cost is accepted, because a round 
 that is skipped. Everything below holds whichever reviewer runs.
 
 **The repository's own instructions come first.** Its agent instructions or release docs may say
-which reviewer runs (whichever it is, a fresh session that never saw the build, as above: for Codex
-a new `codex exec -s read-only --ephemeral`, never a resume of the thread that built it. It still loads
-the user's Codex config, its MCP servers and `~/.codex/AGENTS.md`, so it is less isolated than the fallback;
-`--ignore-user-config` drops the config but also, on Windows, the sandbox mode without which every file read
-is refused, and the model and effort set there (Codex CLI 0.159.0, `2026-10-29`)), when a review is required, which range a release covers, what the test gate is and where deferred
-findings go. Follow them. Where they say nothing, the defaults below apply, and where a default
+which reviewer runs, when a review is required, which range a release covers, what the test gate is and where deferred
+findings go. Follow them. A reviewer they name still runs as above: a fresh session that never saw the
+build, never a resume or fork of it, with read-only tools only, no MCP servers, connectors, plugins or hooks,
+no saved session, at its highest effort. A sandbox flag alone is not that: in Codex, `-s read-only` binds only
+the shell commands the model runs, and the user's config can add tools that act outside it (Codex CLI 0.159.0,
+`2026-10-29`). A named reviewer that can't be run that way is not used: the wrapper's reviewer runs instead,
+and the round's report says why. Where they say nothing, the defaults below apply, and where a default
 would need a fact only the owner has (which branch is released, what the last release was), ask.
 
 The loop is: fix → re-run the project's test gate **yourself** → a **fresh** reviewer reviews the
