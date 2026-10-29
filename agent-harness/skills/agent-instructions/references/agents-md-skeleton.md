@@ -16,7 +16,7 @@ How to adapt it:
 
 Master instructions for every coding agent in this repository. Claude Code reads this file when there is no `CLAUDE.md`; a `CLAUDE.md` or `CLAUDE.local.md` that does not import `@AGENTS.md` stops it loading, so there is none (or one whose first line is `@AGENTS.md`).
 
-Two sections. **Section 1 is how we build any app** — reuse it in the next product. **Section 2 is this app** — replace it. When they conflict, Section 1 wins on mechanics and Section 2 wins on product. What neither says is the agent's call: decide, and say so in the summary. The longer material lives in `docs/`; **§ 1.8 says what opens when — find the moment you are in before you start.** The path from idea to production is the `app-lifecycle` skill; each stage's done-when lives in `docs/product/plan.md`.
+Two sections. **Section 1 is how we build any app** — reuse it in the next product. **Section 2 is this app** — replace it. When they conflict, Section 1 wins on mechanics and Section 2 wins on product. What neither says is the agent's call: decide, and say so in the summary. The longer material lives in `docs/`; **§ 1.8 says what opens when — find the moment you are in before every new task.** The path from idea to production is the `app-lifecycle` skill; each stage's done-when lives in `docs/product/plan.md`.
 
 ---
 
@@ -79,7 +79,7 @@ A new product proposes these choices rather than re-deriving them, and reopens o
 
 ## 1.8 What opens when
 
-Find the moment you are in — several can hold at once — and open what its row names **before** you act. The rule column is the part that is easy to miss; the file holds the depth. What has no moment (worked examples, the release history) is indexed in `docs/README.md`.
+At the start of every new task, find the moment you are in — several can hold at once — and open what its row names **before** you act, even a file you read earlier in the session: after a compaction or a long session that read is gone or stale. The rule column is the part that is easy to miss; the file holds the depth. What has no moment (worked examples, the release history) is indexed in `docs/README.md`.
 
 | When you are… | The rule that applies | Open |
 |---|---|---|

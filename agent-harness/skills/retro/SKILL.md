@@ -37,7 +37,7 @@ Leave out what went fine and what is only a guess about the future. **Evidence, 
 
 | Cause | What it looks like | The fix goes in |
 |---|---|---|
-| **Missing** | nothing told the agent | an existing instruction or doc, at the place the agent reads when the moment comes |
+| **Missing** | nothing told the agent | the entry file when every session needs it; otherwise the area's knowledge file, with a line in the entry file's index saying when to read it (§ 3) |
 | **Present but not met** | the rule existed and the agent didn't apply it when it mattered | the route to it (the instructions' index of what to read when), or code |
 | **A tool gap** | a script, check or wrapper was missing or wrong | the tool |
 | **A skill's advice** | a skill from a plugin or a collection said something wrong, or left a step out | the project's own agent instructions, naming the skill and what to do instead (§ 3) |
@@ -49,6 +49,8 @@ In order of preference:
 
 1. **Code:** a script, a hook, a validation, a required argument, a test. If compliance depends on an agent remembering a sentence at the moment it matters, prose will lose. (`2026-06-15`, an agent-run repository: a two-line bug in a notification script was answered with a written convention; five weeks later the same bug killed a scheduled job for five days. Writing it down felt like fixing it.) Hooks and permission rules: the `guardrail-hooks` skill.
 2. **An existing instruction or route, improved:** reword the rule that was misread, or move it to where the agent will see it at the moment it applies. Replace or delete before adding. How instruction files are shaped: the `agent-instructions` skill.
+
+   **Where a learning lands.** The entry file (`AGENTS.md`, or the project's own name for it) holds what every session needs. The rest goes in the knowledge file of the area it belongs to, one per area (payments, email, deploy), with a line in the entry file's index naming when to read it. That index has the agent re-read an area's file at the start of every task that touches the area, not once a session: after a compaction or a long session the earlier read is gone. Each file stays within its word budget: the new rule replaces or deletes an old one, and carries its receipt and a review date (`agent-instructions`, budgets).
 3. **A new rule**, only when the session gave it a receipt: the date and what happened.
 
 Make each reversible fix in the repository and **verify it**: run the hook on a sample that must trigger and one that must not; open the route where the agent will read it; run the script. A fix that wasn't checked is reported as unchecked. A change outside the repository (the user's own settings or global instructions) is proposed with its exact text, not made, unless the owner says so.

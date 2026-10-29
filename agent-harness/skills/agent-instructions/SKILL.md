@@ -49,6 +49,7 @@ A three-column table in Section 1: **When you are…** · **The rule that applie
 - **Rows are keyed by what the agent is doing, in the words a user would use** — "pushing a branch that deploys (*just push it* is this row)", "fixing a bug", "touching sign-in, roles or a permission" — never by topic. The agent matches its moment, not a table of contents.
 - **The rule column is the part that is easy to miss**, in one or two lines. The file holds the depth.
 - **The open column names the file — and the section — to read before acting.** Several rows can hold at once; open every one that matches.
+- **Every new task opens its rows again.** At the start of each task, the agent finds its moment in the router and re-reads every file the matching rows open, even one it read earlier in the session: after a compaction or a long session, the earlier read is gone or stale. (The owner's call, `2026-10-29`; a content repository run by agents already reloaded its matching files after every compaction, and once a session was not enough.)
 - **Every rule placed in a doc gets a row**, unless it lives in the file the agent is already editing when it applies.
 - **File a rule at the fire point, not at its topic home.** A rule belongs in the chain of the task where it must *change a decision*; the topically natural file keeps the durable record and a pointer. Reachable in the wrong task is unreachable. (`2026-08-07`, a content repository: a rule governing a drafting-time decision was filed in the strategy file, loaded only in strategy sessions; the owner had to ask "when is strategy read?" before it moved.)
 - What has no moment — a worked example, the release history — is indexed in the docs' own index, not the router.
@@ -60,7 +61,7 @@ The pattern in depth, and a starter router for an app repository: `references/ro
 | What | Where it lives |
 |---|---|
 | needed in every session, with no trigger that would send the agent looking | the entry file, Section 1 or 2 |
-| needed only when touching one area | a doc, plus a router row |
+| needed only when touching one area | that area's knowledge file (one per area: payments, email, deploy), plus a router row; re-read at the start of every task that touches it |
 | procedures, gotchas, depth | the doc or skill the row opens |
 | receipts, data tables, postmortems behind a rule | an evidence file, opened only when revisiting the rule |
 | the current status | the product's plan (its stages, each with what it produces and the test of done, and where each stands); at most three lines in the entry file |
@@ -82,6 +83,15 @@ Most rules wait for their router row. A few must fire across every task — afte
 - nothing mechanical can enforce it — if something can, it becomes code instead.
 
 **The list has a cap (ten bullets worked); a new entry replaces one.** Its entries route, they don't summarize. Without a cap the always-on list becomes the manual again.
+
+## Budgets: every file short enough to read in full
+
+**Each instruction and area file has a word budget, held by a check that runs.** A file over budget is one no session reads in full, and a rule not read is not met. (`2026-10-25`, a content repository run by agents: its rules had grown to about 330,000 words that no session could read, rules competed for attention and almost none was ever removed. It was rebuilt with a word budget per file, a checker and a write-time hook.)
+
+- **The budgets live in one place** (`budgets.json` at the repository root, a path or glob to a word count), and `scripts/check_budgets.py` fails when a file is over. It runs in the test gate, and from a write-time hook (the `guardrail-hooks` skill) so an edit that crosses a budget is refused when it is made.
+- **One in, one out.** At the budget, a new rule replaces or deletes an old one, and every edit replaces or deletes before it adds.
+- **Every rule carries its receipt and a review date**: the date and what happened, or the owner's words and the date, then `(review YYYY-MM)`. Past its date a rule is earned again (new evidence, or the owner restates it) or deleted; the checker lists every rule past its date, and the release pass reads that list.
+- **A new file in an area folder gets a budget the day it is made**, or it is data (receipts, research, tables) that no session is told to read in full.
 
 ## Prose vs. code
 
@@ -138,9 +148,11 @@ A fresh session given only the instruction file meets each rule at the moment it
 | `references/prose-vs-code.md` | the test, the evidence, the receipts, and the forms a code path takes in an app repository | about to write a rule to prevent a recurrence |
 | `references/working-rules.md` | the working rules with their reasons and receipts | writing Section 1; a rule here was broken |
 | `scripts/check_reachable.py` | lists docs no chain from the entry files reaches (standard library only; reads, writes nothing) | after adding a doc; at every release |
+| `scripts/check_budgets.py` | counts each budgeted file's words against `budgets.json`, fails over budget, and lists the rules past their review date (standard library only; reads, writes nothing) | in the test gate and a write-time hook; at every release |
 
 ```bash
 python <skill dir>/scripts/check_reachable.py <repo>                       # docs/ and knowledge/ by default
 python <skill dir>/scripts/check_reachable.py <repo> --scope .claude/skills --exclude "docs/screenshots/**"
 python <skill dir>/scripts/check_reachable.py <repo> --why docs/TESTS.md   # print the chain that reaches it
+python <skill dir>/scripts/check_budgets.py --root <repo>                  # words per file, past review dates
 ```

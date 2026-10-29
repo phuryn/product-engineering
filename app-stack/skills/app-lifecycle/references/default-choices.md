@@ -92,7 +92,7 @@ A member surface and a public surface, each its own rule, carried by passthrough
 
 Both halves: cookies off in the analytics project (Clarity) **and** both storage consents denied from the page. A unit test forbids the word "granted" in the component and a browser test reads the cookie jar. Analytics is off entirely when the project id is empty.
 
-- **Reason:** the product ships with essential cookies only, and no banner.
+- **Reason:** the product ships with essential cookies only; whether it may also go without a consent banner is the owner's call, with their counsel (`product-analytics`).
 - **Reopen:** any cookie that is not essential brings the banner with it.
 
 ## The front door reads no session; members have their own home
