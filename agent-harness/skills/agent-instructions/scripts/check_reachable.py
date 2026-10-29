@@ -157,7 +157,7 @@ def main():
         print(f"  unreachable: {f.relative_to(root).as_posix()}")
     if orphans:
         print("\nEach one needs a reference from the file an agent has open at the moment the rule applies -")
-        print("a router row in the entry file, or a link from the entry file's chain - or it is retired.")
+        print("a router row in the entry file, or a link from the entry file's chain - or it is proposed to the owner for retiring.")
     return 1 if orphans else 0
 
 

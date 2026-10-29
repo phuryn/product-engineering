@@ -24,7 +24,7 @@ The skills work in Claude Code, Codex, Cursor, Gemini CLI, OpenCode, GitHub Copi
 Please install skills from phuryn/product-engineering on GitHub in this project only. Enable auto updates.
 ```
 
-In Claude Code or the Claude desktop app that adds the marketplace (Claude Code keeps one list of marketplaces per user, so it's known in every project), turns the six packs on for this project only, in `.claude/settings.json`, and sets `autoUpdate: true` on the marketplace's entry there, so the packs update in the background while you work (observed in the desktop app, on Claude Code 2.1.311; the setting per Claude Code's plugin docs, both read on `2026-10-29`). That file is the project's shared one: once you commit it, everyone who opens the repository in Claude Code and trusts the folder gets the six packs turned on too, updating in the background; to keep them to yourself, ask for local scope (`.claude/settings.local.json`) instead. The packs load in the same session (in a terminal, if `/product:start-here` isn't found, run `/reload-plugins`). Then type `/product:start-here` and say what you have. In Codex a prompt can't keep plugins to one project: use the Codex commands below, then `$product:start-here`. If your agent can't install from a prompt, use the commands below.
+In Claude Code or the Claude desktop app that adds the marketplace (Claude Code keeps one list of marketplaces per user, so it's known in every project), turns the six packs on for this project only, in `.claude/settings.json`, and sets `autoUpdate: true` on the marketplace's entry there, so the packs update in the background while you work (observed in the desktop app, on Claude Code 2.1.311; the setting per Claude Code's plugin docs, both read on `2026-10-29`). That file is the project's shared one: once you commit it, everyone who opens the repository in Claude Code and trusts the folder gets the six packs turned on too, updating in the background; to keep them to yourself, ask for local scope (`.claude/settings.local.json`) instead. The packs load in the same session (in a terminal, if `/product:start-here` isn't found, run `/reload-plugins`). Then type `/product:start-here` and say what you have. In Codex, plugins install for your user, in every project; neither a prompt nor the commands below can narrow that (Codex CLI 0.159.0, read `2026-10-29`). Run the Codex commands below, start a new Codex session, then type `$product:start-here`. If your agent can't install from a prompt, use the commands below.
 
 <details>
 <summary>Install commands: Claude Code, Codex, any other agent</summary>
@@ -41,6 +41,8 @@ claude plugin install app-stack@product-engineering
 claude plugin install work-humanizer@product-engineering
 ```
 
+These install for your user, in every project. Add `--scope project` to each line to keep the packs to this project (in `.claude/settings.json`, shared once committed), or `--scope local` to keep them to yourself here.
+
 Then turn on updates: `/plugin` → Marketplaces → `product-engineering` → enable auto-update. Third-party marketplaces don't auto-update by default; without it, update the packs yourself: `/plugin` → Marketplaces → `product-engineering` → Update marketplace, which also updates the packs you installed, or `claude plugin update <pack>@product-engineering` for each.
 
 ### Codex
@@ -50,7 +52,7 @@ codex plugin marketplace add phuryn/product-engineering
 codex plugin add product@product-engineering   # and the other packs
 ```
 
-Codex reads this repository's Claude Code marketplace as it is. Every skill runs in Codex. The four you start run only when you name them: `$product:start-here`, `$ai-shipping:ship-check`, `$agent-harness:handover`, `$agent-harness:retro`. The rest also start themselves when you ask in plain words, and run when named the same way. Measured on Codex CLI 0.159.0 (`2026-10-27`).
+Codex reads this repository's Claude Code marketplace as it is. Every skill runs in Codex. The four you start run only when you name them: `$product:start-here`, `$ai-shipping:ship-check`, `$agent-harness:handover`, `$agent-harness:retro`. The rest also start themselves when you ask in plain words, and run when named the same way. Measured on Codex CLI 0.159.0 (`2026-10-27`). To update: `codex plugin marketplace upgrade product-engineering`, then a new session.
 
 ### Any other agent (Cursor, Gemini CLI, OpenCode, Copilot, Windsurf …)
 
