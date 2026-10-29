@@ -59,13 +59,13 @@ One session coordinates. Another builds when one is available: Codex through `co
 You don't review the code line by line. Three rules apply instead:
 - **Every change lands with its tests and docs.**
 - **Every fix lands with a test that failed before it.** After two fixes that pass and leave the symptom, the agent stops and gets one real observation instead of guessing again (`test-harness`).
-- **A fresh reviewer that never saw the build reads each change**, round after round, until a round finds nothing the change introduced above low severity (`grok-agents`). It is Grok when it's installed, otherwise a fresh Claude Code session with nothing carried over (with neither CLI, a fresh read-only session of your agent), or the one your agent instructions name. For a correctness review of your own, say "review this with ai-shipping's code-review skill"; in Claude Code name it `/ai-shipping:code-review`, because Claude Code has its own `/code-review`.
+- **A fresh reviewer that never saw the build reads each change**, round after round, until a round finds nothing the change introduced above low severity (`grok-agents`). It is the one your agent instructions name, otherwise Grok when it's installed, otherwise a fresh Claude Code session with nothing carried over (with neither CLI, a fresh read-only session of your agent). It runs before every push that deploys, and again after each fix. For a correctness review of your own, say "review this with ai-shipping's code-review skill"; in Claude Code name it `/ai-shipping:code-review`, because Claude Code has its own `/code-review`.
 
-When the app needs accounts, keys or a domain, the agent asks you to set them up and walks you through it.
+When the app needs accounts, keys or a domain, the agent asks you to set them up and walks you through it. Keys go into `.env` or the host's settings, put there by you, never into the chat; a key that touched the chat is rotated.
 
 ## 5. Your click-through
 
-After the reviews, for every change you can see, you get a link and the key user flows to try, each an action and what should happen:
+Once the review is clean or running, for every change you can see, you get a link and the key user flows to try, each an action and what should happen:
 
 ```
 1. Sign up as a tutor and add Tuesday 4-6 pm: a student's booking page shows those slots in the student's time zone.
@@ -84,7 +84,7 @@ Before a release, the agent proposes the deeper checks, and you pick what runs. 
 2. **Are the tests right?** Say "is our coverage map current?": `derive-tests` in check mode.
 3. **Security and performance?** Say "audit this release": `security-audit-static` and `performance-audit-static`, on the release's changes.
 
-The check modes and the audits only report. Where a doc, a test and the code disagree about what the product should do, you decide which one moves, because a doc rewritten to match faulty code blesses the bug. At the release, "ship it" also runs one more review round on everything unreleased. Older high and critical findings are fixed too.
+The check modes and the audits only report. Where a doc, a test and the code disagree about what the product should do, you decide which one moves, because a doc rewritten to match faulty code blesses the bug. At the release, "ship it" also reviews everything unreleased again, round after round until one finds nothing introduced above low. Older high and critical findings are fixed too.
 
 **An app built without docs** gets all of this in one long pass: `/ai-shipping:ship-check`. It writes the system docs from the code, refreshes the agent instructions, reviews, maps test coverage and ends in a packet you sign off on. Where docs already say what the product should do, it lists what it would overwrite and asks first.
 

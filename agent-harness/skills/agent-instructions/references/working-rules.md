@@ -48,7 +48,7 @@ The agent decides what neither section of the file covers, and says what it deci
 
 ## A doc that disagrees with code you did not change is reported, not resolved
 
-Say so in the summary and let the owner decide which side moves. The agent does not know whether the doc is stale or the code is wrong; picking a side silently either deletes a requirement or blesses a bug. At a release, read-only checks that list every mismatch between docs, coverage map and code — and write nothing — make the list complete (the `document-app` and `derive-tests` skills, each in `check` mode).
+Say so in the summary and let the owner decide which side moves. The agent does not know whether the doc is stale or the code is wrong; picking a side silently either deletes a requirement or blesses a bug. At a release, the read-only checks the owner picks, which list every mismatch between docs, coverage map and code — and write nothing — make the list complete (the `document-app` and `derive-tests` skills, each in `check` mode).
 
 ## Tests and docs are part of the change
 
