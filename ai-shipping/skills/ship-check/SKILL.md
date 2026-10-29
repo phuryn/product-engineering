@@ -72,7 +72,7 @@ Hand the subject to a **fresh session that never saw the build**. Use the review
 
 1. **Fresh, never a resume.** Not the thread that wrote the code, and not one that has seen the earlier findings. A session that already argued the code is correct will argue it again.
 2. **No checklist and no pointer to prior findings.** The value here is what an unprimed reader notices. Giving it the audit output converts an independent sample into a confirmation pass.
-3. **Define the subject mechanically, not in prose.** Fetch, then diff against the last release as defined above (the whole history before any release), plus the working tree — e.g. `git fetch`, then `git log --oneline <last release>..HEAD` and `git status --short -uall`. A described subject drifts; a computed one does not.
+3. **Define the subject mechanically, not in prose.** Fetch, then diff against the last release as defined above (the whole history before any release), plus the working tree — e.g. `git fetch`, then `git log --oneline <last release>..HEAD` and `git status --porcelain -uall`. A described subject drifts; a computed one does not.
 
 **Verify every finding against the code by hand before it enters the packet.** An unsteered reviewer has no refutation discipline imposed on it, so it will produce confident findings that the code already prevents. Apply the **code-review** skill's keep/drop rule to each one: a finding survives only with a supported obligation, a feasible execution, a concrete contradiction, an observable consequence, and a counterargument you actually checked.
 

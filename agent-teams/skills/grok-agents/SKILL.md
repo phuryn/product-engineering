@@ -58,7 +58,7 @@ the working tree.
 ```bash
 git log --oneline $RELEASED..HEAD               # the unreleased commits
 git diff $RELEASED...HEAD --stat                # its shape
-git status --short -uall                        # and anything uncommitted, file by file
+git status --porcelain -uall                    # and anything uncommitted, file by file
 ```
 
 **Read that status for what does not belong, too.** The wrapper inlines every untracked file under
