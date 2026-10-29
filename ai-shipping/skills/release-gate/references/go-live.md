@@ -24,7 +24,7 @@ The first promotion to production, once: the product moves from a URL shared wit
    3. **Create the production branch**, a push of `<cleared>` and nothing else, and point the host's production deploys at it:
 
       ```sh
-      git push origin <cleared>:refs/heads/<product>-prod && git branch <product>-prod <cleared>
+      git push --no-follow-tags origin <cleared>:refs/heads/<product>-prod && git branch <product>-prod <cleared>
       ```
 
    4. **Put the production values in the host's production environment, then start a fresh production deploy.** A variable change takes effect only on a new deploy, and a public build-time value only on a rebuild (`environments`, `references/variables.md`), so the deploy that creating the branch started was built without them. The fresh deploy is the build that goes live; check that it is the one serving before § 4 (a failed build leaves the previous deploy live).

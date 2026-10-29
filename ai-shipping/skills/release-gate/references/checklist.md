@@ -42,13 +42,13 @@ npx supabase db push --db-url "$PROD_DB_URL" && npx supabase migration list --db
 Then promote:
 
 ```sh
-git switch <product>-prod && git merge --ff-only <cleared> && git push origin <product>-prod
+git switch <product>-prod && git merge --ff-only <cleared> && git push --no-follow-tags origin <product>-prod
 ```
 
 Or, when something is running from the working tree and must not see it change:
 
 ```sh
-git merge-base --is-ancestor origin/<product>-prod <cleared> && git push origin <cleared>:<product>-prod && git branch -f <product>-prod <cleared>
+git merge-base --is-ancestor origin/<product>-prod <cleared> && git push --no-follow-tags origin <cleared>:<product>-prod && git branch -f <product>-prod <cleared>
 ```
 
 - **`--ff-only` refuses a diverged branch — fix it, never force.**

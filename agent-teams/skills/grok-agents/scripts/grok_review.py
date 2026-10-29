@@ -365,7 +365,7 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
             tree += "\n".join(removed) + "\n"
     else:
         log = git(*attrs, "log", "--root", "--stat", "-p", rng, env=plain)
-    status = git("status", "--short", "-uall")
+    status = git("status", "--porcelain", "-uall")  # not --short, which status.branch changes
     if not log.strip() and not status.strip():
         sys.exit(f"[grok_review.py] --subject {rng} has no commits and the tree is clean: "
                  "nothing in that range, which is not the same as nothing to review. Round 1 "
