@@ -6,7 +6,7 @@ The instruction file is the agent's to manage: it edits it without asking, the w
 
 At every release, read the entry file top to bottom and ask of each part:
 
-1. **Is it obsolete now that the code exists?** A rule written to steer a build that has since landed is now either a test, a doc line, or a rule put to the owner to retire (`SKILL.md`, budgets).
+1. **Is it obsolete now that the code exists?** A rule written to steer a build that has since landed is now held by a test or a doc line, and its text is proposed to the owner for removal (`SKILL.md`, budgets).
 2. **Does it belong in a doc, with a pointer here?** Depth that only one area needs moves out, and the router gets the row.
 3. **Is it needed in *every* session, or only when touching one area?** Only one area → the router is its home.
 4. **What did this phase teach that the next session must know?** Add it, with its receipt.
@@ -18,7 +18,7 @@ Then, in the same pass:
 - **Run the reachability check** (below), and route or retire what it lists.
 - **Run the budgets check**, and put each rule it lists as past its review date to the owner (`SKILL.md`, budgets).
 
-In a release checklist this is one line: *the instruction file reviewed — parts a test or doc line now carries moved there, other obsolete parts put to the owner, documented parts moved to docs with a pointer, this phase's lessons added; the status current, and its three lines with it.*
+In a release checklist this is one line: *the instruction file reviewed — obsolete parts proposed to the owner for removal, documented parts moved to docs with a pointer, this phase's lessons added; the status current, and its three lines with it.*
 
 ## The mistake pass
 

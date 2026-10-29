@@ -76,7 +76,7 @@
 
 **The tests that pin it:**
 
-- A source guard: nothing under `src/app/(public)/`, `src/app/layout.tsx` or any component the landing composes imports `@clerk/nextjs/server` or the session seam, calls `auth()` or `currentUser()`, or renders `<Show>`, and the root provider has no `dynamic`.
+- A source guard: nothing under `src/app/(public)/`, `src/app/layout.tsx` or any component the landing composes imports `@clerk/nextjs/server` or the session seam, calls `auth()` or `currentUser()`, or renders `<Show>`, and the root provider has no `dynamic`. While the landing page carries an analytics tag, it also fails on any `@clerk/nextjs` component in the landing page's tree (`product-analytics`).
 - A unit test of the cookie parser: plain and suffixed names, `0`, empty, absent.
 - In the public browser suite, `/` renders the landing with and without Clerk's cookies, and with JavaScript off, with no redirect.
 - In the authenticated suite (`authenticated-mile.md`):
