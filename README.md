@@ -110,10 +110,10 @@ claude plugin install work-humanizer@product-engineering
 
 Then turn on updates: `/plugin` → Marketplaces → `product-engineering` → enable auto-update. Third-party marketplaces don't auto-update by default; without it, run `claude plugin marketplace update product-engineering`.
 
-**If you already use the free [pm-skills](https://github.com/phuryn/pm-skills) marketplace:**
+**Using [pm-skills](https://github.com/phuryn/pm-skills) too?** The two work together: pm-skills covers discovery, strategy, research, execution and go-to-market; this collection covers building, shipping and running the product with coding agents.
 
-- **Disable its `pm-ai-shipping` plugin.** `ai-shipping` here is a superset of it, and two copies of the same skills trigger twice.
-- **Its `pm-market-research`, `pm-product-strategy` and `pm-go-to-market` plugins** each carry one or two of the `product` pack's skills (`competitor-analysis`, `market-segments`, `value-proposition`, `beachhead-segment`, `growth-loops`) beside many others. Keep them for the others, and expect those five to appear twice.
+- **Its AI Shipping Kit moved here**, as the `ai-shipping` pack. Its skills and commands in pm-skills now only point here, so once `ai-shipping` is installed, turn off `pm-ai-shipping`.
+- **Five `product` skills are in both** (`competitor-analysis`, `market-segments`, `value-proposition`, `beachhead-segment`, `growth-loops`), updated here. pm-skills carries them beside many others, so keep those plugins; each of the five loads twice and your agent picks either copy.
 - **The free `work-humanizer`**, if you installed it on its own, is the same skill as the pack here: keep one.
 
 ### Codex
