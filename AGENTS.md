@@ -29,6 +29,6 @@ Many skills began as copies or extractions from other repositories. `sources.jso
 
 ## Before a commit
 
-- `python tools/validate.py` passes, here, with `tools/leaks.local.txt` present. The hosted Tests run (`.github/workflows/tests.yml`) has no private-names list, so its green never replaces this local run.
+- `VALIDATE_STRICT=1 python tools/validate.py` passes, here, with `tools/leaks.local.txt` present (strict, so a missing PyYAML or Claude Code CLI fails here as it does in the hosted run). The hosted Tests run (`.github/workflows/tests.yml`) has no private-names list, so its green never replaces this local run.
 - New or renamed skills are listed in their plugin's `README.md` and in the root `README.md`.
 - Commit messages through a heredoc (`git commit -F -`), never `-m "…"`: backticks inside `-m` are command substitution and vanish silently.

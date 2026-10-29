@@ -21,8 +21,10 @@ that is skipped. Everything below holds whichever reviewer runs.
 
 **The repository's own instructions come first.** Its agent instructions or release docs may say
 which reviewer runs (whichever it is, a fresh session that never saw the build, as above: for Codex
-a new `codex exec -s read-only --ephemeral --ignore-user-config`, so no saved session and none of the
-user's MCP servers, never a resume of the thread that built it), when a review is required, which range a release covers, what the test gate is and where deferred
+a new `codex exec -s read-only --ephemeral`, never a resume of the thread that built it. It still loads
+the user's Codex config, its MCP servers and `~/.codex/AGENTS.md`, so it is less isolated than the fallback;
+`--ignore-user-config` drops the config but also, on Windows, the sandbox mode without which every file read
+is refused, and the model and effort set there (Codex CLI 0.159.0, `2026-10-29`)), when a review is required, which range a release covers, what the test gate is and where deferred
 findings go. Follow them. Where they say nothing, the defaults below apply, and where a default
 would need a fact only the owner has (which branch is released, what the last release was), ask.
 

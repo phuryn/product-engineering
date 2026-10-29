@@ -23,7 +23,7 @@
 - No reference a reader cannot resolve: "the template", `AGENTS.md § <n>`, name-mapping notes.
 - `claude plugin validate .` passes, when the Claude Code CLI is installed.
 - With VALIDATE_STRICT set (the hosted Tests run), a missing PyYAML or Claude Code CLI is an error,
-  not a fallback: a green run then means what a local one does, the private names apart.
+  not a fallback: a green run then means what a strict local one does, the private names apart.
 
     python tools/validate.py
 """
