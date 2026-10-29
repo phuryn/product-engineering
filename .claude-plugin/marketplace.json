@@ -17,7 +17,7 @@
     },
     {
       "name": "ai-shipping",
-      "description": "Ship AI-built apps: document the app, review it for correctness, security and performance, prove it with a test harness that fakes the right side, and release through a gate with the owner's go. Superset of the free pm-ai-shipping plugin.",
+      "description": "Ship AI-built apps: document the app, review it for correctness, security and performance, prove it with a test harness that fakes the right side, and release through a gate with the owner's go. Where the free pm-ai-shipping plugin moved: turn that one off once this is installed.",
       "source": "./ai-shipping",
       "category": "development"
     },

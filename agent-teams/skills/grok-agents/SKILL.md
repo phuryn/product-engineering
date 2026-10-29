@@ -20,7 +20,7 @@ blind spots than a different model does; that cost is accepted, because a round 
 that is skipped. Everything below holds whichever reviewer runs.
 
 **The repository's own instructions come first.** Its agent instructions or release docs may say
-when a review is required, which range a release covers, what the test gate is and where deferred
+which reviewer runs, when a review is required, which range a release covers, what the test gate is and where deferred
 findings go. Follow them. Where they say nothing, the defaults below apply, and where a default
 would need a fact only the owner has (which branch is released, what the last release was), ask.
 
