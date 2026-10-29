@@ -1,6 +1,6 @@
 ---
 name: environments
-description: "Adding a variable or secret, 'set up production', 'which database is this', a leaked key: dev and production for an AI-built app, backups, incidents."
+description: "Adding a variable or secret, 'set up production', a domain or a provider token, 'which database is this', a leaked key: dev and production for an AI-built app, backups, incidents."
 ---
 
 # Environments — development, production, and what moves between them
@@ -39,6 +39,7 @@ The rules were learned on Next.js (App Router) + Supabase + Clerk + Netlify, by 
 | setting up an environment, recording which database or instance is which, naming branches, writing an operator command | `references/environments-and-branches.md` |
 | showing a change to the owner before it is deployed | `references/environments-and-branches.md § Showing development to the owner` |
 | adding, renaming or reading an environment variable; adding a secret; before go-live | `references/variables.md` |
+| pointing a domain at the product; giving the agent a provider's token; which host goes behind a proxy; before the first users | `references/domain-and-provider-access.md` |
 | rotating a key; finding every place a secret is held | `references/variables.md § Where every copy lives`, `§ Rotating` |
 | writing a migration the deployed code will meet; renaming or dropping a column; revoking a grant; promoting a release with pending migrations | `references/migrations-window.md` |
 | promising retention, deleting a workspace, listing what is held about people, backups, an incident, a leaked key, writing the environment log | `references/data-and-incidents.md` |
@@ -54,6 +55,7 @@ Every variable the code reads is in the variables record with where it lives in 
 |---|---|
 | `references/environments-and-branches.md` | the environments table; recording the verified mapping and the inventory; branches and sites; operator commands; showing development to the owner through a Cloudflare quick tunnel |
 | `references/variables.md` | the variables doc's columns; the kinds of variable and how each is handled; the env schema's contract; setting values on the host; where every copy lives; rotating; the pre-go-live checklist |
+| `references/domain-and-provider-access.md` | who creates and scopes each provider credential and what stays the owner's; the domain's order, from the nameservers to a certificate; proxy or DNS-only per host; what to tighten before the first users |
 | `references/migrations-window.md` | whether a push applies migrations; the window between applying a migration and every runtime's new build going live; compatible changes; expand and contract, for columns and for grants; what to name in the go/no-go |
 | `references/data-and-incidents.md` | data that expires; what we hold about people; backups, and what no backup holds; incident basics, the symptom table and panic buttons; a leaked key; the environment log |
 | `references/rebuild-from-nothing.md` | the runbook for recreating both environments from empty accounts: what the repository cannot reproduce, the order, and what each step needs |

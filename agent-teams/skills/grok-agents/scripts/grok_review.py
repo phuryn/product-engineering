@@ -3,7 +3,8 @@
 
 The session that built the code never clears it. Wrapper only. The how-and-when discipline (what a
 round is scoped to, the stopping rule, author != reviewer, how to triage what
-comes back) lives in ../SKILL.md. Read SKILL.md before invoking this.
+comes back) lives in ../SKILL.md: the grok-agents skill's, or, for the copy ship-check carries,
+its Step 6. Read it before invoking this.
 
 The reviewer is the Grok CLI when it is installed. Without it the round still
 runs: --reviewer auto (the default) falls back to a fresh, headless Claude Code
@@ -35,10 +36,12 @@ as a fast one.
 
 Usage:
     python grok_review.py --brief BRIEF.md --cwd REPO --subject origin/PROD..HEAD
-    python grok_review.py --brief BRIEF.md --cwd REPO --subject HEAD   # nothing released yet: the whole history
+    python grok_review.py --brief BRIEF.md --cwd REPO --subject HEAD   # nothing released yet: every file HEAD holds
     python grok_review.py --brief BRIEF.md --cwd REPO --subject abc123^! --out round2.md
   PROD is whatever the repository says was last released (a branch, a tag).
     python grok_review.py --check          # which reviewer, and its flags; run nothing
+    python grok_review.py --brief BRIEF.md --cwd REPO --subject HEAD --subject-only
+                                           # neither CLI: write the subject and prompt, print their paths
     python grok_review.py --reviewer claude ...   # force the fallback reviewer
 
 There is deliberately NO way to pass a prompt inline. The brief goes in a file
@@ -183,8 +186,10 @@ def pick_reviewer(choice: str) -> tuple[str, str]:
     if claude:
         return "claude", claude
     sys.exit("[grok_review.py] neither the Grok CLI nor `claude` is on PATH. The review is "
-             "still mandatory: run it as a fresh session of your agent with read-only tools, "
-             "the same brief and the subject file (SKILL.md, 'Running it').")
+             "still mandatory: run with --subject-only to write the subject and prompt files, then give "
+             "the prompt to a fresh read-only session of your agent, started as a separate process in the "
+             "checkout, never a subagent, fork or resumed session of this one (the grok-agents skill, "
+             "'Running it'; ship-check, Step 6).")
 
 
 def supported_flags(binary: str) -> set[str]:
@@ -238,29 +243,16 @@ def git_dir(cwd: Path) -> Path:
 
 
 def product_start(cwd: Path) -> str:
-    """Where the project started, as ranges git resolves. Git cannot tell which case a
-    repository is, so both are computed and labelled: the first commit, for a history
-    that is the project's own; the merge-base with origin/main, for a project that
-    began as a branch or fork of another repository."""
-    def run(*a: str) -> str:
-        return subprocess.run(["git", *a], cwd=str(cwd), capture_output=True,
-                              text=True).stdout.split()
-    roots = run("rev-list", "--max-parents=0", "HEAD")
-    base = run("merge-base", "origin/main", "HEAD")
-    options = []
-    if len(roots) == 1:
-        options.append("\n    --subject HEAD   (the history is the project's own: every commit, the first included)")
-    if base:
-        options.append(f"\n    --subject {base[0][:12]}..HEAD   (the project began as a branch or fork of origin/main)")
-    return "".join(options) or "\n    --subject <the commit the product started from>..HEAD"
+    """The range a first release's round takes: everything HEAD holds, its first commit's files included."""
+    return "\n    --subject HEAD   (every file HEAD holds, the first commit's included)"
 
 
 def range_ends(rng: str) -> tuple[str, str] | None:
     """The (start, end) a range's cumulative diff runs between, for the shapes
     the skill uses: A..B (an empty side is HEAD, as git reads it), <sha>^!
-    (against its first parent) and a bare ref, the whole history up to it (start "",
-    the empty tree, so the first commit is included). None for anything else, such as A...B."""
-    if rng and not any(c in rng for c in ".^~ "):
+    (against its first parent) and a bare ref, every file it holds (start "", the
+    empty tree, so the first commit's files are included). None for anything else, such as A...B."""
+    if rng and ".." not in rng and not any(c in rng for c in "^~ "):
         return "", rng
     if rng.endswith("^!"):
         return f"{rng[:-2]}^1", rng[:-2]
@@ -273,47 +265,97 @@ def range_ends(rng: str) -> tuple[str, str] | None:
 def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
     """The reviewer has no shell, so the subject is written where it can read it:
     inside the git directory, which is never committed. The range's log with
-    patches, plus the range's cumulative diff when it contains a merge, then
+    patches, plus the range's cumulative diff when it contains a merge (for a bare
+    ref such as HEAD, its log one line a commit, every file it holds, and the history
+    of every path it no longer holds), then
     everything uncommitted: tracked changes, and each untracked
     file listed by its own path (-uall) with its content (the skill reviews the
     working tree too, and an untracked file is how a change goes unreviewed)."""
-    def git(*a: str) -> str:
+    def git(*a: str, env: dict | None = None) -> str:
         proc = subprocess.run(["git", *a], cwd=str(cwd), capture_output=True, text=True,
-                              encoding="utf-8", errors="replace", stdin=subprocess.DEVNULL)
+                              encoding="utf-8", errors="replace", stdin=subprocess.DEVNULL, env=env)
         if proc.returncode != 0:
             hint = ""
             if "unknown revision" in proc.stderr or "ambiguous argument" in proc.stderr:
-                hint = ("\n  A ref in that range doesn't exist. Check its spelling. If it names "
-                        "a release and nothing has been released yet, round 1 is everything "
-                        f"since the project started (SKILL.md, 'The subject'):{product_start(cwd)}")
+                hint = ("\n  A ref in that range doesn't exist. Check its spelling; if it names a remote "
+                        "branch, run `git fetch` first, since a branch missing here is not proof that "
+                        "nothing is released. If it is HEAD, "
+                        "nothing is committed yet: commit the work first. If it names a release and "
+                        "nothing has been released yet, round 1 is everything the first release ships "
+                        f"(the grok-agents skill, 'The subject'; ship-check, Step 6):{product_start(cwd)}")
             sys.exit(f"[grok_review.py] git {' '.join(a)} failed: {proc.stderr.strip()}{hint}")
         return proc.stdout
-    log = git("log", "--stat", "-p", rng)
+    # the empty tree's id depends on the repository's hash (SHA-1 or SHA-256)
+    empty = git("hash-object", "-t", "tree", "--stdin").strip()
+    # A commit's diff follows the attributes files, where `-diff` or `binary` shows a text
+    # file as "Binary files differ", content left out. Read from the empty tree, with the
+    # global and system files switched off, they leave out only what git itself finds
+    # binary (--attr-source, git 2.41 and later). The repository's info/attributes has no
+    # switch, so a rule there is warned about.
+    attrs = ["-c", f"core.attributesFile={os.devnull}", f"--attr-source={empty}"]
+    plain = {**os.environ, "GIT_ATTR_NOSYSTEM": "1"}
+    if subprocess.run(["git", *attrs, "version"], cwd=str(cwd), capture_output=True,
+                      stdin=subprocess.DEVNULL).returncode != 0:
+        attrs = []
+        sys.stderr.write("[grok_review.py] warning: this git predates --attr-source (2.41), so a text "
+                         "file that .gitattributes marks -diff or binary shows in the commits' diffs "
+                         "without its content. Upgrade git.\n")
+    info = cwd / git("rev-parse", "--git-path", "info/attributes").strip()
+    try:
+        rules = [r.strip() for r in info.read_text(encoding="utf-8", errors="replace").splitlines()
+                 if r.strip() and not r.lstrip().startswith("#") and ("diff" in r or "binary" in r)]
+    except OSError:
+        rules = []
+    if rules:
+        sys.stderr.write(f"[grok_review.py] warning: {info} has a rule that can show a text file as "
+                         f"binary ({rules[0]}), and git has no switch for that file: paths it marks show in "
+                         "the commits' diffs without their content. Move the rule out for the round.\n")
+    # A bare ref is round 1 before any release, whose subject is what ships: every file
+    # the ref holds, as a diff from the empty tree, after the log one line a commit. Patch
+    # by patch, a history begun in another repository (a clone or a fork) can be many
+    # times its tree, and none of that past ships.
+    ends = range_ends(rng)
+    whole = bool(ends) and not ends[0]
+    if whole:
+        log = git("log", "--format=%h %ad %an  %s", "--date=short", rng)
+        tree = git(*attrs, "diff", "--no-ext-diff", "--stat", "-p", empty, rng, env=plain)
+        # A push sends every commit, so a file committed and later deleted or untracked
+        # (an .env, say) goes with it: the history of every path the ref no longer holds.
+        held = set(git("ls-tree", "-r", "-z", "--name-only", rng).split("\0"))
+        named = git("log", "--no-renames", "--format=", "--name-only", "-z", rng)
+        gone = sorted({p.strip("\n") for p in named.split("\0") if p.strip("\n")} - held)
+        for i in range(0, len(gone), 100):  # a command line has a length limit, on Windows 32,767
+            tree += ("\n# History of paths the history held and " + rng + " doesn't\n" if not i else "")
+            tree += git(*attrs, "--literal-pathspecs", "log", "-p", "--no-renames",
+                        "--format=commit %h %ad %an  %s", "--date=short", rng, "--",
+                        *gone[i:i + 100], env=plain)
+    else:
+        log = git(*attrs, "log", "--root", "--stat", "-p", rng, env=plain)
     status = git("status", "--short", "-uall")
     if not log.strip() and not status.strip():
         sys.exit(f"[grok_review.py] --subject {rng} has no commits and the tree is clean: "
                  "nothing in that range, which is not the same as nothing to review. Round 1 "
                  "is the whole unreleased range: <last release>..HEAD, or before the first release "
-                 f"(SKILL.md, 'The subject'):{product_start(cwd)}")
+                 f"(the grok-agents skill, 'The subject'; ship-check, Step 6):{product_start(cwd)}")
     # `git log -p` shows a merge commit without its diff, so a conflict resolution,
     # or an edit made inside a merge, never reaches the reviewer from the log. A
     # two-dot diff of the range's ends does show it. Not `--cc`: a resolution that
     # keeps one parent's version over a line the range added has no combined hunk.
-    merges = git("rev-list", "--merges", rng).split() if log.strip() else []
+    merges = git("rev-list", "--merges", rng).split() if log.strip() and not whole else []
     header = f"# Review subject: {rng}\n"
     cumulative = []
+    if whole:
+        header = (f"# Review subject: {rng}, every file it holds (its log, one line a commit, then each "
+                  "file as a diff from the empty tree, then the history of each path it no longer holds)\n")
+        cumulative = [f"\n# Every file {rng} holds\n", tree]
     if merges:
         header = (f"# Review subject: {rng} ({len(merges)} merge commit"
                   f"{'' if len(merges) == 1 else 's'}; the range's cumulative diff follows the log)\n")
-        ends = range_ends(rng)
-        if ends and not ends[0]:
-            # the empty tree's id depends on the repository's hash (SHA-1 or SHA-256)
-            ends = (git("hash-object", "-t", "tree", "--stdin").strip(), ends[1])
         why = ("it contains merge commits, and `git log -p` shows a merge without its diff, so a "
                "conflict resolution or an edit made inside a merge appears only here")
         if ends:
             cumulative = [f"\n# Cumulative diff of the range: {ends[0]} {ends[1]} ({why})\n",
-                          git("diff", "--stat", "-p", ends[0], ends[1])]
+                          git(*attrs, "diff", "--no-ext-diff", "--stat", "-p", ends[0], ends[1], env=plain)]
         else:
             cumulative = [f"\n# Cumulative diff of the range: not computed for `{rng}` ({why}). "
                           "Run the round with an A..B range to include it.\n"]
@@ -321,7 +363,32 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
                              "an A..B, <sha>^! or bare-ref range, so the subject has no cumulative diff and "
                              "what the merges changed is not in it.\n")
     parts = [header, log or "(no commits in this range)\n", *cumulative,
-             "\n# Working tree (uncommitted)\n", status or "(clean)\n", git("diff", "HEAD")]
+             "\n# Working tree (uncommitted)\n", status or "(clean)\n", git("diff", "--no-ext-diff", "--no-textconv", "HEAD")]
+    # The working tree's diff keeps the attributes, whose line-ending and filter rules
+    # it needs, so a path it shows as binary goes in again with --text when its
+    # content is text on both sides.
+    as_text = []
+    for entry in git("diff", "--no-textconv", "--no-renames", "--numstat", "-z", "HEAD").split("\0"):
+        if not entry.startswith("-\t-\t"):
+            continue
+        rel = entry[4:]
+        head = subprocess.run(["git", "cat-file", "blob", f"HEAD:{rel}"], cwd=str(cwd),
+                              capture_output=True, stdin=subprocess.DEVNULL)
+        sides = [head.stdout[:8192]] if head.returncode == 0 else []
+        f = cwd / rel
+        try:
+            if f.is_file():
+                with open(f, "rb") as fh:
+                    sides.append(fh.read(8192))
+        except OSError:
+            continue
+        if sides and all(b"\0" not in s for s in sides):
+            as_text.append(rel)
+    if as_text:
+        parts.append("\n# Shown again as text (the attributes mark these -diff or binary; their content is text)\n")
+        for i in range(0, len(as_text), 100):  # a command line has a length limit, on Windows 32,767
+            parts.append(git("--literal-pathspecs", "diff", "--no-ext-diff", "--no-textconv", "--text", "HEAD", "--",
+                             *as_text[i:i + 100]))
     untracked: list[tuple[int, int, str]] = []  # (lines, bytes, path) of each file inlined
     # -z gives raw paths: no quoting or octal escapes to undo, whatever the name.
     for entry in git("status", "--porcelain", "-z", "-uall").split("\0"):
@@ -359,7 +426,7 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
         sys.stderr.write(f"[grok_review.py] warning: {len(untracked)} untracked files add "
                          f"{from_untracked} of {total} subject lines; the largest: {largest}. "
                          "If they are not part of the change, stop this round, gitignore or delete "
-                         "them, and run it again (SKILL.md, 'The subject').\n")
+                         "them, and run it again (the grok-agents skill, 'The subject'; ship-check, Step 6).\n")
     path = git_dir(cwd) / f"grok-review-subject-{RUN_ID}.diff"
     path.write_text(text, encoding="utf-8")
     return path, total
@@ -368,7 +435,9 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
 def compose_prompt(cwd: Path, brief: Path, subject: Path | None, lines: int = 0) -> Path:
     if subject:
         reading = (f"The subject is in `{subject}`: the range's commits with their diffs (and "
-                   f"the range's cumulative diff when it contains a merge), then "
+                   f"the range's cumulative diff when it contains a merge; for a bare ref such as "
+                   f"HEAD, its log, every file it holds and the history of each path it no longer "
+                   f"holds, as its first line says), then "
                    f"the uncommitted working tree, untracked files with their content. It has "
                    f"{lines} lines. A file read returns at most {READ_FILE_LINES} lines per call "
                    f"and may not say there are more, so read it with limit {READ_FILE_LINES} "
@@ -377,7 +446,7 @@ def compose_prompt(cwd: Path, brief: Path, subject: Path | None, lines: int = 0)
     else:
         reading = "No subject file was prepared, so read the working tree as it stands. "
     note = ("\n\n## Reading the subject\n\nYou have read-only tools and no shell. " + reading
-            + "Everything else you need is in the repository's files.\n")
+            + f"Everything else you need is in the repository's files, at `{cwd}`.\n")
     path = git_dir(cwd) / f"grok-review-prompt-{RUN_ID}.md"
     path.write_text(brief.read_text(encoding="utf-8", errors="replace") + note, encoding="utf-8")
     return path
@@ -467,9 +536,21 @@ def main() -> None:
     parser.add_argument("--check", action="store_true",
                         help="Say which reviewer a round would use and verify its flags; run nothing")
     parser.add_argument("--dry-run", action="store_true", help="Print the command, run nothing")
+    parser.add_argument("--subject-only", action="store_true",
+                        help="Write the subject and the prompt, print their paths and run nothing, "
+                        "for a round run by hand when neither CLI is installed")
     args = parser.parse_args()
+    if args.subject_only and (args.check or args.dry_run or not args.subject):
+        sys.exit("[grok_review.py] --subject-only takes --brief, --cwd and --subject, and runs no reviewer")
+    if args.subject is not None and (not args.subject.strip() or args.subject.startswith("..")):
+        sys.exit(f"[grok_review.py] --subject {args.subject!r} is empty, or has no start (which git "
+                 "reads as HEAD), so it holds no commits: usually a substitution that came back empty, such as "
+                 "`git describe --tags` where no tag is reachable from HEAD. Name the last release (a "
+                 "missing tag is not proof that nothing is released: a production branch or the deployed "
+                 "commit may say, and where nothing does, ask the owner), or before the first "
+                 f"release:{product_start(Path(args.cwd or '.'))}")
 
-    reviewer, binary = pick_reviewer(args.reviewer)
+    reviewer, binary = ("", "") if args.subject_only else pick_reviewer(args.reviewer)
     grok_flags = ["--prompt-file", "--cwd", "--always-approve", "--tools", "--disallowed-tools",
                   "--deny", "--disable-web-search", "--max-turns"]
     claude_flags = ["--restricted", "--tools", "--strict-mcp-config", "--no-session-persistence", "--add-dir",
@@ -500,7 +581,11 @@ def main() -> None:
     cwd = Path(args.cwd).expanduser()
     if not cwd.is_dir():
         sys.exit(f"[grok_review.py] --cwd is not a directory: {args.cwd}")
-    args.cwd_resolved = cwd.resolve()
+    # The subject's paths are rooted at the checkout's top level, and a reviewer confined
+    # to a subdirectory couldn't open the files around the change, so the round runs there.
+    top = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=str(cwd), capture_output=True,
+                         text=True, encoding="utf-8", errors="replace").stdout.strip()
+    args.cwd_resolved = Path(top).resolve() if top else cwd.resolve()
 
     brief_text = brief.read_text(encoding="utf-8", errors="replace")
     if len(brief_text.strip()) < THIN_BRIEF_CHARS:
@@ -511,13 +596,17 @@ def main() -> None:
             "wrong question.\n"
         )
 
-    require_flags(binary, grok_flags if reviewer == "grok" else claude_flags)
+    if not args.subject_only:
+        require_flags(binary, grok_flags if reviewer == "grok" else claude_flags)
 
     if not args.subject:
         sys.stderr.write("[grok_review.py] warning: no --subject. The reviewer has no shell, "
                          "so it cannot run git; it will see only the working tree.\n")
     subject, lines = write_subject(args.cwd_resolved, args.subject) if args.subject else (None, 0)
     prompt = compose_prompt(args.cwd_resolved, brief, subject, lines)
+    if args.subject_only:
+        print(f"subject: {subject} ({lines} lines)\nprompt:  {prompt}")
+        return
     # Paging the subject costs a turn per READ_FILE_LINES lines; leave room on top
     # to read the repository and write the review, so a large range can't run out
     # of turns before the review starts.

@@ -96,7 +96,7 @@ It also names the catalog suite that proves all of this, and any legacy or platf
 **What it is not:** a migration-from-zero test, unless one is added and named.
 
 - It runs in the gate.
-- If it needs a credential the unit run must not have, such as the CLI login below, split it out as its own script (`test:integration`), still inside the gate.
+- If it needs a credential the unit run must not have, such as the CLI's development token below, split it out as its own script (`test:integration`), still inside the gate.
 - After applying a migration, regenerate the types from that target and run it: the suite reads the schema it expects.
 - **A test that needs a restricted login** (§ A second runtime) can run against a local Postgres with every migration applied, where it can create the login itself. Without that database's URL it skips loudly, and whoever runs the full gate runs it.
 
@@ -121,7 +121,7 @@ It runs in the gate, by one of two routes:
    npx supabase db query --db-url "$DEV_DB_URL" --file <query.sql> --output-format json
    ```
 
-   This adds nothing to `public`, and its credential reaches that one database. The URL is expanded from the operator file, never typed (`environments`, `references/variables.md`). The CLI login (`--linked`) also works, on a developer's own machine only, if the suite first checks that the linked ref equals the ref in `SUPABASE_URL` and refuses otherwise, because which of `--linked` and a typed `--project-ref` wins is not something to rely on (`migrations.md § Applied by the CLI`). It never goes to hosted CI: there it would need an account access token, which reaches every project the account can, production included.
+   This adds nothing to `public`, and its credential reaches that one database. The URL is expanded from the operator file, never typed (`environments`, `references/variables.md`). The CLI's link (`--linked`), on a token that reaches development only, also works, on a developer's own machine only, if the suite first checks that the linked ref equals the ref in `SUPABASE_URL` and refuses otherwise, because which of `--linked` and a typed `--project-ref` wins is not something to rely on (`migrations.md § Applied by the CLI`). It never goes to hosted CI; CI reaches development by `--db-url`. If CI ever needs the Management API, it gets a token scoped to a development project of its own (where development is a branch of production, CI stays on `--db-url`), never the browser login's, which reaches every project the account can, production included (`environments`, `references/domain-and-provider-access.md`).
 
 **The suite names its target and proves it arrived** (§ Rules that came from these suites' bugs).
 

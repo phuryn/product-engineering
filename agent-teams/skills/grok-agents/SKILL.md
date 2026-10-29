@@ -35,7 +35,10 @@ optional politeness; it is the part that most often goes wrong.
 - **Before every release**, however green the tests are. A release without an independent pass is
   not a release.
 - **Before every push to a branch that deploys.** When a push is what users receive, "just push
-  it" means a round first. The push closes the round (below).
+  it" means a round first. The push closes the round (below). **The first push goes only where the
+  owner named**: every URL `git remote get-url --push --all origin | sed -E 's#//[^/@]*@#//#'` prints
+  (the `sed` drops a user name or token a URL can carry) must be that repository; where one isn't,
+  push nothing and ask.
 - **Again after fixing anything a round found** — the fix is itself unreviewed code, and fixes are
   where the worst defects come from. Never report a change ready off a review that found
   something, however small, however confidently fixed. (`2026-10-22` to `24`, a monitoring
@@ -69,10 +72,14 @@ the round was stopped, the directory deleted and the round run again.)
 
 `$RELEASED` is what the repository says was last released — a production branch
 (`origin/<prod>`), a release tag, the deployed commit. If nothing has been released yet, round 1 is
-everything since the project started: `--subject HEAD` when the history is the project's own
-(the whole history, its first commit included; `<first commit>..HEAD` would leave that commit out),
-or `<the commit it left its upstream at>..HEAD` (`git merge-base <upstream>/main HEAD`) when it
-began as a branch or fork of another repository, whose own commits are not the product's. That includes what is already pushed: when a push is the deploy, pushed code is
+everything since the project started: `--subject HEAD`, for which the wrapper writes the log, one line a
+commit, every file HEAD holds, the first commit's included, and the history of each path HEAD no longer
+holds, since a push sends every commit (`<first commit>..HEAD` would leave that
+commit out). A product whose history began in another
+repository (a clone, or a fork) takes the same `--subject HEAD`, which reads the files it ships, not
+that repository's whole patch history; that repository's tags and branches are not the product's releases.
+Before any release nothing is live yet, so the brief says every finding is INTRODUCED, code that came with the
+history included. Round 1 includes what is already pushed: when a push is the deploy, pushed code is
 exactly what users are running. **Never narrow the range by hand to make it fit**: too narrow skips
 code. A range too large to read in one round is split, never shortened, in one of two ways:
 
@@ -118,8 +125,8 @@ python <skill dir>/scripts/grok_review.py \
 echo "exit=$?"   # 2 means the round was too short: treat it as failed
 ```
 
-`--subject` takes the git range under review (`<sha>^!` for a single commit, `HEAD` for the whole history). The wrapper refuses
-a range with no commits and a clean tree. The reviewer has no shell, so the wrapper writes the
+`--subject` takes the git range under review (`<sha>^!` for a single commit, `HEAD` for every file HEAD holds). The wrapper refuses
+an empty `--subject`, a range with no start, and one with no commits and a clean tree. The reviewer has no shell, so the wrapper writes the
 range's log and diffs, then everything uncommitted (untracked files listed one by one, with their
 content), to a file inside the git directory (never committed), and tells the reviewer its length
 and to page through it: one file read returns at most 1,000 lines and may not say there are more.
@@ -127,8 +134,8 @@ It raises the turn cap when the subject needs more turns than that to page throu
 
 **A range that contains a merge also carries the range's cumulative diff**, because `git log -p`
 shows a merge commit without its diff: a conflict resolution, or an edit made inside the merge,
-would otherwise never reach the reviewer. The wrapper adds it for an `A..B` or `<sha>^!` range, and for a bare
-ref such as `HEAD` against the empty tree; it warns on any other shape. It repeats every commit's change once more, so it can nearly double the
+would otherwise never reach the reviewer. The wrapper adds it for an `A..B` or `<sha>^!` range (a bare
+ref such as `HEAD` needs none: its subject is every file it holds); it warns on any other shape. It repeats every commit's change once more, so it can nearly double the
 subject; size the round with it in mind.
 
 `--reviewer auto` is the default: Grok when installed, else `claude -p` with `--restricted`,
@@ -136,8 +143,15 @@ subject; size the round with it in mind.
 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` (measured 2026-10-10: without that variable a headless session
 loads the project's memory index, which holds the builder's notes; with these flags no project
 instructions, personal notes, memory or skills list was in its context). `--reviewer claude`
-forces the fallback. Neither CLI on PATH: run the same brief and subject file through a fresh
-session of your agent with read-only tools, by hand.
+forces the fallback. Neither CLI on PATH: `--subject-only` (with `--brief`, `--cwd` and
+`--subject` as above) writes the subject file and the prompt, the brief with the paging instructions added,
+into the git directory and prints their paths. Give the prompt to a fresh read-only session of your agent,
+run as a separate process you start in the checkout under review, never a subagent, fork or resumed session of
+this one: read-only tools, no MCP servers or connectors, the highest reasoning effort it offers, and its memory
+and project and personal instructions off where it allows that (in a review worktree the git directory sits
+outside the checkout, so give it read access there, never write). Where none can be started, stop and hand the owner the prompt's path: the round hasn't run
+until a fresh session answers. Treat a short clean answer as a failed round, and delete both files when the
+round ends.
 
 The equivalent bare Grok call, so the flags are understood rather than remembered (the wrapper also
 adds the turn cap and writes the subject file, which a bare call needs prepared by hand and named in
@@ -216,11 +230,12 @@ a release and still needs the owner's go.
     python <skill dir>/scripts/grok_review.py \
          --brief "$S/review-NNN-brief.md" --cwd ../<repo>-review-<stage> --subject "<range>" ...
 
-    # 4. when a round closes with no INTRODUCED finding above Low, push the snapshot THAT
-    #    round reviewed — never the branch tip, which may hold the next stage's commits. A
+    # 4. when a round closes with no INTRODUCED finding above Low and no High or Critical
+    #    of any age, push the snapshot THAT round reviewed — never the branch tip, which may hold the next stage's commits. A
     #    round that found something is fixed, re-tested, re-snapshotted and reviewed again;
-    #    SNAP is always the last clean round's snapshot
-    git push origin "$SNAP:<branch>"
+    #    SNAP is always the last clean round's snapshot. The first push goes only where
+    #    the owner named (§ When)
+    git push origin "$SNAP:refs/heads/<branch>"
     #    (if you linked node_modules into the worktree, delete that link first; see below)
     git worktree remove ../<repo>-review-<stage>
 

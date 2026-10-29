@@ -17,7 +17,7 @@ Codex, Cursor and other agents: see the collection's root `README.md`.
 
 **You start it:**
 
-- **start-here** — Where the work stands and what comes next, from a new idea, new evidence, an agreed change, a bug or a release: the next step, the skill that does it, and the plan prompt for a complex change (what to implement, how to test it, acceptance criteria). Only when you start it.
+- **start-here** — Where the work stands and what comes next, from a new idea, new evidence, an agreed change, a bug or a release: the next step, the skill that does it, and the plan prompt for a complex change (key assumptions first, then what to implement, how to test it, acceptance criteria). Only when you start it.
 
 **They start on their own**, in the order they are usually used:
 

@@ -104,4 +104,4 @@ On Netlify, a redirect written to drop a query parameter — a vendor's credenti
 
 ## Cloudflare — DNS only
 
-DNS only, proxy disabled. **Netlify does not support Cloudflare's proxy in front of it** — no certificate provisioning behind it, a cache that outlives a deploy — so Cloudflare's WAF, under-attack mode and the transform rule an origin seal needs are outside this architecture. Introducing a proxy is a hosting decision, not a configuration, and until it is taken `CF-Connecting-IP` is caller-supplied and never trusted.
+DNS only, proxy disabled. **Netlify does not support Cloudflare's proxy in front of it** — no certificate provisioning behind it, a cache that outlives a deploy — so Cloudflare's WAF, under-attack mode and the transform rule an origin seal needs are outside this architecture. Introducing a proxy is a hosting decision, not a configuration, and until it is taken `CF-Connecting-IP` is caller-supplied and never trusted. Which hosts can sit behind it, and the domain's order: `environments`, `references/domain-and-provider-access.md`.

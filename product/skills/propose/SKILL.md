@@ -70,7 +70,7 @@ One durable file, in the repository's existing place for it, else `docs/product/
 | The brief (or the product's refined idea) | the accepted intent and use cases |
 | The decision log, if there is one | the choices made, their reasons, what would reopen them |
 
-**After the owner accepts**, update the brief and the decision log where needed and link the proposal as their evidence. Don't write a second brief when the accepted proposal already does that job. For a SaaS, the `app-lifecycle` skill picks up from here with the brief and the prototype in hand; for a complex change in any product, the next step is a plan: what to implement, how to test it, acceptance criteria.
+**After the owner accepts**, update the brief and the decision log where needed and link the proposal as their evidence. Don't write a second brief when the accepted proposal already does that job. For a SaaS, the `app-lifecycle` skill picks up from here with the brief and the prototype in hand; for a complex change in any product, the next step is a plan that opens with its key assumptions (what the ask means in this product, where a number or a word the owner gave is wrong, what the owner must decide), then what to implement, how to test it (a test that would touch production, its users or its data runs only with the owner's go) and acceptance criteria.
 
 ## Running it again, once people have used it
 

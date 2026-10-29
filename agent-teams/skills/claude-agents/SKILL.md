@@ -16,7 +16,7 @@ The full doctrine is the `delegation` skill; this is what must hold even when th
 3. **Early, not late.** The cheapest wins are at framing: the angle, the load-bearing claim, what to cut. A late sign-off is the least valuable use.
 4. **Iterate.** Three to eight turns is normal. Stopping at turn 1 because a draft came back treats a partner as a one-shot generator.
 5. **Converge before surfacing.** The human arbitrates intent and taste, not trade-offs two agents could argue through. Bring one result, or a disagreement stated cleanly.
-6. **A delegated diff is unreviewed code, and the model that wrote it never clears it.** Read it, check the disk, re-run the gate yourself; the independent review is a fresh session (`grok-agents`).
+6. **A delegated diff is unreviewed code, and the session that wrote it never clears it.** Read it, check the disk, re-run the gate yourself; the independent review is a fresh session (`grok-agents`).
 7. **What never delegates:** deciding what the product should do; accepting or rejecting a review finding; anything that touches a real system, development included (a deploy, a migration applied to any database, a server's secrets, a live setting): the builder makes each one command and names it, and you run it; final verification; the judgement that a stage is done.
 8. **Size, not time.** If the brief would be nearly as long as the diff, write the diff yourself.
 
@@ -29,7 +29,7 @@ The full doctrine is the `delegation` skill; this is what must hold even when th
 | **Reviewer** — fresh eyes on an artifact, a plan, a change | `review` | Read, Grep, Glob only; no settings, hooks, plugins, MCP, project instructions or memory | always new, never saved |
 
 - **A review needs a fresh session.** Never the building thread resumed or forked (`--fork-session` copies the builder's beliefs with its transcript), never a subagent of it. `--mode review` always starts one and never saves it. For the release-gate loop — the subject computed from git, written to disk for a reviewer with no shell, rounds repeated until nothing introduced is above Low, short rounds failed loudly — use `grok-agents`, whose fallback reviewer is this same fresh headless session.
-- **When the caller is itself Claude, a headless Claude is the same model family.** A consult still buys a fresh context and a different line of reasoning, but blind spots are shared; for an independent review prefer another family (Grok, Codex) and accept a same-family reviewer only when none is available.
+- **When the caller is itself Claude, a headless Claude is the same model family.** A consult still buys a fresh context and a different line of reasoning, but blind spots are shared; for an independent review prefer another family (Grok, through `grok-agents`); without Grok, its fallback is this same fresh headless session, which is accepted.
 - **In consult and build the delegate reads what you read.** The repository's `CLAUDE.md` (or `AGENTS.md` when there is no `CLAUDE.md`), the user's own `~/.claude/CLAUDE.md`, the project's auto-memory, its hooks and skills all load. It is not independent of what is written there — which is the point for a builder and the reason review mode loads none of it.
 
 ## The opening brief

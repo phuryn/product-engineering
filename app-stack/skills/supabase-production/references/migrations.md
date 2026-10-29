@@ -35,6 +35,8 @@ If that listing is already aligned, stop: record *no migration*. Otherwise read 
 test "$(cat supabase/.temp/project-ref 2>/dev/null)" = "<dev-ref>" && npx supabase db push --linked && npx supabase migration list --linked
 ```
 
+Where the owner kept development as a branch of production (`SKILL.md` § Setting it up the first time, step 1), both lines take `--db-url "$DEV_DB_URL"` in place of `--linked`, and the link check becomes a check that the URL names the development ref, without printing it: `case "$DEV_DB_URL" in *<dev-ref>*) ;; *) false ;; esac && npx supabase …` (a branch's connection string carries its own ref, in the pooler user `postgres.<ref>` or the host `db.<ref>.supabase.co`).
+
 **Production is its own run, only at a release and on the owner's go**, never in the same script or command list as development. It is never linked; its connection string comes from an operator file, never typed or printed. Read first:
 
 ```sh
@@ -94,7 +96,7 @@ There are two cases, and the product's environments doc says which one it is in,
 
 **How to tell which case you are in:**
 
-1. `npx supabase branches list --project-ref <prod-ref>` shows whether branching is on and which git branch the production branch tracks (`git_branch`).
+1. The owner reads the production project's branches, in the dashboard or with `npx supabase branches list --project-ref <prod-ref>` on a time-boxed read-only production token: whether branching is on and which git branch the production branch tracks (`git_branch`).
 2. Each push to that git branch then carries a *Supabase Preview* check on GitHub.
 3. *Deploy to production* itself is visible only in the dashboard: *Project Settings → Integrations → GitHub*. **If nobody has read it, treat it as on.**
 

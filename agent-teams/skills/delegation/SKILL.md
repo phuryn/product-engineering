@@ -56,12 +56,12 @@ Then:
 
 | Delegate | Strong at | Watch for |
 |---|---|---|
-| **A Claude subagent** (the Agent tool) | Work that needs this repository's context: it loads the project instructions automatically | Fresh context — none of your conversation or tool results. Same model family as you, so it is never the reviewer of your work. Often one level deep: a subagent may have no Agent tool of its own (observed 2026-06-10) |
+| **A Claude subagent** (the Agent tool) | Work that needs this repository's context: it loads the project instructions automatically | Fresh context — none of your conversation or tool results. It loads the project instructions and your settings and inherits your framing, so it is never the reviewer of your work; a review is a session that starts from the repository and the brief alone (`grok-agents`). Often one level deep: a subagent may have no Agent tool of its own (observed 2026-06-10) |
 | **The Codex CLI** (`codex-agents`) | Building a stage to a brief; arguing a decision through as a peer over several turns | Sandbox: a new session is read-only unless told otherwise, and a "build" round that changed nothing reads exactly like one that worked — check the disk |
 | **The Grok CLI** (`grok-agents`) | The independent review: a different model family that never saw the build | A round that could not read exits 0 after a sentence; length is the tell |
 | **Headless Claude Code** (`claude-agents`) | A session with none of your conversation: a builder or peer for an agent that is not Claude, or a reviewer | A plain `-p` run still loads the project's and the user's instruction files and auto-memory; only a restricted review run starts from the repository alone. A resume keeps the model but drops effort, permission mode and tools unless re-sent (observed 2026-10-24) |
 
-**The model that wrote the code never clears it.** The reviewer is a fresh session, ideally another model family, never the building thread resumed or forked and never a subagent of it. The loop and its stopping rule are `grok-agents`.
+**The session that wrote the code never clears it.** The reviewer is a fresh session, ideally another model family, never the building thread resumed or forked and never a subagent of it. The loop and its stopping rule are `grok-agents`.
 
 ## Model and effort (Claude subagents)
 

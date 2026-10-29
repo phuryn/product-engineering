@@ -59,6 +59,8 @@ LEAK_EXCEPTIONS = {
 UNRESOLVED = [r"\bthe template\b", r"\btemplate's\b", r"AGENTS\.md\s*§\s*\d", r"names in these files"]
 
 errors, warnings = [], []
+# A script a skill carries so it works on its own (AGENTS.md, rule 5), and the one it copies.
+COPIES = {"ai-shipping/skills/ship-check/scripts/grok_review.py": "agent-teams/skills/grok-agents/scripts/grok_review.py"}
 
 
 def frontmatter(text):
@@ -237,6 +239,14 @@ def check_tree():
                 errors.append(f"{rel}:{n}: assumes the reader has the template: {m.group(0)!r}")
 
 
+def check_copies():
+    for copy, source in COPIES.items():
+        if not (ROOT / source).is_file():
+            errors.append(f"{source}: missing, and {copy} is its copy")
+        elif not (ROOT / copy).is_file() or (ROOT / copy).read_bytes() != (ROOT / source).read_bytes():
+            errors.append(f"{copy}: not the same as {source}; copy it again")
+
+
 def check_cli():
     claude = shutil.which("claude")
     if not claude:
@@ -251,6 +261,7 @@ def main():
     check_plugins()
     listed = check_listing()
     check_tree()
+    check_copies()
     check_cli()
     for w in warnings:
         print(f"warning: {w}")

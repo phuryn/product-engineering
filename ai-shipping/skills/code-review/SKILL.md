@@ -201,8 +201,8 @@ coordinator's own model explicitly on each spawn — "inherit" is not a routing 
 that quietly lands on a cheaper model is the easiest way to lose a finding. **Do not bring in a
 different model**, to review or to cross-check, unless you are explicitly asked: mixing models makes
 the result unattributable, and when this skill is being measured or compared across models, one
-foreign worker invalidates the number. The independent second-model pass is a separate,
-explicitly-invoked step (the ship check's Step 6), never something this skill reaches for on its own.
+foreign worker invalidates the number. The independent pass by a fresh reviewer is a separate
+step (the `grok-agents` skill, which the release gate and the ship check's Step 6 call), never something this skill reaches for on its own.
 
 **Tell workers they are reading, not editing.** A review worker needs to read, search and navigate;
 it must not modify the tree. State that in the worker's instructions — a worker that starts editing

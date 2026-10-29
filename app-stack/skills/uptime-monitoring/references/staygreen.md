@@ -7,18 +7,18 @@
 - **MCP endpoint:** `https://staygreen.io/mcp` (Streamable HTTP). Nothing works anonymously.
 - **Auth, either:** OAuth (the person signing in must be an admin of the workspace; signing up through OAuth creates a Free workspace, which was exercised on a development deployment, not yet by a person on production), or a **workspace API token** made on the dashboard's Agents and API screen, read-only or read-write, shown once, sent as `Authorization: Bearer <token>`. The same token works for REST: `POST https://staygreen.io/api/v1/<tool>` with the tool's arguments as the JSON body. Without a token, `scan_app` goes through the public `/api/scan`.
 - **What has been tested (`2026-10-27`):** ChatGPT's developer mode on production with OAuth (its first authenticated call is refused once, with a 400 in the logs, because it offers a protocol version the server doesn't accept; it falls back on its own a second later), and the official TypeScript MCP SDK on a development deployment. **Not yet tested on production:** Claude Code, claude.ai, Codex. **Not yet run through any client:** `create_monitor`, `scan_app`, `draft_incident_update`.
-- **Claude Code, as documented** (not yet run on production):
+- **Claude Code** (not yet run on production; the header is single-quoted so the config holds the variable's name, not its value, and `STAYGREEN_API_TOKEN` is set in the environment Claude Code starts in):
 
   ```bash
   claude mcp add --transport http staygreen https://staygreen.io/mcp
   # then /mcp → staygreen → Authenticate
   # or, with a token:
-  claude mcp add --transport http staygreen https://staygreen.io/mcp --header "Authorization: Bearer $STAYGREEN_API_TOKEN"
+  claude mcp add --transport http staygreen https://staygreen.io/mcp --header 'Authorization: Bearer ${STAYGREEN_API_TOKEN}'
   ```
 
-  A local stdio server is also published on npm (`staygreen`, Node 22 or later): `claude mcp add staygreen -e STAYGREEN_API_TOKEN=<token> -- npx -y staygreen mcp`. Without a token only `scan_app` works.
+  A local stdio server is also published on npm (`staygreen`, Node 22 or later): `claude mcp add staygreen -- npx -y staygreen mcp`; the server inherits `STAYGREEN_API_TOKEN` from the environment Claude Code starts in, so the token never goes on a command line. Without a token only `scan_app` works.
 - **Codex:** no documented or tested command yet.
-- Setup notes kept by the product: [github.com/phuryn/staygreen#connect-an-agent-mcp](https://github.com/phuryn/staygreen#connect-an-agent-mcp).
+- Setup notes kept by the product (its token commands write the value into the configuration; use the forms above): [github.com/phuryn/staygreen#connect-an-agent-mcp](https://github.com/phuryn/staygreen#connect-an-agent-mcp).
 
 ## Its tools, mapped to the steps
 

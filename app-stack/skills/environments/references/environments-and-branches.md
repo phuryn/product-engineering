@@ -8,7 +8,7 @@ A split to copy into the product's environments doc:
 |---|---|---|
 | App | `next dev` on `localhost:3000`, and a development site if the owner tests on a deployed URL | Netlify, from the production branch (`release-gate`) |
 | Identity | the identity provider's **development** instance (on Clerk, `pk_test_…` keys) | its production instance, with its own keys (`clerk-production`) |
-| Data | a database branch or project `<dev-ref>` | the production project `<prod-ref>` |
+| Data | a database project `<dev-ref>` of its own (or, by the owner's choice, a branch of production) | the production project `<prod-ref>` |
 | Configuration | `.env`, never committed | the host's site environment variables (Netlify does not read `.env`) |
 
 - **The app refuses a partial configuration**: the env schema fails the build and the boot when a required value is missing (`variables.md`).
@@ -21,7 +21,7 @@ A split to copy into the product's environments doc:
 
 **Record here the mapping you verified, with the date it was checked and the command that showed it.** Which project, branch or instance each environment uses, and each database's major version.
 
-- **A development branch can hide.** On Supabase, a development *branch* is a child of the production project and never appears in `supabase projects list`; `supabase branches list --project-ref <prod-ref>` shows it, and which git branch it is bound to (`supabase-production`).
+- **A development branch can hide.** On Supabase, a development *branch*, where the owner chose one, is a child of the production project and never appears in `supabase projects list`; the owner's read of the production project's branches (the dashboard, or `supabase branches list --project-ref <prod-ref>` on a time-boxed read-only token) shows it, and which git branch it is bound to (`supabase-production`).
 - **Never infer the target from a per-machine config file.** An MCP server's configuration, a CLI link or similar is gitignored, per machine, and the last thing it named may have been production. Check its URL before believing any answer it gives about schema. (`2026-09-16`, an MCP configuration named production while migration writes through it were still allowed.)
 - **Mappings move.** (`2026-09-15`, a product's former development database was promoted to production and a new development branch created.) A mapping in the doc is a receipt for the day it was checked, not a fact about today.
 - **Once the product runs more than its host builds** (a Worker, a box, a database login per component), **the mapping becomes an inventory**: every account, machine, runtime and its bindings, hostname, and operator checkout, per environment. Read it from the providers' APIs by name, dated; compare values in memory and never write one down. (`2026-10-24`, a monitoring product's infrastructure pass read its inventory from four providers' APIs, and found credentials shared between environments that no doc had mentioned.)

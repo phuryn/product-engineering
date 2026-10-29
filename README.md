@@ -6,13 +6,13 @@ Agent skills for building a real product with coding agents, from the first idea
 
 **[Install](#install), then type `/product:start-here`** (Codex: `$product:start-here`) and say what you have.
 
+**[The walkthrough](WALKTHROUGH.md)** follows one idea through every step: what you type, what the agent does, and what you check.
+
 ## Who it's for
 
 - **Product managers, founders and designers who build with coding agents.** You check the product, not every line of the code.
 - **Engineers who build a product, not only the code.** That means deciding what to build, and running it in production with real users and real payments.
 - **Anyone working with more than one agent**, where one session coordinates, another builds and a third reviews.
-
-If you want an agent that writes test-first code in a vocabulary you review line by line, the collections written for engineers who own their code do that well. This one is about the product.
 
 ## How it works
 
@@ -20,41 +20,56 @@ If you want an agent that writes test-first code in a vocabulary you review line
 - **The product is the spec.** You review the interface first, often an interactive prototype on sample data. Once it's built, you click through it yourself, and agents review the docs, the tests and the code.
 - **Building is the experiment.** Building is cheap now, and use beats intent. Build the first version with payment in days, put it in front of real users, and go round again with what they did.
 - **Production is part of the method.** Nobody pays until payment works in production. The release gate, environments, authorization, billing, email and monitoring are in the collection, not left for later.
-- **The session that wrote the code never clears it.** Before a release, a fresh reviewer that never saw the build reads the change: Grok when it's installed, so another model family, otherwise a fresh Claude Code session with nothing carried over. Rounds repeat until one finds nothing new above low severity.
+- **The session that wrote the code never clears it.** Before every push that deploys, and again before a release, a fresh reviewer that never saw the build reads the change: Grok when it's installed, so another model family, otherwise a fresh Claude Code session with nothing carried over; with neither CLI, run it by hand (`grok-agents` § Running it). Rounds repeat until one finds nothing the change introduced above low severity.
 - **No ceremony for small work.** A change you can check in a minute goes straight to the build and its check. Only a complex change gets a plan, and the agent writes it.
 - **Rules learned in practice keep their receipts.** About 700 dated notes say when something broke or was measured, and how. A new rule of that kind needs an observed failure. Requests the collection turned down are in [rejected.md](rejected.md), with the reason.
 
 The process is the one in the [Product Engineering for PMs](https://www.productcompass.pm/p/product-engineering-for-pms) series, which builds a real SaaS app with it, step by step.
 
-## The lifecycle, and the skill that walks it
+## From the first idea to paying users
 
-**`start-here`** reads your request and the repository, finds where the work stands, and names the next step and the skill that does it. Bring an idea, new evidence from users, an agreed change, a bug or a release.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/lifecycle-dark.png">
+  <img src="assets/lifecycle-light.png" width="800" alt="The process in eight steps, in three phases (decide what to build, build and check, ship and learn), with each step's moves in the order they happen. 1 Start: you say what you have; agents find where it stands and name the next step. 2 Proposal: agents research, propose and build a prototype; you try it, question it and approve it. 3 Plan: agents plan the build: phases, changes and tests; you review its key assumptions, question them and approve it. 4 Build: agents build it with tests and docs; you don't read the code. 5 Click-through: agents send a link and what to try; you click through 3 to 7 things. 6 Reviews: agents check docs, tests and code; you settle where they disagree; a fresh reviewer reviews. 7 Release: agents collect the evidence; you look it over and say go; agents release and verify. 8 Real users: agents run sign-in, payments, email and uptime; you bring what people did. Then the next round goes back to step 1.">
+</picture>
 
-1. **Discover and propose.** The agent researches and proposes what to build, marking every claim by its source. You review a prototype, interface first, and answer the few questions left. *`propose`, with `competitor-analysis`, `market-segments`, `beachhead-segment`, `value-proposition`, `value-curve` and `growth-loops`.*
-2. **The refined idea, when it helps.** A short record of the intent and use cases you accepted. Skipped for a small change. *`propose`; for a SaaS, the brief in `app-lifecycle`.*
-3. **A plan, for a complex change only.** The agent writes what to implement, how to test it and the acceptance criteria. You skim it, and read how it will be tested. *`start-here` carries the prompt.*
-4. **Build.** One session coordinates and another builds. Tests and docs land with the change. *`delegation`, `codex-agents`, `claude-agents`, `test-harness`, `design`.*
-5. **Your click-through.** After every change you can see, you get a link and 3 to 7 things to try. That's 15 to 20 minutes for a mid-size app, every time. *`start-here`; the preview itself is in `release-gate`.*
-6. **Agentic reviews.** Are the docs right? Are the tests right? Is the code right? Then a fresh reviewer that never saw the build. The doc and test checks only report: where a doc, the coverage map and the code disagree, you decide, because a doc rewritten to match faulty code blesses the bug. *`document-app` and `derive-tests` in check mode; `code-review`, `intended-vs-implemented`, `security-audit-static` and `performance-audit-static`; then `grok-agents`.*
+Type `/product:start-here` and say what you have. It reads your request and the repository, finds where the work stands, and names the next step and the skill that does it. A change you can check in a minute skips to step 4.
 
-   `ship-check`, which you start, is a different pass: one long session that writes the system docs from the code where they are missing or stale, refreshes the agent instructions, reviews, rewrites the coverage map, and ends in a packet you sign off on. It fits an app built without docs. Where docs already say what the product should do, or whoever runs the gate keeps the coverage map, it lists what it would overwrite and asks first; at a release, `release-gate` keeps to the check modes.
-7. **Release and run it.** The gate, go-live, then production data, sign-in, payments, email and monitoring. *`release-gate`, `environments`, `supabase-production`, `clerk-production`, `saas-authorization`, `transactional-email`, `uptime-monitoring`.*
-8. **People use it, then the next round.** What they did, came back to, abandoned and paid for goes back into step 1. *`propose`.*
+| Step | You | Agents | Skills |
+|---|---|---|---|
+| **1. Start** | Say what you have: an idea, evidence from users, an agreed change, a bug or a release. | Read the request and the repository, and name the next step. | `start-here` |
+| **2. Proposal** | Try the prototype first. Then read the proposal, answer the few questions it asks, and accept it or say what to change. | Research what you didn't share: the alternatives people use and, while it's open, the segment. Propose a direction with every claim's source, and build a prototype on sample data. | `propose`, with `competitor-analysis`, `market-segments`, `beachhead-segment`, `value-proposition`, `value-curve`, `growth-loops` |
+| **3. Plan**, complex changes only | Review its key assumptions (how it read your ask, where it disagrees with you, what it needs you to decide), question the ones that look wrong, and say "build it". | Open with the key assumptions, then plan whatever the build needs: phases and releases, the files and modules to change, how to test it, the acceptance criteria. | `start-here` carries the prompt; `app-lifecycle` for a SaaS |
+| **4. Build** | Pick when a stage offers options, such as a design direction. You don't review the code line by line. | One session coordinates and another builds. Tests and docs land with the change, and every fix with a test that failed before it. | `delegation`, `codex-agents`, `claude-agents`, `test-harness`, `design` |
+| **5. Click-through** | Try 3 to 7 things on a link: 15 to 20 minutes for a mid-size app, every time. | Send the link and what to try, each an action and what should happen. Fix what you find in the same stage. | `start-here`; the preview in `release-gate` |
+| **6. Reviews** | Decide where a doc, the coverage map and the code disagree, because a doc rewritten to match faulty code blesses the bug. | Check the docs, the tests and the code. Then a fresh reviewer that never saw the build reviews the change, round after round. | `document-app` and `derive-tests` in check mode; `code-review`, `intended-vs-implemented`, `security-audit-static`, `performance-audit-static`; `grok-agents` |
+| **7. Release** | Check what the stage promised; when a screen or its words changed, look over every screen in every state, theme, width and role, signed out included; then say go. Silence is not go. | Collect the evidence for every precondition, promote, and verify that the build serving is the one reviewed. | `release-gate` |
+| **8. Real users** | Bring what people did: analytics, payments, support notes. | Run production: data, sign-in, payments, email and monitoring. Weigh the new evidence against each hypothesis and propose the next round. | `environments`, `supabase-production`, `clerk-production`, `saas-authorization`, `transactional-email`, `uptime-monitoring`; `propose` |
 
-A small fix goes straight to step 4 and its check. Between sessions, `handover` writes the note the next one starts from and `retro` turns a session's friction into a setup fix.
+Each step with an example, from the first prompt to the next round: [WALKTHROUGH.md](WALKTHROUGH.md).
 
-## What goes wrong with skill collections, and what this one does
+`ship-check`, which you start, is a different pass: one long session that writes the system docs from the code where they are missing or stale, refreshes the agent instructions, reviews, rewrites the coverage map, and ends in a packet you sign off on. It fits an app built without docs. Where docs already say what the product should do, or whoever runs the gate keeps the coverage map, it lists what it would overwrite and asks first; at a release, `release-gate` keeps to the check modes.
 
-| What goes wrong | What this collection does |
-|---|---|
-| The flow starts from what the builder already thinks. An interview sharpens your assumptions, and nothing checks them against the market or users. | `propose` researches first and brings in what you don't know yet. It marks every claim: observed, your call, the agent's inference, or unsupported. |
-| Ten or more questions at once, before any research. | One round of a few questions, after the research, each with a recommended answer. |
-| Decisions get lost between the interview, the spec and the tickets, and decision records pile up and go stale. | One proposal you reviewed, which the build reads, with your decisions marked as yours. Its recommendation is rewritten, never appended to. |
-| The flow ends at the pull request, leaving release, environments, authorization, billing, email and monitoring to you. | The lifecycle runs through production and back into the next round. |
-| The code is reviewed by the session that wrote it, or by its own subagents, which share what it believes. | A fresh reviewer that never saw the build, from another model family when Grok is installed, reviews the change round after round until one finds nothing new above low severity. |
-| Tests that check the mocks, so green means nothing. | A fix lands with a test that failed before it. After two fixes that pass and leave the symptom, the agent stops and gets one observation. The last check is you, clicking through. |
-| Skills that fail to load what they depend on. | Every skill works from its own folder. A validator checks every skill and file a skill names. |
-| Rules that read as common sense, with nothing behind them. | A rule learned in practice keeps its receipt: the date, and what broke or was measured. |
+Between sessions, `handover` writes the note the next one starts from and `retro` turns a session's friction into a setup fix.
+
+## How it differs from collections written for engineers
+
+Collections written for engineers who own their code do what they are for well: test-first code, in a vocabulary you review line by line. This one starts from a different place and checks a different thing.
+
+| | Written for engineers | Product Engineering |
+|---|---|---|
+| **Starts from** | Your idea, sharpened by an interview | Evidence: research on the alternatives and the segment, then a proposal with every claim's source |
+| **Questions** | About your idea; no market research | A few, after the research, each with a recommended answer |
+| **The spec** | A document, then tasks or tickets | The product: a prototype you click, then the app |
+| **You check** | The code, line by line | The product, by clicking through every change you can see |
+| **Tests** | Written first | Land with the change; every fix with a test that failed before it |
+| **Reviewed by** | The session that wrote the code, or its subagents | A fresh reviewer that never saw the build, from another model family when Grok is installed |
+| **Ends at** | The pull request, sometimes the deploy | Paying users: payments, sign-in, email and monitoring in production, then the next round |
+
+Three things can go wrong in any skill collection, and this one guards against them:
+- **Decisions get lost** between documents, and decision records pile up and go stale. Here there is one proposal, which the build reads, its recommendation rewritten, never appended to; for a SaaS, choices with real options go in one decision log (`app-lifecycle`), each with the trigger that reopens it.
+- **Skills fail to load what they depend on.** Every skill works from its own folder, and a validator checks every skill and every file a skill names.
+- **Rules read as common sense, with nothing behind them.** A rule learned in practice keeps its receipt: the date, and what broke or was measured.
 
 ## The packs
 
@@ -123,7 +138,7 @@ Or copy skill folders by hand into the folder your agent reads (`.agents/skills/
 
 ### Into a product's own repository
 
-Several skills say it outright: **a rule that lives only in another repository doesn't get read**, and an agent sees only what is installed for that agent or committed in the repository it works in — a plugin installed in Claude Code is invisible to Codex run in the same folder. For a product you build with more than one agent, copy the skills it depends on into the product's `.claude/skills/` (or `.agents/skills/`) and commit them, then name them in the product's agent instructions. `agent-instructions` shows how.
+Several skills say it outright: **a rule that lives only in another repository doesn't get read**, and an agent sees only what is installed for that agent or committed in the repository it works in — a plugin installed in Claude Code is invisible to Codex run in the same folder. For a product you build with more than one agent, copy the skills it depends on into the product's `.claude/skills/` (or `.agents/skills/`) and commit them, then name them in the product's agent instructions. `agent-instructions` shows how. In Claude Code, once every skill the product uses from a pack is copied, disable that pack for the repository (`/plugin`, or `claude plugin disable <pack>@product-engineering --scope project`), or each copied skill loads twice; a pack the product still uses uncopied skills from stays enabled. When Claude Code and Codex both work there, copy into both folders.
 
 ## Scripts
 

@@ -12,9 +12,9 @@ The general split between development and production (branches, the host's envir
 
 ## Two projects, two key sets
 
-- **Development and production are separate Supabase resources with separate key sets.** Production is the project. Development is a branch of it, or a second project where branching is unavailable.
+- **Development and production are separate Supabase resources with separate key sets.** Production is one project and development another, or, by the owner's choice, a branch of production (`SKILL.md` § Setting it up the first time, step 1).
 - **The app refuses to boot on a partial configuration** (the env schema, `environments`).
-- **The CLI is linked to development, and only to development.** Production's database is reached with `--db-url` for every command that connects to it (`migrations.md § Applied by the CLI`). Management commands that have no database target (`branches list`, `backups list`) take `--project-ref`, never with `--linked` beside it.
+- **The CLI is linked to development, and only to development.** Production's database is reached with `--db-url` for every command that connects to it (`migrations.md § Applied by the CLI`). Management commands that have no database target (`branches list`, `backups list`) take `--project-ref`, never with `--linked` beside it, on a token that reaches the project named; on production, they are the owner's, in the dashboard or on a time-boxed read-only token (`environments`, `references/domain-and-provider-access.md`).
 - **Going live:** production gets its own project and keys, none shared with development. Every migration is applied to it with `--db-url`, and the ledger is read again.
 - **After go-live, keep development's builds off production's values.** Once production deploys from its own branch, a build of the product branch on the same site is a branch deploy: give it the development values (on Netlify, a per-branch deploy-context value), or it starts writing to production. Or run two sites, each building only its own branch (`environments § Branches`).
 - **Never pair one environment's identity instance with the other's database**, even for a day. (`2026-10-23`, a monitoring product: while its production site ran on development identity keys, nobody signed in there, because each sign-in would have created production rows keyed to development's user ids.)
@@ -23,7 +23,7 @@ The general split between development and production (branches, the host's envir
 
 **Record which ref is development and which is production, with the date it was checked and the command that showed it.** Record each project's Postgres major version too: development and production can run different majors, and nothing announces the move (`gotchas.md`). Record which ref the CLI is linked to, which is development.
 
-- **A development branch is a child of the production project and never appears in `supabase projects list`.** `supabase branches list --project-ref <prod-ref>` shows it, and which git branch it is bound to.
+- **A development branch, where the owner chose one, is a child of the production project and never appears in `supabase projects list`.** The owner's read of the production project's branches (the dashboard, or `supabase branches list --project-ref <prod-ref>` on a time-boxed read-only token) shows it, and which git branch it is bound to.
 - **Never infer the target from the MCP configuration or the CLI's link.** Both are per machine, and the last thing either named may have been production.
 - (`2026-09-15`: the former development project was promoted to production and a new development branch created. Every remembered mapping was wrong from that moment.)
 
@@ -43,7 +43,7 @@ The general split between development and production (branches, the host's envir
 
 ## Backups and restore
 
-- **Read the posture; don't assume it.** `npx supabase backups list --project-ref <ref>` lists the physical backups and whether point-in-time recovery is on (`pitr_enabled`). With daily backups and no point-in-time recovery, the recovery point is up to a day of writes. (`2026-10-24`, a monitoring product read daily backups and no point-in-time recovery on both projects.)
+- **Read the posture; don't assume it.** `npx supabase backups list --project-ref <ref>` (on production, the owner's read: § Two projects, two key sets) lists the physical backups and whether point-in-time recovery is on (`pitr_enabled`). With daily backups and no point-in-time recovery, the recovery point is up to a day of writes. (`2026-10-24`, a monitoring product read daily backups and no point-in-time recovery on both projects.)
 - **Decide backups from a stated recovery point**: how much data the product can afford to lose. The provider's default schedule is not that decision.
 - **Run a restore drill into an isolated project**, and record its date and result in the environments doc.
 - **Until a drill has run, write *not verified***, rather than repeating the provider's schedule as if it were evidence.
