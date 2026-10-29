@@ -46,7 +46,7 @@ Each stage in depth — what doing it well looks like, the owner's part, the tra
 These are never a separate task:
 
 - **Tests and docs land with the change.** A bug fix lands with a test that fails before the fix; every doc line the change made false is corrected in the same change.
-- **A stage is done** when its done-when holds and the gate is green **on the agent's own run** — and, when it changes what a person sees, once the owner has tried it from a link and a short list of 3 to 7 things to try, each an action and what should happen. What the owner finds is fixed in the same stage. Stage 3's click-through is the first such preview. (`2026-10-22`, a monitoring product: ten minutes of its owner using a preview found six problems no review had.) How to send one: the `release-gate` skill (the owner's preview) and the `environments` skill (showing development to the owner).
+- **A stage is done** when its done-when holds and the gate is green **on the agent's own run** — and, when it changes what a person sees, once the owner has tried it from a link and a short list of the key user flows to try, each an action and what should happen. What the owner finds is fixed in the same stage. Stage 3's click-through is the first such preview. (`2026-10-22`, a monitoring product: ten minutes of its owner using a preview found six problems no review had.) How to send one: the `release-gate` skill (the owner's preview) and the `environments` skill (showing development to the owner).
 - **Before any push to a branch that deploys** — from stage 7 on — an independent review round covers what the push adds: a fresh session that never saw the build, with or without a dedicated reviewer CLI (the `grok-agents` skill). **A promotion to production** (stages 9–10) also needs the full release checklist (the `release-gate` skill).
 - **At a release the agent proposes, and never runs unasked**, static security and performance audits on the release's changes (the `security-audit-static` and `performance-audit-static` skills) — over the whole repository only on the first release, after a large refactor, or when the owner asks. They sit beside the independent review, never instead of it.
 - **Who does what.** The session agent coordinates and judges. A builder agent builds a stage from its brief when one is available (the `codex-agents` and `delegation` skills); without one, or while it is out of usage, the session agent builds the stage itself and the plan's line for the stage is its brief. A fresh independent reviewer reviews. Deciding what the product does, accepting a review finding, anything that touches a real system (development included: a deploy, a migration on any database, a worker and its secrets) and the judgement that a stage is done never delegate.
@@ -90,9 +90,9 @@ The default stages carry a product to its first release. From there **the agent 
 |---|---|
 | Uptime monitor + status page (the `uptime-monitoring` skill) | immediately after the first deploy; re-point at go-live |
 | Edge flood limits | the first deploy is done and a public `POST` surface exists |
-| Legal pages + legal consent at sign-up | before the first stranger is asked for anything (with the front door) |
+| Legal pages + legal consent at sign-up (the `legal-pages` skill) | before the first stranger is asked for anything (with the front door) |
 | Share cards + icons | any public page that will be pasted into a chat — the front door is one |
-| Behaviour analytics, cookieless | a landing page exists and the privacy page can promise it |
+| Behaviour analytics, cookieless (the `product-analytics` skill) | a landing page exists and the privacy page can promise it |
 | Error tracking | the first real users, or the first 500 nobody saw |
 | Production branch + release procedure | the first release to a real audience |
 | Hosted CI gate | at go-live, or when a second person pushes to the product branch — as its own change |

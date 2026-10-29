@@ -11,7 +11,7 @@ claude plugin install app-stack@product-engineering
 
 Codex, Cursor and other agents: see the collection's root `README.md`.
 
-## Skills (12)
+## Skills (14)
 
 - **app-lifecycle** — The detailed path for a SaaS from idea to production, stage by stage: what each produces, when it is done, what each product shape skips, and which capability to propose next when its trigger fires. It takes an accepted proposal and prototype from the `product` pack's `propose` as its first stages.
 - **saas-authorization** — Who may do what in a multi-tenant app: workspaces, the three functions every route goes through, permissions vs roles vs entitlements, invariants as database constraints, and the threat model every app has.
@@ -25,6 +25,8 @@ Codex, Cursor and other agents: see the collection's root `README.md`.
 - **embedded-agents-agent-sdk** — The same agent directories on the Claude Agent SDK, for an agent that needs Claude Code's built-in tools.
 - **transactional-email** — Sending email from the app through a provider: an outbox, durable receipts and reconciliation instead of a promise of exactly-once, one-click unsubscribe, and a provider server per environment.
 - **uptime-monitoring** — Knowing the app is down before its users do, on any monitoring service: content checks instead of status codes, confirmation from a second location, heartbeats for scheduled jobs, monitoring that doesn't run on what it monitors, and an alert route proven by a controlled failure. One adapter is included, for Staygreen, a monitoring service made by this collection's author.
+- **product-analytics** — What people did, with no cookie banner: session recordings and heatmaps from Microsoft Clarity with cookies off by default, PostHog when you need events and funnels, the data read back by the agent through each vendor's MCP server, and what changes (a banner, a policy line, the owner's dashboard steps) when a cookie comes in.
+- **legal-pages** — Terms, a privacy policy and consent at sign-up, drafted from what the code collects and sends while it is built, held to it by a test, with the facts only the owner has and the owner's approval.
 
 ## Author
 

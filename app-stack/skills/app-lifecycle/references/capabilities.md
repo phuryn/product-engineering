@@ -47,13 +47,13 @@ Error capture and alerts for failures users encounter (Sentry, on this stack); n
 Session recordings and heatmaps with cookies off and both storage consents denied; disabled without a project id.
 - **When:** a landing page exists and the privacy page can promise it.
 - **Owner:** create the project, switch its cookies off, supply the project id, capture the setting in a screenshot.
-- **How:** `default-choices.md` (analytics, cookieless).
+- **How:** the `product-analytics` skill; `default-choices.md` (analytics, cookieless).
 
 ### Legal pages + legal consent at sign-up
 Terms and privacy checked against the code, with the identity provider's express consent at sign-up. When another product by the same company already has legal pages, start from them: the company's boilerplate kept (controller, rights, authority, law, accounts, acceptable use, payment, liability), everything about processing rewritten from this product's code, and a unit test that pins the pages to it — it fails when the code reaches a provider the policy does not name, or when an area the policy calls unbuilt ships.
 - **When:** before the first stranger is asked for anything — with the front door (stage 8), the deploy URL shared with nobody until then.
 - **Owner:** supply the controller, contact and actual provider details; approve the legal text; enable the provider's legal-consent setting.
-- **How:** `stages.md` § 8; `default-choices.md` (legal pages); the `design` skill (what a screen may claim); the `environments` skill (data that expires — no page promises a deletion no job performs — and what is held about people). The gap between a promise and a job that does not exist yet is logged in the backlog.
+- **How:** the `legal-pages` skill; `stages.md` § 8; `default-choices.md` (legal pages); the `design` skill (what a screen may claim); the `environments` skill (data that expires — no page promises a deletion no job performs — and what is held about people). The gap between a promise and a job that does not exist yet is logged in the backlog.
 
 ### Share cards + icons
 File-based share images and icons; neutral cards for unguessable resource URLs; verified from raw responses; a well-formed `icon.svg` and a checked-in `favicon.ico` rendered from it.

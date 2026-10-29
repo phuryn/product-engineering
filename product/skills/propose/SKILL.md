@@ -53,7 +53,8 @@ When the idea depends on something that may not exist or may not be allowed (an 
 ### 6. Build what the owner reviews, interface first
 
 - **An interactive prototype on realistic sample data**, every screen marked as sample data. HTML is enough. The owner tries it before reading any plan. When the product needs them, the plan and the technical assumptions come after, for the owner to challenge once the interface makes sense.
-- **The owner's preview:** a link and 3 to 7 things to try, each an action and what should happen.
+- **A look, not a template.** The prototype is the first time the owner sees the product, so give it one direction from the `design` skill's direction stage: grounded in the product's subject and checked against the generic defaults. No tokens and no kit yet; the build turns the direction the owner accepts into the kit.
+- **The owner's preview:** a link and the key user flows to try, each an action and what should happen.
 - **The customer experiment** is a different thing: the hypothesis it tests (by ID), who takes part, what they are asked to do, the behaviour that is observed, and **which result would change the recommendation**. Building the first version and putting it in front of paying users is often the experiment.
 
 ### 7. Ask only what the evidence can't decide

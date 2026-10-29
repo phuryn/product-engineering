@@ -29,7 +29,7 @@ Say "go ahead". The `propose` skill takes over. It is not an interview: question
 - **Marks every claim by kind**: an observed fact with its source and date, your call, its own inference, or an unsupported assumption. Your preference ("start with music tutors") is recorded as a decision. Your assertion ("tutors will pay monthly") stays a hypothesis with you as its only source, and the proposal says so.
 - **Checks feasibility before the prototype.** When the idea depends on something that may not exist or may not be allowed, it checks that before anything is drawn.
 - **Proposes one direction**, or two or three with their trade-offs when the choice is real. It names the weakest assumption that would change the recommendation if it turned out wrong.
-- **Builds an interactive prototype on sample data**, every screen marked as sample data, with a link and 3 to 7 things to try.
+- **Builds an interactive prototype on sample data**, every screen marked as sample data, with a link and the key user flows to try.
 - **Writes one record**, by default `docs/product/proposal.md`, with the prototype linked from it.
 
 **What you do:**
@@ -62,7 +62,7 @@ You don't review the code line by line. Two rules apply instead:
 
 ## 5. Your click-through
 
-After every change you can see, you get a link and 3 to 7 things to try, each an action and what should happen:
+After every change you can see, you get a link and the key user flows to try, each an action and what should happen:
 
 ```
 1. Sign up as a tutor and add Tuesday 4-6 pm: a student's booking page shows those slots in the student's time zone.

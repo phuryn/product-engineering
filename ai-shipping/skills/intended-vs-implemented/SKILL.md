@@ -32,6 +32,7 @@ Use this when documented intent exists — `permissions.md`, `architecture.md`, 
 - **Intent:** a documented rule, boundary, scope, or public/private classification.
 - **Implementation evidence:** a cited enforcement point (or its provable absence) in the code.
 - **A mismatch that matters:** doc says one thing, code does another, and the difference crosses a trust, cost, data, or tenant boundary.
+- **The legal pages are intent too.** A provider the privacy policy does not name, a cookie it says is not set, or a retention or deletion promise no job performs is a mismatch that crosses a data boundary: people's data reaches someone, or stays somewhere, the page they agreed to says it doesn't (the `legal-pages` skill).
 
 ## How you can tell it worked
 
