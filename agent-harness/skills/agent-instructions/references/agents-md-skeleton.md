@@ -60,7 +60,7 @@ A new product proposes these choices rather than re-deriving them, and reopens o
 - **Read the exit code from the log, never the notification.**
 - **An inherited report is a claim, not evidence.** Re-run the gate yourself before repeating a count; take a release's subject from git, not prose.
 - **`docs/test-coverage.md` is written by whoever ran the gate, by nobody else.**
-- **An independent review before every push to a branch that deploys and at every promotion, however small the change.** A fresh session that never saw the build reads the unreleased diff plus the working tree, unsteered; fix, re-run the gate yourself, review again until no INTRODUCED finding above Low. The session that wrote the code never clears it: the `grok-agents` skill.
+- **An independent review before every push to a branch that deploys and at every promotion, however small the change.** A fresh session that never saw the build reads the unreleased diff plus the working tree, unsteered; fix, re-run the gate yourself, review again until no INTRODUCED finding above Low and no High or Critical of any age. The session that wrote the code never clears it: the `grok-agents` skill.
 - The harness and the gate: the `test-harness` skill. How a change ships: the `release-gate` skill.
 
 ## 1.7 Working rules for the agent

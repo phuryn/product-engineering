@@ -20,7 +20,8 @@ blind spots than a different model does; that cost is accepted, because a round 
 that is skipped. Everything below holds whichever reviewer runs.
 
 **The repository's own instructions come first.** Its agent instructions or release docs may say
-which reviewer runs, when a review is required, which range a release covers, what the test gate is and where deferred
+which reviewer runs (whichever it is, a fresh session that never saw the build, as above: for Codex
+a new `codex exec`, never a resume of the thread that built it), when a review is required, which range a release covers, what the test gate is and where deferred
 findings go. Follow them. Where they say nothing, the defaults below apply, and where a default
 would need a fact only the owner has (which branch is released, what the last release was), ask.
 
@@ -416,7 +417,8 @@ dialog dismissal lost the guard against closing during an in-flight action.)
 
 ## The stopping rule
 
-Stop when a round produces **no INTRODUCED findings above Low**. The loop does end, and it ends
+Stop when a round produces **no INTRODUCED findings above Low** and no High or Critical of any age
+(those are fixed now, below). The loop does end, and it ends
 fastest when each release is small: a monitoring product's five production promotions on
 `2026-10-24` each closed on such a round, after 9, 5, 1, 2 and 1 rounds. The first, the whole
 product, took the most; each later one reviewed only its own commits.
@@ -441,7 +443,7 @@ right, because that ledger is what makes the next round's hit rate legible.
 
 ## How you can tell it worked
 
-The last round came from a fresh reviewer given only the mechanical range and found no introduced finding above Low, and every earlier finding was checked against the code before it was fixed or dismissed.
+The last round came from a fresh reviewer given only the mechanical range and found no introduced finding above Low, no High or Critical of any age is open, and every earlier finding was checked against the code before it was fixed or dismissed.
 
 ## Not this skill
 

@@ -76,7 +76,7 @@ Hand the subject to a **fresh session that never saw the build**. Use the review
 
 **Verify every finding against the code by hand before it enters the packet.** An unsteered reviewer has no refutation discipline imposed on it, so it will produce confident findings that the code already prevents. Apply the **code-review** skill's keep/drop rule to each one: a finding survives only with a supported obligation, a feasible execution, a concrete contradiction, an observable consequence, and a counterargument you actually checked.
 
-Distinguish defects the change **introduced** from defects it merely **revealed** — both belong in the packet, but only the first blocks the change itself, except a High or Critical, which blocks whatever its age and goes in Launch Blockers. On a release pass, repeat the loop until a round surfaces no introduced findings above Low.
+Distinguish defects the change **introduced** from defects it merely **revealed** — both belong in the packet, but only the first blocks the change itself, except a High or Critical, which blocks whatever its age and goes in Launch Blockers. On a release pass, repeat the loop until a round surfaces no introduced findings above Low and no High or Critical of any age is open.
 
 ### Step 7: Derive the test-coverage map
 

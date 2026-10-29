@@ -15,7 +15,7 @@ Then, in the same pass:
 
 - **Move the status out.** The plan holds the status; the entry file keeps at most three lines — the current stage, what is in production, what is waiting on whom — with a link. (A live Q&A product's status section grew until it was most of the file every session reads, and had to be moved out at least four times in four days.)
 - **Move the release narrative to the history.** What the previous release shipped, what its rounds and gates found, goes to the release history; only the rules it taught stay, in Section 1.
-- **Run the reachability check** (below), and route or retire what it lists.
+- **Run the reachability check** (below), and route what it lists; what has nowhere to go, propose retiring.
 - **Run the budgets check**, and put each rule it lists as past its review date to the owner (`SKILL.md`, budgets).
 
 In a release checklist this is one line: *the instruction file reviewed — obsolete parts proposed to the owner for removal, documented parts moved to docs with a pointer, this phase's lessons added; the status current, and its three lines with it.*
@@ -87,7 +87,7 @@ It starts at the entry files (`AGENTS.md`, `CLAUDE.md`), follows every markdown 
 | a case study or worked example | the docs' catalog (it has no moment) |
 | a tool or script | the tools index, or the doc that tells the agent to run it |
 | a new area of docs | its index, plus the entry chain — a router row only for a genuinely new task class |
-| none of these | retire it: delete it, or move it to the history |
+| none of these | propose retiring it to the owner: deleted, or moved to the history |
 
 A file nothing reaches is a rule nobody follows. Routing it is the fix; noting it is not.
 
