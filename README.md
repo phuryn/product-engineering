@@ -50,7 +50,7 @@ Each step with an example, from the first prompt to the next round: [WALKTHROUGH
 
 `ship-check`, which you start, is a different pass: one long session that writes the system docs from the code where they are missing or stale, refreshes the agent instructions, reviews, rewrites the coverage map, and ends in a packet you sign off on. It fits an app built without docs. Where docs already say what the product should do, or whoever runs the gate keeps the coverage map, it lists what it would overwrite and asks first; at a release, `release-gate` keeps to the check modes.
 
-Between sessions, `handover` writes the note the next one starts from and `retro` turns a session's friction into a setup fix.
+Between sessions, `handover` writes the note the next one starts from and `retro` builds a session's learnings into your setup.
 
 ## How it differs from collections written for engineers
 
@@ -86,7 +86,7 @@ Each pack's own `README.md` says what every skill does and when it triggers.
 
 ## Skills you start, and skills that start themselves
 
-**Four skills run only when you start them**, because each is a whole session's work or a moment only you can pick: `start-here`, `ship-check`, `handover` (the note the next session starts from) and `retro` (a session's friction turned into a setup fix). Their descriptions cost your agent no context until you call them.
+**Four skills run only when you start them**, because each is a whole session's work or a moment only you can pick: `start-here`, `ship-check`, `handover` (the note the next session starts from) and `retro` (a session's learnings, built into your setup). Their descriptions cost your agent no context until you call them.
 
 | | Claude Code | Codex | A skill folder copied into a repository |
 |---|---|---|---|

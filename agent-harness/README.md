@@ -16,7 +16,7 @@ Codex, Cursor and other agents: see the collection's root `README.md`.
 **You start them**, at the end of a session (`/agent-harness:<skill>` in Claude Code, `$agent-harness:<skill>` in Codex):
 
 - **handover** — The note the next session starts from: the objective, what is true now, the evidence actually obtained, what is left, the open decisions and the next concrete action, reconciled with the disk and the running processes before it is written.
-- **retro** — A session's friction turned into a fix to the setup: what went wrong and why, then an improved instruction, route, hook or script, checked where it applies, or "no setup change warranted".
+- **retro** — A session's learnings, built into your setup: what went wrong and why, then an improved instruction, route, hook or script, checked where it applies, or "no setup change warranted".
 
 **They start on their own:**
 
