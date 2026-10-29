@@ -2,7 +2,7 @@
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "product-engineering",
   "version": "0.2.0",
-  "description": "Agent skills for the whole product lifecycle with coding agents, from deciding what to build to shipping and growing it, from The Product Compass.",
+  "description": "Agent skills for shipping real products with coding agents, from the first idea to paying users. No coding.",
   "owner": {
     "name": "Paweł Huryn",
     "email": "pawel@productcompass.pm",
