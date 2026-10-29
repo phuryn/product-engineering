@@ -102,7 +102,7 @@ Two things stay in the dashboard: connecting the production instance's Stripe ac
   - A server-rendered summary above it takes every capacity from the plan module, and so does the page's metadata description.
   - One line says that prices, payment and cancellation are handled by Clerk.
   - **Reopen** `for="organization"`: never while *Membership required* is on. The organization pays, an organization of one included, and a user-tab plan is unreachable then.
-- **A landing page may print its own plan cards** when every name, price and visible line on them is read from the billing file, and the read-back test holds the instance to that file, so the cards can say nothing Clerk's table does not. Checkout stays Clerk's table. (`2026-10-24`, a monitoring product's owner: Clerk's signed-out cards hid most features behind *See all features* and carried no button.)
+- **A landing page may print its own plan cards** when every name, price and visible line on them is read from the billing file, and the read-back test holds the instance to that file, so the cards can say nothing Clerk's table does not. Once the landing carries an analytics tag, its own cards are the only pricing it shows (`product-analytics`). Checkout stays Clerk's table. (`2026-10-24`, a monitoring product's owner: Clerk's signed-out cards hid most features behind *See all features* and carried no button.)
 - **With no billing:** no pricing table, no pricing page, no Pricing link, no plan copy, no entitlement code.
 
 ### The tests that pin it

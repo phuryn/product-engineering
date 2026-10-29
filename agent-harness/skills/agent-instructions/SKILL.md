@@ -89,7 +89,7 @@ Most rules wait for their router row. A few must fire across every task — afte
 **Each instruction and area file has a word budget, held by a check that runs.** A file over budget is one no session reads in full, and a rule not read is not met. (`2026-10-25`, a content repository run by agents: its rules had grown to about 330,000 words that no session could read, rules competed for attention and almost none was ever removed. It was rebuilt with a word budget per file, a checker and a write-time hook.)
 
 - **The budgets live in one place** (`budgets.json` at the repository root, a path or glob to a word count), and `scripts/check_budgets.py`, copied into the repository, fails when a file is over or a key matches no file. The test gate runs that copy. Start each budget at the file's current count, rounded up, when a session can read the file in full; when it can't, propose the cut and the budget it leads to, and the owner decides.
-- **One in, one out.** Every edit replaces or tightens before it adds. Removing a rule's text is the owner's: the agent tightens a rule, moves it to its fire point, or adds the test or hook that holds it, and proposes the removal. At the budget, the owner picks the rule a new one replaces, or raises the budget.
+- **One in, one out.** Every edit replaces or tightens before it adds. Removing a rule's text is the owner's: the agent tightens a rule, moves it to its fire point with a pointer left behind (a move, not a removal), or adds the test or hook that holds it, and proposes the removal. At the budget, the owner picks the rule a new one replaces, or raises the budget.
 - **Every rule added carries its receipt and a review date**: the date and what happened, or the owner's words and the date, then `(review YYYY-MM)`. The checker lists every rule past its date, and the release pass puts each to the owner, who re-earns it or has it deleted; the agent deletes none on its own. A rule that guards an irreversible or outward-facing step (a promotion, a migration, a publish, a secret) is never retired for want of a new incident: it works by preventing one.
 - **A new file in an area folder gets a budget the day it is made**, or it is data (receipts, research, tables) that no session is told to read in full.
 
@@ -113,7 +113,7 @@ Each has a receipt (`references/working-rules.md`):
 
 ## The two passes
 
-The file is yours to manage: edit it without asking. Two moments call for a pass:
+The file is yours to manage: edit it without asking, except removing a rule's text, which you propose and the owner decides (budgets). Two moments call for a pass:
 
 - **At every release**, read it top to bottom and ask of each part: is it obsolete now that the code exists? does it belong in a doc, with a pointer here? is it needed in *every* session, or only when touching one area — then the router is its home? what did this phase teach that the next session must know? Then move the status and the release narrative out (below), and run the reachability check.
 - **When a mistake happens**, if the cause was something the file should have said — or said badly — fix it here, in the moment, with the receipt (the date and what went wrong), so the rule carries its reason. Then ask whether the fix should be code.

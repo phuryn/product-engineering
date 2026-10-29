@@ -115,7 +115,7 @@ At the start of every new task, find the moment you are in — several can hold 
 
 ## 1.9 This file is yours to manage
 
-This file is the context you carry into every session. You own it: edit it without asking, except removing a rule's text, which you propose and the owner decides. Two moments call for a pass over it:
+This file is the context you carry into every session. You own it: edit it without asking, except removing a rule's text, which you propose and the owner decides; moving a part to `docs/` with a pointer here is an edit. Two moments call for a pass over it:
 
 - **At every release:** read it top to bottom and ask of each part — is it obsolete now that the code exists? does it belong in `docs/` with a pointer here? is it needed in *every* session, or only when touching one area (then § 1.8 is its home)? what did this phase teach that the next session must know?
 - **When a mistake happens:** if the cause was something this file should have said — or said badly — fix it here, in the moment, with the receipt (date, what went wrong), so the rule carries its reason.

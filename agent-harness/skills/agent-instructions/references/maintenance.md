@@ -1,12 +1,12 @@
 # Keeping the instructions working
 
-The instruction file is the agent's to manage: it edits it without asking, the way it edits code. What keeps a file that is edited by every session from rotting is two passes, a few filing rules, and a check that runs.
+The instruction file is the agent's to manage: it edits it without asking, the way it edits code, except removing a rule's text, which it proposes and the owner decides (`SKILL.md`, budgets). What keeps a file that is edited by every session from rotting is two passes, a few filing rules, and a check that runs.
 
 ## The release pass
 
 At every release, read the entry file top to bottom and ask of each part:
 
-1. **Is it obsolete now that the code exists?** A rule written to steer a build that has since landed is now held by a test or a doc line, and its text is proposed to the owner for removal (`SKILL.md`, budgets).
+1. **Is it obsolete now that the code exists?** A rule written to steer a build that has since landed: name the test or doc line that now holds it, adding one if none does, then propose its text to the owner for removal (`SKILL.md`, budgets).
 2. **Does it belong in a doc, with a pointer here?** Depth that only one area needs moves out, and the router gets the row.
 3. **Is it needed in *every* session, or only when touching one area?** Only one area → the router is its home.
 4. **What did this phase teach that the next session must know?** Add it, with its receipt.

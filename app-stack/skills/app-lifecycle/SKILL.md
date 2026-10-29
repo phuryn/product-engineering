@@ -71,7 +71,7 @@ A new product proposes these until it records, in its product section, that a ch
 
 - Every workspace is an organization — **reopen:** a product for individual users declares the individual shape.
 - Organization management is the identity provider's own modal — **reopen:** never.
-- Pricing is the billing provider's own table; plans and prices in one billing file the provider's CLI applies and a test reads back; capacities from one plan module; no currency literal in app code — **reopen:** the landing prints its own plan cards from that file when the provider's signed-out table can't show what a plan sells.
+- Pricing is the billing provider's own table; plans and prices in one billing file the provider's CLI applies and a test reads back; capacities from one plan module; no currency literal in app code — **reopen:** the landing prints its own plan cards from that file when the provider's signed-out table can't show what a plan sells, and always once it carries the analytics tag (`product-analytics`).
 - One native top-layer primitive for dialogs and popovers — **reopen:** never.
 - Theme is a first-party cookie read on the server — **reopen:** one palette skips the second token set, not the tests.
 - No page declares its own share-card keys; file-based images, asserted on the raw response — **reopen:** never.
