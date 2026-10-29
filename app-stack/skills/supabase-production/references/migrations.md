@@ -37,7 +37,7 @@ test "$(cat supabase/.temp/project-ref 2>/dev/null)" = "<dev-ref>" && npx supaba
 
 Where the owner kept development as a branch of production (`SKILL.md` § Setting it up the first time, step 1), both lines take `--db-url "$DEV_DB_URL"` in place of `--linked`, and the link check becomes a check that the URL names the development ref, without printing it: `case "$DEV_DB_URL" in *<dev-ref>*) ;; *) false ;; esac && npx supabase …` (a branch's connection string carries its own ref, in the pooler user `postgres.<ref>` or the host `db.<ref>.supabase.co`).
 
-**Production is its own run, only at a release and on the owner's go**, never in the same script or command list as development. It is never linked; its connection string comes from an operator file, never typed or printed. Read first:
+**Production is its own run, only at a release and on the owner's go**, never in the same script or command list as development. It is never linked; its connection string comes from the production operator file, loaded into each command alone, as `SKILL.md` § Applying a migration says, never typed or printed. Read first:
 
 ```sh
 npx supabase migration list --db-url "$PROD_DB_URL" && npx supabase db push --db-url "$PROD_DB_URL" --dry-run
@@ -135,7 +135,7 @@ Receipts:
 These are the Supabase mechanics. The checklist they sit in is `release-gate`.
 
 - **Every schema change is a migration file, no applied migration was edited, and the dashboard is untouched.**
-- **`npx supabase migration list --db-url "$PROD_DB_URL"` shows no row with an empty `remote`.** Otherwise:
+- **`npx supabase migration list --db-url "$PROD_DB_URL"` shows no row with an empty `remote`** (every production command here runs with the string loaded from the production operator file into that command alone, as `SKILL.md` § Applying a migration says). Otherwise:
   1. `npx supabase db push --db-url "$PROD_DB_URL" --dry-run` names the pending rows.
   2. After the owner's go, they are applied by CLI, with that URL, immediately before the promotion.
   3. The list is re-run.

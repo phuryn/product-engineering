@@ -65,7 +65,7 @@ If that listing is already aligned, stop: record *no migration*. Otherwise read 
 test "$(cat supabase/.temp/project-ref 2>/dev/null)" = "<dev-ref>" && npx supabase db push --linked && npx supabase migration list --linked
 ```
 
-**Production is its own run, only at a release and on the owner's go**, never in the same script or command list as development. It is never linked, and is reached by its own connection string, kept in the production operator file outside the development checkout and loaded only into the command that uses it, never into the session's environment, which everything the agent starts inherits: run each command below as `( set -a; . <production operator file>; set +a; <command> )`. Read first:
+**Production is its own run, only at a release and on the owner's go**, never in the same script or command list as development. It is never linked, and is reached by its own connection string, kept in the production operator file outside the development checkout and loaded only into the command that uses it, never into the session's environment, which everything the agent starts inherits: run each command below as `( set -a; . <production operator file>; set +a; <command> )`. The shell reads that file, so each value in it is single-quoted (`PROD_DB_URL='postgresql://…?sslmode=verify-full&sslrootcert=…'`): unquoted, the `&` joining the URL's parameters ends the assignment and the variable comes out empty. Read first:
 
 ```sh
 npx supabase migration list --db-url "$PROD_DB_URL" && npx supabase db push --db-url "$PROD_DB_URL" --dry-run
@@ -88,7 +88,7 @@ npx supabase db push --db-url "$PROD_DB_URL" && npx supabase migration list --db
 
 ## Before a promotion
 
-Run `npx supabase migration list --db-url "$PROD_DB_URL"`. A row with an empty `remote` is a migration production has never seen.
+Run `npx supabase migration list --db-url "$PROD_DB_URL"`, loaded from the production operator file into that command alone, as § Applying a migration says. A row with an empty `remote` is a migration production has never seen.
 
 1. Name the pending rows with the `--dry-run`.
 2. Ask the window questions of each (`references/migrations.md § The window`), for the app and for every other runtime that reads the schema.

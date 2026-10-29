@@ -33,7 +33,7 @@ The owner answers **go** or **no-go**, **in the chat**. **Silence is not go**, a
 
 `<cleared>` is the commit the last clean review round reviewed, never the branch tip, which may hold work committed while the round ran (`grok-agents`, § Running a round beside the next stage). Run § 1's dry run and this apply from a clean checkout at `<cleared>` (`git switch --detach <cleared>`), so `db push` sees only its migrations.
 
-**First, when § 1's dry run named pending rows, apply them and read the ledger again** (`supabase-production`, § Applying a migration). This is the first production write of the release, so it comes only now, after the go:
+**First, when § 1's dry run named pending rows, apply them and read the ledger again** (`supabase-production`, § Applying a migration), each command loaded from the production operator file into that command alone. This is the first production write of the release, so it comes only now, after the go:
 
 ```sh
 npx supabase db push --db-url "$PROD_DB_URL" && npx supabase migration list --db-url "$PROD_DB_URL"

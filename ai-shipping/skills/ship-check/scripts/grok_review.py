@@ -514,13 +514,16 @@ def grok_still_on(grok_bin: str, cwd: str) -> str:
         d = json.loads(p.stdout)
     except (OSError, ValueError, subprocess.TimeoutExpired) as e:
         return f"`grok inspect` failed ({e}): what the reviewer loads is unknown; say so in the round's report"
+    if not isinstance(d, dict):
+        return "`grok inspect` returned no object: what the reviewer loads is unknown; say so in the round's report"
 
     def on(key):
         return [x for x in d.get(key) or [] if isinstance(x, dict) and x.get("compatibilityStatus") != "disabled"]
 
     def label(x):
         src = x.get("source") if isinstance(x.get("source"), dict) else {}
-        return str(x.get("path") or x.get("name") or src.get("path") or src.get("plugin_name") or "?")
+        return str(x.get("target") or x.get("path") or x.get("name") or src.get("path")
+                   or src.get("plugin_name") or "?")
 
     skills = on("skills")
     bundled = sum(1 for s in skills if (s.get("source") or {}).get("type") == "bundled")

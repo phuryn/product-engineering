@@ -42,6 +42,7 @@ PostHog's own docs, read on `2026-10-29`:
 
 - **Cookieless:** `cookieless_mode: 'always'` in the `posthog-js` init, **and** *Enable cookieless tracking* switched on in the project's settings (Settings, Project, Web analytics), without which cookieless events are ignored. PostHog says this needs no banner unless something else on the site uses cookies; the consent question (§ The default, and the option) still applies.
 - **What it costs:** each visitor counts as new every day, and session replay and surveys are off for anyone who has not consented. For recordings, keep Clarity beside it.
+- **Pages and addresses:** rule 5 binds PostHog too. Its events carry the page's address (`$current_url`, `$pathname`, `$referrer`), query included. Before it runs on any page that can carry an id or a query, a `before_send` rewrites each URL property to the path, every id replaced by `:id` and the query dropped, held by a unit test, and the browser test fails on any request to PostHog's host (or the proxy path) whose body carries a query or an unmasked id.
 - **`on_reject`** captures nothing until the visitor has chosen, which means a banner: § When a cookie comes in.
 - **Hosts:** a US and an EU cloud (`https://eu.i.posthog.com`); the owner picks by where the users are. PostHog recommends a reverse proxy through the product's own domain before production, which it says typically captures 10 to 30% more events; the CSP then admits only that domain.
 
