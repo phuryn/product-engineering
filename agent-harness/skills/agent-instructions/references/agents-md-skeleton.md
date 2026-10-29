@@ -122,7 +122,7 @@ This file is the context you carry into every session. You own it: edit it witho
 
 **The status lives in `docs/product/plan.md`; § 2.7 carries at most three lines of it.** At each release, move the previous release's narrative to `docs/history/release-history.md` and keep only the rules it taught, in Section 1.
 
-The principle is **progressive disclosure**: this file is the entry point every session reads; § 1.8 opens the next layer only when the task needs it; `docs/` holds the depth. **A rule written down is not yet a rule an agent follows: it must be met at the moment it applies.** So every rule placed in `docs/` gets a § 1.8 row, keyed by what the agent is doing in words a user would use, unless it lives in the file the agent is already editing when it applies. Judge by what a fresh session needs to start well, within each file's word budget (`budgets.json`, one in, one out).
+The principle is **progressive disclosure**: this file is the entry point every session reads; § 1.8 opens the next layer only when the task needs it; `docs/` holds the depth. **A rule written down is not yet a rule an agent follows: it must be met at the moment it applies.** So every rule placed in `docs/` gets a § 1.8 row, keyed by what the agent is doing in words a user would use, unless it lives in the file the agent is already editing when it applies. Judge by what a fresh session needs to start well, within each file's word budget (`budgets.json` at the root, checked by a copy of `check_budgets.py` in the test gate; create both with this file, as the `agent-instructions` skill's budgets section says; one in, one out).
 
 ## 1.10 Embedded agents (only when the product has them)
 

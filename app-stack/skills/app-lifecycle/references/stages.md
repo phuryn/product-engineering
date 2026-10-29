@@ -198,7 +198,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 - **Should the second role be a paid feature?** The obvious form is a trap: gating the *act* on a feature means a lapsed card stops the act at the worst moment. To sell team size, sell it where it fails safely — a **seat limit on the organization plan**, which the provider enforces at invite time with no code.
 - **Prices are the owner's**, written once in the billing file and applied by the provider's CLI. Application code never holds one: checkout is the provider's own table, the charge is the provider's, and a unit test refuses any currency literal in the app's source.
 - **The identity provider's CLI** is signed in by the owner for the billing apply and its read-back, and signed out (`npx clerk auth logout`) once both are done: its session reaches every instance in the account, production included (`environments`, `references/domain-and-provider-access.md`).
-- An optional public contact address stays empty until the mailbox exists; the legal pages then show the postal address alone, which is honest — an address that bounces is worse than none. Where the operator is established in the EU or the UK, an email address is required, so the mailbox exists before the front door is shared (`legal-pages`).
+- An optional public contact address stays empty until the mailbox exists; the legal pages then show the postal address alone, which is honest — an address that bounces is worse than none. Where an email address is required, the mailbox exists before the front door is shared (`legal-pages`, rule 9).
 
 **Doing it well**
 

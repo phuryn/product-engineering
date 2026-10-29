@@ -42,13 +42,13 @@ Then ask the two follow-up questions:
 
 The failure mode of an agent-maintained instruction file is not neglect; it is accretion — every lesson added as a rule until the file reads like a compliance checklist and the agent works from rules instead of principles.
 
-- **Update proactively.** When the next move is obvious — a missing rule, an outdated pattern, a better framing, a gap caught mid-task — edit the file. Ask the owner only when the change needs the owner's judgement (a genuinely new principle, retiring one that matters to them, a taste call).
+- **Update proactively.** When the next move is obvious — a missing rule, an outdated pattern, a better framing, a gap caught mid-task — edit the file. Ask the owner only when the change needs the owner's judgement (a genuinely new principle, retiring any rule, a taste call).
 - **The default filing mode is evidence, not rules.** A new learning usually lands as a receipt or a calibration under a rule that already exists. **A genuinely new rule is rare**, and should usually replace or generalize one.
 - **Rules earn their place with evidence.** Every rule is loaded into every future context. Before adding a rule or a check, cite the violation: which change, which incident, what failed. Patterns from an outside linter or style guide are idea sources, not rule sources — filter them through "does this repository actually do this?" (`2026-04-18`, a content repository declined four patterns from an external linter for lack of any violation.)
 - **Choose deliberately between a codifiable rule and a judgement principle.** Ask whether the rule needs mechanical checking or judgement in context. Codifying judgement flattens it into checklist behaviour. Default to a principle when nuance is real; codify only when "is X present? yes/no" gives a useful answer. (`2026-04-26`, from a critique of over-codification in the same repository.)
 - **Two lanes, never mixed.** *Judgement* lives in principles and must fit working memory at the moment of the work. *Lint* — mechanical checks — stays a short end-pass and never grows judgement.
 - **If a check fires repeatedly, fix the upstream principle** instead of adding a check.
-- **A rule that has never caught anything is sediment.** Rules earn their place by measured effect; one that has caught nothing across dozens of uses is flagged for retirement — retired by deleting it or moving it to the history, not by a convention nobody executes.
+- **A rule that has never caught anything is sediment**, unless it guards an irreversible or outward-facing step, which works by preventing what it would catch. Rules earn their place by measured effect; one that has caught nothing across dozens of uses is put to the owner, who retires it (deleted, or moved to the history) or keeps it. The agent retires none on its own (`SKILL.md`, budgets).
 - **When a session starts to feel rule-bound rather than principle-led, say so** to the owner; that is the signal for a consolidation pass.
 
 ## Memory → instructions: when a correction graduates

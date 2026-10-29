@@ -88,8 +88,8 @@ Most rules wait for their router row. A few must fire across every task — afte
 
 **Each instruction and area file has a word budget, held by a check that runs.** A file over budget is one no session reads in full, and a rule not read is not met. (`2026-10-25`, a content repository run by agents: its rules had grown to about 330,000 words that no session could read, rules competed for attention and almost none was ever removed. It was rebuilt with a word budget per file, a checker and a write-time hook.)
 
-- **The budgets live in one place** (`budgets.json` at the repository root, a path or glob to a word count), and `scripts/check_budgets.py`, copied into the repository, fails when a file is over or a key matches no file. The test gate runs that copy. Start each budget at the file's current count, rounded up, and lower it only with the owner.
-- **One in, one out.** At the budget, a new rule replaces one that guards nothing irreversible, and every edit replaces or deletes before it adds; when nothing can go, ask the owner to raise the budget.
+- **The budgets live in one place** (`budgets.json` at the repository root, a path or glob to a word count), and `scripts/check_budgets.py`, copied into the repository, fails when a file is over or a key matches no file. The test gate runs that copy. Start each budget at the file's current count, rounded up, when a session can read the file in full; when it can't, propose the cut and the budget it leads to, and the owner decides.
+- **One in, one out.** Every edit replaces or deletes before it adds. At the budget, the owner picks the rule a new one replaces, or raises the budget.
 - **Every rule added carries its receipt and a review date**: the date and what happened, or the owner's words and the date, then `(review YYYY-MM)`. The checker lists every rule past its date, and the release pass puts each to the owner, who re-earns it or has it deleted; the agent deletes none on its own. A rule that guards an irreversible or outward-facing step (a promotion, a migration, a publish, a secret) is never retired for want of a new incident: it works by preventing one.
 - **A new file in an area folder gets a budget the day it is made**, or it is data (receipts, research, tables) that no session is told to read in full.
 
@@ -148,7 +148,7 @@ A fresh session given only the instruction file meets each rule at the moment it
 | `references/prose-vs-code.md` | the test, the evidence, the receipts, and the forms a code path takes in an app repository | about to write a rule to prevent a recurrence |
 | `references/working-rules.md` | the working rules with their reasons and receipts | writing Section 1; a rule here was broken |
 | `scripts/check_reachable.py` | lists docs no chain from the entry files reaches (standard library only; reads, writes nothing) | after adding a doc; at every release |
-| `scripts/check_budgets.py` | counts each budgeted file's words against `budgets.json`, fails over budget, and lists the rules past their review date (standard library only; reads, writes nothing) | in the test gate and a write-time hook; at every release |
+| `scripts/check_budgets.py` | counts each budgeted file's words against `budgets.json`, fails over budget or when a key matches no file, and lists the rules past their review date (standard library only; reads, writes nothing) | in the test gate, from a copy in the repository; at every release |
 
 ```bash
 python <skill dir>/scripts/check_reachable.py <repo>                       # docs/ and knowledge/ by default

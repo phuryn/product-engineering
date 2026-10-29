@@ -35,7 +35,7 @@ Every app needs a CSP header (`saas-authorization § Untrusted text`). This is h
 - **A third-party origin joins the directives only once its integration is wired.** For example, cookieless Microsoft Clarity adds `connect-src https://*.clarity.ms` and `img-src data: https://*.clarity.ms https://c.bing.com` once a project id is set.
 - **The static headers go in `next.config.ts` `headers()`, on `/:path*`:**
   - `X-Content-Type-Options: nosniff`;
-  - `Referrer-Policy: strict-origin-when-cross-origin`;
+  - `Referrer-Policy: strict-origin`, so no page, same-origin or not, hands its path and query (an id, an invitation ticket) to the next; never `no-referrer`, which makes the browser send `Origin: null` (`saas-authorization`, threat model);
   - `X-Frame-Options: DENY`.
 - **A surface that must be framed gets its own policy and its own branch in the proxy**, never a hole in the general one.
 - **Prove it on a raw response:** `content-security-policy` contains `frame-ancestors 'none'` and `'nonce-`, and two requests get different nonces.
