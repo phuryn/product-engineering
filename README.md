@@ -1,3 +1,7 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](https://github.com/phuryn/product-engineering/blob/main/LICENSE.md)
+[![Tests](https://github.com/phuryn/product-engineering/actions/workflows/tests.yml/badge.svg)](https://github.com/phuryn/product-engineering/actions/workflows/tests.yml)
+[![Companion: pm-skills](https://img.shields.io/badge/companion-pm--skills-blue)](https://github.com/phuryn/pm-skills)
+
 # Product Engineering
 
 Agent skills for shipping real products with coding agents, from the first idea to paying users. No coding.
