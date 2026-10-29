@@ -522,8 +522,12 @@ def grok_still_on(grok_bin: str, cwd: str) -> str:
 
     def label(x):
         src = x.get("source") if isinstance(x.get("source"), dict) else {}
-        return str(x.get("target") or x.get("path") or x.get("name") or src.get("path")
-                   or src.get("plugin_name") or "?")
+        if x.get("target") and x.get("hookType") == "file":  # a plugin's hooks file
+            return f"{src.get('plugin_name') or src.get('type') or '?'}'s hooks file"
+        if x.get("target"):  # a hook: its event and the first word of its command, never the whole line
+            first = str(x["target"]).split()[0] if str(x["target"]).split() else ""
+            return f"{x.get('event') or x.get('hookType') or 'hook'} {first} ({src.get('type') or '?'})"
+        return str(x.get("path") or x.get("name") or src.get("path") or src.get("plugin_name") or "?")
 
     skills = on("skills")
     bundled = sum(1 for s in skills if (s.get("source") or {}).get("type") == "bundled")
