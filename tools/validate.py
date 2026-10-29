@@ -110,6 +110,10 @@ def check_plugins():
             errors.append(f"{plugin['name']}: no {manifest.relative_to(ROOT)}")
             continue
         data = json.loads(manifest.read_text(encoding="utf-8"))
+        # A pinned version keeps every install on its cached copy until the string changes, however many commits
+        # land (Claude Code's plugin docs, read 2026-10-29); without one, the commit is the version.
+        if "version" in data or "version" in plugin:
+            errors.append(f"{manifest.relative_to(ROOT)}: pins a version, so installs never receive new commits")
         if data.get("name") != plugin["name"]:
             errors.append(f"{manifest.relative_to(ROOT)}: name {data.get('name')!r} != {plugin['name']!r}")
         readme = base / "README.md"

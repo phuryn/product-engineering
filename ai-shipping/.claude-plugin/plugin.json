@@ -1,6 +1,5 @@
 {
   "name": "ai-shipping",
-  "version": "0.2.0",
   "description": "Ship AI-built apps: document the app, review it for correctness, security and performance, prove it with a test harness that fakes the right side, and release through a gate with the owner's go. Superset of the free pm-ai-shipping plugin.",
   "author": {
     "name": "Paweł Huryn",

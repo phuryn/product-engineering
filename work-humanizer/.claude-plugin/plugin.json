@@ -1,6 +1,5 @@
 {
   "name": "work-humanizer",
-  "version": "0.2.0",
   "description": "Edit AI-sounding work writing so it reads like a careful person wrote it, without changing what it says — or interview the writer and build the piece from their answers.",
   "author": {
     "name": "Paweł Huryn",

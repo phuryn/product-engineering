@@ -2,7 +2,7 @@
 
 Agent skills for building a real product with coding agents, from the first idea to paying users and the next round. From [The Product Compass](https://www.productcompass.pm).
 
-28 of the 43 skills were learned on real products built with Claude Code, Codex and Grok, and keep their receipts: the date, and what broke or was measured. 14 are established methods without dated notes: the strategy frameworks in `product` and the documentation and review methods in `ai-shipping`. The last, `work-humanizer`, rests on a detector test from October 2026. The skills work in Claude Code, Codex, Cursor, Gemini CLI, OpenCode, GitHub Copilot and any other agent that reads `SKILL.md` folders. Free, under the MIT License.
+27 of the 43 skills were learned on real products built with Claude Code, Codex and Grok, and keep their receipts: the date, and what broke or was measured. 14 are established methods without dated notes: the strategy frameworks in `product` and the documentation and review methods in `ai-shipping`. `product-analytics` rests on its vendors' own docs, read in October 2026, and `work-humanizer` on a detector test from October 2026. The skills work in Claude Code, Codex, Cursor, Gemini CLI, OpenCode, GitHub Copilot and any other agent that reads `SKILL.md` folders. Free, under the MIT License.
 
 **[Install](#install), then type `/product:start-here`** (Codex: `$product:start-here`) and say what you have.
 

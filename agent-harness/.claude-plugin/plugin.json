@@ -1,6 +1,5 @@
 {
   "name": "agent-harness",
-  "version": "0.2.0",
   "description": "Make your own agent setup reliable: instruction files that are met at the moment they apply, rules held by hooks instead of prose, status that survives context compaction, the handover the next session starts from, a session's friction turned into a setup fix, and the Windows shell traps that break agents.",
   "author": {
     "name": "Paweł Huryn",
