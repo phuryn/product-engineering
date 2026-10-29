@@ -6,8 +6,8 @@ You don't need to remember any of this. `/product:start-here` names the next ste
 
 ## Before you start
 
-1. **Install the packs** ([Install](README.md#install)). For this walkthrough: `product`, `ai-shipping`, `agent-teams` and `agent-harness`, plus `app-stack`: its `design` and `uptime-monitoring` apply to any product with screens and a URL, and the rest mostly assumes a SaaS on Next.js, Supabase, Clerk and Netlify.
-2. **Open your agent in a folder**: an empty one for a new idea (the agent sets it up), or the repository of a product you already have.
+1. **Open your agent in a folder**: an empty one for a new idea (the agent runs `git init` there), or the repository of a product you already have.
+2. **Install the packs from that folder** ([Install](README.md#install)); the one-prompt install turns them on for that folder only. For this walkthrough: `product`, `ai-shipping`, `agent-teams` and `agent-harness`, plus `app-stack`: its `design` and `uptime-monitoring` apply to any product with screens and a URL, and the rest mostly assumes a SaaS on Next.js, Supabase, Clerk and Netlify.
 3. **Optional, and worth it:** the Codex CLI as a second builder and peer (`codex-agents`), and the Grok CLI as a reviewer from another model family (`grok-agents`). Without Codex, the session you work in builds the change itself or briefs a Claude subagent. Without Grok, the review runs in a fresh Claude Code session with nothing carried over (with neither CLI, a fresh read-only session of your agent). The wrappers that drive them need Python 3.10 or later.
 
 ## 1. Say what you have
@@ -60,6 +60,8 @@ You don't review the code line by line. Three rules apply instead:
 - **Every change lands with its tests and docs.**
 - **Every fix lands with a test that failed before it.** After two fixes that pass and leave the symptom, the agent stops and gets one real observation instead of guessing again (`test-harness`).
 - **A fresh reviewer that never saw the build reads each change**, round after round, until a round finds nothing the change introduced above low severity and nothing high or critical of any age (`grok-agents`). It is the one your agent instructions name, otherwise Grok when it's installed, otherwise a fresh Claude Code session with nothing carried over (with neither CLI, a fresh read-only session of your agent). It runs before every push that deploys, and again after each fix. For a correctness review of your own, say "review this with ai-shipping's code-review skill"; in Claude Code name it `/ai-shipping:code-review`, because Claude Code has its own `/code-review`.
+
+Before the first stranger is asked for anything (a sign-up, an email address, a payment), the agent drafts the terms and the privacy policy from what the code collects and sends, asks you for the facts only you have, and you approve the text (`legal-pages`).
 
 When the app needs accounts, keys or a domain, the agent asks you to set them up and walks you through it. Keys you copy from a dashboard go where the agent asks (the app's `.env`, the host's settings, or, for a token the agent uses itself, the environment it starts in), put there by you, never into the chat (a key that touched the chat is rotated). Production's go in only when the agent asks for them, at go-live: first what the setup uses from your machine (the production database's connection string, a secret key made for the setup), then, once the production branch exists, the values the host serves with; later, one a new capability needs. A secret nobody issues, such as a cookie-signing secret, the agent generates and writes into `.env` itself; production's is generated afresh and goes in with production's other values. A webhook's signing secret comes from its dashboard, like any other key.
 
@@ -116,6 +118,7 @@ Running it while people use it has its own skills, in `app-stack`:
 | `saas-authorization` | who can do what |
 | `transactional-email` | email |
 | `uptime-monitoring` | knowing when it breaks |
+| `product-analytics` | what people did: recordings and heatmaps without analytics cookies, read back by the agent |
 
 Nobody pays until payment works in production, so these are part of the method, not left for later. They cover your customers paying you. Payments between your users, such as a student paying a tutor, are not in these skills. The feasibility check in step 2 is where that comes up.
 
@@ -160,7 +163,7 @@ A rule that lives only in another repository doesn't get read. So for a product 
 - accept the proposal;
 - review a complex change's key assumptions;
 - pick and approve the design;
-- set up accounts and keys in dashboards, and paste the few commands the agent gives you;
+- set up accounts and keys in dashboards, put each key where the agent asks (never in the chat), and paste the few commands the agent gives you into your own terminal;
 - click through each visible change;
 - decide where a doc and the code disagree;
 - before a release, perform what the stage promised and, when a screen or its words changed, look over every screen in every state, theme, width and role, signed out included;

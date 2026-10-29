@@ -22,10 +22,13 @@
   repository must not carry the list itself).
 - No reference a reader cannot resolve: "the template", `AGENTS.md § <n>`, name-mapping notes.
 - `claude plugin validate .` passes, when the Claude Code CLI is installed.
+- With VALIDATE_STRICT set (the hosted Tests run), a missing PyYAML or Claude Code CLI is an error,
+  not a fallback: a green run then means what a local one does, the private names apart.
 
     python tools/validate.py
 """
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -43,6 +46,7 @@ MAX_LISTED_EACH = 300
 # live in tools/leaks.local.txt (untracked), one regular expression a line.
 LEAKS = [r"\bStaygreen\b", r"productcompass\.pm", r"[A-Za-z]:[\\/](GitHub|Users)[\\/]", r"\bTPC\b"]
 LOCAL_LEAKS = ROOT / "tools" / "leaks.local.txt"
+STRICT = bool(os.environ.get("VALIDATE_STRICT"))
 if LOCAL_LEAKS.exists():
     LEAKS += [s.strip() for s in LOCAL_LEAKS.read_text(encoding="utf-8").splitlines()
               if s.strip() and not s.lstrip().startswith("#")]
@@ -256,7 +260,7 @@ def check_copies():
 def check_cli():
     claude = shutil.which("claude")
     if not claude:
-        warnings.append("claude CLI not found; skipped `claude plugin validate`")
+        (errors if STRICT else warnings).append("claude CLI not found; skipped `claude plugin validate`")
         return
     p = subprocess.run([claude, "plugin", "validate", str(ROOT)], capture_output=True, text=True, encoding="utf-8")
     if p.returncode:
@@ -264,6 +268,12 @@ def check_cli():
 
 
 def main():
+    sys.stdout.reconfigure(errors="backslashreplace")
+    if STRICT:
+        try:
+            import yaml  # noqa: F401
+        except ImportError:
+            errors.append("PyYAML not installed; frontmatter would be read by the flat fallback, not as agents read it")
     check_plugins()
     listed = check_listing()
     check_tree()
