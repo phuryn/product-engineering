@@ -99,7 +99,7 @@ Write each rotation in the environment log with the date and what changed.
 ## Pre-go-live checklist
 
 - [ ] The production identity instance and the production database project have their own keys; none shared with development, operator credentials included.
-- [ ] `.env` and no copy of it ever committed: `git log --all --full-history --oneline --name-only -- ':(glob)**/.env' ':(glob)**/.env.*' ':(exclude,glob)**/.env.example'` prints nothing; where it prints, rotate every value that file held (`data-and-incidents.md § A leaked key`).
+- [ ] No local secrets file (`.env`, `.dev.vars` and their usual copies) ever committed: `git log --all --full-history --oneline --name-only -- ':(glob)**/.env*' ':(glob)**/*.env' ':(glob)**/.env*/**' ':(glob)**/.dev.vars*' ':(exclude,glob)**/.env.example'` lists none that held real values (it lists placeholder files too, so read what it lists). Rotate every value such a file held, as for a leaked key (`data-and-incidents.md § A leaked key`), except a key that seals or tags stored data, which needs its re-encryption or reissue pass first (§ Rotating).
 - [ ] Every `NEXT_PUBLIC_*` value is safe to be public.
 - [ ] Every variable the deploy needs is set in the host's production environment, the app's public URL included, and every secret is marked secret; generated secrets generated afresh for production. At go-live they go in only after the product branch is pinned to development values, and a fresh production deploy follows (`release-gate`, go-live step 3).
 - [ ] No development-only value is set on any production holder, and the production build refuses one.

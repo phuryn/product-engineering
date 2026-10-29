@@ -273,9 +273,12 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
     working tree too, and an untracked file is how a change goes unreviewed)."""
     def git(*a: str, env: dict | None = None, raw: bool = False) -> str:
         """raw keeps a lone carriage return, which text mode would turn into a line break.
-        Colour is off whatever the config says (color.diff=always would start every
-        removed line with an escape code, not "-")."""
-        off = ["-c", "color.ui=never", "-c", "color.diff=never", "-c", "color.status=never"]
+        The user's config can't change what the reviewer reads: colour is off (color.diff=always
+        would start every removed line with an escape code, not "-"), the big-file threshold is
+        git's default (a low core.bigFileThreshold shows a text file as binary), and replace
+        refs are off (a graft hides commits a push still sends)."""
+        off = ["--no-replace-objects", "-c", "core.bigFileThreshold=512m", "-c", "color.ui=never",
+               "-c", "color.diff=never", "-c", "color.status=never"]
         proc = subprocess.run(["git", *off, *a], cwd=str(cwd), capture_output=True,
                               stdin=subprocess.DEVNULL, env=env)
         out = proc.stdout.decode("utf-8", "replace")
@@ -400,7 +403,7 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
     # it needs, so a path it shows as binary goes in again with --text when its
     # content is text on both sides.
     as_text = []
-    for entry in git("diff", "--no-textconv", "--no-renames", "--numstat", "-z", "HEAD").split("\0"):
+    for entry in git("diff", "--no-textconv", "--no-renames", "--numstat", "-z", "HEAD", raw=True).split("\0"):
         if not entry.startswith("-\t-\t"):
             continue
         rel = entry[4:]
@@ -423,7 +426,7 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
                              *as_text[i:i + 100]))
     untracked: list[tuple[int, int, str]] = []  # (lines, bytes, path) of each file inlined
     # -z gives raw paths: no quoting or octal escapes to undo, whatever the name.
-    for entry in git("status", "--porcelain", "-z", "-uall").split("\0"):
+    for entry in git("status", "--porcelain", "-z", "-uall", raw=True).split("\0"):
         if not entry.startswith("?? "):
             continue
         rel = entry[3:]

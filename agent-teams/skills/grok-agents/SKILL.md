@@ -236,7 +236,7 @@ a release and still needs the owner's go.
     #    refuses an empty one, which would turn the push into a delete. The first push goes
     #    only where the owner named (§ When)
     SNAP=$(git -C ../<repo>-review-<stage> rev-parse --verify HEAD)
-    git push origin "${SNAP:?}:refs/heads/<branch>"
+    git push --no-follow-tags origin "${SNAP:?}:refs/heads/<branch>"
     #    (if you linked node_modules into the worktree, delete that link first; see below)
     git worktree remove ../<repo>-review-<stage>
 
