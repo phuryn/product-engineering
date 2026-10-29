@@ -14,7 +14,7 @@ A starter router for an app repository, ready to copy, is § 1.8 of `agents-md-s
 - **"The rule that applies"** is the part that is easy to miss, in one or two lines: the thing that, missed, costs a release or a day. It is not a summary of the file in the next column; it is the sentence that must be met *now*. A row may leave it empty when the file is the whole point.
 - **"Open"** names the file to read before acting — the section too, when it is one section — or the skill by name. Several are fine. A conditional is fine: "the first time for this vendor, the setup stage".
 
-Introduce the table with two sentences: **find the moment you are in — several can hold at once — and open what its row names *before* you act**; the rule column is the part that is easy to miss, the file holds the depth.
+Introduce the table with two sentences: **at the start of every new task, find the moment you are in — several can hold at once — and open what its row names *before* you act, even a file read earlier in the session**; the rule column is the part that is easy to miss, the file holds the depth.
 
 ## Keying rows
 
@@ -53,7 +53,7 @@ The entry file tells the agent, in its own words:
 
 - **Classify the request before substantive work, and read every matching row's files top to bottom, as hard constraints.**
 - **Several rows match → read all of them.** No row matches but the task touches the repository's knowledge → start at the docs index.
-- **Do not substitute memory, a summary, or a read from a previous session.** After a compaction or at session start, reload. A quick self-test: *can I quote, right now, the rule that applies to what I am about to do?* If not, the file has not been read in this context.
+- **Do not substitute memory, a summary, or a read from a previous session.** Reload at the start of every new task, after a compaction and at session start. A quick self-test: *can I quote, right now, the rule that applies to what I am about to do?* If not, the file has not been read in this context.
 
 ## When a row failed
 

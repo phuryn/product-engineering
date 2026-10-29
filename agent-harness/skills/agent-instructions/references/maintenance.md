@@ -16,6 +16,7 @@ Then, in the same pass:
 - **Move the status out.** The plan holds the status; the entry file keeps at most three lines — the current stage, what is in production, what is waiting on whom — with a link. (A live Q&A product's status section grew until it was most of the file every session reads, and had to be moved out at least four times in four days.)
 - **Move the release narrative to the history.** What the previous release shipped, what its rounds and gates found, goes to the release history; only the rules it taught stay, in Section 1.
 - **Run the reachability check** (below), and route or retire what it lists.
+- **Run the budgets check**, and put each rule it lists as past its review date to the owner (`SKILL.md`, budgets).
 
 In a release checklist this is one line: *the instruction file reviewed — obsolete parts removed, documented parts moved to docs with a pointer, this phase's lessons added; the status current, and its three lines with it.*
 

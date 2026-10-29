@@ -31,7 +31,7 @@ It was learned on a monitoring product and a live Q&A product, named here only b
 6. **No page promises a deletion no job performs.** A retention period on the page needs the job that enforces it, idempotent and with no public endpoint; until it exists, the gap is logged in the backlog and the page promises nothing.
 7. **Essential cookies only.** Sign-in, a theme and security cookies are essential; analytics, advertising and most chat widgets are not. Any cookie that is not essential brings the consent banner with it: nothing non-essential loads before the visitor accepts, refusing is as easy as accepting, and the policy names the cookie, its purpose and its lifetime. Analytics runs without cookies by default (the `product-analytics` skill), which removes the cookie; whether it also removes the banner where the product is offered is the owner's decision, with their counsel.
 8. **Express consent at sign-up.** A new account accepts the terms and the policy before it exists, through the identity provider's own setting where it has one (on Clerk, *Require express consent to legal documents*, switched on by the owner; `clerk-production`). Each page carries its last-updated date.
-9. **A contact address only once the mailbox exists**, because an address that bounces is worse than none. Where the product is offered in the EU, the e-Commerce Directive requires an email address that allows rapid contact (Art. 5(1)(c)), so the mailbox exists before the front door is shared with anyone; elsewhere, until it does, the pages may show the postal address alone (`environments`, optional feature switches).
+9. **A contact address only once the mailbox exists**, because an address that bounces is worse than none. Where the operator is established in the EU or the UK, the e-Commerce rules require an email address that allows rapid contact (Directive 2000/31/EC, Art. 5(1)(c); UK SI 2002/2013, reg. 6(1)(c)), so the mailbox exists before the front door is shared with anyone; elsewhere, ask counsel before showing the postal address alone (`environments`, optional feature switches).
 10. **The pages are public and read no session.** They render the same for everyone, signed in or not, and every page links to them in its footer, the sign-up included.
 
 ## What the owner does by hand
@@ -39,12 +39,12 @@ It was learned on a monitoring product and a live Q&A product, named here only b
 The agent drafts, inventories, writes the test and wires the links. These are the owner's, and the agent asks for each by name rather than guessing:
 
 1. **The controller**: the legal entity's full name, its registered address and, where one exists, its company number.
-2. **The contact**: an email address that receives mail, required where the product is offered in the EU (rule 9).
-3. **The provider details**: for each provider the inventory found, confirm the account it runs under, the region its data is stored in, and that its data processing agreement is accepted (usually a click in its dashboard). A provider that acts as its own controller, as Microsoft says Clarity does, has no such agreement: the policy names it as a separate controller (`product-analytics`).
+2. **The contact**: an email address that receives mail, required where the operator is established in the EU or the UK (rule 9).
+3. **The provider details**: for each provider the inventory found, confirm the account it runs under, the region its data is stored in, and that its data processing agreement is accepted (usually a click in its dashboard). A provider that acts as its own controller, as Microsoft says Clarity does, has no such agreement: the policy names it as a recipient acting as a controller, and counsel decides how the product's own role is described (`product-analytics`).
 4. **Where the product is offered**, the governing law and the supervisory authority.
 5. **Retention**: how long each kind of data is kept. The agent then builds the job the period needs (rule 6).
 6. **The identity provider's consent setting**, switched on in its dashboard (rule 8).
-7. **Approve the text**, read in full. Nothing reaches an address a stranger is given without that approval.
+7. **Approve the text**, read in full. No URL a stranger is given serves the text before that approval.
 
 ## How you can tell it worked
 

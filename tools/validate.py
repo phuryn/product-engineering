@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """validate.py — the checks every commit to this collection passes.
 
-- Every plugin in .claude-plugin/marketplace.json has a manifest whose name matches.
+- Every plugin in .claude-plugin/marketplace.json has a manifest whose name matches, and neither the manifest nor
+  the entry pins a version.
 - Every skill: SKILL.md with frontmatter; `name` equals its folder; `description`
   present and at most 1024 characters (the Agent Skills limit).
 - No plugin commands: Codex doesn't load them, so a workflow the user starts is a user-invoked skill.
@@ -113,7 +114,8 @@ def check_plugins():
         # A pinned version keeps every install on its cached copy until the string changes, however many commits
         # land (Claude Code's plugin docs, read 2026-10-29); without one, the commit is the version.
         if "version" in data or "version" in plugin:
-            errors.append(f"{manifest.relative_to(ROOT)}: pins a version, so installs never receive new commits")
+            where = manifest.relative_to(ROOT) if "version" in data else f".claude-plugin/marketplace.json ({plugin['name']})"
+            errors.append(f"{where}: pins a version, so installs never receive new commits")
         if data.get("name") != plugin["name"]:
             errors.append(f"{manifest.relative_to(ROOT)}: name {data.get('name')!r} != {plugin['name']!r}")
         readme = base / "README.md"

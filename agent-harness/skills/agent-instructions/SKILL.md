@@ -5,7 +5,7 @@ description: "Writing or restructuring AGENTS.md or CLAUDE.md, adding a rule ('r
 
 # Agent instructions — rules met at the moment they apply
 
-The instruction file is the context an agent carries into every session: `AGENTS.md`, `CLAUDE.md`, or both. Below it is called **the entry file**, because it is where every session enters and what routes the rest. This skill is how to write one for an app repository and keep it working as the product grows. It was learned on SaaS repositories built with coding agents on Next.js + Supabase + Clerk + Netlify — a starter repository and the products built from it — and on a content repository run day to day by agents, whose instructions had grown to tens of thousands of words of doctrine. The method is stack-independent; the examples are from those repositories, named by kind.
+The instruction file is the context an agent carries into every session: `AGENTS.md`, `CLAUDE.md`, or both. Below it is called **the entry file**, because it is where every session enters and what routes the rest. This skill is how to write one for an app repository and keep it working as the product grows. It was learned on SaaS repositories built with coding agents on Next.js + Supabase + Clerk + Netlify — a starter repository and the products built from it — and on a content repository run day to day by agents, whose instructions had grown to hundreds of thousands of words of doctrine. The method is stack-independent; the examples are from those repositories, named by kind.
 
 **A rule written down is not yet a rule an agent follows: it must be met at the moment it applies.** Everything below follows from that sentence:
 
@@ -61,7 +61,7 @@ The pattern in depth, and a starter router for an app repository: `references/ro
 | What | Where it lives |
 |---|---|
 | needed in every session, with no trigger that would send the agent looking | the entry file, Section 1 or 2 |
-| needed only when touching one area | that area's knowledge file (one per area: payments, email, deploy), plus a router row; re-read at the start of every task that touches it |
+| needed only when touching one area | that area's file: the doc its router row already opens, or a new one where there is none, routed the day it is made; re-read at the start of every task that touches it |
 | procedures, gotchas, depth | the doc or skill the row opens |
 | receipts, data tables, postmortems behind a rule | an evidence file, opened only when revisiting the rule |
 | the current status | the product's plan (its stages, each with what it produces and the test of done, and where each stands); at most three lines in the entry file |
@@ -88,9 +88,9 @@ Most rules wait for their router row. A few must fire across every task — afte
 
 **Each instruction and area file has a word budget, held by a check that runs.** A file over budget is one no session reads in full, and a rule not read is not met. (`2026-10-25`, a content repository run by agents: its rules had grown to about 330,000 words that no session could read, rules competed for attention and almost none was ever removed. It was rebuilt with a word budget per file, a checker and a write-time hook.)
 
-- **The budgets live in one place** (`budgets.json` at the repository root, a path or glob to a word count), and `scripts/check_budgets.py` fails when a file is over. It runs in the test gate, and from a write-time hook (the `guardrail-hooks` skill) so an edit that crosses a budget is refused when it is made.
-- **One in, one out.** At the budget, a new rule replaces or deletes an old one, and every edit replaces or deletes before it adds.
-- **Every rule carries its receipt and a review date**: the date and what happened, or the owner's words and the date, then `(review YYYY-MM)`. Past its date a rule is earned again (new evidence, or the owner restates it) or deleted; the checker lists every rule past its date, and the release pass reads that list.
+- **The budgets live in one place** (`budgets.json` at the repository root, a path or glob to a word count), and `scripts/check_budgets.py`, copied into the repository, fails when a file is over or a key matches no file. The test gate runs that copy. Start each budget at the file's current count, rounded up, and lower it only with the owner.
+- **One in, one out.** At the budget, a new rule replaces one that guards nothing irreversible, and every edit replaces or deletes before it adds; when nothing can go, ask the owner to raise the budget.
+- **Every rule added carries its receipt and a review date**: the date and what happened, or the owner's words and the date, then `(review YYYY-MM)`. The checker lists every rule past its date, and the release pass puts each to the owner, who re-earns it or has it deleted; the agent deletes none on its own. A rule that guards an irreversible or outward-facing step (a promotion, a migration, a publish, a secret) is never retired for want of a new incident: it works by preventing one.
 - **A new file in an area folder gets a budget the day it is made**, or it is data (receipts, research, tables) that no session is told to read in full.
 
 ## Prose vs. code
@@ -120,7 +120,7 @@ The file is yours to manage: edit it without asking. Two moments call for a pass
 
 **Status lives in the plan; the entry file carries at most three lines of it** — the current stage, what is in production, what is waiting on whom — never the story. At each release the previous release's narrative moves to the release history, and only the rules it taught stay, in Section 1. (A live Q&A product's status section grew until it was most of the file every session reads, and had to be moved out at least four times in four days.)
 
-**No size target.** Judge by what a fresh session needs to start well, not by length: some things earn a permanent place in the entry file, and some things that feel obvious today will be the missing context in a month. A smart reader with the right context is the goal.
+**Within its budget, no size target.** Judge by what a fresh session needs to start well, not by length: some things earn a permanent place in the entry file, and some things that feel obvious today will be the missing context in a month. A smart reader with the right context is the goal.
 
 ## Writing a rule
 

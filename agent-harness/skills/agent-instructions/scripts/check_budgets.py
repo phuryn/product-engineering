@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """check_budgets.py - word budgets and review dates for an agent's instruction files.
 
-Reads budgets.json at the repository root: {"AGENTS.md": 1500, "docs/knowledge/*.md": 1000}. A key is a path or a
+Reads budgets.json at the repository root: {"AGENTS.md": 3000, "docs/payments.md": 1000}. A key is a path or a
 glob, relative to the root; a file matched by several keys takes the first. For each file it
 
-  a. counts words (like `wc -w`) and fails when the count is over the budget;
+  a. counts words (like `wc -w`) and fails when the count is over the budget, or when a key matches no file;
   b. lists every "(review YYYY-MM)" whose month has passed, so the rule is earned again or deleted.
 
 Exit 0 when every file is within its budget, 1 otherwise (past review dates are listed but do not fail, so a pass
-can read them in one go). Run it in the test gate, and from a write-time hook (the guardrail-hooks skill) so an edit
-that crosses a budget is refused when it is made.
+can read them in one go). Copy it into the repository and run that copy in the test gate.
 
     python check_budgets.py [--root DIR] [--today YYYY-MM]
 """
@@ -38,8 +37,12 @@ def main() -> int:
 
     seen, over = {}, 0
     for key, limit in budgets.items():
-        for path in sorted(root.glob(key)):
-            if path.is_file() and path not in seen:
+        matched = [p for p in sorted(root.glob(key)) if p.is_file()]
+        if not matched:
+            print(f"NONE  no file matches {key}")
+            over += 1
+        for path in matched:
+            if path not in seen:
                 seen[path] = (key, int(limit))
     if not seen:
         print("budgets.json matches no file", file=sys.stderr)
@@ -56,7 +59,7 @@ def main() -> int:
             for y, m in REVIEW.findall(line):
                 if f"{y}-{m}" < month:
                     print(f"      past review {y}-{m}: {rel}:{n}")
-    print(f"result: {'ok' if not over else f'{over} file(s) over budget'}")
+    print(f"result: {'ok' if not over else f'{over} file(s) over budget or unmatched'}")
     return 1 if over else 0
 
 
