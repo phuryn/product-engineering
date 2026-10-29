@@ -38,7 +38,7 @@ Every app needs a CSP header (`saas-authorization § Untrusted text`). This is h
   - `Referrer-Policy: strict-origin`, so no page, same-origin or not, hands its path and query (an id, an invitation ticket) to the next; never `no-referrer`, which makes the browser send `Origin: null` (`saas-authorization`, threat model);
   - `X-Frame-Options: DENY`.
 - **A surface that must be framed gets its own policy and its own branch in the proxy**, never a hole in the general one.
-- **Prove it on a raw response:** `content-security-policy` contains `frame-ancestors 'none'` and `'nonce-`, and two requests get different nonces.
+- **Prove it on a raw response:** `content-security-policy` contains `frame-ancestors 'none'` and `'nonce-`, two requests get different nonces, and `referrer-policy` is `strict-origin`.
 
 Receipts:
 

@@ -55,7 +55,7 @@
 - **One root layout**, holding `<html>`, the theme cookie and the provider. Several root layouts would reload the page between them.
 - **`app/(public)/layout.tsx`** holds the public header and footer and reads nothing.
 - **`app/(app)/layout.tsx`** holds `<UserButton />`, plus `<OrganizationSwitcher />` in the organization shape. Every page under it checks for itself.
-- **The public header has one button to the member home, with `prefetch={false}`.** A default `<Link>` prefetches a dynamic route down to its nearest `loading.js`, which would run member code on every landing view.
+- **The public header has one button to the member home, a plain `<a href>`.** A default `<Link>` prefetches a dynamic route down to its nearest `loading.js`, which would run member code on every landing view, and a full page load out of the landing page is what its analytics tag needs (`product-analytics`).
 - **A small client component labels that button from `document.cookie`.**
   - A `__client_uat` or `__client_uat_<suffix>` cookie that is neither empty nor `0` reads as signed in.
   - The server renders the signed-out label, so without JavaScript the button still works.
