@@ -15,7 +15,7 @@ Codex, Cursor and other agents: see the collection's root `README.md`.
 
 - **delegation** — The shared doctrine: what never delegates, when a change is too small to hand off, the brief (goal and why, binding constraints and traps, how to prove it), choosing the delegate and its model, parallel work without lost writes, and verifying what comes back.
 - **codex-agents** — The OpenAI Codex CLI as a peer you argue decisions with and a builder you hand stages to, through a wrapper that keeps sessions per directory, resumes by id and re-sends the model on every resume.
-- **grok-agents** — The unsteered independent review loop before anything ships: a fresh reviewer (the Grok CLI, or a fresh read-only Claude session; a default your agent instructions can change) reads the unreleased diff and the working tree; how to scope a round, write its brief, triage what it finds and when to stop.
+- **grok-agents** — The unsteered independent review loop before anything ships: a fresh reviewer (the Grok CLI, or a fresh read-only Claude session; a default your agent instructions can change, to a reviewer that can run the same way) reads the unreleased diff and the working tree; how to scope a round, write its brief, triage what it finds and when to stop.
 - **claude-agents** — How Codex, Grok, Cursor or another Claude session drives Claude Code headless as a peer, builder or reviewer, through a wrapper with session continuity and safe permission modes.
 
 ## Author

@@ -8,7 +8,7 @@ How configuration enters an app, the contract that keeps a missing, misplaced or
 2. **A row in the variables doc** (columns below).
 3. **A line in the env schema** that fails when it is missing (or says it is optional, below).
 
-**A value you generate rather than fetch is generated now** — written into `.env` and named in your summary. Nobody can look it up, so a placeholder left empty is a boot failure with no instruction attached to it. For production, generate it afresh; never copy development's.
+**A value you generate rather than fetch is generated now** — written into `.env` and named in your summary. Nobody can look it up, so a placeholder left empty is a boot failure with no instruction attached to it. For production, generate it afresh and keep it with production's other values, never in the development checkout's `.env`; never copy development's.
 
 ## The variables doc
 

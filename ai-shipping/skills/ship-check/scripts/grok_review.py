@@ -653,7 +653,9 @@ def main() -> None:
             args.max_turns = needed
     if reviewer == "grok":
         cmd = build_command(binary, args, prompt)
-        stdin, env = "", None
+        # Grok's cross-session memory off: GROK_MEMORY=0 wins over its settings, remote ones included
+        # (Grok 1.0.70, read 2026-10-29: managed settings had turned it on).
+        stdin, env = "", {**os.environ, "GROK_MEMORY": "0"}
     else:
         cmd = build_claude_command(binary, args, prompt)
         stdin = prompt.read_text(encoding="utf-8")
