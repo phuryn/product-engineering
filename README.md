@@ -96,6 +96,17 @@ Each pack's own `README.md` says what every skill does and when it triggers.
 
 ## Install
 
+**The quickest way:** open your agent in the project's folder and ask in the chat:
+
+```
+Please install skills from phuryn/product-engineering on GitHub in this project only. Enable auto updates.
+```
+
+In Claude Code that adds the marketplace and the six packs for this project only (in `.claude/settings.json`) and sets `autoUpdate: true` on the marketplace's entry there, so the packs update in the background while you work (observed on Claude Code 2.1.311; the setting per Claude Code's plugin docs, both read on `2026-10-29`). The packs load in the same session. Then type `/product:start-here` (Codex: `$product:start-here`) and say what you have. If your agent can't install from a prompt, use the commands below.
+
+<details>
+<summary>Install commands: Claude Code, Codex, any other agent</summary>
+
 ### Claude Code
 
 ```bash
@@ -109,12 +120,6 @@ claude plugin install work-humanizer@product-engineering
 ```
 
 Then turn on updates: `/plugin` → Marketplaces → `product-engineering` → enable auto-update. Third-party marketplaces don't auto-update by default; without it, update the packs yourself: `/plugin` → Marketplaces → `product-engineering` → Update marketplace, which also updates the packs you installed, or `claude plugin update <pack>@product-engineering` for each.
-
-**Using [pm-skills](https://github.com/phuryn/pm-skills) too?** The two work together: pm-skills covers discovery, strategy, research, execution and go-to-market; this collection covers building, shipping and running the product with coding agents.
-
-- **Its AI Shipping Kit moved here**, as the `ai-shipping` pack. Its skills and commands in pm-skills now only point here, so once `ai-shipping` is installed, turn off `pm-ai-shipping`.
-- **Five `product` skills are in both** (`competitor-analysis`, `market-segments`, `value-proposition`, `beachhead-segment`, `growth-loops`), updated here. pm-skills carries them beside many others, so keep those plugins; each of the five loads twice and your agent picks either copy.
-- **The free `work-humanizer`**, if you installed it on its own, is the same skill as the pack here: keep one.
 
 ### Codex
 
@@ -135,6 +140,14 @@ npx skills update                             # later, to update
 `npx skills` needs Node.js 22.20 or later; on an older Node it fails at start with `does not provide an export named 'glob'` (observed 2026-10-24 on Node 20.19). Upgrade Node, or run it once through a temporary Node 22: `npx -p node@22 -p skills -c "skills add phuryn/product-engineering"`.
 
 Or copy skill folders by hand into the folder your agent reads (`.agents/skills/`, `.claude/skills/`, `.cursor/skills/`, `~/.gemini/skills/` …). Every skill works from its own folder alone.
+
+</details>
+
+**Using [pm-skills](https://github.com/phuryn/pm-skills) too?** The two work together: pm-skills covers discovery, strategy, research, execution and go-to-market; this collection covers building, shipping and running the product with coding agents.
+
+- **Its AI Shipping Kit moved here**, as the `ai-shipping` pack. Its skills and commands in pm-skills now only point here, so once `ai-shipping` is installed, turn off `pm-ai-shipping`. Its id is in `claude plugin list`: `pm-ai-shipping@pm-skills`, or `pm-ai-shipping@synced` when it comes from your claude.ai account (`claude plugin disable <id>`).
+- **Five `product` skills are in both** (`competitor-analysis`, `market-segments`, `value-proposition`, `beachhead-segment`, `growth-loops`), updated here. pm-skills carries them beside many others, so keep those plugins; each of the five loads twice and your agent picks either copy.
+- **The free `work-humanizer`**, if you installed it on its own, is the same skill as the pack here: keep one.
 
 ### Into a product's own repository
 
