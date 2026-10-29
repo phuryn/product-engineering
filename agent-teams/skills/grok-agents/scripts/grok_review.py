@@ -266,14 +266,22 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
     """The reviewer has no shell, so the subject is written where it can read it:
     inside the git directory, which is never committed. The range's log with
     patches, plus the range's cumulative diff when it contains a merge (for a bare
-    ref such as HEAD, its log one line a commit, every file it holds, and every line
-    its history removed), then
+    ref such as HEAD, its log with each commit's author and message, every file it
+    holds, and every line its history removed), then
     everything uncommitted: tracked changes, and each untracked
     file listed by its own path (-uall) with its content (the skill reviews the
     working tree too, and an untracked file is how a change goes unreviewed)."""
-    def git(*a: str, env: dict | None = None) -> str:
-        proc = subprocess.run(["git", *a], cwd=str(cwd), capture_output=True, text=True,
-                              encoding="utf-8", errors="replace", stdin=subprocess.DEVNULL, env=env)
+    def git(*a: str, env: dict | None = None, raw: bool = False) -> str:
+        """raw keeps a lone carriage return, which text mode would turn into a line break.
+        Colour is off whatever the config says (color.diff=always would start every
+        removed line with an escape code, not "-")."""
+        off = ["-c", "color.ui=never", "-c", "color.diff=never", "-c", "color.status=never"]
+        proc = subprocess.run(["git", *off, *a], cwd=str(cwd), capture_output=True,
+                              stdin=subprocess.DEVNULL, env=env)
+        out = proc.stdout.decode("utf-8", "replace")
+        if not raw:
+            out = out.replace("\r\n", "\n").replace("\r", "\n")
+        proc.stderr = proc.stderr.decode("utf-8", "replace")
         if proc.returncode != 0:
             hint = ""
             if "unknown revision" in proc.stderr or "ambiguous argument" in proc.stderr:
@@ -284,7 +292,7 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
                         "nothing has been released yet, round 1 is everything the first release ships "
                         f"(the grok-agents skill, 'The subject'; ship-check, Step 6):{product_start(cwd)}")
             sys.exit(f"[grok_review.py] git {' '.join(a)} failed: {proc.stderr.strip()}{hint}")
-        return proc.stdout
+        return out
     # the empty tree's id depends on the repository's hash (SHA-1 or SHA-256)
     empty = git("hash-object", "-t", "tree", "--stdin").strip()
     # A commit's diff follows the attributes files, where `-diff` or `binary` shows a text
@@ -311,29 +319,34 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
                          f"binary ({rules[0]}), and git has no switch for that file: paths it marks show in "
                          "the commits' diffs without their content. Move the rule out for the round.\n")
     # A bare ref is round 1 before any release, whose subject is what a push sends: every
-    # file the ref holds, as a diff from the empty tree, after the log one line a commit,
-    # then every line its history removed. Patch by patch, a history begun in another
-    # repository (a clone or a fork) can be many times that.
+    # file the ref holds, as a diff from the empty tree, after the log with each commit's
+    # author and message, then every line its history removed. Patch by patch, a history
+    # begun in another repository (a clone or a fork) can be many times that.
     ends = range_ends(rng)
     whole = bool(ends) and not ends[0]
     if whole:
-        log = git("log", "--format=%h %ad %an  %s", "--date=short", rng)
+        log = git("log", "--format=%h %ad %an <%ae>  %w(0,0,4)%s%+b%w(0)", "--date=short", rng)
         tree = git(*attrs, "diff", "--no-ext-diff", "--stat", "-p", empty, rng, env=plain)
         # A push sends every commit, so a key replaced by a variable, or an .env deleted
         # or dropped on a merged branch, still ships. Every line the history held is in the
-        # tree or was removed by a commit against one of its parents (-m), so those lines
-        # complete the subject: each once per file (a lockfile removes the same lines on
-        # every upgrade), under the commit and the file that first removed it.
+        # tree or was removed by a commit against one of its parents (-m, pinned so that
+        # log.diffMerges can't change it), so those lines complete the subject: each once
+        # per file (a lockfile removes the same lines on every upgrade), under the commit and
+        # the file that first removed it, beside each binary file a commit touched, which
+        # has no lines to show. Split on newlines only: a line may hold any other break.
         removed, seen, commit, path, shown, hunk = [], set(), "", "", "", False
-        for line in git(*attrs, "log", "-p", "-m", "-U0", "--no-renames", "--no-ext-diff",
-                        "--format=commit %h %ad %an  %s", "--date=short", rng, env=plain).splitlines():
+        for line in git(*attrs, "-c", "log.diffMerges=separate", "log", "-p", "-m", "-U0", "--reverse",
+                        "--no-renames", "--no-ext-diff", "--format=commit %h %ad %an  %s",
+                        "--date=short", rng, env=plain, raw=True).split("\n"):
+            line = line[:-1] if line.endswith("\r") else line
             if line.startswith("commit "):
                 commit, path, hunk = line, "", False
             elif line.startswith("diff --git "):
                 path, hunk = line, False
             elif line.startswith("@@"):
                 hunk = True
-            elif hunk and line.startswith("-") and (path, line) not in seen:
+            elif ((line.startswith("Binary files ") or hunk and line.startswith("-"))
+                  and (path, line) not in seen):
                 seen.add((path, line))
                 if commit:
                     removed.append(commit)
@@ -344,7 +357,8 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
                 removed.append(line)
         if removed:
             tree += (f"\n# Every line {rng}'s history removed, each once per file, under the commit "
-                     "that first removed it (each commit against each parent)\n")
+                     "that first removed it (each commit against each parent), and each binary file a "
+                     "commit touched\n")
             tree += "\n".join(removed) + "\n"
     else:
         log = git(*attrs, "log", "--root", "--stat", "-p", rng, env=plain)
@@ -362,7 +376,8 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
     header = f"# Review subject: {rng}\n"
     cumulative = []
     if whole:
-        header = (f"# Review subject: {rng}, every file it holds (its log, one line a commit, then each "
+        header = (f"# Review subject: {rng}, every file it holds (its log with each commit's author and "
+                  "message, then each "
                   "file as a diff from the empty tree, then every line its history removed, each once per file)\n")
         cumulative = [f"\n# Every file {rng} holds\n", tree]
     if merges:

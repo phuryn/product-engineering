@@ -72,10 +72,9 @@ the round was stopped, the directory deleted and the round run again.)
 
 `$RELEASED` is what the repository says was last released — a production branch
 (`origin/<prod>`), a release tag, the deployed commit. If nothing has been released yet, round 1 is
-everything since the project started: `--subject HEAD`, for which the wrapper writes the log, one line a
-commit, every file HEAD holds, the first commit's included, and every line its history removed,
-since a push sends every commit (`<first commit>..HEAD` would leave that
-commit out). A product whose history began in another
+everything since the project started: `--subject HEAD`, for which the wrapper writes the log with each
+commit's author and message, every file HEAD holds, the first commit's included, and every line its
+history removed, since a push sends every commit (`<first commit>..HEAD` would leave that commit out). A product whose history began in another
 repository (a clone, or a fork) takes the same `--subject HEAD`; that repository's tags and branches are not the product's releases.
 Before any release nothing is live yet, so the brief says every finding is INTRODUCED, code that came with the
 history included. Round 1 includes what is already pushed: when a push is the deploy, pushed code is
@@ -232,9 +231,11 @@ a release and still needs the owner's go.
     # 4. when a round closes with no INTRODUCED finding above Low and no High or Critical
     #    of any age, push the snapshot THAT round reviewed — never the branch tip, which may hold the next stage's commits. A
     #    round that found something is fixed, re-tested, re-snapshotted and reviewed again;
-    #    SNAP is the full sha the clean round reviewed: set it again in a new shell, since an
-    #    empty source turns the push into a delete, which `:?` refuses. The first push goes
+    #    SNAP is read from that round's worktree, whose HEAD is the snapshot it reviewed
+    #    (a new shell has lost it, and the main tree's HEAD may hold the next stage); `:?`
+    #    refuses an empty one, which would turn the push into a delete. The first push goes
     #    only where the owner named (§ When)
+    SNAP=$(git -C ../<repo>-review-<stage> rev-parse --verify HEAD)
     git push origin "${SNAP:?}:refs/heads/<branch>"
     #    (if you linked node_modules into the worktree, delete that link first; see below)
     git worktree remove ../<repo>-review-<stage>
