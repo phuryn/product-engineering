@@ -102,7 +102,7 @@ Each pack's own `README.md` says what every skill does and when it triggers.
 Please install skills from phuryn/product-engineering on GitHub in this project only. Enable auto updates.
 ```
 
-In Claude Code that adds the marketplace and the six packs for this project only (in `.claude/settings.json`) and sets `autoUpdate: true` on the marketplace's entry there, so the packs update in the background while you work (observed on Claude Code 2.1.311; the setting per Claude Code's plugin docs, both read on `2026-10-29`). The packs load in the same session. Then type `/product:start-here` (Codex: `$product:start-here`) and say what you have. If your agent can't install from a prompt, use the commands below.
+In Claude Code or the Claude desktop app that adds the marketplace and the six packs for this project only (in `.claude/settings.json`) and sets `autoUpdate: true` on the marketplace's entry there, so the packs update in the background while you work (observed in the desktop app, on Claude Code 2.1.311; the setting per Claude Code's plugin docs, both read on `2026-10-29`). The packs load in the same session. Then type `/product:start-here` (Codex: `$product:start-here`) and say what you have. If your agent can't install from a prompt, use the commands below.
 
 <details>
 <summary>Install commands: Claude Code, Codex, any other agent</summary>
