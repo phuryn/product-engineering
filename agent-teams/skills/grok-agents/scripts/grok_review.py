@@ -500,10 +500,10 @@ def build_claude_command(claude_bin: str, args: argparse.Namespace, brief: Path)
     return cmd
 
 
-# Grok's own isolation, per process: its memory, its managed MCP configs and gateway tools, and every Claude
-# and Cursor compatibility cell (their
-# instructions, rules, skills, hooks and MCP servers). The environment wins over config.toml; measured with
-# `grok inspect --json` on Grok 1.0.70, 2026-10-29: 19 compatibility entries went from enabled to disabled.
+# Grok's own isolation, per process: its memory, its managed MCP configs and gateway tools, every Claude and
+# Cursor compatibility cell (their instructions, rules, skills, hooks, MCP servers and session reading) and
+# Codex's session reading. The environment wins over config.toml; measured with `grok inspect --json` on
+# Grok 1.0.70, 2026-10-30: all 13 compatibility cells off, and the 19 entries they gated disabled.
 GROK_ISOLATION = {"GROK_MEMORY": "0", "GROK_MANAGED_MCPS_ENABLED": "false",
                   "GROK_MANAGED_MCP_GATEWAY_TOOLS_ENABLED": "false", "GROK_CODEX_SESSIONS_ENABLED": "false",
                   **{f"GROK_{tool}_{cell}_ENABLED": "false" for tool in ("CLAUDE", "CURSOR")
@@ -642,7 +642,7 @@ def main() -> None:
             print("  no Grok CLI: a fresh Claude Code session reviews, read-only, with no settings, "
                   "hooks, plugins, MCP servers, auto-memory or saved session")
         if reviewer == "grok":
-            print("  memory, managed MCP servers and Claude and Cursor compatibility off for the run; "
+            print("  memory, managed MCP servers, and Claude, Cursor and Codex compatibility off for the run; "
                   + grok_still_on(binary, args.cwd or os.getcwd()))
         wanted = grok_flags + ["--reasoning-effort", "--sandbox", "--model"] if reviewer == "grok" \
             else claude_flags + ["--model"]

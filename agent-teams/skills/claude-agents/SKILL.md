@@ -112,7 +112,7 @@ What each mode sends, every turn:
 |---|---|
 | `consult` | `--permission-mode dontAsk --permission-prompts none --tools Read,Grep,Glob,Bash --strict-mcp-config` |
 | `build` | `--permission-mode auto --permission-prompts none --strict-mcp-config` (default tools) |
-| `review` | `--restricted --tools Read,Grep,Glob --strict-mcp-config --permission-mode dontAsk --permission-prompts none --no-session-persistence`, and `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` |
+| `review` | `--restricted --tools Read,Grep,Glob --strict-mcp-config --permission-mode dontAsk --permission-prompts none --no-session-persistence`, `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`, and `CLAUDE_CODE_EFFORT_LEVEL` removed |
 
 All three add `-p --output-format stream-json --verbose --effort <level>`. After each run the answer goes to stdout and one line to stderr — new or resumed session id, mode and the permission mode that actually ran, the model that ran, the effort the reply ran at, this run's cost and the session's, turns — plus a warning when any of those differs from what was asked, the list of denied tool calls, and a warning when Claude Code saved no transcript. **Read that line before trusting a round.** A failed run prints nothing on stdout and exits non-zero (2 for a bad argument to the wrapper).
 
@@ -173,7 +173,7 @@ The `claude` process needs the network, to reach the API, and write access to it
 
 ### Gotchas captured
 
-- **Effort is visible only in the transcript.** The JSON result names the model (`modelUsage`, and the init event's `model`) but not the effort; the transcript records it on every reply, and the wrapper reads it from there, best-effort, since that format is internal (observed 2026-10-24). `CLAUDE_CODE_EFFORT_LEVEL` in the environment overrides `--effort` (env-vars docs); the wrapper warns when it is set.
+- **Effort is visible only in the transcript.** The JSON result names the model (`modelUsage`, and the init event's `model`) but not the effort; the transcript records it on every reply, and the wrapper reads it from there, best-effort, since that format is internal (observed 2026-10-24). `CLAUDE_CODE_EFFORT_LEVEL` in the environment overrides `--effort` (env-vars docs); the wrapper warns when it is set, and in review mode removes it, so a review runs at the effort it asks for.
 - **An unknown model is not caught up front.** The session opens, the first request fails with `There's an issue with the selected model` (API 404), the exit is 1, and the state keeps that session, so pass `--model` again or `--new` (observed 2026-10-24).
 - **A failed run's `result` is the error text.** The wrapper prints it on stderr, never as the answer; check `is_error`, not the exit code alone, when calling `claude -p` directly.
 - **Nested under Claude Code it still works.** The child inherits `CLAUDECODE=1` and `CLAUDE_CODE_CHILD_SESSION=1`; `-p` sessions are still saved and resumable (observed 2026-10-24; env-vars docs agree).

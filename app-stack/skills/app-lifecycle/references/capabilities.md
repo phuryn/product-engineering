@@ -46,7 +46,7 @@ Error capture and alerts for failures users encounter (Sentry, on this stack); n
 ### Behaviour analytics, cookieless
 Session recordings and heatmaps with cookies off and both storage consents denied; disabled without a project id.
 - **When:** a landing page exists and the privacy page can promise it.
-- **Owner:** create the project, switch its cookies off, supply the project id, capture the setting in a screenshot.
+- **Owner:** create the project, switch its cookies off, capture the setting in a screenshot, have Clarity's support mask the URL parameters the agent names (or decide with counsel to record them), then supply the project id.
 - **How:** the `product-analytics` skill; `default-choices.md` (analytics, cookieless).
 
 ### Legal pages + legal consent at sign-up
