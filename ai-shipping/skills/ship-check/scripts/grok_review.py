@@ -505,8 +505,9 @@ def build_claude_command(claude_bin: str, args: argparse.Namespace, brief: Path)
 # instructions, rules, skills, hooks and MCP servers). The environment wins over config.toml; measured with
 # `grok inspect --json` on Grok 1.0.70, 2026-10-29: 19 compatibility entries went from enabled to disabled.
 GROK_ISOLATION = {"GROK_MEMORY": "0", "GROK_MANAGED_MCPS_ENABLED": "false",
-                  "GROK_MANAGED_MCP_GATEWAY_TOOLS_ENABLED": "false", **{f"GROK_{tool}_{cell}_ENABLED": "false"
-                  for tool in ("CLAUDE", "CURSOR") for cell in ("AGENTS", "RULES", "SKILLS", "HOOKS", "MCPS")}}
+                  "GROK_MANAGED_MCP_GATEWAY_TOOLS_ENABLED": "false", "GROK_CODEX_SESSIONS_ENABLED": "false",
+                  **{f"GROK_{tool}_{cell}_ENABLED": "false" for tool in ("CLAUDE", "CURSOR")
+                     for cell in ("AGENTS", "RULES", "SKILLS", "HOOKS", "MCPS", "SESSIONS")}}
 
 
 def grok_still_on(grok_bin: str, cwd: str) -> str:

@@ -539,7 +539,8 @@ def main() -> None:
     env = dict(os.environ)
     if mode == "review":
         env["CLAUDE_CODE_DISABLE_AUTO_MEMORY"] = "1"
-    if os.environ.get("CLAUDE_CODE_EFFORT_LEVEL"):
+        env.pop("CLAUDE_CODE_EFFORT_LEVEL", None)  # it overrides --effort and would lower the round
+    if env.get("CLAUDE_CODE_EFFORT_LEVEL"):
         sys.stderr.write(f"{TAG} warning: CLAUDE_CODE_EFFORT_LEVEL="
                          f"{os.environ['CLAUDE_CODE_EFFORT_LEVEL']} overrides --effort {effort}\n")
 
