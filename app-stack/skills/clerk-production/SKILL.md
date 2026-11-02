@@ -45,7 +45,7 @@ Three things of the product's own are named throughout. **The integration notes*
 5. **Sign-in lands on the member home, never on `/`.**
    - `signInFallbackRedirectUrl` and `signUpFallbackRedirectUrl` name the member home, and `afterSignOutUrl` is `/`.
    - The member home sends a signed-out visitor to `/sign-in` with a `redirect_url` back to itself.
-   - The root `<ClerkProvider>` takes `nonce`, never `dynamic`.
+   - The root `<ClerkProvider>` takes `nonce`, never `dynamic`: the root layout reads it from the request's `content-security-policy` header, the `'nonce-…'` in `script-src` (`references/sessions-and-front-door.md`).
 6. **The front door reads no session.** `/` and every public page never call `auth()`, the seam or `<Show>`, and a signed-in visitor is never redirected away. The header's one button is labelled from the `__client_uat` cookie. → `references/sessions-and-front-door.md § The front door and the member home`
 7. **In the organization shape, *Membership required* goes on at setup, before the first migration.** The authenticated harness then creates each test account's organization. In the individual shape, organizations stay off. → `references/organizations-and-billing.md § Organizations`
 8. **Organization management is Clerk's own modal**, never a page you build. What it lacks goes in as a custom page inside it, whose Server Actions re-resolve the caller and recheck the permission.
@@ -89,6 +89,14 @@ All on the **development** instance first.
 4. **Test mode** (*Configure → Instance → Test mode*: on), before the authenticated browser suite.
    - Change the default verification code: it is the password to every test account on the instance.
    - Create one user with a `+clerk_test` address by hand, the fastest proof that Test mode is really on. → `references/authenticated-mile.md`
+
+**Steps 2 to 4 read as dashboard clicks, but the agent can make three of them through Clerk's Backend API** with the development instance's secret key, and get a read-back the dashboard doesn't give (Clerk's Backend API spec of `2026-08-20`, read `2026-11-02`):
+
+- the admin's deletion path: `PATCH /v1/instance/organization_settings` with `admin_delete_enabled: false`, read back with `GET` on the same path;
+- the second role: `PATCH /v1/organization_roles/{id}` with its new `name` and `key` (the key starts with `org:`, and a new key carries over to the organization settings where the role is the creator's or the default), read back with `GET /v1/organization_roles`;
+- test mode: `PATCH /v1/instance` with `test_mode: true`. No `GET` returns it, so the `+clerk_test` user above is its proof.
+
+(`2026-10-31`, an evals product made all three this way while its owner was away from the machine.) The rest stays the owner's, in the dashboard.
 5. **Billing**, only when the product bills, and only after organizations: Free and one paid plan for organizations, written in a billing file (its `plans` block included) and applied in two commands: `npx clerk config patch --file <file> --dry-run`, read what it would send, then the same without `--dry-run`. *Manage billing* goes to the admin role alone. → `references/organizations-and-billing.md § Billing`
 6. **Legal consent**, once the legal pages are live: *Configure → Legal → Require express consent to legal documents*, with their URLs. The sign-up form then carries the consent checkbox.
 7. **OAuth application settings**, only when the product is an MCP server (§ MCP OAuth).

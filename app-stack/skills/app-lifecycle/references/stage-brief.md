@@ -41,6 +41,7 @@
 
 - <The product-section rules, decision-log entries and default choices this stage must hold — named, with where each lives.>
 - <What is deliberately not in this stage.>
+- <The rules review rounds taught since this brief was written, or the file that holds them, folded in before the builder starts.>
 
 ## Files it will touch
 
@@ -49,6 +50,7 @@
 ## Tests and docs that land with it
 
 - <The tests the change owes, and in which harness they run; the doc lines to correct.>
+- <Every existing page and function the stage touches, exercised, not only the new ones.>
 
 ## Needs a person
 

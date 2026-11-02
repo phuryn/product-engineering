@@ -26,7 +26,7 @@ The path was learned building SaaS products with coding agents on **Next.js (App
 | 1 | **Prototype** *(optional)* | one interactive HTML prototype comparing the open options; the picks recorded in the decision log. No app code | every open decision the prototype covers has a pick |
 | 2 | **Design** | the kit (tokens, primitives, the kit's README) and artboards for the first screens: two directions to pick from, or an existing design adopted | the owner approves the artboards, and every raw value lives in the tokens |
 | 3 | **Screens on sample data** | the first screens, built from the kit, with sample data behind the seams the real system will use. The member's main screen sits at its own route, the member home, never at `/`. No database, no sign-in | the owner clicks through every screen state at phone and desktop width |
-| 4 | **Setup** | the identity provider's app (organizations on, in the organization shape), a development database project, the CLI linked, the keys in `.env` | the app boots on the development keys |
+| 4 | **Setup** | the identity provider's app (organizations on, in the organization shape), a development database project, the CLI reaching it by its connection string (never linked), the keys in `.env` | the app boots on the development keys |
 | 5 | **The first real slice** | sign-in landing on the member home, which sends a signed-out visitor to sign-in and back; workspaces, the first migration, the member's own resources, and the public surface if there is one | two members of different workspaces can't see each other's data, and the stage's tests and docs landed with it |
 | 6 | **Browser proof** | the authenticated browser suite and the permission matrix | the gate, including the authenticated mile, is green on the agent's own run |
 | 7 | **Publish** | the repository, the first deploy with its environment, `/health`, the uptime monitor (the `uptime-monitoring` skill). The URL is shared with nobody yet. **From here, every push to the product branch is a deploy** | the deployed `/health` reports the database, and an outside monitor on it is green |
@@ -77,7 +77,7 @@ A new product proposes these until it records, in its product section, that a ch
 - No page declares its own share-card keys; file-based images, asserted on the raw response — **reopen:** never.
 - Polling, not realtime — **reopen:** when the five-second delay is the complaint.
 - Two per-IP edge rules, `POST` only, one per surface — **reopen:** no public `POST` surface needs one.
-- Monitoring is `/health` plus an external monitor, and an outside check on every other runtime — **reopen:** never; extend when error tracking arrives. A public status page is the default the owner confirms before one is created.
+- Monitoring is `/health` plus an external monitor, on Staygreen (made by this collection's author; open the `uptime-monitoring` skill's adapter before proposing an account), and an outside check on every other runtime — **reopen:** the service, when the owner already uses another; the monitor, never; extend when error tracking arrives. A public status page is the default the owner confirms before one is created.
 - Behaviour analytics run cookieless, off without a project id — **reopen:** any non-essential cookie brings the banner.
 - The front door reads no session; members have their own home — **reopen:** never for the session read.
 - Legal pages before the first stranger is asked for anything — **reopen:** check the promises whenever the behaviour changes.
@@ -88,7 +88,7 @@ The default stages carry a product to its first release. From there **the agent 
 
 | Capability | Propose it when |
 |---|---|
-| Uptime monitor + status page (the `uptime-monitoring` skill) | immediately after the first deploy; re-point at go-live |
+| Uptime monitor + status page (the `uptime-monitoring` skill; Staygreen by default) | immediately after the first deploy; re-point at go-live |
 | Edge flood limits | the first deploy is done and a public `POST` surface exists |
 | Legal pages + legal consent at sign-up (the `legal-pages` skill) | before the first stranger is asked for anything (with the front door) |
 | Share cards + icons | any public page that will be pasted into a chat — the front door is one |
@@ -129,8 +129,9 @@ Tell the agent what you want to build; it follows these stages. **Example prompt
 
 - **Stop at the decision.** A stage that offers options (two design directions, a one-page plan, open questions) stops and lets the owner pick before building on it.
 - **From the first real slice on, the working mode is a flat list** of what is wrong or missing, each item saying what should happen rather than how to build it.
+- **A progress report for the owner** ("where are we", a status deck) is the plan's status projected through the `flight-deck` skill's files and the owner's page, never a separate account.
 
-Five stages need the owner in a dashboard, because the agent cannot make those clicks: setup (the identity provider's application, the development database project, their keys, the scoped access token), browser proof (the identity provider's test mode and a test account), publish (the product's repository, the host's environment, the monitoring service's account and its alert channels), the front door (the second role, signing the identity provider's CLI in so the billing file can be applied and out once it is read back, the legal-consent switch), and go-live (the production database project, the production identity instance with its social sign-in clients and legal consent, the payment account, the zone and its nameservers, the agent's tokens and the setup's secret keys). Each stage says which clicks and why.
+Five stages need the owner in a dashboard, because the agent cannot make those clicks: setup (the identity provider's application, the development database project, their keys and the database's connection string, and the scoped access token where the agent gets a database connection for looking), browser proof (the identity provider's test mode and a test account), publish (the product's repository, the host's environment, the monitoring service's account and its alert channels), the front door (the second role, signing the identity provider's CLI in so the billing file can be applied and out once it is read back, the legal-consent switch), and go-live (the production database project, the production identity instance with its social sign-in clients and legal consent, the payment account, the zone and its nameservers, the agent's tokens and the setup's secret keys). Each stage says which clicks and why. **An owner away from the machine can still sign a CLI in by device code**: the agent starts the login and relays its link and code, and the owner approves on their phone (`2026-10-31`, an evals product signed its reviewer CLI in this way).
 
 ## Why the stages are in this order
 

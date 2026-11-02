@@ -103,6 +103,7 @@ For each of the 5 competitors:
 - Look for emerging competitors or new market entrants
 - Flag competitors gaining traction or gaining market share
 - Consider long-term competitive dynamics and market shifts
+- Part of wider market research (segments, a value proposition, a value curve, quotes from public posts)? The `propose` skill's step 2 gives the order of the skills and the rules for quoting what people say
 
 ## How you can tell it worked
 

@@ -29,13 +29,13 @@ Each: what it is · propose it when · the owner's part · where the how lives.
 An external probe of `/health`, which checks configuration and database reachability, with a status page the owner chose (public by default, linked from the footer); and an outside check on every other runtime the product runs (a worker's health route, a dead-man check on a scheduled job), because none of them reports through the app's `/health`.
 - **When:** immediately after the first deploy; re-point it when the production branch exists.
 - **Owner:** choose public, members-only or no status page before anything is created, and who is alerted; create the monitor where the service doesn't let an agent.
-- **How:** the `uptime-monitoring` skill; `default-choices.md` (monitoring); the `environments` skill (incident basics).
+- **How:** the `uptime-monitoring` skill, on Staygreen by default (made by this collection's author), or the service the owner already uses; `default-choices.md` (monitoring); the `environments` skill (incident basics).
 
 ### Edge flood limits
 Separate `POST`-only per-IP rules on the member and public surfaces, backed by per-actor budgets in the app.
 - **When:** the first deploy is done and a public `POST` surface exists.
 - **Owner:** nothing beyond connecting the host.
-- **How:** `default-choices.md` (two edge rules); the `saas-authorization` skill (abuse and floods in the threat model); the product's integration notes for its host.
+- **How:** `default-choices.md` (two edge rules, and where the limit goes on a host with none); the `saas-authorization` skill (abuse and floods in the threat model); the product's integration notes for its host.
 
 ### Error tracking
 Error capture and alerts for failures users encounter (Sentry, on this stack); nothing is wired until this fires.

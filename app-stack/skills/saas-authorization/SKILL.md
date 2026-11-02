@@ -20,7 +20,7 @@ Every principle is stated first so that it holds on any stack. The Clerk, Supaba
 
 The full rule, its reason and its receipt for each is in `references/model.md`.
 
-1. **Everything belongs to a workspace, and the product keys on its own row.** Every domain table hangs off a workspace or off something that does. Only the `workspaces` table holds the identity provider's org or user id, so a change of provider is a migration of one table.
+1. **Everything belongs to a workspace, and the product keys on its own row.** Every domain table hangs off a workspace or off something that does. Only the `workspaces` table holds the identity provider's org or user id, so a change of provider is a migration of one table. **Authorship** (who wrote a note, who labelled a row) is the one other place, and it gets one table of its own: a member row holding only the workspace, the provider's user id and the product's own member id, made on the member's first write, never read for authorization and never a copy of a name, an email or a role; author columns reference that row, so a change of provider is two tables. (`2026-10-31`, an evals product left authorship out of its first version because this rule gave it no recipe.)
 2. **Two credentials, never mixed.** A member session, verified server-side on every request and never decoded and trusted. An anonymous token (a cookie: random, one row per token, hash stored), only when the product has an anonymous public. Member routes never trust the token; public routes never read session claims; no route carries both.
 3. **Deterministic code decides whatever crosses a trust boundary or can't be taken back:** authorization, money, sending, deleting, changing someone's records. A screen, a client, a prompt or a model may *propose* the action; a tool, a constraint, a hook or the orchestration code decides it. A two-way door can rest on judgement. A one-way door cannot.
 4. **Three functions carry the model; no route reads raw claims.** `resolve<Thing>(publicId)` → the thing and its workspace. `requireVisitor(thingId, cookie)` → the anonymous visitor row. `requireWorkspaceAccess(workspaceId, auth, permission)` → throws unless the caller holds that permission in *that* workspace.
@@ -46,6 +46,8 @@ The full rule, its reason and its receipt for each is in `references/model.md`.
 | Webhooks | Verify signatures, handle replays idempotently, process only events you own | `§ Webhooks` |
 | Scheduled work | No public cron endpoint. Each run idempotent: a unique key per run, or a receipt per unit of work claimed under a lease | `§ Scheduled work` |
 | Secrets | Never in the repo, a URL, a log line or a client bundle. `server-only` on every module that imports one. A leaked key is rotated before anything else; a planned rotation reaches every holder before the old value is revoked | `§ Secrets` |
+| Calls to customer-supplied addresses | Only `https`, resolved once and refused unless public (no loopback, private, link-local or metadata address), connected to the address checked, every redirect checked again, time and size capped, nothing of yours sent | `§ Calls to customer-supplied addresses` |
+| Customer secrets | Encrypted before they reach the database, under a key held outside it, bound to their row; decrypted only where used; never shown back, logged or returned | `§ Customer secrets at rest` |
 | Embedded agents | What an agent can do is bounded by its tools, never by its prompt. Each run and each actor has a cost ceiling | `§ Embedded agents` |
 
 ## Order of work
@@ -75,7 +77,7 @@ A member of one workspace, holding another workspace's ids, can neither see nor 
 | File | Holds | Read when |
 |---|---|---|
 | `references/model.md` | workspaces and the two shapes; the two credentials; deterministic enforcement; the three functions; the active organization; permissions and roles, and what screens show and say; entitlements; roles vs entitlements; invariants as constraints; unguessable ids and public reads | adding sign-in, a workspace, a role, a permission, a plan limit, or any route that touches data |
-| `references/threat-model.md` | each threat class in depth, with the stack's mechanism: the body helper, the origin check, edge and per-actor limits, the origin seal, token storage, what the database may hold, the anonymous cookie, webhooks, jobs, secrets, agents | adding a public surface, a mutation, an API token, a webhook, a job, a secret or an agent; a security review |
+| `references/threat-model.md` | each threat class in depth, with the stack's mechanism: the body helper, the origin check, edge and per-actor limits, the origin seal, token storage, what the database may hold, the anonymous cookie, webhooks, jobs, secrets, calls to customer-supplied addresses, customer secrets at rest, agents | adding a public surface, a mutation, an API token, a webhook, a job, a secret or an agent; a security review |
 | `references/documents-and-tests.md` | what the permissions, architecture and flows docs must hold about authorization; the required tests; the authorization rules that came from bugs; reading the matrix against intent | writing or checking those docs; writing an authorization test; reviewing a permission matrix |
 
 ## When something is learned

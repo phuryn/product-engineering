@@ -1,6 +1,6 @@
 # The migrations window — when deployed code meets a new schema
 
-The timing principle, on any stack where the code deploys and the schema migrates as two separate acts. How migrations are written, applied and checked on Supabase — files only, the CLI linked to development and production reached by its own connection string, the dry run, the ledger read before and after, never through an MCP server or the dashboard — is the `supabase-production` skill. This file is about the minutes between the two acts.
+The timing principle, on any stack where the code deploys and the schema migrates as two separate acts. How migrations are written, applied and checked on Supabase — files only, each database reached by its own connection string and the CLI never linked, the dry run, the ledger read before and after, never through an MCP server or the dashboard — is the `supabase-production` skill. This file is about the minutes between the two acts.
 
 ## Does a push apply migrations?
 

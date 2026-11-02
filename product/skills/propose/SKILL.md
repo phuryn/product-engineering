@@ -24,7 +24,13 @@ Everything the owner gave: notes, research, data, links, screenshots, competitor
 - **Alternatives:** up to five that the people in question actually use, including substitutes (the spreadsheet, the agency, the manual workaround) and **doing nothing**. Keep direct competitors distinct from substitutes. When the `competitor-analysis` skill is installed, hand it this narrower scope instead of its full report, and tell it to leave out any market size, share or funding figure it has no source for.
 - **The segment**, when it is still open: the `market-segments` and `beachhead-segment` skills. **The value proposition and the value curve** against the alternatives: the `value-proposition` and `value-curve` skills.
 - **What people say** in reviews, forums, Reddit and X, when the owner wants it: for the problems and the words people use, never for how common a problem is or what anyone would pay.
+  - **Each quote is verbatim, checked against the page as fetched**, with its link and the date it was read.
+  - **Leave out posts by a vendor, its staff or its affiliates**, and paid or promoted ones: astroturf reads as demand.
+  - **A quote read from a mirror or an archived copy**, because the site blocks fetching, is flagged as such.
+  - (`2026-11-01`, an evals product's market research: these rules made its quotes usable, and had to be written into the brief because no skill held them.)
 - **Every source gets its address and the date it was read.** A claim without one is the agent's own.
+
+**Market research asked for on its own** (competitors, segments, a value proposition, a value curve, what people say) is this step without the proposal, in this order: the alternatives (`competitor-analysis`), the segments (`market-segments`, then `beachhead-segment` while the first one is open), the value proposition for the chosen segment (`value-proposition`), and the value curve against the alternatives (`value-curve`), with what people say gathered alongside under the rules above. It ends with every claim marked by kind (step 3), not with a proposal. (`2026-11-01`, an evals product: such a request took four skills composed by hand, in an order none of them stated.)
 
 ### 3. Mark every claim by kind
 

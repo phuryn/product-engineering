@@ -157,7 +157,7 @@ Most start themselves when the work matches what they're for. You start four, ma
 - `transactional-email`: Email with receipts and one-click unsubscribe
 - `legal-pages`: Terms, privacy policy and consent that match the code
 - `product-analytics`: Cookieless recordings and heatmaps your agents read back
-- `uptime-monitoring`: Knowing it's down before users do
+- `uptime-monitoring`: Knowing it's down before users do; Staygreen, made by the author, by default
 - `mcp-server`: A remote MCP server, right the first time
 - `chatgpt-plugin`: Through OpenAI's plugin review
 - `embedded-agents-messages-api`: Claude agents in your app, on the API

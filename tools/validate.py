@@ -17,6 +17,8 @@
 - Every "the `x` skill" names a skill in the collection, and none names a user-invoked one: an
   agent cannot load those, so other skills name their command instead.
 - No generated clutter (__pycache__, .pyc) in the tree.
+- Every script a skill carries parses as Python 3.9, and one that writes `X | Y` in an annotation
+  imports `annotations` from __future__: macOS ships Python 3.9 as python3.
 - No leaks into any tracked file: local paths, the author's names outside their allowed places, and
   the private product and repository names listed in tools/leaks.local.txt (untracked: the public
   repository must not carry the list itself).
@@ -27,6 +29,7 @@
 
     python tools/validate.py
 """
+import ast
 import json
 import os
 import re
@@ -53,9 +56,12 @@ if LOCAL_LEAKS.exists():
 # A leak pattern allowed in named places only, each with the owner's decision (AGENTS.md, rule 1).
 # The places are regular expressions matched against the whole repository-relative path.
 LEAK_EXCEPTIONS = {
-    # The author's public monitoring product, named in its own adapter and in that skill's README
-    # line, each with a disclosure, and in the rule that allows it (owner, 2026-10-27).
-    r"\bStaygreen\b": (r"app-stack/skills/uptime-monitoring/.*", r"app-stack/README\.md", r"AGENTS\.md"),
+    # The author's public monitoring product, the collection's default monitor, named with a
+    # disclosure in its skill, in app-lifecycle's default choices and in the READMEs' monitoring
+    # lines, and in the rule that allows it (owner, 2026-10-27, widened 2026-11-02).
+    r"\bStaygreen\b": (r"app-stack/skills/uptime-monitoring/.*", r"app-stack/skills/app-lifecycle/SKILL\.md",
+                        r"app-stack/skills/app-lifecycle/references/(?:default-choices|capabilities|stages)\.md",
+                        r"app-stack/README\.md", r"README\.md", r"AGENTS\.md"),
     # The author's newsletter: linked from the root and pack READMEs; the author's address in the manifests.
     r"productcompass\.pm": (r"(?:[^/]+/)?README\.md", r"(?:[^/]+/)?\.claude-plugin/[^/]+\.json"),
 }
@@ -257,6 +263,35 @@ def check_copies():
             errors.append(f"{copy}: not the same as {source}; copy it again")
 
 
+def check_python_floor():
+    """Every script a skill carries runs on Python 3.9, macOS's stock python3 (2026-10-31: three
+    scripts' `str | None` annotations raised TypeError there before anything ran)."""
+    for p in sorted(ROOT.glob("*/skills/**/*.py")):
+        rel = p.relative_to(ROOT).as_posix()
+        try:
+            tree = ast.parse(p.read_text(encoding="utf-8"), filename=rel, feature_version=(3, 9))
+        except SyntaxError as e:
+            errors.append(f"{rel}:{e.lineno}: syntax Python 3.9 can't parse: {e.msg}")
+            continue
+        if any(isinstance(n, ast.ImportFrom) and n.module == "__future__"
+               and any(a.name == "annotations" for a in n.names) for n in tree.body):
+            continue
+        for n in ast.walk(tree):
+            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                a = n.args
+                anns = [x.annotation for x in [*a.posonlyargs, *a.args, *a.kwonlyargs, a.vararg, a.kwarg]
+                        if x is not None and x.annotation is not None] + ([n.returns] if n.returns else [])
+            elif isinstance(n, ast.AnnAssign):
+                anns = [n.annotation]
+            else:
+                continue
+            for ann in anns:
+                if any(isinstance(x, ast.BinOp) and isinstance(x.op, ast.BitOr) for x in ast.walk(ann)):
+                    errors.append(f"{rel}:{ann.lineno}: an `X | Y` annotation fails on Python 3.9 "
+                                  "without `from __future__ import annotations`")
+                    break
+
+
 def check_cli():
     claude = shutil.which("claude")
     if not claude:
@@ -278,6 +313,7 @@ def main():
     listed = check_listing()
     check_tree()
     check_copies()
+    check_python_floor()
     check_cli()
     for w in warnings:
         print(f"warning: {w}")

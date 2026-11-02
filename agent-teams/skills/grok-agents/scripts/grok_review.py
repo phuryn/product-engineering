@@ -60,14 +60,20 @@ Exit codes:
     0  round completed and looks like a real round
     1  usage / environment problem (no binary, bad path, missing flag)
     2  round is suspiciously short — treat as FAILED, not clean
+    3  the reviewer answered that its account is out of usage: the round did
+       not run; the message gives the rerun with the other reviewer
     N  the reviewer's own non-zero exit, passed through
 """
+
+from __future__ import annotations  # `str | None` annotations on Python 3.9, macOS's stock python3
 
 import argparse
 import atexit
 import json
 import os
 import platform
+import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -86,6 +92,16 @@ GROK_BIN_NAME = "grok.exe" if platform.system() == "Windows" else "grok"
 # enough below a real round to avoid false alarms and far enough above a
 # preamble to catch the failure this wrapper exists for.
 DEFAULT_MIN_CHARS = 1500
+
+# An account out of credit answers in a line, which reads as a failed round with no next step.
+# Observed 2026-10-31: a signed-in Grok CLI answered "402 usage balance exhausted". Read only when
+# a round failed (a non-zero exit or a short answer), so a review that discusses a 402 is never
+# taken for one.
+OUT_OF_USAGE = re.compile(
+    r"\b402\b|usage balance|balance (?:is )?exhausted|insufficient (?:credits?|balance|funds)"
+    r"|out of (?:credits?|usage)|credit balance is too low|exceeded your (?:current )?quota",
+    re.IGNORECASE,
+)
 
 # A brief thinner than this is very unlikely to carry the goal, the constraints
 # that bind, and how to prove it. Warned about, never fatal — some legitimate
@@ -554,6 +570,34 @@ def build_command(grok_bin: str, args: argparse.Namespace, brief: Path) -> list[
     return cmd
 
 
+def out_of_usage(reviewer: str, *texts: str) -> None:
+    """Exit 3, with the rerun, when the reviewer's account is out of usage: the round never ran."""
+    hit = next((m for t in texts if t for m in [OUT_OF_USAGE.search(t)] if m), None)
+    if not hit:
+        return
+    sys.stderr.write(f"[grok_review.py] {reviewer} answered that its account is out of usage "
+                     f"({hit.group(0)!r}): the round did not run, so it is not a clean round.\n")
+    rest, skip = [], False
+    for a in sys.argv[1:]:
+        if skip:
+            skip = False
+            continue
+        key = a.split("=", 1)[0]
+        if len(key) > 4 and "--reviewer".startswith(key):  # argparse takes --rev for --reviewer
+            skip = "=" not in a
+            continue
+        rest.append(a)
+    other = "claude" if reviewer == "grok" else "grok"
+    who = "a fresh read-only Claude Code session" if other == "claude" else "Grok, where it is installed"
+    sys.stderr.write(
+        f"  Rerun the round with the other reviewer, {who}:\n"
+        f"    {shlex.join(['python', sys.argv[0], *rest, '--reviewer', other])} < /dev/null\n"
+        "  Where the repository's instructions name this reviewer, ask the owner before switching, "
+        "and record the answer in the round's report.\n"
+    )
+    sys.exit(3)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Runs one unsteered independent review round: Grok, or a fresh Claude Code session.",
@@ -745,6 +789,7 @@ def main() -> None:
         if proc.stderr:
             sys.stderr.write(proc.stderr)
         sys.stdout.write(out)
+        out_of_usage(reviewer, out, proc.stderr or "")
         sys.exit(proc.returncode)
 
     sys.stdout.write(out)
@@ -757,6 +802,7 @@ def main() -> None:
 
     if len(body) < args.min_chars and not args.allow_short:
         sys.stderr.write(summary + "\n")
+        out_of_usage(reviewer, out, proc.stderr or "")
         sys.stderr.write(
             f"[grok_review.py] FAILED ROUND — {len(body)} chars is below "
             f"--min-chars {args.min_chars}.\n"

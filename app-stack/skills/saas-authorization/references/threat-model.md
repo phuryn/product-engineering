@@ -14,6 +14,8 @@ Every multi-tenant app has these classes, whatever it does. Each section gives t
 - Webhooks
 - Scheduled work
 - Secrets
+- Calls to customer-supplied addresses
+- Customer secrets at rest
 - Embedded agents
 
 ## Untrusted text
@@ -191,6 +193,32 @@ List every table that holds something a person wrote. The privacy page has to na
 - **A value you generate** (a cookie secret, a token pepper, a seal secret) **is generated when it is added**, written into `.env` and named in the summary. Nobody can look it up, so an empty placeholder is a boot failure with no instruction attached.
 - **A leaked key:** the planned-rotation order, done at once: the new value beside the old, every holder updated and redeployed, then the old revoked. If it is being used against you, revoke first and accept that every holder fails until it has the new value. Write it down in the product's environment log. The full order, and the keys it cannot rotate, are in the `environments` skill (§ Rotating).
 - **A planned rotation runs the other way round**, so nothing breaks: the new value made beside the old where the provider allows two, put into every holder and each one deployed, checked working, and only then the old value revoked. Every runtime that holds a copy is a holder, not only the app's host. The procedure, and the list of holders it needs, is the `environments` skill's. (`2026-10-24`, a monitoring product rotated its identity provider's production secret on the app's host while a separately deployed worker still held the old key. It still worked, so nothing failed: half done, and set to break the worker's email the moment the old key was deleted.)
+
+## Calls to customer-supplied addresses
+
+A product that fetches an address a customer typed (a webhook target, the base URL of their API, a page to scan) makes that request from inside your network, with your server's reach. That is server-side request forgery when the address points inward. Treat every such address as hostile:
+
+- **Allow `https` only**, on the ports the feature needs; `http` only where the product truly must.
+- **Resolve the name and refuse every address that is not public:** loopback, the private ranges (`10/8`, `172.16/12`, `192.168/16`, `fc00::/7`), link-local (`169.254/16`, which holds the cloud metadata address `169.254.169.254`, and `fe80::/10`), shared address space (`100.64/10`), `0.0.0.0`, and the IPv4-mapped IPv6 form of each.
+- **Connect to the address you checked.** A second lookup at connect time can answer differently (DNS rebinding), so the check and the connection use one answer: on Node, a custom `lookup` given to the HTTP client's agent that validates the address it returns. TLS still verifies the certificate against the hostname.
+- **Follow no redirect automatically.** Check each hop's address the same way, with a small hop limit.
+- **Cap the time and the size** of every response, and read only what the feature needs.
+- **Send nothing of yours:** no cookies, no internal headers, no credential but the customer's own.
+- **Report a failure in the customer's terms**, never the raw network error, which maps your network for whoever asks.
+- **Test the refusals:** a name that resolves to `127.0.0.1`, a redirect to the metadata address, and a name that answers a public address on the first lookup and a private one on the second.
+
+(`2026-10-30`, an evals product: calls to customer-supplied base URLs were day-one work, and no skill covered them.)
+
+## Customer secrets at rest
+
+A customer's credential the product holds to act for them (their model provider's API key, a webhook signing secret) is not the product's own secret (§ Secrets), and it lives in the database. So:
+
+- **Encrypt it before it reaches the database**, with an authenticated cipher (AES-256-GCM, a fresh nonce every time) under a key held outside the database (the host's secret store, or a key service), with the key's version stored beside the ciphertext so the key can rotate.
+- **Bind the ciphertext to its row**, with the workspace and the secret's id as associated data, so a ciphertext copied into another row does not decrypt.
+- **Decrypt only in the code path that uses it**, on the server, just before the call; never into a response, a log line, an error or an analytics event.
+- **Never show it back after it is saved.** Show its last four characters and when it was set; replacing it is a new save.
+- **A runtime that only accepts the secret need not be able to read it.** Where the web app takes it and a worker uses it, the web app can seal it to the worker's public key, so a compromise of the web runtime yields no stored secret (`2026-10-31`, an evals product built it this way).
+- **Deleting the workspace deletes them**, and rotating your key re-encrypts every row before the old key is retired.
 
 ## Embedded agents
 

@@ -16,6 +16,8 @@ The rules come from two kinds of product, named here only by kind. **The web-app
 
 Write the real names into the product's release doc at the first push, and nowhere else. **Until the production branch exists, the host deploys the product branch itself, so every push to it is a deploy.** How branches map to environments is the `environments` skill.
 
+**A host that deploys by CLI upload deploys the working tree, not a commit.** With `railway up` and its like, the upload is the push: the review round closes before it, and the upload runs from a clean worktree of the reviewed commit, never a tree with edits in it. Name the target on the command (`railway up --ci -p <project> -e <environment> -s <service>`): a bare `railway up` in an unlinked folder offers to create a new project. (`2026-11-01`, an evals product's first deploy: this skill and `environments` both assumed a host that builds from a git branch.)
+
 ## The product's records
 
 Whatever your product calls them, this skill means: the **plan** (its stages, each with a done-when, and the one current status); the **backlog** (deferred work, each entry with its reason and the trigger that reopens it); the **coverage map** (what was verified, by which run — `test-harness`); the **integrations doc** (each provider's dashboard configuration, with screenshots); the **environments doc** (which deployment uses which database, identity instance and keys, and a dated log of environment events); the **release history** (one dated section per release). `gate`, `smoke -- <url>`, `visual` and `agents:live` are the script names this skill and `test-harness` suggest — call yours what you like.

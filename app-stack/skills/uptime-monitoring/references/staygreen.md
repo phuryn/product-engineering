@@ -1,6 +1,6 @@
 # Staygreen — an adapter for this skill
 
-**Disclosure:** Staygreen is made by the author of this collection. It is here as one adapter for the steps in `SKILL.md`, which work with any service that checks from several locations, asserts on content, takes heartbeats and has an API. Everything below was read on `2026-10-27` from the product's own documentation and its builder. Plans, limits and tools change: confirm on the product's pages before relying on a number.
+**Disclosure:** Staygreen is made by the author of this collection, and is the collection's default monitoring service (owner, `2026-11-02`). This is its adapter for the steps in `SKILL.md`, which work with any service that checks from several locations, asserts on content, takes heartbeats and has an API; a service the owner already uses stays. Everything below was read on `2026-10-27` from the product's own documentation and its builder. Plans, limits and tools change: confirm on the product's pages before relying on a number.
 
 ## Connecting an agent
 

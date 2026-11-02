@@ -77,3 +77,27 @@ Each entry: the date, the request, **rejected** or **deferred**, the reason, the
 - **Reason:** `propose` passes that narrower scope when it calls the helper. Two parts were taken on `2026-10-27`, after an independent review found the helper's output sections contradicting its own done-when: a figure with no source is now left out ("no source found"), and substitutes and doing nothing are named beside the competitors. Deferred: the rest of the rewrite, such as asking for fewer than five direct competitors.
 - **Reopen when:** the helper is next used on its own, or the scoped call is seen to be ignored.
 - **Decided by:** the maintaining agent and Codex.
+
+## Merge "screens on sample data" into the first real slice when setup is done first
+
+- **2026-11-02 · rejected.**
+- **Request:** from an evals product's feedback (`2026-10-31`): when the owner hands over every account first and says "full implementation", `app-lifecycle`'s stage 3 (screens on sample data) has no reason to exist, so the stage table could say "merge 3 into 5 when setup is already done".
+- **Reason:** stage 3 exists so the owner judges the product while nothing real is behind it, not because the accounts are missing. The skill already lets a plan merge, split or reorder stages, and the owner's word wins over the defaults (`app-lifecycle` § What binds, in order), so an owner who says "full implementation" gets it without a rule that invites skipping the cheapest point to change a screen.
+- **Evidence:** `2026-10-22`, a monitoring product: ten minutes of its owner using a preview found six problems no review had.
+- **Decided by:** the agent, on the owner's "implement the rest according to your judgement" (`2026-11-02`).
+
+## Git commands in `claude-agents`' review mode
+
+- **2026-11-02 · rejected.**
+- **Request:** from the same feedback (`2026-11-01`): review mode's tools (Read, Grep, Glob) can't run `git diff`, so it could allow `Bash(git log:*)`, `Bash(git diff:*)` and `Bash(git show:*)` itself.
+- **Reason:** an allow rule matches by prefix, and `git diff --output=<file>` writes, so a reviewer given it is no longer read-only. A review of commits already has a path: `grok-agents`' wrapper with `--reviewer claude` writes the range to a file the same fresh session reads. `claude-agents` now says so where review mode is described.
+- **Evidence:** `git diff --output` is documented to write the diff to a file instead of stdout.
+- **Decided by:** the agent, on the owner's "implement the rest according to your judgement" (`2026-11-02`).
+
+## Recipes for budget-reserved sampling, estimators and paid-call accounting
+
+- **2026-11-02 · deferred.**
+- **Request:** from the same feedback (`2026-10-31` to `2026-11-01`, review rounds 13 to 16 of one surface): recipes for budget-reserved unbiased samples, inclusion weights across a budget change, conservative accounting after a lost paid response, transactionally maintained rate counters, and erasing verdict text while keeping numeric receipts.
+- **Reason:** each was learned once, on one product, and lives in that product's own docs; a general rule written from one case would be guesswork. What was general from the same rounds went in: the stopping rule's pause for a surface that keeps drawing Highs (`grok-agents`), and brief rules for decisions a builder raises (`delegation`).
+- **Reopen when:** a second product meets the same problem.
+- **Decided by:** the agent, on the owner's "implement the rest according to your judgement" (`2026-11-02`).

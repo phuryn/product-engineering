@@ -24,20 +24,21 @@
 ## Applied by the CLI, against a target you state
 
 ```sh
-# Development: the only project the CLI is ever linked to. <dev-ref> is the ref in the app's own
-# SUPABASE_URL. Each line checks the link itself, because a check run as its own command stops nothing.
-test "$(cat supabase/.temp/project-ref 2>/dev/null)" = "<dev-ref>" && npx supabase migration list --linked && npx supabase db push --linked --dry-run
+# Development. <dev-ref> is the ref in the app's own SUPABASE_URL. Each line loads development's
+# connection string into itself alone and checks, without printing it, that it names <dev-ref>,
+# because a check run as its own command stops nothing.
+( . <development operator file> && case "$DEV_DB_URL" in *<dev-ref>*) ;; *) false ;; esac && npx supabase migration list --db-url "$DEV_DB_URL" && npx supabase db push --db-url "$DEV_DB_URL" --dry-run )
 ```
 
 If that listing is already aligned, stop: record *no migration*. Otherwise read the dry run, then apply, as its own command:
 
 ```sh
-test "$(cat supabase/.temp/project-ref 2>/dev/null)" = "<dev-ref>" && npx supabase db push --linked && npx supabase migration list --linked
+( . <development operator file> && case "$DEV_DB_URL" in *<dev-ref>*) ;; *) false ;; esac && npx supabase db push --db-url "$DEV_DB_URL" && npx supabase migration list --db-url "$DEV_DB_URL" )
 ```
 
-Where the owner kept development as a branch of production (`SKILL.md` § Setting it up the first time, step 1), both lines take `--db-url "$DEV_DB_URL"` in place of `--linked`, and the link check becomes a check that the URL names the development ref, without printing it: `case "$DEV_DB_URL" in *<dev-ref>*) ;; *) false ;; esac && npx supabase …` (a branch's connection string carries its own ref, in the pooler user `postgres.<ref>` or the host `db.<ref>.supabase.co`).
+Where the owner kept development as a branch of production (`SKILL.md` § Setting it up the first time, step 1), the same lines hold: a branch's connection string carries its own ref, in the pooler user `postgres.<ref>` or the host `db.<ref>.supabase.co`.
 
-**Production is its own run, only at a release and on the owner's go**, never in the same script or command list as development. It is never linked; its connection string comes from the production operator file, loaded into each command alone, as `SKILL.md` § Applying a migration says, never typed or printed. Read first:
+**Production is its own run, only at a release and on the owner's go**, never in the same script or command list as development. Its connection string comes from the production operator file, loaded into each command alone, as `SKILL.md` § Applying a migration says, never typed or printed. Read first:
 
 ```sh
 npx supabase migration list --db-url "$PROD_DB_URL" && npx supabase db push --db-url "$PROD_DB_URL" --dry-run
@@ -60,16 +61,17 @@ The file's timestamp must be the version the ledger records. The first migration
 
 After applying, regenerate the types from that same target and run the tests. The integration suite reads the schema it expects.
 
-**Why the link stays on development and production takes `--db-url`.** The target must be *stated*, never inherited from whatever a link or config file was last left pointing at, and the CLI's link is exactly such a file.
+**Why every command takes `--db-url` and nothing is linked.** The target must be *stated*, never inherited from whatever a link or config file was last left pointing at, and the CLI's link is exactly such a file.
 
 - **Observed `2026-10-23`:** `db push --linked --project-ref <production ref>` wrote to the *linked* project. A monitoring product's review found its production migration command could silently target the linked development project.
 - **Probed `2026-10-25`:** with CLI 2.122.0 linked to one ref and `--project-ref` naming another (dummy refs, a fake token), the first request of `db push`, `migration list` and `db query` went to the typed ref. Where the database connection itself goes was not confirmed.
 - **What the vendor says (read 2026-10-25):** Supabase's web CLI reference lists only `--linked`, `--local` and `--db-url` as targets for `db push` and `migration list`. The CLI's own `--help` (2.121.0 and 2.122.0) also lists `--project-ref`, described only as "Project ref of the Supabase project", and says nothing of which wins over `--linked`. The CLI is mid-rewrite, so behaviour can differ between versions.
-- **So no command may depend on which flag wins.** Link once, to development, and never to production ("I'll just relink" is the mistake, not the fallback). Every production command, the ledger read included, takes `--db-url`. The same holds for `db query`.
+- **So no command may depend on which flag wins.** The CLI is never linked ("I'll just link it" is the mistake, not the fallback), and every command, the ledger read included, takes its database's own `--db-url`. The same holds for `db query`. Until `2026-11-02` this skill linked the CLI to development and reached only production by URL; an evals product's owner asked what the token for the link was for, and every command its build needed took `--db-url` (`2026-10-31`).
+- **CLI 3.0.0 (published `2026-11-02`) moves the flags.** It deprecates `--db-url` and `--linked` for `--remote=<url>` (or `--remote=<ref>`), to be removed in v4, and targets the local database when a command is given neither; `db query` run by an agent refuses a statement until it is given `--yes`, or `--read-only` for a read (both read `2026-11-02`, 3.0.0's help and a run against a dummy URL). The lines above are 2.x's, which 3.0.0 still runs with a warning. Pin the CLI as a development dependency, so `npx supabase` runs the version whose help you read, and move every command, wrapper and doc line in one change when you upgrade.
 
 **Hold it in a script**, because a rule a script can hold should be held by one. The wrapper:
 
-- checks that the link names development before it writes, passes no `--project-ref` beside `--linked`, and refuses a requested ref that is not the linked one, rather than reporting about the wrong database (`2026-10-23`, the same product's wrapper after that review);
+- checks that the URL names development before it writes, passes neither `--linked` nor `--project-ref`, and refuses a requested ref that is not the one the URL names, rather than reporting about the wrong database (`2026-10-23`, the same product's wrapper after that review, then still on the link);
 - refuses any option it does not read, so a mistyped `--dry-run` cannot become a real run;
 - never prints the connection string, its password or the CLI's raw error.
 

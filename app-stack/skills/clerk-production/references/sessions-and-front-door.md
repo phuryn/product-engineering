@@ -32,7 +32,7 @@
   - `afterSignOutUrl` is `/`.
   - The member home sends a signed-out visitor to `/sign-in?redirect_url=<itself>`.
 - **Set `NEXT_PUBLIC_CLERK_SIGN_IN_URL`,** or redirect to `/sign-in?redirect_url=…` yourself. The server's sign-in redirect does not read the provider's `signInUrl` (`gotchas.md`).
-- **The root layout's `<ClerkProvider>` takes the request's `nonce`, never `dynamic`.** `dynamic` would read the session into every page it wraps (`gotchas.md`).
+- **The root layout's `<ClerkProvider>` takes the request's `nonce`, never `dynamic`.** `dynamic` would read the session into every page it wraps (`gotchas.md`). **The nonce comes from the request headers:** Clerk's middleware sets its policy on the request too (`csp-and-variables.md § The CSP header`), so the root layout reads `content-security-policy` with `headers()` and passes the `'nonce-…'` value from its `script-src` directive, or from `default-src` when there is no `script-src`. Clerk's own `dynamic` path reads the same header, after an `x-nonce` one (`@clerk/nextjs` 7.9.23, `DynamicClerkScripts` and its `utils`, read `2026-11-02`). (`2026-10-31`, an evals product: this line did not say where the nonce came from, and finding it took reading Clerk's source.)
 - **When the member home moves off `/`, move every redirect with it**: the two fallback URLs, every `redirect_url`, links and emails (`gotchas.md`).
 
 ## The front door and the member home
@@ -60,6 +60,7 @@
   - A `__client_uat` or `__client_uat_<suffix>` cookie that is neither empty nor `0` reads as signed in.
   - The server renders the signed-out label, so without JavaScript the button still works.
   - The label is a guess used for nothing else. A stale cookie says "signed in", and the member home sends the visitor to sign-in at no cost, because both labels open the same page.
+  - **Read the cookie with `useSyncExternalStore`**: a `subscribe` that does nothing, the cookie test as the client snapshot, and `false` as the server snapshot, so hydration starts from the signed-out label. Not `useEffect` plus `setState`, which Next 16's default lint fails (`react-hooks/set-state-in-effect`; `2026-10-31`, an evals product).
 
 **What it does not do.** `/` is not static, and this rule does not make it so. The nonce CSP and the theme cookie render every page per request; Next's CSP guide says a nonce needs dynamic rendering.
 

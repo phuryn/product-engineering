@@ -51,7 +51,7 @@ When something other than the app server must reach Postgres, such as a Worker, 
 - **Its functions are `security definer`**, because the group has no table privileges to invoke them with. Each one:
   - sets `search_path = ''` and qualifies every name;
   - is executable by its group alone, with PUBLIC, `anon`, `authenticated` and `service_role` revoked;
-  - is pinned by exact signature in the catalog suite, which fails on any definer function not on the list;
+  - is pinned by exact signature in the catalog suite, which fails on any definer function not on the list. A pin compared as text is written the way the catalog prints it, with no spaces: `oid::regprocedure::text` gives `worker.claim_job(uuid,uuid,text)` (`2026-10-31`, an evals product);
   - preferably lives in a schema the Data API does not expose, so the gateway cannot reach it at all.
 - **Logins are per environment, and are not migration contents**, because a login carries a password.
   - Migrations create the group roles and their grants. Each environment's logins are made by a script or by hand.
@@ -121,7 +121,7 @@ It runs in the gate, by one of two routes:
    npx supabase db query --db-url "$DEV_DB_URL" --file <query.sql> --output-format json
    ```
 
-   This adds nothing to `public`, and its credential reaches that one database. The URL is expanded from the operator file, never typed (`environments`, `references/variables.md`). The CLI's link (`--linked`), on a token that reaches development only, also works, on a developer's own machine only, if the suite first checks that the linked ref equals the ref in `SUPABASE_URL` and refuses otherwise, because which of `--linked` and a typed `--project-ref` wins is not something to rely on (`migrations.md § Applied by the CLI`). It never goes to hosted CI; CI reaches development by `--db-url`. If CI ever needs the Management API, it gets a token scoped to a development project of its own (where development is a branch of production, CI stays on `--db-url`), never the browser login's, which reaches every project the account can, production included (`environments`, `references/domain-and-provider-access.md`).
+   This adds nothing to `public`, and its credential reaches that one database. The URL is expanded from the operator file, never typed (`environments`, `references/variables.md`). The CLI is never linked (`migrations.md § Applied by the CLI`), and CI reaches development the same way. If CI ever needs the Management API, it gets a token scoped to a development project of its own (where development is a branch of production, CI stays on `--db-url`), never the browser login's, which reaches every project the account can, production included (`environments`, `references/domain-and-provider-access.md`).
 
 **The suite names its target and proves it arrived** (§ Rules that came from these suites' bugs).
 

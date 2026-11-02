@@ -78,6 +78,8 @@ the wrapper falls back to a new session. Stdin must be closed (input="") or
 codex hangs.
 """
 
+from __future__ import annotations  # `str | None` annotations on Python 3.9, macOS's stock python3
+
 import argparse
 import json
 import os

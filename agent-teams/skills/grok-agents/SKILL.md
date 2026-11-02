@@ -130,7 +130,7 @@ S="<a scratch directory>"
 python <skill dir>/scripts/grok_review.py \
      --brief "$S/review-NNN-brief.md" --cwd <repo> \
      --subject "<range>" --out "$S/review-NNN.md" < /dev/null
-echo "exit=$?"   # 2 means the round was too short: treat it as failed
+echo "exit=$?"   # 2: the round was too short, treat it as failed; 3: the reviewer is out of usage
 ```
 
 `--subject` takes the git range under review (`<sha>^!` for a single commit, `HEAD` before the first release). The wrapper refuses
@@ -151,7 +151,10 @@ subject; size the round with it in mind.
 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` (measured 2026-10-10: without that variable a headless session
 loads the project's memory index, which holds the builder's notes; with these flags no project
 instructions, personal notes, memory or skills list was in its context). `--reviewer claude`
-forces the fallback. Neither CLI on PATH: `--subject-only` (with `--brief`, `--cwd` and
+forces the fallback. **An installed Grok can still be out of usage** (`2026-10-31`: a signed-in
+Grok CLI answered `402 usage balance exhausted`): the wrapper then exits 3 and prints the same
+round with `--reviewer claude`. Run it, unless the repository's instructions name Grok as the
+reviewer: then ask the owner first (§ The repository's own instructions come first). Neither CLI on PATH: `--subject-only` (with `--brief`, `--cwd` and
 `--subject` as above) writes the subject file and the prompt, the brief with the paging instructions added,
 into the git directory and prints their paths. Give the prompt to a fresh read-only session of your agent,
 run as a separate process you start in the checkout under review, never a subagent, fork or resumed session of
@@ -392,16 +395,6 @@ desktop machine, which was true step by step; it was gated, the gate needed a fi
 both were reverted once someone read the same table and saw that relay could already send prompts
 and approve the tool calls they produce. The injected credential granted strictly less.)
 
-**When a fix needs a second fix, delete the first.** Machinery added in response to findings
-produced a new defect in nearly every later round, each fix creating its own inverse; four
-mechanisms were built and then deleted (`2026-07-31`, again `2026-08-17`). Several rounds of
-inverses in one area mean the design is wrong, not the code: revert, then ask **once** what signal
-the design is missing. A redesign earns that attempt only if it removes machinery — a
-liveness probe that deleted a timeout no value could make right (`2026-08-20`) — and one more
-elaborate than what it replaces is the spiral again. Scale this by whether the work was asked for:
-hardest on hardening nobody requested, lightest on a feature the owner asked for by name, which
-this rule once abandoned wrongly.
-
 **Improve the average; the exception is the person's work.** Polish serves the case most people
 meet and lets the rest degrade honestly, with the geometry intact — a placeholder of the same size,
 so nothing jumps when the real thing arrives. Anything that loses or duplicates what a person made
@@ -431,6 +424,34 @@ Stop when a round produces **no INTRODUCED findings above Low** and no High or C
 fastest when each release is small: a monitoring product's five production promotions on
 `2026-10-24` each closed on such a round, after 9, 5, 1, 2 and 1 rounds. The first, the whole
 product, took the most; each later one reviewed only its own commits.
+
+**When one mechanism draws findings two rounds running, stop patching it.** Machinery added in
+response to findings produced a new defect in nearly every later round, each fix creating its own
+inverse; four mechanisms were built and then deleted (`2026-07-31`, again `2026-08-17`). Rounds of
+inverses in one area mean the design is wrong, not the code. Before the next round, choose one, in
+writing:
+
+- **Cut it:** revert to before the first fix, then ask **once** what signal the design is missing.
+- **Redesign it once**, written down before it is built. A redesign earns that attempt only if it
+  removes machinery — a liveness probe that deleted a timeout no value could make right
+  (`2026-08-20`) — and one more elaborate than what it replaces is the spiral again.
+- **Pause it:** when one surface keeps drawing new Highs while the rest of the change is clean,
+  propose to the owner, at the second such round, that it ships behind a switch that is off by
+  default, its open findings in the backlog with the trigger that reopens them, and the next round
+  scoped to what is reachable with it off.
+
+(`2026-11-01`, an evals product: one fallback took six shapes over rounds 5 to 12, each round's
+Medium introduced by the fix before it; then five rounds in a row found new Highs in one surface,
+paid production sampling, while the rest was clean, and pausing it behind an off-by-default switch
+ended the loop three rounds after the pause was first due. `2026-10-29` and `30`, this collection's
+own release review: a landing page's analytics tag drew findings in eleven of 23 rounds, three of
+them running at the start, and the loop closed three rounds after its address rewrite came out.)
+Scale this by whether the work was asked for: hardest on hardening nobody requested, lightest on a
+feature the owner asked for by name, which this rule once abandoned wrongly. **Budget for it** when
+planning: in ingest, queue and concurrency code, a fix commit tends to need a round of its own
+(`2026-11-01`, the same product: rounds 2 to 4 of its first slice each found a Medium the previous
+round's fix introduced: an index that no longer matched, a retry split the wrong way round, a cap
+that moved a trace's clock).
 
 Pre-existing findings go where the repository keeps deferred work (its backlog file or issue
 tracker; ask if it names none) with the reason they were deferred **and a revisit trigger** —

@@ -8,9 +8,11 @@ Read these before writing a query, an RPC, a migration or a connection string. E
 - PostgREST will not guess an ambiguous embed
 - A return type cannot be widened by `create or replace`
 - A refused `on delete restrict` has a different SQLSTATE from Postgres 18
-- An RPC's HTTP status comes from its SQLSTATE, and two codes mislead
+- An RPC's HTTP status comes from its SQLSTATE, and three codes mislead
+- Two plpgsql and node-postgres mistakes that only fail at runtime
 - The generated types call every argument without a default non-null
 - supabase-js needs a global `WebSocket` in Node
+- `npx supabase` can fail on npm's install-script policy
 - The direct database host is IPv6-only
 - TLS to Postgres is whatever each URL asks for
 - The hosted development project fails intermittently, in three costumes
@@ -48,14 +50,24 @@ Code that turns a refused delete into a message checks both codes, and so does a
 
 (`2026-10-21`, a local rehearsal on Postgres 18 raised a false alarm against a development project on 17.11.)
 
-## An RPC's HTTP status comes from its SQLSTATE, and two codes mislead
+## An RPC's HTTP status comes from its SQLSTATE, and three codes mislead
 
 - **`P0002` (no_data_found) reaches the client as a `500`, not a `404`.** An explicit `raise … using errcode = 'P0002'` raises it, and so does any `select … into strict` that finds no row, including one the function never meant as a not-found. A not-found the product raises needs a `PTxxx` code: `PT404` answers `404`.
 - **PostgREST answers a call that matches no function with `PGRST202`, also a `404`.** The call's signature (argument names, types or count) matched no function the calling role can see in PostgREST's schema cache: the function may be missing, not reloaded yet, not visible to that role, or called differently. So it is not by itself a pending migration, and any of those passes for the product's own not-found unless the code and message are checked too.
+- **Raise your own conflicts as `PT409`, never `40001`.** PostgREST answers a `PTxyz` code with HTTP status `xyz` and the code in the body (its errors reference, read `2026-11-02`). `40001` is a serialization failure, which PostgREST retried on its own before version 16 and answers `500` from it (its 16.0 changelog). A function that raised `40001` reached supabase-js with no `code` at all, so the product's "changed in another tab" mapping never fired (`2026-11-01`, an evals product, on the hosted project).
 
 Tests that assert a refusal assert status, code and message together, with the real argument names (`access-model.md § Rules that came from these suites' bugs`).
 
 (`2026-09-16`, a live Q&A product's new not-found paths took `PT404`; its older `P0002` ones still answer `500`.)
+
+## Two plpgsql and node-postgres mistakes that only fail at runtime
+
+Both pass the migration and the catalog suite, and fail the first time the code runs. Only a test that runs the function end to end catches them (`test-harness`, § Required for every feature that touches data).
+
+- **A plpgsql loop variable named like a table alias in a query inside the loop** (`for t in … loop … from public.traces t …`) fails with "column reference … is ambiguous" only when the loop runs. Give loop variables names no query uses (`trace_row`).
+- **node-postgres sends a JavaScript array as a Postgres array**, so an array bound to a `jsonb` parameter fails or arrives as the wrong type. Pass `JSON.stringify(value)` and cast the parameter (`$1::jsonb`).
+
+(`2026-11-01`, an evals product: a retention job failed on the alias the first time a test ran it, and a `jsonb` write failed on the array; each cost a debugging round.)
 
 ## The generated types call every argument without a default non-null
 
@@ -77,6 +89,10 @@ The client builds its Realtime client even when nothing subscribes. Without a gl
   - every Node script that creates a client (a seed script, for example) runs with the flag.
 
 (`2026-10-10`, a product's first integration run failed on a Node 20 machine.)
+
+## `npx supabase` can fail on npm's install-script policy
+
+A Supabase CLI older than 2.99.0 installs its binary in a postinstall script, which npm 12 blocks by default and npm 11.16 and later can be set to block (`strict-allow-scripts`); `npx supabase` then fails. Pin 2.99.0 or later, which has none, or approve it once with `npm install-scripts approve supabase` (npm 11.21.1 and 12.2.1, and the registry's package data, read `2026-11-02`; `2026-10-31`, an evals product hit it).
 
 ## The direct database host is IPv6-only
 

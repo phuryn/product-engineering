@@ -23,7 +23,7 @@ A typical order for this stack; each product writes its own, with the real comma
 
 1. **Accounts and tools**: the repository and its two branches; every provider account, with the plan each needs; the operator machine's toolchain, pinned; one operator checkout per environment, each `.env` started from `.env.example`.
 2. **Domain and DNS**: the zone; the operator tokens, one per environment, scoped to their commands and zones (where both environments share one zone, development's DNS writes need a zone of its own or a time-boxed token: `domain-and-provider-access.md`); the records made by hand.
-3. **The database project and its schema**: create it and record its ref; development is linked and migrated through the link (as a branch of production, the owner's choice, by its own `--db-url` instead, and production's project comes first: `supabase-production`), production is never linked and gets every migration with its own `--db-url`, the ledger read back (`supabase-production`).
+3. **The database project and its schema**: create it and record its ref; each database gets every migration through its own connection string (`--db-url`), the CLI never linked, and each ledger is read back (`supabase-production`; as a branch of production, the owner's choice, production's project comes first).
 4. **Database logins**: one per component, each made by its script, its password generated locally and never printed, read back.
 5. **Generated secrets**, one set per environment, with a copy of the irreplaceable ones off the operator's machine (`variables.md § The kinds of variable`).
 6. **The identity provider**: the instance, its DNS records, its settings applied and read back, billing (`clerk-production`).

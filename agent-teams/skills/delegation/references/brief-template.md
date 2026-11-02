@@ -20,7 +20,12 @@ Copy, fill, delete what doesn't apply. Order matters: the goal comes first becau
  contract mirrored elsewhere, files that are generated and never hand-edited,
  what may not be touched (commits, pushes, migrations, production). For a stage
  built beside others: the shared numbers it takes (its migration number and
- timestamp floor), which migrations are applied and which only written.>
+ timestamp floor), which migrations are applied and which only written. The
+ rules review rounds taught since this brief was first written, or the file
+ that holds them, folded in before the builder starts: a builder working from
+ an older brief repeats what those rounds fixed. Who commits: where the
+ builder's sandbox can't write the main checkout's git directory (a linked
+ worktree's index lives there), you do.>
 
 ## Traps
 <The plausible fixes that would be wrong, and why: "do not fix this in X —
@@ -39,8 +44,9 @@ Copy, fill, delete what doesn't apply. Order matters: the goal comes first becau
 ## How it's proved — done, for this hand-off
 <What the delegate can finish where it runs: the code, its tests, its doc lines,
  the handoff. What its sandbox cannot reach (database, browser, Docker,
- network) and who runs those checks: "write them; I run them". The stage's own
- done-when, when it needs real systems, stays with me.>
+ network) and who runs those checks: "write them; I run them". Exercise every
+ existing page and function the stage touches, not only the new ones. The
+ stage's own done-when, when it needs real systems, stays with me.>
 
 ## Scope
 <The files or area it may change. The range under review, named as a git
@@ -66,6 +72,10 @@ code handoff, not the stage done."
 ## Built
 ## Choices where the brief was silent      <each with its reason>
 ## Where the spec needs correcting         <with the vendor docs that say so>
+## Decisions this brief forced             <product decisions the owner should
+                                            make, kept apart from corrections:
+                                            two of the brief's rules that
+                                            can't both hold, say>
 ## Blockers                                <stated as blockers, never as a
                                             claimed fix; an unreproduced bug
                                             stays open, with what to capture
@@ -86,4 +96,4 @@ code handoff, not the stage done."
                                             delegate's text above stays as written>
 ```
 
-(`2026-10-23`, a monitoring product's builder handoffs: one's spec correction — the payment provider's events API names no endpoint and no first-failure time — was carried out the next day; another's release follow-through, "this check code changed: redeploy the probes", was done that night; a third reported an icon bug it could not reproduce as a blocker rather than a fix, and the coordinator's own run with the original bytes did not reproduce it either.)
+(`2026-10-23`, a monitoring product's builder handoffs: one's spec correction — the payment provider's events API names no endpoint and no first-failure time — was carried out the next day; another's release follow-through, "this check code changed: redeploy the probes", was done that night; a third reported an icon bug it could not reproduce as a blocker rather than a fix, and the coordinator's own run with the original bytes did not reproduce it either. `2026-11-01`, an evals product: a builder working from a brief written before three review rounds repeated three mistakes those rounds had fixed, and another's objection, that two of its brief's rules contradicted each other, was a product decision with no section to go in.)
