@@ -176,7 +176,9 @@ Three facts hold whichever reviewer runs:
   real defect in the commit both had "cleared"). A round that is genuinely empty still argues its way
   there over paragraphs, so require an empty round to say what it read, what it expected to find
   and why it holds. The wrapper fails a round under 1,500 characters (exit 2); a round run without
-  it is measured by hand, the same way.
+  it is measured by hand, the same way. **A round whose reviewer couldn't read is failed however
+  long it is**: a refused tool call ("blocked by policy"), or an answer that says it couldn't open
+  the files, is a round that reviewed nothing.
 - **The prompt comes from a file, the working directory is the repository under review, and stdin
   never waits on a terminal**: closed (`< /dev/null`) when the CLI takes its prompt from a file flag,
   or the prompt file itself when the CLI reads its prompt from stdin (Codex). A long prompt inline

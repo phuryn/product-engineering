@@ -147,14 +147,15 @@ A review round's discipline (what it covers, the brief, triage, when to stop) is
 # macOS and Linux
 codex exec --ephemeral --ignore-user-config --ignore-rules -s read-only \
      -m <the newest model> -c model_reasoning_effort=xhigh -C <repo> - < "<prompt file>" > "$S/review-NNN.md"
-# Windows: the same, plus the sandbox mode your config.toml sets (elevated or unelevated)
-codex exec --ephemeral --ignore-user-config --ignore-rules -s read-only -c 'windows.sandbox="elevated"' \
-     -m <the newest model> -c model_reasoning_effort=xhigh -C <repo> - < "<prompt file>" > "$S/review-NNN.md"
-wc -c < "$S/review-NNN.md"   # under 1,500: a failed round
+# Windows: the same, plus the sandbox mode under [windows] in ~/.codex/config.toml (elevated or unelevated)
+codex exec --ephemeral --ignore-user-config --ignore-rules -s read-only -c 'windows.sandbox="<that mode>"' \
+     -m <the newest model> -c model_reasoning_effort=xhigh -C <repo> - < "<prompt file>" > "$S/review-NNN.md" 2> "$S/review-NNN.err"
 ```
 
+Then check the round as the wrapper would, because none ran: `python -c "import sys; print(len(open(sys.argv[1], encoding='utf-8').read().strip()))" "$S/review-NNN.md"` under 1,500 is a failed round, and so is any refused read, which Codex logs to stderr however long its answer is: `grep -i "blocked by policy\|rejected" "$S/review-NNN.err"` finds one.
+
 - **The prompt arrives on stdin, from the file the wrapper wrote** (`- < "<prompt file>"`). Here stdin is the prompt, so it is never `< /dev/null`; an empty or missing prompt file is a round that never started.
-- **No wrapper measures this run.** An answer under 1,500 characters is a failed round, and so is one that says it couldn't read the files, however long (the `independent-review` skill's bar).
+- **No wrapper measures this run**, so the check above is the round's gate (the `independent-review` skill's bar: short, or unable to read, is failed).
 
 - **`--ephemeral`** saves no session, and a new `codex exec` starts from the prompt alone.
 - **`--ignore-user-config`** leaves out `~/.codex/config.toml`, and with it the MCP servers and tools it adds, which `-s read-only` would not bind: the sandbox covers only the shell commands the model runs (Codex CLI 0.159.0, `2026-10-29`). It also leaves out the model and, on Windows, the sandbox mode without which every read is refused, so both go back on the command line. (`2026-11-02`, Codex CLI 0.166.0 on Windows 11: with them the session read a file and was refused a write; without the mode it was refused both, "blocked by policy", and still answered in full sentences.) **`--ignore-rules`** skips the execpolicy rule files.
