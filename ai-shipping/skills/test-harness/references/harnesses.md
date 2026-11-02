@@ -41,7 +41,7 @@ Learned on a remote-control product: a relay service with a web client, and an e
 ## The script contract
 
 - **`typecheck`** — `tsc --noEmit --incremental false`; covers `tests/` too, so keep `tsconfig.json` including `**/*.ts`.
-- **`test`** — unit + integration. A product whose integration suite needs a credential the unit run must not (such as the CLI's development token above) splits it out as `test:integration`, still inside `gate` and listed here.
+- **`test`** — unit + integration. A product whose integration suite needs a credential the unit run must not (such as development's connection string, `DEV_DB_URL`, above) splits it out as `test:integration`, still inside `gate` and listed here.
 - **`e2e`** · **`e2e:auth`**.
 - **`gate`** — all of them, in that order. **Mandatory locally before promotion.**
 - **`visual`** — outside `gate`, run on purpose.

@@ -96,7 +96,7 @@ It also names the catalog suite that proves all of this, and any legacy or platf
 **What it is not:** a migration-from-zero test, unless one is added and named.
 
 - It runs in the gate.
-- If it needs a credential the unit run must not have, such as the CLI's development token below, split it out as its own script (`test:integration`), still inside the gate.
+- If it needs a credential the unit run must not have, such as development's connection string (`DEV_DB_URL`, below), split it out as its own script (`test:integration`), still inside the gate.
 - After applying a migration, regenerate the types from that target and run it: the suite reads the schema it expects.
 - **A test that needs a restricted login** (§ A second runtime) can run against a local Postgres with every migration applied, where it can create the login itself. Without that database's URL it skips loudly, and whoever runs the full gate runs it.
 
