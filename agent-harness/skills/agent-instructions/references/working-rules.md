@@ -59,9 +59,9 @@ A bug fix lands with a regression test that fails on the broken behaviour and pa
 These are working discipline too; their depth lives elsewhere, and Section 1 carries the sentence and the pointer:
 
 - **Read the exit code from the log, never the notification** — a background wrapper can report exit 0 while the command inside it failed (`test-harness`).
-- **An inherited report is a claim, not evidence** — re-run the gate yourself before repeating a count, and take a release's subject from git, not prose (`release-gate`, `grok-agents`).
+- **An inherited report is a claim, not evidence** — re-run the gate yourself before repeating a count, and take a release's subject from git, not prose (`release-gate`, `independent-review`).
 - **The coverage map is written by whoever ran the gate, by nobody else** (`test-harness`).
-- **The session that wrote the code never clears it** — an independent review before every push that deploys and every promotion (`grok-agents`).
+- **The session that wrote the code never clears it** — an independent review before every push that deploys and every promotion (`independent-review`).
 - **If a delegation brief would be nearly as long as the diff, write the diff** (`delegation`, `codex-agents`).
 - **Before handing the owner a task, do every part of it you can** — through an API, a CLI, a key you hold — and pass up only what needs a person: a dashboard-only click, money, taste. A delegate's "commands for the owner" are a claim about who can run them (`delegation`).
 - **A generated secret is generated, written into `.env` and named in the summary**, never left as an empty placeholder nobody can look up (`environments`).

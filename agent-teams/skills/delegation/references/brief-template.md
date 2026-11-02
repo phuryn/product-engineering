@@ -56,7 +56,7 @@ Copy, fill, delete what doesn't apply. Order matters: the goal comes first becau
 <Dated, appended when a fact changes mid-build; never a side message.>
 ```
 
-What a brief does **not** carry: a step-by-step procedure, prescribed filenames or libraries that are not hard constraints, your argument for why the design is right (for a reviewer, that is steering), or what an earlier reviewer found (for a fresh review round, `grok-agents` § Writing the brief).
+What a brief does **not** carry: a step-by-step procedure, prescribed filenames or libraries that are not hard constraints, your argument for why the design is right (for a reviewer, that is steering), or what an earlier reviewer found (for a fresh review round, `independent-review` § Writing the brief).
 
 ## The handoff the delegate writes
 

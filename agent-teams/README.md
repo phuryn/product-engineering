@@ -14,9 +14,11 @@ Codex, Cursor and other agents: see the collection's root `README.md`.
 ## Skills (4)
 
 - **delegation** — The shared doctrine: what never delegates, when a change is too small to hand off, the brief (goal and why, binding constraints and traps, how to prove it), choosing the delegate and its model, parallel work without lost writes, and verifying what comes back.
-- **codex-agents** — The OpenAI Codex CLI as a peer you argue decisions with and a builder you hand stages to, through a wrapper that keeps sessions per directory, resumes by id and re-sends the model on every resume.
-- **grok-agents** — The unsteered independent review loop before anything ships: a fresh reviewer (the Grok CLI, or a fresh read-only Claude session; a default your agent instructions can change, to a reviewer that can run the way this skill requires) reads the unreleased diff and the working tree; how to scope a round, write its brief, triage what it finds and when to stop.
+- **codex-agents** — The OpenAI Codex CLI as a peer you argue decisions with, a builder you hand stages to, or a fresh reviewer, through a wrapper that keeps sessions per directory, resumes by id and re-sends the model on every resume, and a tested command for a read-only review session.
+- **grok-agents** — The Grok CLI driven headless from another agent as a peer, a builder or a fresh reviewer: the flags for each, sessions you name and resume, the isolation a review needs, signing in by device code, and what an out-of-credit answer looks like.
 - **claude-agents** — How Codex, Grok, Cursor or another Claude session drives Claude Code headless as a peer, builder or reviewer, through a wrapper with session continuity and safe permission modes.
+
+Which of them reviews a release, and how a review round runs, is `independent-review`, in the `ai-shipping` pack.
 
 ## Author
 

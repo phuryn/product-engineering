@@ -8,7 +8,7 @@ You don't need to remember any of this. `/product:start-here` names the next ste
 
 1. **Open your agent in a folder**: an empty one for a new idea (the agent runs `git init` there), or the repository of a product you already have.
 2. **Install the packs from that folder** ([Install](README.md#install)); in Claude Code the one-prompt install turns them on for that folder only; in Codex they install for your user, in every project. For this walkthrough: `product`, `ai-shipping`, `agent-teams` and `agent-harness`, plus `app-stack`: its `design` and `uptime-monitoring` apply to any product with screens and a URL, and the rest mostly assumes a SaaS on Next.js, Supabase, Clerk and Netlify.
-3. **Optional, and worth it:** the Codex CLI as a second builder and peer (`codex-agents`), and the Grok CLI as a reviewer from another model family (`grok-agents`). Without Codex, the session you work in builds the change itself or briefs a Claude subagent. Without Grok, the review runs in a fresh Claude Code session with nothing carried over (with neither CLI, a fresh read-only session of your agent). The wrappers that drive them need Python 3.10 or later.
+3. **Optional, and worth it:** the Codex CLI as a second builder and peer (`codex-agents`), and the Grok CLI as a reviewer from another model family (`independent-review` runs it by default, and `grok-agents` drives it in any role). Without Codex, the session you work in builds the change itself or briefs a Claude subagent. Without Grok, the review runs in a fresh Claude Code session with nothing carried over (with neither CLI, a fresh read-only session of your agent). The wrappers that drive them need Python 3.9 or later.
 
 ## 1. Say what you have
 
@@ -59,7 +59,7 @@ One session coordinates. Another builds when one is available: Codex through `co
 You don't review the code line by line. Three rules apply instead:
 - **Every change lands with its tests and docs.**
 - **Every fix lands with a test that failed before it.** After two fixes that pass and leave the symptom, the agent stops and gets one real observation instead of guessing again (`test-harness`).
-- **A fresh reviewer that never saw the build reads each change**, round after round, until a round finds nothing the change introduced above low severity and nothing high or critical of any age (`grok-agents`). It is the one your agent instructions name, when it can run the way `grok-agents` requires (when it can't, the agent asks you before another runs); with none named, Grok when it's installed, otherwise a fresh Claude Code session with nothing carried over (with neither CLI, a fresh read-only session of your agent). It runs before every push that deploys, and again after each fix. For a correctness review of your own, say "review this with ai-shipping's code-review skill"; in Claude Code name it `/ai-shipping:code-review`, because Claude Code has its own `/code-review`.
+- **A fresh reviewer that never saw the build reads each change**, round after round, until a round finds nothing the change introduced above low severity and nothing high or critical of any age (`independent-review`). It is the one your agent instructions name, when it can run the way `independent-review` requires (when it can't, the agent asks you before another runs); with none named, Grok when it's installed, otherwise a fresh Claude Code session with nothing carried over (with neither CLI, a fresh read-only session of your agent). It runs before every push that deploys, and again after each fix. For a correctness review of your own, say "review this with ai-shipping's code-review skill"; in Claude Code name it `/ai-shipping:code-review`, because Claude Code has its own `/code-review`.
 
 Before the first stranger is asked for anything (a sign-up, an email address, a payment), the agent drafts the terms and the privacy policy from what the code collects and sends, asks you for the facts only you have, and you approve the text (`legal-pages`).
 
@@ -152,7 +152,7 @@ A product in use plus new evidence means `propose` runs again. It adds each date
 A typical setup:
 - **Claude Code coordinates.**
 - **Codex builds** what is worth handing off (`codex-agents`). The test is size: if the brief would be nearly as long as the change, the coordinator writes the change itself.
-- **Grok reviews** (`grok-agents`).
+- **Grok reviews** (`independent-review`, with Grok driven as `grok-agents` says).
 
 A rule that lives only in another repository doesn't get read. So for a product built with more than one agent, copy the skills it depends on into the folder each of its agents reads (`.claude/skills/`, `.agents/skills/`), commit them, and name them in the product's agent instructions. In Claude Code, once every skill the product uses from a pack is copied, disable that pack for the repository (`/plugin`, or `claude plugin disable <pack>@product-engineering --scope project`), or each copied skill loads twice; a pack the product still uses uncopied skills from stays enabled. When Claude Code and Codex both work there, copy into both folders. `agent-instructions` shows how to route to a skill from those instructions.
 

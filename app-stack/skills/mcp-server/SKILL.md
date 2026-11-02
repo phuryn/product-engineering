@@ -51,7 +51,7 @@ Clerk's settings for OAuth are **not** here. They are in `clerk-production` § M
 3. **The tools** and their two tests (`references/tools.md`).
 4. **OAuth** per `clerk-production` § MCP OAuth, then an automated real grant and a real client (`references/server.md § Proving it`).
 5. **The docs**: the API contract, a public page for developers pinned to the code by a test, and the distribution record.
-6. **The release** with its review rounds (the `grok-agents` skill); descriptions and instructions are in the subject, not context.
+6. **The release** with its review rounds (the `independent-review` skill); descriptions and instructions are in the subject, not context.
 7. **Listings** (`references/directories.md`; a ChatGPT plugin, the `chatgpt-plugin` skill) and **the package** (`references/companion-repo.md`), after promotion, from what production serves.
 
 ## How you can tell it worked

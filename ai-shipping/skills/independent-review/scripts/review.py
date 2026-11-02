@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""grok_review.py — Runs one unsteered independent review round.
+"""review.py — Runs one unsteered independent review round.
 
 The session that built the code never clears it. Wrapper only. The how-and-when discipline (what a
 round is scoped to, the stopping rule, author != reviewer, how to triage what
-comes back) lives in ../SKILL.md: the grok-agents skill's, or, for the copy ship-check carries,
+comes back) lives in ../SKILL.md: the independent-review skill's, or, for the copy ship-check carries,
 its Step 6. Read it before invoking this.
 
 The reviewer is the Grok CLI when it is installed. Without it the round still
@@ -35,14 +35,14 @@ did not run. Treat a suspiciously short clean round as a failed round, never
 as a fast one.
 
 Usage:
-    python grok_review.py --brief BRIEF.md --cwd REPO --subject origin/PROD..HEAD
-    python grok_review.py --brief BRIEF.md --cwd REPO --subject HEAD   # nothing released yet: every file and every removed line
-    python grok_review.py --brief BRIEF.md --cwd REPO --subject abc123^! --out round2.md
+    python review.py --brief BRIEF.md --cwd REPO --subject origin/PROD..HEAD
+    python review.py --brief BRIEF.md --cwd REPO --subject HEAD   # nothing released yet: every file and every removed line
+    python review.py --brief BRIEF.md --cwd REPO --subject abc123^! --out round2.md
   PROD is whatever the repository says was last released (a branch, a tag).
-    python grok_review.py --check          # which reviewer, and its flags; run nothing
-    python grok_review.py --brief BRIEF.md --cwd REPO --subject HEAD --subject-only
+    python review.py --check          # which reviewer, and its flags; run nothing
+    python review.py --brief BRIEF.md --cwd REPO --subject HEAD --subject-only
                                            # neither CLI: write the subject and prompt, print their paths
-    python grok_review.py --reviewer claude ...   # force the fallback reviewer
+    python review.py --reviewer claude ...   # force the fallback reviewer
 
 There is deliberately NO way to pass a prompt inline. The brief goes in a file
 (a command over ~10k chars is downgraded by the permission analyser, and a
@@ -175,7 +175,7 @@ def find_grok_bin() -> str | None:
     if env_override:
         if Path(env_override).exists():
             return env_override
-        sys.exit(f"[grok_review.py] $GROK_BIN is set but does not exist: {env_override}")
+        sys.exit(f"[review.py] $GROK_BIN is set but does not exist: {env_override}")
 
     home_bin = Path.home() / ".grok" / "bin" / GROK_BIN_NAME
     if home_bin.is_file():
@@ -189,7 +189,7 @@ def find_claude_bin() -> str | None:
     if env_override:
         if Path(env_override).exists():
             return env_override
-        sys.exit(f"[grok_review.py] $CLAUDE_BIN is set but does not exist: {env_override}")
+        sys.exit(f"[review.py] $CLAUDE_BIN is set but does not exist: {env_override}")
     return shutil.which("claude")
 
 
@@ -199,15 +199,15 @@ def pick_reviewer(choice: str) -> tuple[str, str]:
     if grok:
         return "grok", grok
     if choice == "grok":
-        sys.exit("[grok_review.py] could not locate the grok binary. Install the Grok CLI, "
+        sys.exit("[review.py] could not locate the grok binary. Install the Grok CLI, "
                  "set $GROK_BIN, or run with --reviewer claude.")
     claude = find_claude_bin()
     if claude:
         return "claude", claude
-    sys.exit("[grok_review.py] neither the Grok CLI nor `claude` is on PATH. The review is "
+    sys.exit("[review.py] neither the Grok CLI nor `claude` is on PATH. The review is "
              "still mandatory: run with --subject-only to write the subject and prompt files, then give "
              "the prompt to a fresh read-only session of your agent, started as a separate process in the "
-             "checkout, never a subagent, fork or resumed session of this one (the grok-agents skill, "
+             "checkout, never a subagent, fork or resumed session of this one (the independent-review skill, "
              "'Running it'; ship-check, Step 6).")
 
 
@@ -228,7 +228,7 @@ def supported_flags(binary: str) -> set[str]:
             timeout=60,
         )
     except (OSError, subprocess.SubprocessError) as err:
-        sys.exit(f"[grok_review.py] could not run `{binary} --help`: {err}")
+        sys.exit(f"[review.py] could not run `{binary} --help`: {err}")
     text = proc.stdout + proc.stderr
     return {tok.split("=")[0] for tok in text.split() if tok.startswith("--")}
 
@@ -238,7 +238,7 @@ def require_flags(binary: str, wanted: list[str]) -> None:
     missing = [f for f in wanted if f not in have]
     if missing:
         sys.exit(
-            f"[grok_review.py] this {Path(binary).stem} build does not advertise: "
+            f"[review.py] this {Path(binary).stem} build does not advertise: "
             + ", ".join(missing)
             + "\n  The review spelling depends on them. Check its `--help` and "
             "update this wrapper rather than dropping the flag — dropping "
@@ -257,7 +257,7 @@ def git_dir(cwd: Path) -> Path:
     proc = subprocess.run(["git", "rev-parse", "--absolute-git-dir"], cwd=str(cwd),
                           capture_output=True, text=True, encoding="utf-8", errors="replace")
     if proc.returncode != 0:
-        sys.exit(f"[grok_review.py] --cwd is not a git checkout: {cwd}")
+        sys.exit(f"[review.py] --cwd is not a git checkout: {cwd}")
     return Path(proc.stdout.strip())
 
 
@@ -312,8 +312,8 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
                         "nothing is released. If it is HEAD, "
                         "nothing is committed yet: commit the work first. If it names a release and "
                         "nothing has been released yet, round 1 is everything the first release ships "
-                        f"(the grok-agents skill, 'The subject'; ship-check, Step 6):{product_start(cwd)}")
-            sys.exit(f"[grok_review.py] git {' '.join(a)} failed: {proc.stderr.strip()}{hint}")
+                        f"(the independent-review skill, 'The subject'; ship-check, Step 6):{product_start(cwd)}")
+            sys.exit(f"[review.py] git {' '.join(a)} failed: {proc.stderr.strip()}{hint}")
         return out
     # the empty tree's id depends on the repository's hash (SHA-1 or SHA-256)
     empty = git("hash-object", "-t", "tree", "--stdin").strip()
@@ -327,7 +327,7 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
     if subprocess.run(["git", *attrs, "version"], cwd=str(cwd), capture_output=True,
                       stdin=subprocess.DEVNULL).returncode != 0:
         attrs = []
-        sys.stderr.write("[grok_review.py] warning: this git predates --attr-source (2.41), so a text "
+        sys.stderr.write("[review.py] warning: this git predates --attr-source (2.41), so a text "
                          "file that .gitattributes marks -diff or binary shows in the commits' diffs "
                          "without its content. Upgrade git.\n")
     info = cwd / git("rev-parse", "--git-path", "info/attributes").strip()
@@ -337,7 +337,7 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
     except OSError:
         rules = []
     if rules:
-        sys.stderr.write(f"[grok_review.py] warning: {info} has a rule that can show a text file as "
+        sys.stderr.write(f"[review.py] warning: {info} has a rule that can show a text file as "
                          f"binary ({rules[0]}), and git has no switch for that file: paths it marks show in "
                          "the commits' diffs without their content. Move the rule out for the round.\n")
     # A bare ref is round 1 before any release, whose subject is what a push sends: every
@@ -386,10 +386,10 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
         log = git(*attrs, "log", "--root", "--stat", "-p", rng, env=plain)
     status = git("status", "--porcelain", "-uall")  # not --short, which status.branch changes
     if not log.strip() and not status.strip():
-        sys.exit(f"[grok_review.py] --subject {rng} has no commits and the tree is clean: "
+        sys.exit(f"[review.py] --subject {rng} has no commits and the tree is clean: "
                  "nothing in that range, which is not the same as nothing to review. Round 1 "
                  "is the whole unreleased range: <last release>..HEAD, or before the first release "
-                 f"(the grok-agents skill, 'The subject'; ship-check, Step 6):{product_start(cwd)}")
+                 f"(the independent-review skill, 'The subject'; ship-check, Step 6):{product_start(cwd)}")
     # `git log -p` shows a merge commit without its diff, so a conflict resolution,
     # or an edit made inside a merge, never reaches the reviewer from the log. A
     # two-dot diff of the range's ends does show it. Not `--cc`: a resolution that
@@ -413,7 +413,7 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
         else:
             cumulative = [f"\n# Cumulative diff of the range: not computed for `{rng}` ({why}). "
                           "Run the round with an A..B range to include it.\n"]
-            sys.stderr.write(f"[grok_review.py] warning: {rng} contains merge commits but is not "
+            sys.stderr.write(f"[review.py] warning: {rng} contains merge commits but is not "
                              "an A..B, <sha>^! or bare-ref range, so the subject has no cumulative diff and "
                              "what the merges changed is not in it.\n")
     parts = [header, log or "(no commits in this range)\n", *cumulative,
@@ -477,11 +477,11 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
     if from_untracked > UNTRACKED_WARN_LINES or (
             total > UNTRACKED_WARN_FLOOR and 2 * from_untracked > total):
         largest = ", ".join(u[2] for u in sorted(untracked, key=lambda u: -u[1])[:5])
-        sys.stderr.write(f"[grok_review.py] warning: {len(untracked)} untracked files add "
+        sys.stderr.write(f"[review.py] warning: {len(untracked)} untracked files add "
                          f"{from_untracked} of {total} subject lines; the largest: {largest}. "
                          "If they are not part of the change, stop this round, gitignore or delete "
-                         "them, and run it again (the grok-agents skill, 'The subject'; ship-check, Step 6).\n")
-    path = git_dir(cwd) / f"grok-review-subject-{RUN_ID}.diff"
+                         "them, and run it again (the independent-review skill, 'The subject'; ship-check, Step 6).\n")
+    path = git_dir(cwd) / f"review-subject-{RUN_ID}.diff"
     path.write_text(text, encoding="utf-8")
     return path, total
 
@@ -501,7 +501,7 @@ def compose_prompt(cwd: Path, brief: Path, subject: Path | None, lines: int = 0)
         reading = "No subject file was prepared, so read the working tree as it stands. "
     note = ("\n\n## Reading the subject\n\nYou have read-only tools and no shell. " + reading
             + f"Everything else you need is in the repository's files, at `{cwd}`.\n")
-    path = git_dir(cwd) / f"grok-review-prompt-{RUN_ID}.md"
+    path = git_dir(cwd) / f"review-prompt-{RUN_ID}.md"
     path.write_text(brief.read_text(encoding="utf-8", errors="replace") + note, encoding="utf-8")
     return path
 
@@ -575,7 +575,7 @@ def out_of_usage(reviewer: str, *texts: str) -> None:
     hit = next((m for t in texts if t for m in [OUT_OF_USAGE.search(t)] if m), None)
     if not hit:
         return
-    sys.stderr.write(f"[grok_review.py] {reviewer} answered that its account is out of usage "
+    sys.stderr.write(f"[review.py] {reviewer} answered that its account is out of usage "
                      f"({hit.group(0)!r}): the round did not run, so it is not a clean round.\n")
     rest, skip = [], False
     for a in sys.argv[1:]:
@@ -664,14 +664,14 @@ def main() -> None:
                         "for a round run by hand when neither CLI is installed")
     args = parser.parse_args()
     if args.subject is not None and (not args.subject.strip() or args.subject.startswith("..")):
-        sys.exit(f"[grok_review.py] --subject {args.subject!r} is empty, or has no start (which git "
+        sys.exit(f"[review.py] --subject {args.subject!r} is empty, or has no start (which git "
                  "reads as HEAD), so it holds no commits: usually a substitution that came back empty, such as "
                  "`git describe --tags` where no tag is reachable from HEAD. Name the last release (a "
                  "missing tag is not proof that nothing is released: a production branch or the deployed "
                  "commit may say, and where nothing does, ask the owner), or before the first "
                  f"release:{product_start(Path(args.cwd or '.'))}")
     if args.subject_only and (args.check or args.dry_run or not args.subject):
-        sys.exit("[grok_review.py] --subject-only takes --brief, --cwd and --subject, and runs no reviewer")
+        sys.exit("[review.py] --subject-only takes --brief, --cwd and --subject, and runs no reviewer")
 
     reviewer, binary = ("", "") if args.subject_only else pick_reviewer(args.reviewer)
     grok_flags = ["--prompt-file", "--cwd", "--always-approve", "--tools", "--disallowed-tools",
@@ -701,12 +701,12 @@ def main() -> None:
 
     brief = Path(args.brief).expanduser()
     if not brief.is_file():
-        sys.exit(f"[grok_review.py] --brief is not a file: {args.brief}")
+        sys.exit(f"[review.py] --brief is not a file: {args.brief}")
     brief = brief.resolve()
 
     cwd = Path(args.cwd).expanduser()
     if not cwd.is_dir():
-        sys.exit(f"[grok_review.py] --cwd is not a directory: {args.cwd}")
+        sys.exit(f"[review.py] --cwd is not a directory: {args.cwd}")
     # The subject's paths are rooted at the checkout's top level, and a reviewer confined
     # to a subdirectory couldn't open the files around the change, so the round runs there.
     top = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=str(cwd), capture_output=True,
@@ -716,7 +716,7 @@ def main() -> None:
     brief_text = brief.read_text(encoding="utf-8", errors="replace")
     if len(brief_text.strip()) < THIN_BRIEF_CHARS:
         sys.stderr.write(
-            f"[grok_review.py] warning: brief is {len(brief_text.strip())} chars. "
+            f"[review.py] warning: brief is {len(brief_text.strip())} chars. "
             "A brief carries the goal, the constraints that bind, and how to "
             "prove it — a thin one gets you a locally-correct answer to the "
             "wrong question.\n"
@@ -726,7 +726,7 @@ def main() -> None:
         require_flags(binary, grok_flags if reviewer == "grok" else claude_flags)
 
     if not args.subject:
-        sys.stderr.write("[grok_review.py] warning: no --subject. The reviewer has no shell, "
+        sys.stderr.write("[review.py] warning: no --subject. The reviewer has no shell, "
                          "so it cannot run git; it will see only the working tree.\n")
     subject, lines = write_subject(args.cwd_resolved, args.subject) if args.subject else (None, 0)
     prompt = compose_prompt(args.cwd_resolved, brief, subject, lines)
@@ -739,7 +739,7 @@ def main() -> None:
     if subject:
         needed = lines // READ_FILE_LINES + 1 + 40
         if args.max_turns < needed:
-            sys.stderr.write(f"[grok_review.py] --max-turns raised to {needed} for a "
+            sys.stderr.write(f"[review.py] --max-turns raised to {needed} for a "
                              f"{lines}-line subject\n")
             args.max_turns = needed
     if reviewer == "grok":
@@ -758,9 +758,9 @@ def main() -> None:
     for f in (prompt, subject):
         if f:
             atexit.register(f.unlink, missing_ok=True)
-    sys.stderr.write(f"[grok_review.py] {brief.name} -> {args.cwd_resolved} ({reviewer})\n")
+    sys.stderr.write(f"[review.py] {brief.name} -> {args.cwd_resolved} ({reviewer})\n")
     if reviewer == "grok":
-        sys.stderr.write(f"[grok_review.py] {grok_still_on(binary, str(args.cwd_resolved))}\n")
+        sys.stderr.write(f"[review.py] {grok_still_on(binary, str(args.cwd_resolved))}\n")
     started = time.time()
     try:
         proc = subprocess.run(
@@ -775,7 +775,7 @@ def main() -> None:
             timeout=args.timeout,
         )
     except subprocess.TimeoutExpired:
-        sys.exit(f"[grok_review.py] round exceeded --timeout {args.timeout}s. Nothing to read.")
+        sys.exit(f"[review.py] round exceeded --timeout {args.timeout}s. Nothing to read.")
 
     elapsed = time.time() - started
     out = proc.stdout or ""
@@ -785,7 +785,7 @@ def main() -> None:
         Path(args.out).expanduser().write_text(out, encoding="utf-8")
 
     if proc.returncode != 0:
-        sys.stderr.write(f"[grok_review.py] {reviewer} exited {proc.returncode} after {elapsed:.0f}s\n")
+        sys.stderr.write(f"[review.py] {reviewer} exited {proc.returncode} after {elapsed:.0f}s\n")
         if proc.stderr:
             sys.stderr.write(proc.stderr)
         sys.stdout.write(out)
@@ -796,7 +796,7 @@ def main() -> None:
     if out and not out.endswith("\n"):
         sys.stdout.write("\n")
 
-    summary = f"[grok_review.py] {len(body)} chars in {elapsed:.0f}s"
+    summary = f"[review.py] {len(body)} chars in {elapsed:.0f}s"
     if args.out:
         summary += f", written to {args.out}"
 
@@ -804,7 +804,7 @@ def main() -> None:
         sys.stderr.write(summary + "\n")
         out_of_usage(reviewer, out, proc.stderr or "")
         sys.stderr.write(
-            f"[grok_review.py] FAILED ROUND — {len(body)} chars is below "
+            f"[review.py] FAILED ROUND — {len(body)} chars is below "
             f"--min-chars {args.min_chars}.\n"
             "  This is the 2026-09-08 failure: exit 0, a short preamble, and it "
             "reads as a clean round.\n"

@@ -1,6 +1,6 @@
 ---
 name: transactional-email
-description: "Adding transactional or alert email, choosing a provider, 'sent twice', 'never arrived': send app email without losing or doubling it, with one-click unsubscribe."
+description: "Adding transactional or alert email, choosing a provider, 'sent twice', 'never arrived': app email sent once, never lost, with one-click unsubscribe."
 ---
 
 # Transactional email: durable receipts, honest about duplicates

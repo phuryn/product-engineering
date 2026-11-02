@@ -1,6 +1,6 @@
 ---
 name: intended-vs-implemented
-description: "Auditing AI-built code against its docs: where the code does what the docs or permissions don't say, access control against documented roles, cited on both sides."
+description: "Auditing AI-built code against its docs: where it does what the docs or permissions don't say, access control against documented roles, cited both sides."
 ---
 
 # Intended vs. Implemented: Auditing the Gap

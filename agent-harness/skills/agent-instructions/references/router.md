@@ -8,7 +8,7 @@ A starter router for an app repository, ready to copy, is § 1.8 of `agents-md-s
 
 | When you are… | The rule that applies | Open |
 |---|---|---|
-| **pushing a branch that deploys** — "just push it" is this row | A clean review round covering everything the push adds; the push closes it. Migrations applied by CLI to the database that deploy reads, and its ledger read, first (production's only at a promotion, after the go). Name back any precondition still open rather than pushing past it | the `grok-agents` skill · the `release-gate` skill |
+| **pushing a branch that deploys** — "just push it" is this row | A clean review round covering everything the push adds; the push closes it. Migrations applied by CLI to the database that deploy reads, and its ledger read, first (production's only at a promotion, after the go). Name back any precondition still open rather than pushing past it | the `independent-review` skill · the `release-gate` skill |
 
 - **"When you are…"** is a moment, in the words a user would use or the action the agent is about to take. It is what the agent matches against, so it must look like the situation, not like a topic. The aside — *"just push it" is this row* — names the casual phrasing that would otherwise slip past.
 - **"The rule that applies"** is the part that is easy to miss, in one or two lines: the thing that, missed, costs a release or a day. It is not a summary of the file in the next column; it is the sentence that must be met *now*. A row may leave it empty when the file is the whole point.

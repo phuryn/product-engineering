@@ -71,7 +71,7 @@ UNRESOLVED = [r"\bthe template\b", r"\btemplate's\b", r"AGENTS\.md\s*§\s*\d", r
 
 errors, warnings = [], []
 # A script a skill carries so it works on its own (AGENTS.md, rule 5), and the one it copies.
-COPIES = {"ai-shipping/skills/ship-check/scripts/grok_review.py": "agent-teams/skills/grok-agents/scripts/grok_review.py"}
+COPIES = {"ai-shipping/skills/ship-check/scripts/review.py": "ai-shipping/skills/independent-review/scripts/review.py"}
 
 
 def frontmatter(text):

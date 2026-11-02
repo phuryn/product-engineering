@@ -1,13 +1,13 @@
 ---
 name: codex-agents
-description: "'Ask Codex', 'check with Codex', handing Codex a build, or stuck between two framings: the Codex CLI as a peer that argues and builds."
+description: "'Ask Codex', 'check with Codex', handing Codex a build or review, or stuck between two framings: the Codex CLI as peer, builder or fresh reviewer."
 ---
 
-# Codex agents — the Codex CLI as peer and builder
+# Codex agents — the Codex CLI as peer, builder and reviewer
 
 Codex is a peer, same standing as Claude. Not a formatter, not a gate, not an authority. It runs on the newest model the Codex CLI offers, at its highest reasoning effort (`xhigh`, the wrapper's default on every turn).
 
-**It can build, and what it builds is reviewed by someone else.** Hand it a build stage — the goal, the decisions that bind it, the files it will touch — and read the diff that comes back before believing it: a delegated diff is unreviewed code. The session that wrote code never clears it; an independent review (the `grok-agents` skill, or whatever the project uses) does. Deciding what the product should do, accepting or rejecting a review finding, anything that touches a real system, development included (any database, even one only you use, a server, a setting), and judging that a stage is done stay with the session agent; the brief says so, and asks for each real-system step as one command the session agent runs. Without the Codex CLI, or while it is out of usage (§ Resume or start fresh), the session agent builds the stage itself.
+**It can build, and what it builds is reviewed by someone else.** Hand it a build stage — the goal, the decisions that bind it, the files it will touch — and read the diff that comes back before believing it: a delegated diff is unreviewed code. The session that wrote code never clears it; an independent review (the `independent-review` skill, or whatever the project uses) does, and Codex can be that reviewer for code it didn't write (§ Reviewer). Deciding what the product should do, accepting or rejecting a review finding, anything that touches a real system, development included (any database, even one only you use, a server, a setting), and judging that a stage is done stay with the session agent; the brief says so, and asks for each real-system step as one command the session agent runs. Without the Codex CLI, or while it is out of usage (§ Resume or start fresh), the session agent builds the stage itself.
 
 **Delegate only what is worth the hand-off; the test is size, not time.** If the brief would be nearly as long as the diff, write the diff: a stage small enough to describe precisely is small enough to write, and handing it over only buys a wait. A build round that has made no writes on a small change (check `git status`) is stopped, its leftover process killed, and the change written in-session rather than waited on. What stays with the session agent is unchanged, and its diff still gets the independent review. (`2026-09-22`, a builder sat twelve minutes on a fifteen-line change with zero writes and a clean tree.)
 
@@ -138,6 +138,21 @@ A build round either continues a session or starts one; the wrapper continues by
 - **Parallel builds get a worktree, a session and a marker each.** One session can't drive two builds. The wrapper's marker is one file per user and holds one directory, so a second build's run overwrites the first's, and the first build's next round starts a new session (read-only unless `--sandbox` is passed) instead of resuming. Give each build its own marker: `CODEX_AGENTS_STATE=<a file per build>` on every call for it.
 - **An earlier session can still be resumed, by its id: `--session <id>`.** Every session stays in `~/.codex/sessions/<yyyy>/<mm>/<dd>/`, one `rollout-<time>-<id>.jsonl` each, whose first line names its `cwd`; the wrapper also prints each run's id. Run it with the `--cwd` that session ran in, and with `--model` when it ran on anything but the config default, since a resume does not keep the model (§ Session continuity). It fails rather than starting a new session; once codex has opened it, even on a run that then fails, the marker names it, so the next plain call continues it.
 - **A usage limit makes the builder unavailable, as a missing CLI does.** Codex answers "You've hit your usage limit … try again at <time>" and exits at once. Wait when the reset is near; otherwise the session agent builds the stage itself, and the independent review still applies. The marker keeps the stage's session through the failure, so after the reset the next call continues it. (`2026-10-22`: the reset was 90 minutes away, and the session agent built two stages with its own subagents rather than wait.)
+
+## Reviewer
+
+A review round's discipline (what it covers, the brief, triage, when to stop) is the `independent-review` skill's, and its wrapper runs Grok or a fresh Claude Code session by default. Codex reviews a round when the repository's instructions name it or the owner asks. Get the round's prompt from that skill (its wrapper's `--subject-only` writes the subject and the prompt into the git directory and prints their paths), then run it in a new session that meets the review bar, never this wrapper and never a resume of the thread that built the code:
+
+```bash
+codex exec --ephemeral --ignore-user-config --ignore-rules -s read-only \
+     -m <the newest model> -c model_reasoning_effort=xhigh -C <repo> - < "<prompt file>" > "$S/review-NNN.md"
+# on Windows, also the sandbox mode your config.toml sets: -c 'windows.sandbox="elevated"'
+```
+
+- **`--ephemeral`** saves no session, and a new `codex exec` starts from the prompt alone.
+- **`--ignore-user-config`** leaves out `~/.codex/config.toml`, and with it the MCP servers and tools it adds, which `-s read-only` would not bind: the sandbox covers only the shell commands the model runs (Codex CLI 0.159.0, `2026-10-29`). It also leaves out the model and, on Windows, the sandbox mode without which every read is refused, so both go back on the command line. (`2026-11-02`, Codex CLI 0.166.0 on Windows 11: with them the session read a file and was refused a write; without the mode it was refused both, "blocked by policy".) **`--ignore-rules`** skips the execpolicy rule files.
+- **What these flags were not shown to turn off:** Codex's instruction files, the repository's `AGENTS.md` and the one in `CODEX_HOME`. The round's report names them.
+- A short answer is a failed round, never a clean one, and the subject and prompt files are deleted when the round ends (the `independent-review` skill).
 
 ## How you can tell it worked
 

@@ -1,6 +1,6 @@
 ---
 name: security-audit-static
-description: "Only when a security audit is asked for (ship-check asks by name; a release proposes one, never runs it): a static audit of AI-built code against its documented trust boundaries and permissions."
+description: "Only when a security audit is asked for (ship-check asks by name; a release proposes one, never runs it): a static audit of AI-built code against its documented trust boundaries."
 argument-hint: "<path or area> | <base>..<head> | changes; defaults to the whole repository"
 allowed-tools: Read, Grep, Glob, Task, Bash(git log:*), Bash(git diff:*), Bash(git show:*), Bash(git status:*), Write(reports/**)
 ---

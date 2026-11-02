@@ -60,7 +60,7 @@ A new product proposes these choices rather than re-deriving them, and reopens o
 - **Read the exit code from the log, never the notification.**
 - **An inherited report is a claim, not evidence.** Re-run the gate yourself before repeating a count; take a release's subject from git, not prose.
 - **`docs/test-coverage.md` is written by whoever ran the gate, by nobody else.**
-- **An independent review before every push to a branch that deploys and at every promotion, however small the change.** A fresh session that never saw the build reads the unreleased diff plus the working tree, unsteered; fix, re-run the gate yourself, review again until no INTRODUCED finding above Low and no High or Critical of any age. The session that wrote the code never clears it: the `grok-agents` skill.
+- **An independent review before every push to a branch that deploys and at every promotion, however small the change.** A fresh session that never saw the build reads the unreleased diff plus the working tree, unsteered; fix, re-run the gate yourself, review again until no INTRODUCED finding above Low and no High or Critical of any age. The session that wrote the code never clears it: the `independent-review` skill.
 - The harness and the gate: the `test-harness` skill. How a change ships: the `release-gate` skill.
 
 ## 1.7 Working rules for the agent
@@ -97,14 +97,14 @@ At the start of every new task, find the moment you are in — several can hold 
 | adding or reading an environment variable | Placeholder, row and schema line; the schema runs at build; a generated value is generated now | `docs/variables.md` · `.env.example` |
 | doing UI work, or changing what a screen says | Compose from the kit; a screen claims only what its feed can see | the `design` skill · `design/README.md` |
 | writing framework code | <(stack) This framework version is newer than your training data> | <(stack) the framework's bundled docs, e.g. `node_modules/next/dist/docs/`> |
-| creating or removing a git worktree | Never remove one whose `node_modules` links to another checkout: delete the link first | the `grok-agents` skill (its worktree recipe) |
+| creating or removing a git worktree | Never remove one whose `node_modules` links to another checkout: delete the link first | the `independent-review` skill (its worktree recipe) |
 | writing or running a test, or claiming something is verified | The harness's runs column says gate, outside the gate or by hand; read exit codes from the log; the coverage map is written by whoever ran the gate | `docs/TESTS.md` · `docs/test-coverage.md` · the `test-harness` skill |
 | reading a doc that disagrees with the code | Say so in the summary; the owner decides which side moves | at release, proposed to the owner: the `document-app` and `derive-tests` skills in `check` mode (they write nothing) |
 | deferring anything, or asked what remains | Every deferral has a reason and a revisit trigger | `docs/BACKLOG.md` |
-| **pushing a branch that deploys** — "just push it" is this row | A clean review round covering everything the push adds; the push closes it. Migrations applied first to the database that deploy reads (production's only at a promotion, after the go). A push deploys one runtime: every other one (workers, an edge) keeps its last bundle until redeployed, so check each one's build against the tree after the push. Name back any precondition still open rather than pushing past it | the `grok-agents` skill · the `release-gate` skill |
+| **pushing a branch that deploys** — "just push it" is this row | A clean review round covering everything the push adds; the push closes it. Migrations applied first to the database that deploy reads (production's only at a promotion, after the go). A push deploys one runtime: every other one (workers, an edge) keeps its last bundle until redeployed, so check each one's build against the tree after the push. Name back any precondition still open rather than pushing past it | the `independent-review` skill · the `release-gate` skill |
 | saying a stage or a phase is done | Its done-when, the gate green on your own run, its tests and docs in the change; a change a person sees, once the owner has tried it | `docs/product/plan.md` · the `release-gate` skill (the owner's preview) |
 | **releasing** — promoting to production | The release checklist: the whole-range review, the audits proposed, the production ledger, the owner's **go** | the `release-gate` skill · `docs/RELEASE.md` |
-| triaging a review finding | A finding is a claim, its severity included | the `grok-agents` skill (triage) |
+| triaging a review finding | A finding is a claim, its severity included | the `independent-review` skill (triage) |
 | writing or checking a core doc — architecture, permissions, flows, variables, the coverage map | The definition is the minimum; this file wins where they differ | the `shipping-artifacts` skill · `docs/README.md` |
 | adding email, a scheduled job, automation or search | Document only what exists; unimplemented scope is a backlog row | the conditional doc once the capability exists |
 | adding a fail-closed guard or hosted CI | Never in the same change as the product it guards | the `release-gate` skill |

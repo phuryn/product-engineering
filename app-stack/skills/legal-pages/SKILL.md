@@ -1,6 +1,6 @@
 ---
 name: legal-pages
-description: "Privacy policy, terms, a cookie banner, consent at sign-up, a public front door: legal pages drafted from what the code does while it is built, held to it by a test, with the owner's facts and sign-off."
+description: "Privacy policy, terms, a cookie banner, consent at sign-up, a public front door: legal pages drafted from what the code does, held to it by a test, with the owner's facts and sign-off."
 ---
 
 # Legal pages: drafted from the code, held to it

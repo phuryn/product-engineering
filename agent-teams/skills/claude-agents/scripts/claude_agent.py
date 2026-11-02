@@ -27,7 +27,7 @@ restores none of it — checked 2026-10-24, Claude Code 2.1.310):
              servers unless --mcp.
     review   a fresh second opinion: always a new session, never saved, never
              resumed, no settings, hooks, plugins, MCP or auto-memory; tools Read,
-             Grep, Glob only. For the release-gate review loop use the grok-agents
+             Grep, Glob only. For the release-gate review loop use the independent-review
              skill, which also writes the subject file and fails short rounds.
 A resumed session keeps the mode it was started in unless --mode is passed.
 

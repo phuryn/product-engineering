@@ -1,6 +1,6 @@
 ---
 name: product-analytics
-description: "Adding analytics, session recordings, heatmaps, 'what did users do', Clarity or PostHog: behaviour analytics without analytics cookies, read back by the agent, and what changes when a cookie comes in."
+description: "Adding analytics, session recordings, heatmaps, 'what did users do', Clarity or PostHog: behaviour analytics without analytics cookies, read back by the agent."
 ---
 
 # Product analytics: what people did, without analytics cookies

@@ -90,7 +90,7 @@ Each entry: the date, the request, **rejected** or **deferred**, the reason, the
 
 - **2026-11-02 · rejected.**
 - **Request:** from the same feedback (`2026-11-01`): review mode's tools (Read, Grep, Glob) can't run `git diff`, so it could allow `Bash(git log:*)`, `Bash(git diff:*)` and `Bash(git show:*)` itself.
-- **Reason:** an allow rule matches by prefix, and `git diff --output=<file>` writes, so a reviewer given it is no longer read-only. A review of commits already has a path: `grok-agents`' wrapper with `--reviewer claude` writes the range to a file the same fresh session reads. `claude-agents` now says so where review mode is described.
+- **Reason:** an allow rule matches by prefix, and `git diff --output=<file>` writes, so a reviewer given it is no longer read-only. A review of commits already has a path: the review wrapper with `--reviewer claude` (then `grok-agents`', `independent-review`'s since `2026-11-02`) writes the range to a file the same fresh session reads. `claude-agents` now says so where review mode is described.
 - **Evidence:** `git diff --output` is documented to write the diff to a file instead of stdout.
 - **Decided by:** the agent, on the owner's "implement the rest according to your judgement" (`2026-11-02`).
 
