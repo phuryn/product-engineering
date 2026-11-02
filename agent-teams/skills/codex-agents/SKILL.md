@@ -144,13 +144,20 @@ A build round either continues a session or starts one; the wrapper continues by
 A review round's discipline (what it covers, the brief, triage, when to stop) is the `independent-review` skill's, and its wrapper runs Grok or a fresh Claude Code session by default. Codex reviews a round when the repository's instructions name it or the owner asks. Get the round's prompt from that skill (its wrapper's `--subject-only` writes the subject and the prompt into the git directory and prints their paths), then run it in a new session that meets the review bar, never this wrapper and never a resume of the thread that built the code:
 
 ```bash
+# macOS and Linux
 codex exec --ephemeral --ignore-user-config --ignore-rules -s read-only \
      -m <the newest model> -c model_reasoning_effort=xhigh -C <repo> - < "<prompt file>" > "$S/review-NNN.md"
-# on Windows, also the sandbox mode your config.toml sets: -c 'windows.sandbox="elevated"'
+# Windows: the same, plus the sandbox mode your config.toml sets (elevated or unelevated)
+codex exec --ephemeral --ignore-user-config --ignore-rules -s read-only -c 'windows.sandbox="elevated"' \
+     -m <the newest model> -c model_reasoning_effort=xhigh -C <repo> - < "<prompt file>" > "$S/review-NNN.md"
+wc -c < "$S/review-NNN.md"   # under 1,500: a failed round
 ```
 
+- **The prompt arrives on stdin, from the file the wrapper wrote** (`- < "<prompt file>"`). Here stdin is the prompt, so it is never `< /dev/null`; an empty or missing prompt file is a round that never started.
+- **No wrapper measures this run.** An answer under 1,500 characters is a failed round, and so is one that says it couldn't read the files, however long (the `independent-review` skill's bar).
+
 - **`--ephemeral`** saves no session, and a new `codex exec` starts from the prompt alone.
-- **`--ignore-user-config`** leaves out `~/.codex/config.toml`, and with it the MCP servers and tools it adds, which `-s read-only` would not bind: the sandbox covers only the shell commands the model runs (Codex CLI 0.159.0, `2026-10-29`). It also leaves out the model and, on Windows, the sandbox mode without which every read is refused, so both go back on the command line. (`2026-11-02`, Codex CLI 0.166.0 on Windows 11: with them the session read a file and was refused a write; without the mode it was refused both, "blocked by policy".) **`--ignore-rules`** skips the execpolicy rule files.
+- **`--ignore-user-config`** leaves out `~/.codex/config.toml`, and with it the MCP servers and tools it adds, which `-s read-only` would not bind: the sandbox covers only the shell commands the model runs (Codex CLI 0.159.0, `2026-10-29`). It also leaves out the model and, on Windows, the sandbox mode without which every read is refused, so both go back on the command line. (`2026-11-02`, Codex CLI 0.166.0 on Windows 11: with them the session read a file and was refused a write; without the mode it was refused both, "blocked by policy", and still answered in full sentences.) **`--ignore-rules`** skips the execpolicy rule files.
 - **What these flags were not shown to turn off:** Codex's instruction files, the repository's `AGENTS.md` and the one in `CODEX_HOME`. The round's report names them.
 - A short answer is a failed round, never a clean one, and the subject and prompt files are deleted when the round ends (the `independent-review` skill).
 

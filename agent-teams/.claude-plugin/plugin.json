@@ -1,6 +1,6 @@
 {
   "name": "agent-teams",
-  "description": "Work with other coding agents as partners: brief any delegate with the why, drive the Codex CLI as builder and peer, run an unsteered independent review through the Grok CLI or a fresh Claude session, and let other agents drive Claude Code headless.",
+  "description": "Work with other coding agents as partners: brief any delegate with the why, and drive the Codex CLI, the Grok CLI or Claude Code headless from another agent as a peer, builder or fresh reviewer. The review loop itself is independent-review, in ai-shipping.",
   "author": {
     "name": "Paweł Huryn",
     "email": "pawel@productcompass.pm",

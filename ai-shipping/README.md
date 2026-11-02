@@ -1,6 +1,6 @@
 # ai-shipping — ship AI-built apps
 
-For builders, PMs and founders accountable for AI-built code. Document a vibe-coded app, review it for correctness, security and performance defects, prove it with a test harness that fakes the right side, and release it through a gate the owner says go to.
+For builders, PMs and founders accountable for AI-built code. Document a vibe-coded app, review it for correctness, security and performance defects, have a fresh reviewer that never saw the build clear every change, prove it with a test harness that fakes the right side, and release it through a gate the owner says go to.
 
 It is where the AI Shipping Kit from [pm-skills](https://github.com/phuryn/pm-skills) moved: its three skills and the five workflows that are commands there, plus `release-gate` and `test-harness`. `pm-ai-shipping` in pm-skills now only points here, so once this pack is installed, turn it off.
 

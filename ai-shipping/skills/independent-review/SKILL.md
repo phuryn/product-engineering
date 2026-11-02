@@ -175,10 +175,12 @@ Three facts hold whichever reviewer runs:
   nothing" (`2026-09-08`: two such rounds were read as clean before a third, run properly, found a
   real defect in the commit both had "cleared"). A round that is genuinely empty still argues its way
   there over paragraphs, so require an empty round to say what it read, what it expected to find
-  and why it holds. The wrapper fails a round under 1,500 characters (exit 2).
-- **The brief goes in a file, the working directory is the repository under review, and stdin is
-  closed** (`< /dev/null`): a long prompt inline trips permission classifiers, and a CLI waiting on
-  an open stdin hangs with no output.
+  and why it holds. The wrapper fails a round under 1,500 characters (exit 2); a round run without
+  it is measured by hand, the same way.
+- **The prompt comes from a file, the working directory is the repository under review, and stdin
+  never waits on a terminal**: closed (`< /dev/null`) when the CLI takes its prompt from a file flag,
+  or the prompt file itself when the CLI reads its prompt from stdin (Codex). A long prompt inline
+  trips permission classifiers, and a CLI waiting on an open stdin hangs with no output.
 - **A round takes minutes at the highest effort.** Run it in the background.
 
 **A round can fail by running out of room, leaving the same short output.** Read the log: memory

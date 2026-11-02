@@ -210,7 +210,7 @@ Three things can go wrong in any skill collection, and this one guards against t
 
 ## Scripts
 
-Some skills ship scripts — the Codex wrapper, the review wrapper, the Claude wrapper, hook templates. They need Python 3.10+ (standard library, except where a skill says otherwise) and the CLI they drive. Each skill says which. Nothing runs unless your agent runs it.
+Some skills ship scripts — the Codex wrapper, the review wrapper, the Claude wrapper, hook templates. They need Python 3.9+ (standard library, except where a skill says otherwise) and the CLI they drive. Each skill says which. Nothing runs unless your agent runs it.
 
 ## More techniques
 

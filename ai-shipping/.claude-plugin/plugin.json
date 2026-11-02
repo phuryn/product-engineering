@@ -1,6 +1,6 @@
 {
   "name": "ai-shipping",
-  "description": "Ship AI-built apps: document the app, review it for correctness, security and performance, prove it with a test harness that fakes the right side, and release through a gate with the owner's go. Where the free pm-ai-shipping plugin moved: turn that one off once this is installed.",
+  "description": "Ship AI-built apps: document the app, review it for correctness, security and performance, have a fresh reviewer clear every change round after round, prove it with a test harness that fakes the right side, and release through a gate with the owner's go. Where the free pm-ai-shipping plugin moved: turn that one off once this is installed.",
   "author": {
     "name": "Paweł Huryn",
     "email": "pawel@productcompass.pm",

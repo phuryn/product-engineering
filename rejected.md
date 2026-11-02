@@ -98,6 +98,6 @@ Each entry: the date, the request, **rejected** or **deferred**, the reason, the
 
 - **2026-11-02 · deferred.**
 - **Request:** from the same feedback (`2026-10-31` to `2026-11-01`, review rounds 13 to 16 of one surface): recipes for budget-reserved unbiased samples, inclusion weights across a budget change, conservative accounting after a lost paid response, transactionally maintained rate counters, and erasing verdict text while keeping numeric receipts.
-- **Reason:** each was learned once, on one product, and lives in that product's own docs; a general rule written from one case would be guesswork. What was general from the same rounds went in: the stopping rule's pause for a surface that keeps drawing Highs (`grok-agents`), and brief rules for decisions a builder raises (`delegation`).
+- **Reason:** each was learned once, on one product, and lives in that product's own docs; a general rule written from one case would be guesswork. What was general from the same rounds went in: the stopping rule's pause for a surface that keeps drawing Highs (then `grok-agents`, `independent-review` since `2026-11-02`), and brief rules for decisions a builder raises (`delegation`).
 - **Reopen when:** a second product meets the same problem.
 - **Decided by:** the agent, on the owner's "implement the rest according to your judgement" (`2026-11-02`).

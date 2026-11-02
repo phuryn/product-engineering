@@ -1,6 +1,6 @@
 # agent-teams — work with other agents as partners
 
-A delegate is a partner, not a tool: it gets the why, not just the what. These skills are how to brief any delegate, and how to drive each kind — the Codex CLI as builder and peer, an independent reviewer that never saw the build, and Claude Code run headless by another agent.
+A delegate is a partner, not a tool: it gets the why, not just the what. These skills are how to brief any delegate, and how to drive each kind — the Codex CLI, the Grok CLI and Claude Code, each run headless by another agent as a peer, builder or reviewer. The review loop itself, round after round, is `independent-review`, in the `ai-shipping` pack.
 
 ## Install
 

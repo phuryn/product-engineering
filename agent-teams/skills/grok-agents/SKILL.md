@@ -41,9 +41,11 @@ grok --prompt-file "$S/turn-1.md" --cwd <repo> --session-id "$SID" \
      --tools read_file,grep,list_dir --disallowed-tools search_tool,use_tool \
      --deny MCPTool --deny Bash --deny Edit --deny Write --disable-web-search \
      --always-approve --reasoning-effort xhigh --output-format json < /dev/null > "$S/turn-1.json"
-# the next turn continues it: the same flags, --resume instead of --session-id
-grok --resume "$SID" --prompt-file "$S/turn-2.md" --cwd <repo> <the same tool flags> \
-     --reasoning-effort xhigh --output-format json < /dev/null > "$S/turn-2.json"
+# the next turn continues it: every flag again, --resume in place of --session-id
+grok --resume "$SID" --prompt-file "$S/turn-2.md" --cwd <repo> \
+     --tools read_file,grep,list_dir --disallowed-tools search_tool,use_tool \
+     --deny MCPTool --deny Bash --deny Edit --deny Write --disable-web-search \
+     --always-approve --reasoning-effort xhigh --output-format json < /dev/null > "$S/turn-2.json"
 ```
 
 - **`--session-id <uuid>` names the session, and `--resume <uuid>` continues it with its context** (`2026-11-02`: a word given in the first turn came back from the second). Keep the id in a file beside the brief; `-c` continues the most recent session in the directory, which is whatever ran there last, so don't rely on it.
