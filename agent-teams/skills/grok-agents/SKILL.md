@@ -444,8 +444,8 @@ writing:
 Medium introduced by the fix before it; then five rounds in a row found new Highs in one surface,
 paid production sampling, while the rest was clean, and pausing it behind an off-by-default switch
 ended the loop three rounds after the pause was first due. `2026-10-29` and `30`, this collection's
-own release review: a landing page's analytics tag drew findings in eleven of 23 rounds, three of
-them running at the start, and the loop closed three rounds after its address rewrite came out.)
+own release review: a landing page's analytics drew findings in eleven of 23 rounds, three of them
+running at the start, and the loop closed three rounds after the tag's address rewrite came out.)
 Scale this by whether the work was asked for: hardest on hardening nobody requested, lightest on a
 feature the owner asked for by name, which this rule once abandoned wrongly. **Budget for it** when
 planning: in ingest, queue and concurrency code, a fix commit tends to need a round of its own
