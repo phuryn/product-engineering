@@ -25,8 +25,9 @@ Each section gives the principle first, then the mechanism on Next.js (App Route
   - **Cost:** an onboarding step in front of the app. On Clerk that is the `choose-organization` task, which leaves the session *pending* until finished. A headless sign-in must land test accounts past it (`clerk-production`).
   - A product with teams stays an organization. A solo product may too, as organizations of one.
 - **Individual shape.** A workspace is one user. There are no organizations, no second role, no organization management and no onboarding task. Its permission matrix has one member actor.
-- **Nothing references the identity provider's org id or user id except the `workspaces` table.** The product keys on its own row, never on a vendor's id.
-  - **Reason:** a change of identity provider is then a migration of one table.
+- **Nothing references the identity provider's org id or user id except the `workspaces` table**, and, where the product records authorship, one member table. The product keys on its own row, never on a vendor's id.
+  - **Reason:** a change of identity provider is then a migration of one table, or two.
+  - **Authorship** (who wrote a note, who labelled a row) gets that member table: a row holding only the workspace, the provider's user id and the product's own member id, made on the member's first write, never read for authorization and never a copy of a name, an email or a role. Author columns reference that row. (`2026-10-31`, an evals product left authorship out of its first version because this rule gave it no recipe.)
   - It also leaves an individual-shape product a path to organizations: a later move changes that row's key, not every domain table.
 
 **The individual shape on this stack.** It was proven by a product on this stack on `2026-10-11`, without billing.

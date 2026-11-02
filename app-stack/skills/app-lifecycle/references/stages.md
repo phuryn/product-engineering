@@ -123,7 +123,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 
 **Doing it well**
 
-- **Check the ground first** — the agent's database connection answers about the development target (with development as a branch of production, its `--db-url`, the MCP server removed), the CLI's link names it, the development database has no tables, `.env` is filled — **and stop if any of that is false.**
+- **Check the ground first** — the CLI's connection string names the development target and nothing is linked, the agent's database connection, where there is one, answers about the same target (with development as a branch of production, the MCP server removed once setup is done), the development database has no tables, `.env` is filled — **and stop if any of that is false.**
 - **Plan in one page and stop.** The plan names the workspace table (keyed to the organization, or in the individual shape to the user), the authorization functions and the first migration.
 - The first migration is applied by the CLI with the target spelled out, named after the version the migration ledger records.
 - **The screens keep their shape;** what changes is where their data comes from and how people authenticate. Use the identity provider's own components, dressed to the design, never rebuilt.
@@ -228,7 +228,7 @@ Then **read the permission document again**, as in stage 6. With block A it has 
 
 ## 9 — Go live
 
-**Produces:** production resources, separate from development — the identity provider's production instance with its own keys, email DNS and legal consent on; a real payment account connected to billing and the billing file applied to production, when the product bills; a production database with every migration applied through the CLI against production's own connection URL, never by relinking, and the ledger read again (the `supabase-production` skill); the host's production environment with **generated secrets generated afresh, never copied from development**, set only at the promotion, after the product branch is pinned to development values — and the production branch, with the custom domain on the production site. Each dashboard change gets its screenshot.
+**Produces:** production resources, separate from development — the identity provider's production instance with its own keys, email DNS and legal consent on; a real payment account connected to billing and the billing file applied to production, when the product bills; a production database with every migration applied through the CLI against production's own connection URL, the CLI never linked, and the ledger read again (the `supabase-production` skill); the host's production environment with **generated secrets generated afresh, never copied from development**, set only at the promotion, after the product branch is pinned to development values — and the production branch, with the custom domain on the production site. Each dashboard change gets its screenshot.
 
 **Enter it** when the owner says the product is ready for a real audience, after the front door and its legal pages are live.
 

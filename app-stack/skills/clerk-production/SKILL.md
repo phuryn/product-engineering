@@ -39,7 +39,7 @@ Three things of the product's own are named throughout. **The integration notes*
 ## The choices
 
 1. **Verify, never decode, always behind one session seam** (`SessionVerifier`). Tests substitute a mock verifier when `CLERK_SECRET_KEY` is absent; keyless mode is for development only. → `references/sessions-and-front-door.md § Sessions`
-2. **Store Clerk ids only.** Read names and emails from Clerk at render time. Only the `workspaces` table holds a Clerk org or user id (`saas-authorization`).
+2. **Store Clerk ids only.** Read names and emails from Clerk at render time. Only the `workspaces` table holds a Clerk org or user id, and, where the product records authorship, one member table beside it holds the user id too (`saas-authorization`).
 3. **Authorization lives with the data, not in a path list.** Clerk v7 deprecates `createRouteMatcher`, and `proxy.ts` only attaches the session. Every protected page and every action checks for itself; a check in a layout alone is not a check. (`2026-08-27`, building the first slice with sign-in and data.)
 4. **Clerk's own components are the sign-in surface**: `<SignIn />`, `<SignUp />`, `<UserButton />`. They are dressed through `appearance`, never rebuilt.
 5. **Sign-in lands on the member home, never on `/`.**

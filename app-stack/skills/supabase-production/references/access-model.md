@@ -22,7 +22,7 @@
   - the one client and how it connects (secret key, no session persistence, `no-store`) and its timeout;
   - every other runtime's login, its group role and how it connects;
   - the RLS posture, and the catalog suite that proves it, with how it reaches the database and which ref it targets;
-  - that migrations go through the CLI: development by the link, production by `--db-url`;
+  - that migrations go through the CLI, each database by its own `--db-url`, the CLI never linked;
   - the MCP connection: for looking, against development, per machine;
   - backups.
 

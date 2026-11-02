@@ -98,8 +98,8 @@ DEFAULT_MIN_CHARS = 1500
 # a round failed (a non-zero exit or a short answer), so a review that discusses a 402 is never
 # taken for one.
 OUT_OF_USAGE = re.compile(
-    r"\b402\b|usage balance|balance (?:is )?exhausted|insufficient (?:credits?|balance|funds)"
-    r"|out of (?:credits?|usage)|credit balance is too low|exceeded your (?:current )?quota",
+    r"usage balance (?:is )?exhausted|insufficient (?:credits?|balance|funds)|credit balance is too low"
+    r"|exceeded your (?:current )?quota|\b402\b[^\n]{0,40}(?:payment required|balance|credits?|quota)",
     re.IGNORECASE,
 )
 

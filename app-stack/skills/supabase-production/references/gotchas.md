@@ -92,7 +92,7 @@ The client builds its Realtime client even when nothing subscribes. Without a gl
 
 ## `npx supabase` can fail on npm's install-script policy
 
-A Supabase CLI older than 2.99.0 installs its binary in a postinstall script, which npm 12 blocks by default and npm 11.16 and later can be set to block (`strict-allow-scripts`); `npx supabase` then fails. Pin 2.99.0 or later, which has none, or approve it once with `npm install-scripts approve supabase` (npm 11.21.1 and 12.2.1, and the registry's package data, read `2026-11-02`; `2026-10-31`, an evals product hit it).
+A Supabase CLI older than 2.99.0 installs its binary in a postinstall script, which npm 12 blocks by default and npm 11.16 and later can be set to block (`strict-allow-scripts`); `npx supabase` then fails. Pin a 2.x release from 2.99.0 on, which has none (this skill's commands are 2.x's: `migrations.md § Applied by the CLI`), or approve the older one once with `npm install-scripts approve supabase` (npm 11.21.1 and 12.2.1, and the registry's package data, read `2026-11-02`; `2026-10-31`, an evals product hit it).
 
 ## The direct database host is IPv6-only
 

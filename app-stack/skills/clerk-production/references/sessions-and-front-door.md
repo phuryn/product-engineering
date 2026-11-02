@@ -14,7 +14,7 @@
   - Keyless mode (Clerk running without keys) is for development only.
 - **The seam returns what the three authorization functions need**: the user id, and the active organization id with its role in the organization shape. It also returns the entitlements: the `has` from `auth()`, called as `has({ feature })`, passed to the plan module's mapping. Signed out is the free tier (`organizations-and-billing.md § Billing`).
 - **The individual shape's seam** requires `auth()` and `currentUser()` to name the same user. It reads an email only when it is the verified primary one, and creates the workspace row on first sight through an idempotent database function (`saas-authorization`).
-- **Store Clerk ids only.** Read names and emails from Clerk at render time; never copy a profile into your database. Only the `workspaces` table holds a Clerk org or user id.
+- **Store Clerk ids only.** Read names and emails from Clerk at render time; never copy a profile into your database. Only the `workspaces` table holds a Clerk org or user id, and, where the product records authorship, one member table beside it holds the provider's user id too (`saas-authorization`).
 - **Authorization lives with the data, not in a path list.**
   - Clerk v7 deprecates `createRouteMatcher`.
   - `proxy.ts` (Next 16's name for middleware) runs a bare `clerkMiddleware` that attaches the session and writes the CSP. It protects nothing by path.
