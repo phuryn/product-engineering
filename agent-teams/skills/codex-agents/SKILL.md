@@ -146,13 +146,13 @@ A review round's discipline (what it covers, the brief, triage, when to stop) is
 ```bash
 # macOS and Linux
 codex exec --ephemeral --ignore-user-config --ignore-rules -s read-only \
-     -m <the newest model> -c model_reasoning_effort=xhigh -C <repo> - < "<prompt file>" > "$S/review-NNN.md"
+     -m <the newest model> -c model_reasoning_effort=xhigh -C <repo> - < "<prompt file>" > "$S/review-NNN.md" 2> "$S/review-NNN.err"
 # Windows: the same, plus the sandbox mode under [windows] in ~/.codex/config.toml (elevated or unelevated)
 codex exec --ephemeral --ignore-user-config --ignore-rules -s read-only -c 'windows.sandbox="<that mode>"' \
      -m <the newest model> -c model_reasoning_effort=xhigh -C <repo> - < "<prompt file>" > "$S/review-NNN.md" 2> "$S/review-NNN.err"
 ```
 
-Then check the round as the wrapper would, because none ran: `python -c "import sys; print(len(open(sys.argv[1], encoding='utf-8').read().strip()))" "$S/review-NNN.md"` under 1,500 is a failed round, and so is any refused read, which Codex logs to stderr however long its answer is: `grep -i "blocked by policy\|rejected" "$S/review-NNN.err"` finds one.
+Then check the round as the wrapper would, because none ran: `python -c "import sys; print(len(open(sys.argv[1], encoding='utf-8').read().strip()))" "$S/review-NNN.md"` under 1,500 is a failed round, and so is one whose reads were refused, however long its answer is. Codex logs every refused command to stderr, and `grep -i "blocked by policy" "$S/review-NNN.err"` lists them: a refused write is the read-only sandbox doing its job, but refused reads (opening, listing or searching files) with none that succeeded are a round that reviewed nothing.
 
 - **The prompt arrives on stdin, from the file the wrapper wrote** (`- < "<prompt file>"`). Here stdin is the prompt, so it is never `< /dev/null`; an empty or missing prompt file is a round that never started.
 - **No wrapper measures this run**, so the check above is the round's gate (the `independent-review` skill's bar: short, or unable to read, is failed).
