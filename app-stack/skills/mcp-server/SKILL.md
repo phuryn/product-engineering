@@ -75,7 +75,7 @@ A real client connects to the deployed server, signs in, lists the tools and cal
 - **What is true of one product goes in that product's repository**: its listings and their states, versions, verified clients, open reviews and receipts, in its distribution record, API contract or backlog.
 - **A rule a test can hold gets the test**, and the skill says what the test asserts, not where one product keeps it.
 
-## Where the copies live
+## Where the skill lives
 
-- **Each product carries its own copy** at `.claude/skills/mcp-server/` (or `.agents/skills/`), and a lesson a product learns goes back to your master copy, generalized. `diff -r <master>/mcp-server <product>/.claude/skills/mcp-server` shows what has not.
-- **A builder that is not Claude Code reads these as plain files.** A stage brief for the MCP server names this folder by path.
+- **In the installed `app-stack` pack, in every agent that builds the server**, and the product keeps no copy of it: a copy freezes the skill at the version it was taken from, and Claude Code loads it a second time beside the pack. A product that still carries one (`.claude/skills/mcp-server/`, `.agents/skills/mcp-server/`) moves what it says that the pack doesn't into its own repository (above) or into a change for this collection, then deletes it.
+- **A builder that is not Claude Code has the pack installed in it too.** A Codex brief for the MCP server names the skill as `$app-stack:mcp-server`.

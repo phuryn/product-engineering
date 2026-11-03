@@ -68,6 +68,8 @@ codex plugin add product@product-engineering   # and the other packs
 
 Codex reads this repository's Claude Code marketplace as it is, and every skill runs there. The four you start run only when you name them: `$product:start-here`, `$ai-shipping:ship-check`, `$agent-harness:handover`, `$agent-harness:retro`. The rest also start themselves when you ask in plain words. To update: `codex plugin marketplace upgrade product-engineering`, then a new session.
 
+When Claude Code hands a build to Codex, Codex reads only the packs installed in Codex, so install there what its builds need: `app-stack` for screens and an MCP server.
+
 ### Any other agent (Cursor, Gemini CLI, OpenCode, Copilot, Windsurf …)
 
 ```bash
@@ -77,7 +79,7 @@ npx skills update                             # later, to update
 
 `npx skills` needs Node.js 22.20 or later; on an older Node it fails with `does not provide an export named 'glob'`. Upgrade Node, or run it through a temporary Node 22: `npx -p node@22 -p skills -c "skills add phuryn/product-engineering"`.
 
-Or copy skill folders by hand into the folder your agent reads (`.agents/skills/`, `.claude/skills/`, `.cursor/skills/`, `~/.gemini/skills/` …). Every skill works from its own folder alone. A skill both copied and installed as a pack loads twice: keep one. The exception is `design`, which a product keeps a copy of so builders can read it by path; with `app-stack` installed too, both load, and the skill says the product's copy is the one that binds.
+Or copy skill folders by hand into the folder your agent reads (`.agents/skills/`, `.claude/skills/`, `.cursor/skills/`, `~/.gemini/skills/` …). Every skill works from its own folder alone. A skill both copied and installed as a pack loads twice: keep one, and prefer the pack, which updates.
 
 </details>
 

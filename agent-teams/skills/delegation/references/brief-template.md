@@ -26,8 +26,9 @@ Copy, fill, delete what doesn't apply. Order matters: the goal comes first becau
  an older brief repeats what those rounds fixed. Who commits: where the
  builder's sandbox can't write the main checkout's git directory (a linked
  worktree's index lives there), you do. For a change with screens: the design
- method by its path in this repository, the jobs map rows it serves, and the
- data rules that stay out of the copy.>
+ skill by name, from the pack installed in the builder ($app-stack:design in
+ Codex), the jobs map rows it serves, and the data rules that stay out of the
+ copy.>
 
 ## Traps
 <The plausible fixes that would be wrong, and why: "do not fix this in X —

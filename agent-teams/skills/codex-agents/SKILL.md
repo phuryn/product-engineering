@@ -79,7 +79,7 @@ monitoring product: four worktree builds came back uncommitted, three of them qu
 uncommitted, with its commit message in the handoff, and you read the diff and commit it.
 A brief that sends it to another repository for prior art says to read the files from disk.
 
-**A build that adds or changes screens names the design method by its path** (the product's copy of the `design` skill) and carries its rows of the jobs map, because Codex reads no skill on its own. (`2026-11-03`, an evals product: Codex built screens with no copy of the method in the repository, and the owner's click-through found five layout bugs.)
+**A build that adds or changes screens names the design skill, `$app-stack:design`,** and carries its rows of the jobs map. Codex loads a skill only from a pack installed in Codex, so before the first such brief, `codex plugin list` shows `app-stack@product-engineering` installed and enabled; if it doesn't, install it (`codex plugin marketplace add phuryn/product-engineering`, then `codex plugin add app-stack@product-engineering`). (`2026-11-03`, an evals product: Codex, with no pack installed, built screens without the method, and the owner's click-through found five layout bugs. Once the pack was installed, a headless `codex exec` loaded `$app-stack:design`, codex-cli 0.166.0.)
 
 ## Follow-up turns — conversational, short, peer-to-peer
 

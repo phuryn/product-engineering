@@ -14,9 +14,9 @@ One skill for the whole of a product's look: the rules, which outside skill to u
 3. **The product's kit**, three files wherever the product keeps them (often a `design/` folder): `tokens.css`, every raw value (colour, type, space, radius, duration); `kit.css`, the primitives, built from tokens only; and the **kit README**, the product's own design document: its direction, palette, type, layout and button roles, each with its reason, and every departure from the method. Screens compose the kit; a screen never invents a style.
 4. **The collections advise** (`references/collections.md`). A suggestion reaches code only as a token or a primitive in the kit, recorded in the kit README. Where a collection disagrees with the method, the method wins.
 
-**A product carries this skill in its own repository, at `.claude/skills/design/`, copied, never pointed at.** A rule that lives only in another repository doesn't get read. A monitoring product's kit README pointed at the method in another repository instead of copying it. It then shipped borderless Cancels in five places, which the method already forbade (`2026-10-22`).
+**Every agent that builds the product's screens loads this skill from its installed pack, `app-stack`, and the product keeps no copy of it.** A copy freezes the method at the version it was taken from (the pack released three versions between `2026-11-02` and `2026-11-03`), and Claude Code loads it a second time beside the installed pack. A rule a builder can't load doesn't get read: a monitoring product's kit README pointed at the method in another repository, and the product shipped borderless Cancels in five places the method already forbade (`2026-10-22`).
 
-**A builder that isn't Claude Code reads these as plain files.** Codex never sees a Claude Code plugin or a skill trigger. So a product's agent instructions name this folder by path, and so does every stage brief that builds screens. Whatever a collection taught that the next screen needs goes into the kit README, not just the session that used it.
+**A builder that isn't Claude Code has the pack installed in it too.** Codex reads the same marketplace (`codex plugin add app-stack@product-engineering`), and a brief names the skill there as `$app-stack:design`: a headless `codex exec` loaded it once the pack was installed (`2026-11-03`, codex-cli 0.166.0). An agent with no plugin installer takes the folder through `npx skills add`, into its own skills folder only. Whatever a collection taught that the next screen needs goes into the kit README, not just the session that used it.
 
 ## Before any screen: the jobs map
 
@@ -50,7 +50,7 @@ Before the owner's click-through, someone new to the domain says, for each scree
 
 ## The owner's standing preferences
 
-**This section is yours to fill, in your own words, with the date you said each.** The entries below are the author's, kept as a worked example of what belongs here: a taste call with its receipt, and how far it reaches. Replace them with your own; until you do, treat them as one owner's taste, not as rules.
+**Yours go in the kit README** (for one product) **or in your user-level agent instructions** (for every product), in your own words, with the date you said each. An edit to the installed pack is lost at its next update. The entries below are the author's, kept as a worked example of what belongs there: a taste call with its receipt, and how far it reaches. Until you write your own, treat them as one owner's taste, not as rules.
 
 
 - **Weight doesn't mark state.** "Colors already say this. Two things saying the same it unnecessary in my opinion." (`2026-10-22`, rejecting "bold only on problems".)
@@ -69,20 +69,20 @@ Every screen answers a job on the map and passed a newcomer walkthrough; the own
 
 ## When something is learned
 
-- **True for any product:**
+- **True for any product:** a change for this collection, drafted in the product's feedback file or as an issue on the collection's repository (`/agent-harness:retro` says how), naming the file it belongs in:
   - a rule for the kit or for building screens goes in `method.md`;
   - a rule about what screens claim, or how they're checked, goes in `screens.md`;
   - a change to the review procedure goes in `review.md`.
 
   Give each its receipt: the date, and what happened, in a product named by kind, not by name. Hold it with a test where one can be written: a rule only in a report is gone by the next product.
 - **True for this product only:** its kit README.
-- **An owner preference:** the section above, in their words.
+- **An owner preference:** the kit README, or the owner's user-level agent instructions, in their words (§ The owner's standing preferences).
 
-## Where the copies live
+## Where the method lives
 
-- **Each product carries its own copy** (`.claude/skills/design/`, or `.agents/skills/design/` for agents that read that folder), copied whole, never pointed at (above). **The product's copy binds**: it holds this owner's preferences and this product's lessons. Where the installed pack's copy loads beside it, read the product's.
-- **Keep one master copy across your products** and send a lesson back to it, generalized, the day a product learns it. A product's copy that differs from your master is a lesson not yet sent back: `diff -r <master>/design <product>/.claude/skills/design` shows it.
-- **Where a product's rules leave its installed skills untouched**, the lesson goes in the product's own feedback file instead, for whoever keeps the master (`2026-11-03`, an evals product).
+- **In the installed `app-stack` pack, in every agent that builds screens**: Claude Code for the user, or with `--scope project` so every checkout of the product asks for it; Codex from the same marketplace; any other agent through `npx skills`. Each keeps it current with its own update command (the collection's README, § Install).
+- **A product that still carries a copy** (`.claude/skills/design/`, `.agents/skills/design/`) **deletes it** once the pack is installed. Before that, `diff -r` against the pack's installed folder shows what the copy says that the pack doesn't: this product's lessons go to the kit README, the owner's preferences as above, and a lesson for any product to this collection (§ When something is learned).
+- **Nobody edits the installed pack and hopes it travels.** A product's lesson goes into its own docs the day it is learned, and the general one goes to this collection as above (`2026-11-03`, an evals product).
 
 ## Files
 

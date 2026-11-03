@@ -395,6 +395,6 @@ Its non-negotiables:
 ## How a product gets them
 
 - **`frontend-design`**: enable it in the product's committed `.claude/settings.json` as `frontend-design@claude-plugins-official`. Anthropic's own marketplace, which Claude Code adds by itself in an interactive session, lists it by a relative path, so a fresh checkout loads it once the folder is trusted, with no install step. A machine that also has it at user scope from another source (`@anthropic-plugin-directory`, `@synced`) may list it twice; uninstall that one.
-- **This skill** is copied into the product at `.claude/skills/design/` (`SKILL.md § Where the copies live`).
+- **This skill** comes from the `app-stack` pack, installed in every agent that builds screens; the product keeps no copy of it (`SKILL.md § Where the method lives`).
 - **`dataviz` and `artifact-design`** ship with Claude Code.
 - **The three third-party collections** are linked above, installed per machine from their own READMEs, and used when present. Don't vendor or enable them in the product's repository: registering a third-party marketplace for every checkout, and a plugin whose launcher downloads a binary and installs hooks, is the owner's call on each machine. Without them, design from the method, `frontend-design` and the checklists in this file.
