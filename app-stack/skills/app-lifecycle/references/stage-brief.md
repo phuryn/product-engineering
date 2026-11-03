@@ -12,6 +12,7 @@
   - **Every handoff then says plainly that it is a code handoff, not the stage done**, and lists what it wrote but could not run. The session agent marks the stage done only from its own run against the stage's done-when.
   - (`2026-10-23`, a monitoring product: once its briefs split the two, every handoff opened "This is a code handoff, not a claim that the stage's live done-when passed" and reported database tests as written but not run. Earlier, on another product, builders whose sandbox reached no database had twice reported gate counts nobody ran, `2026-09-16` and `2026-09-17`.)
 - **What stays with the session agent: anything that touches a real system, development included** — a deploy, a migration applied to the development database, a worker's secrets, a drill. The builder makes each one a single command and names it in the handoff.
+- **A stage that adds or changes screens names the design method by its path** (the product's copy of the `design` skill) and carries its rows of the jobs map. A builder that reads no skill trigger never opens a method it isn't pointed at. (`2026-11-03`, an evals product's builder built its screens without one.)
 - **Without a builder**, the session agent builds the stage itself and the plan's line for the stage is its brief; no separate file is needed.
 - **What a builder reports is a claim.** A delegated diff is unreviewed code: read it before believing it, re-run the gate yourself, and rewrite the coverage evidence from your own run. The independent review still applies.
 - **When the stage is done, the brief moves unchanged to an archive folder** (`docs/history/briefs/<stage>.md`, say), and the stage's line in the plan points there. **A folder holding no brief means no stage is in flight.**
@@ -42,6 +43,14 @@
 - <The product-section rules, decision-log entries and default choices this stage must hold — named, with where each lives.>
 - <What is deliberately not in this stage.>
 - <The rules review rounds taught since this brief was written, or the file that holds them, folded in before the builder starts.>
+
+## Screens (when the stage adds or changes any)
+
+- The design method, by path: `<.claude/skills/design/>`; `references/method.md` read before any screen.
+- The jobs map rows this stage serves: the job in the user's words → its screen → that screen's one question → its primary action.
+- The data rules that stay out of the copy, each with the plain-words outcome a screen shows instead.
+- Example data that fills every screen it touches.
+- Done includes a newcomer walkthrough and the rendered-screen pass, before the owner's click-through.
 
 ## Files it will touch
 

@@ -1,6 +1,6 @@
 ---
 name: design
-description: "Before designing a screen or design system, choosing colours, type or components, or judging the look: design, build and review product UI with its owner."
+description: "Mandatory for any screen work, a builder's too: designing or building a screen or design system, choosing colours, type or components, judging the look."
 ---
 
 # Design
@@ -16,12 +16,26 @@ One skill for the whole of a product's look: the rules, which outside skill to u
 
 **A product carries this skill in its own repository, at `.claude/skills/design/`, copied, never pointed at.** A rule that lives only in another repository doesn't get read. A monitoring product's kit README pointed at the method in another repository instead of copying it. It then shipped borderless Cancels in five places, which the method already forbade (`2026-10-22`).
 
-**A builder that isn't Claude Code reads these as plain files.** Codex never sees a Claude Code plugin or a skill trigger. So a product's agent instructions name this folder by path. Whatever a collection taught that the next screen needs goes into the kit README, not just the session that used it.
+**A builder that isn't Claude Code reads these as plain files.** Codex never sees a Claude Code plugin or a skill trigger. So a product's agent instructions name this folder by path, and so does every stage brief that builds screens. Whatever a collection taught that the next screen needs goes into the kit README, not just the session that used it.
+
+## Before any screen: the jobs map
+
+Before a screen is drawn, a builder's included, work out what people come to do: one row per job, **the job in the user's words → the screen it happens on → the one question that screen answers → its primary action.** The map goes in the proposal's prototype and in every stage brief that adds screens. A screen with no job is cut; a job with no screen is a gap.
+
+- **The product's data rules stay out of the copy.** The brief lists them (how records are split, sampled, versioned or locked), and a screen shows each only as an outcome in plain words: "12 traces wait for your review", never the table or the method's own vocabulary.
+- **When the product replaces a tool the owner knows, that tool's structure is the default to generalize**, and each departure is justified in the kit README.
+- **The example data fills every screen**, every tab included, so a click-through never meets an empty one; the empty states are shown on purpose, beside it.
+- (`2026-11-03`, an evals product: its screens mirrored its tables and its method's vocabulary, and someone who knew the tool it replaced couldn't follow the process. The owner: "super technical, like a database".)
+
+## A stage with screens is done only after a newcomer walkthrough
+
+Before the owner's click-through, someone new to the domain says, for each screen, what it is for and what to press next, unaided: a fresh session given only the running app and the user's job, never the brief or the code, or a person. A screen it can't explain, or a next step it can't find, is fixed first. Then the rendered-screen pass: every screen captured and checked against `references/screens.md § What to verify visually`. (`2026-11-03`, an evals product: the design stage was skipped by a recorded decision, nothing brought it back, no screen was rendered and checked, and the owner's click-through found five layout bugs, most of them rules the method already had.)
 
 ## Which collection leads, stage by stage
 
 | Stage | Leads | Take | Keep out |
 |---|---|---|---|
+| **The jobs.** Before any screen | this skill, § Before any screen | the jobs map; the data rules kept out of the copy | a screen per table |
 | **Direction.** No look yet; the look is the problem; a public page whose job is to persuade | `frontend-design` (always on) | a direction grounded in the product's subject; a plan (palette, type, layout, principles) checked against the generic defaults before anything is built | a new direction per screen. Once one is picked, it stops leading |
 | **A choice between options.** A palette, a font pairing, a chart type, a stack's convention | UI/UX Pro Max | candidates to choose from. The pick goes into the kit by hand | its persisted design-system files and its installer: a second design system beside the kit |
 | **The kit** | the method, with `frontend-design`'s plan | tokens and primitives that satisfy every rule in `method.md`, each held by a test where one can be written | anything a collection proposes that the method forbids |
@@ -51,7 +65,7 @@ One skill for the whole of a product's look: the rules, which outside skill to u
 
 ## How you can tell it worked
 
-The owner looked at the screens at phone and desktop width and approved them, and every colour, size and spacing value on them comes from the tokens.
+Every screen answers a job on the map and passed a newcomer walkthrough; the owner looked at the screens at phone and desktop width and approved them; and every colour, size and spacing value on them comes from the tokens.
 
 ## When something is learned
 
@@ -68,6 +82,7 @@ The owner looked at the screens at phone and desktop width and approved them, an
 
 - **Each product carries its own copy** (`.claude/skills/design/`, or `.agents/skills/design/` for agents that read that folder), copied whole, never pointed at (above).
 - **Keep one master copy across your products** and send a lesson back to it, generalized, the day a product learns it. A product's copy that differs from your master is a lesson not yet sent back: `diff -r <master>/design <product>/.claude/skills/design` shows it.
+- **Where a product's rules leave its installed skills untouched**, the lesson goes in the product's own feedback file instead, for whoever keeps the master (`2026-11-03`, an evals product).
 
 ## Files
 

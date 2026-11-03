@@ -48,6 +48,12 @@ The weakest consequential assumption: <ID>, because if it is wrong <what changes
 
 <One direction and why. Rewritten, never appended to.>
 
+## Jobs map
+
+| Job, in the user's words | Screen | Its one question | Primary action |
+|---|---|---|---|
+| <answer what people upvoted most> | <the host's room> | <what should I answer next?> | <mark it answered> |
+
 ## The owner's preview
 
 1. <action> → <what should happen>

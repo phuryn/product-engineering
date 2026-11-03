@@ -79,6 +79,8 @@ monitoring product: four worktree builds came back uncommitted, three of them qu
 uncommitted, with its commit message in the handoff, and you read the diff and commit it.
 A brief that sends it to another repository for prior art says to read the files from disk.
 
+**A build that adds or changes screens names the design method by its path** (the product's copy of the `design` skill) and carries its rows of the jobs map, because Codex reads no skill on its own. (`2026-11-03`, an evals product: Codex built screens with no copy of the method in the repository, and the owner's click-through found five layout bugs.)
+
 ## Follow-up turns — conversational, short, peer-to-peer
 
 React like a colleague. Agree where it's right, push back where it's wrong, ask why where it's surprising, name what you notice it missed. Don't re-package the goal as a new structured prompt. Don't number your points.

@@ -53,7 +53,7 @@ volatile; that one is durable and belongs in version control and in your routing
 
 - **At the top, where we are, short:** the phase ("3 of 5") and its milestones with the current one marked, then at most three lines each of what was just built, what's in progress and what's next, and how many things wait on them. Project it from `STATUS.md`, not every detail; a status block nobody reads to the end is no status.
 - **Only what needs them:** a decision, a go on a one-way door, or a task only they can do. Never status, receipts, finished work, or anything you could do yourself. (`2026-10-24`: one item asked the owner to create database logins, which the agent then made itself. The owner's reply: "I'm not sure what you need… should I put it where exactly?")
-- **Each item says** what you need, where (the link, the file or the setting), why only they can, your recommendation (preselected), and what happens after they answer.
+- **Each item says** what you need, where (the link, the file or the setting), why only they can, your recommendation (preselected), and what happens after they answer. **It carries everything it needs**, never a pointer to the chat: "the curl loop from my message of 1 Nov" was gone two days and a compaction later (`2026-11-03`).
 - **Check every step against the product before it goes on the page.** A checklist sent the owner to open an incident with a button the product doesn't have.
 - **Never collect a secret.** Name the file or setting the key goes into.
 - **A go typed on the page doesn't clear your harness's permission check for a one-way door.** The page asks; the go is typed in the chat (`2026-10-24`, a production release).
@@ -67,7 +67,7 @@ volatile; that one is durable and belongs in version control and in your routing
 
 Acting first leaves answered items on the page for as long as the work takes.
 
-**Check at fixed points, because nothing notifies you when they save:** each stage boundary, while a build or review runs, before ending a turn, after a compaction, and whenever they say they answered. Answers the owner never mentioned were caught only this way. **An answer given in chat closes its item too**, and a gate only when it is the go.
+**Check at fixed points, because nothing notifies you when they save:** each stage boundary, while a build or review runs, before ending a turn, after a compaction, and whenever they say they answered. Answers the owner never mentioned were caught only this way. **A session that goes idle with items waiting schedules its own check** (a cron or a loop, where the harness has one) rather than waiting for the next message. (`2026-11-03`: six answers saved at 17:35 were read nine hours later, when the owner asked whether the page was up to date.) **An answer given in chat closes its item too**, and a gate only when it is the go.
 
 **Make Save trustworthy.** The owner asked "Can you really read my answers?" (`2026-10-22`). The page says that Save is what you read and that nothing notifies you. On first use, quote one saved answer back. Put the link in every chat message that mentions the page ("What was the url of the artifact", `2026-10-23`).
 
