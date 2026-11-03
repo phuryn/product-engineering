@@ -11,7 +11,7 @@ That split is what let an owner answer seven questions in one message rather tha
 
 ## First: does every builder load the method?
 
-Check that **every agent that builds the product's screens loads the method from `app-stack` installed in it** (`SKILL.md § Where the method lives`), never from a link. An older copy inside the product (`.claude/skills/design/`, or the method pasted into its design README) is stale: what it says that the pack doesn't moves to the kit README, and the copy is deleted.
+Check that **every agent that builds the product's screens loads the method from `app-stack` installed in it** (`SKILL.md § Where the method lives`), never from a link. An older copy inside the product (`.claude/skills/design/`, or the method pasted into its design README) is stale: what it says that the pack doesn't is sorted as `SKILL.md § Where the method lives` says, and the copy is deleted.
 
 A monitoring product's design README said the method "applies unchanged" and pointed at it in another repository, which no agent working in the product ever opened. The method already said "Cancel is always the secondary", and the product still shipped borderless Cancels in five places (`2026-10-22`). A rule another product already paid for costs the full price again when this one only points at it.
 
@@ -42,7 +42,7 @@ A monitoring product's design README said the method "applies unchanged" and poi
    - Each specimen is scoped (one class prefix, its own variables), so a set of them assembles into one page.
    - Publish that page where the owner can open it on a phone, as an artifact. Specimens decide faster than prose.
 7. **Sort fixes from owner's calls.** The test: does the change contradict something written, or is it taste? If either, it's the owner's call. Give each one a recommendation (do it / try it / don't) and what it goes against, and ask for the answers in one message, by number.
-8. **Build the fixes, and hold each rule with a test** where one can be written: a source scan, as the colour-literal guard is, or a pinned pair in the token test. Write a rule for this product only into its kit README, and a general one as a change for this collection that names `method.md` (`SKILL.md § When something is learned`), each with its receipt; an edit to the installed pack is lost at its next update. A rule that only exists in a review report is gone by the next product.
+8. **Build the fixes, and hold each rule with a test** where one can be written: a source scan, as the colour-literal guard is, or a pinned pair in the token test. Write a rule for this product only into its kit README, and a general one as a change for this collection that names the file `SKILL.md § When something is learned` gives it (`method.md`, `screens.md` or `review.md`), each with its receipt; an edit to the installed pack is lost at its next update. A rule that only exists in a review report is gone by the next product.
 9. **Review the change independently**, like any other code. Presentation changes misstate state.
    - A new green mark beside an existing all-clear headline showed for a monitor that hadn't been checked yet. Two more rounds each found another sentence on that screen disagreeing with it (`2026-10-22`).
    - When a change touches one sentence about state, the brief asks for an audit of **every** sentence on that screen about the same state.
