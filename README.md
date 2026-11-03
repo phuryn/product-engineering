@@ -67,7 +67,7 @@ npx skills update                             # later, to update
 
 `npx skills` needs Node.js 22.20 or later; on an older Node it fails with `does not provide an export named 'glob'`. Upgrade Node, or run it through a temporary Node 22: `npx -p node@22 -p skills -c "skills add phuryn/product-engineering"`.
 
-Or copy skill folders by hand into the folder your agent reads (`.agents/skills/`, `.claude/skills/`, `.cursor/skills/`, `~/.gemini/skills/` …). Every skill works from its own folder alone. A skill both copied and installed as a pack loads twice: keep one. The exception is `design`, which a product keeps a copy of so builders can read it by path; with `app-stack` installed too, both load, and they say the same while the copy is current.
+Or copy skill folders by hand into the folder your agent reads (`.agents/skills/`, `.claude/skills/`, `.cursor/skills/`, `~/.gemini/skills/` …). Every skill works from its own folder alone. A skill both copied and installed as a pack loads twice: keep one. The exception is `design`, which a product keeps a copy of so builders can read it by path; with `app-stack` installed too, both load, and the skill says the product's copy is the one that binds.
 
 </details>
 

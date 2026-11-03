@@ -80,7 +80,7 @@ Every screen answers a job on the map and passed a newcomer walkthrough; the own
 
 ## Where the copies live
 
-- **Each product carries its own copy** (`.claude/skills/design/`, or `.agents/skills/design/` for agents that read that folder), copied whole, never pointed at (above).
+- **Each product carries its own copy** (`.claude/skills/design/`, or `.agents/skills/design/` for agents that read that folder), copied whole, never pointed at (above). **The product's copy binds**: it holds this owner's preferences and this product's lessons. Where the installed pack's copy loads beside it, read the product's.
 - **Keep one master copy across your products** and send a lesson back to it, generalized, the day a product learns it. A product's copy that differs from your master is a lesson not yet sent back: `diff -r <master>/design <product>/.claude/skills/design` shows it.
 - **Where a product's rules leave its installed skills untouched**, the lesson goes in the product's own feedback file instead, for whoever keeps the master (`2026-11-03`, an evals product).
 

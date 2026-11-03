@@ -77,7 +77,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 **Doing it well**
 
 - **The screens call the data and action functions the first real slice will make real, never the fixtures directly**, so the swap changes what is behind the seam and not the screens. **Invent no storage in the meantime.** The plan that later introduces the database names the workspace table, the authorization functions and the first migration; screens built before it read fixtures, never invented persistence.
-- **The front door's screens come with the first screens**: the landing at `/`, the same for every visitor, pricing on display where the product bills, and the legal pages as drafts marked as such, so the first click-through shows the whole product. Stage 8 makes them true before any stranger sees them.
+- **The front door's screens come with the first screens**: the landing at `/`, the same for every visitor, pricing on display where the product bills (sample prices, marked as such), and a placeholder page behind each legal link that says the text comes before launch and holds no sentence of policy, so the first click-through shows the whole product. Stage 8 writes the legal pages from the code (`legal-pages`) before any stranger sees them.
 - **The sample data fills every screen**, every tab included, so the click-through never meets an empty one; the empty states are shown on purpose, beside it.
 - **Add the kit tests the design method asks for:** always contrast floors parsed from the tokens for every set, and no colour literal in the kit's stylesheet; then the pins for whatever the kit contains (the dialog's declarations, the button variants, complete wrapping). Pin the browser harness's colour scheme, with a comment saying why.
 - **Scaffold the app with Cache Components off.** `create-next-app` 16.4.3 turns `cacheComponents` and `partialPrefetching` on by default (read `2026-11-02` in the package), and the rules on this stack assume both off: the nonce CSP, `force-dynamic` on every live read, the server-read theme. Pass `--no-cache-components`, check that `next.config` has neither line, and pin it with a source guard (`test-harness`) until those rules have a Cache Components version. (`2026-10-31`, an evals product's fresh app had both on.)
@@ -161,7 +161,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 
 ## 7 — Publish
 
-**Produces:** the repository on the code host, the first deploy with its environment, and `/health`. Still the development identity instance and the development database, no custom domain. **The URL is shared with nobody yet:** sign-up is open and there are no terms or privacy pages until the front door.
+**Produces:** the repository on the code host, the first deploy with its environment, and `/health`. Still the development identity instance and the development database, no custom domain. **The URL is shared with nobody yet:** sign-up is open and the terms and privacy pages are placeholders until the front door.
 
 **Done when:** the deploy is green, the deployed `/health` reports the database, and the owner can sign in and use the app from a phone that has never seen their laptop.
 
@@ -190,12 +190,12 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 | Block | Applies when |
 |---|---|
 | **A. Organizations and the second role** | the workspace model is *organization* |
-| **B. Billing** — paid limits | billing is the provider's billing, in the organization shape; skipped with *none* |
-| **C. The public front door** — landing and legal; pricing only with billing | always |
+| **B. Billing** — paid limits and the pricing page | billing is the provider's billing, in the organization shape; skipped with *none* |
+| **C. The public front door** — landing and legal | always |
 
-**Block C never moves behind the product's further feature phases** (`SKILL.md` § Order the work by what the owner will see). Its screens were built at stage 3 on sample data; here they become true: the legal pages written from the code (`legal-pages`) and approved, pricing read from the billing file. A plan may split the stage, block C first and blocks A and B's billing and limits once the product is worth it. When the owner already runs a product on the same stack, start from its front door.
+**Block C never moves behind the product's further feature phases** (`SKILL.md` § Order the work by what the owner will see). Its screens were built at stage 3 on sample data; here they become true: the landing, and the legal pages written from the code (`legal-pages`) and approved. Pricing stays stage 3's display, its prices marked as samples, until block B applies the billing file. A plan may split the stage, block C first and blocks A and B once the product is worth it. When the owner already runs a product on the same stack, start from its front door.
 
-**Done when** — read block by block: *(A)* organization boundaries and both roles are enforced server-side, and the second role's actions work on every surface that shows their effect; *(B)* every plan limit is enforced under concurrency and every capacity derives from the plan module; *(C)* signed-out visitors get the finished landing and legal pages, their text approved by the owner — plus pricing they can read without an account, where the product sells — **on a phone**; a pasted link renders a preview card; nothing reached by an unguessable id is indexable; and the full gate passes.
+**Done when** — read block by block: *(A)* organization boundaries and both roles are enforced server-side, and the second role's actions work on every surface that shows their effect; *(B)* every plan limit is enforced under concurrency, every capacity derives from the plan module, and signed-out visitors can read pricing from the billing file without an account; *(C)* signed-out visitors get the finished landing and legal pages, their text approved by the owner, **on a phone**; a pasted link renders a preview card; nothing reached by an unguessable id is indexable; and the full gate passes.
 
 **The owner's part, first:** with blocks A and B, some of the work is **dashboard settings the agent cannot create, and each one silently changes what the code is allowed to do.** Do them before the build.
 

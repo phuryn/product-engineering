@@ -11,7 +11,7 @@ It was learned on a monitoring product and a live Q&A product, named here only b
 
 ## When it applies
 
-- **During the build, before the first stranger is asked for anything**: a sign-up, an email address, a payment. The pages land with the public front door, and until then the deploy's URL is shared with nobody (for a SaaS, stage 8 of `app-lifecycle`).
+- **During the build, before the first stranger is asked for anything**: a sign-up, an email address, a payment. The pages land with the public front door, and until then the deploy's URL is shared with nobody (for a SaaS, stage 8 of `app-lifecycle`). Before that, a placeholder behind each legal link says the text comes before launch and holds no sentence of policy, so it promises nothing the code must match.
 - **In the change that alters what a page describes**: a new provider, an analytics tag, a cookie, a retention job, a model provider that reads what people type. The page changes in the same change, never before it and never after.
 - **At go-live**, the `release-gate` skill confirms they match the code; at a review, the `intended-vs-implemented` skill reads them as documented intent. Neither is where they are written.
 
