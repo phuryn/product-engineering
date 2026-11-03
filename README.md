@@ -12,7 +12,7 @@ The skills work in Claude Code, Codex, Cursor, Gemini CLI, OpenCode, GitHub Copi
 
 ## Who it's for
 
-- **Product managers, founders and designers who ship with coding agents.** You check the product, not every line of the code.
+- **Product managers, founders and designers who ship with coding agents.** You make the decisions and check the product, not every line of the code.
 - **Engineers who build a product, not only the code.** That means deciding what to build, and running it in production with real users and real payments.
 - **Anyone working with more than one agent**, where one session coordinates, another builds and a third reviews.
 
@@ -24,7 +24,11 @@ The skills work in Claude Code, Codex, Cursor, Gemini CLI, OpenCode, GitHub Copi
 Please install skills from phuryn/product-engineering on GitHub in this project only. Enable auto updates.
 ```
 
-In Claude Code or the Claude desktop app that adds the marketplace (Claude Code keeps one list of marketplaces per user, so it's known in every project), turns the six packs on for this project only, in `.claude/settings.json`, and sets `autoUpdate: true` on the marketplace's entry there, so the packs update in the background while you work (observed in the desktop app, on Claude Code 2.1.311; the setting per Claude Code's plugin docs, both read on `2026-10-29`). That file is the project's shared one: once you commit it, everyone who opens the repository in Claude Code and trusts the folder gets the six packs turned on too, updating in the background; to keep them to yourself, ask for local scope (`.claude/settings.local.json`) instead. The packs load in the same session (in a terminal, if `/product:start-here` isn't found, run `/reload-plugins`). Then type `/product:start-here` and say what you have. In Codex, plugins install for your user and are on in every project; the Codex commands below have no scope (Codex CLI 0.159.0, read `2026-10-29`). Run the Codex commands below, start a new Codex session, then type `$product:start-here`. If your agent can't install from a prompt, use the commands below.
+In Claude Code or the Claude desktop app, that turns the six packs on for this project only (`.claude/settings.json`), updating in the background. Commit that file and everyone who opens the repository in Claude Code and trusts the folder gets them too; to keep them to yourself, ask for local scope (`.claude/settings.local.json`). The packs load in the same session (in a terminal, if `/product:start-here` isn't found, run `/reload-plugins`). Then type `/product:start-here` and say what you have.
+
+In Codex, plugins install for your user, in every project: run the Codex commands below, start a new session, then type `$product:start-here`. If your agent can't install from a prompt, use the commands below.
+
+**More than one agent?** Claude Code and Codex read skills from different places, so install in each one you work in. When one agent coordinates and drives the others, only that one needs the skills: a builder works from its brief, and a reviewer starts without them on purpose.
 
 <details>
 <summary>Install commands: Claude Code, Codex, any other agent</summary>
@@ -41,9 +45,9 @@ claude plugin install app-stack@product-engineering
 claude plugin install work-humanizer@product-engineering
 ```
 
-These install for your user, in every project. Add `--scope project` to each line to keep the packs to this project (in `.claude/settings.json`, shared once committed), or `--scope local` to keep them to yourself here.
+These install for your user, in every project. Add `--scope project` to each line for this project only (`.claude/settings.json`, shared once committed), or `--scope local` for yourself here.
 
-Then turn on updates: `/plugin` → Marketplaces → `product-engineering` → enable auto-update. Third-party marketplaces don't auto-update by default; without it, update the packs yourself: `/plugin` → Marketplaces → `product-engineering` → Update marketplace, which also updates the packs you installed, or `claude plugin update <pack>@product-engineering` for each.
+Then turn on updates, which third-party marketplaces don't do by default: `/plugin` → Marketplaces → `product-engineering` → enable auto-update. To update by hand: Update marketplace on the same screen, or `claude plugin update <pack>@product-engineering`.
 
 ### Codex
 
@@ -52,7 +56,7 @@ codex plugin marketplace add phuryn/product-engineering
 codex plugin add product@product-engineering   # and the other packs
 ```
 
-Codex reads this repository's Claude Code marketplace as it is. Every skill runs in Codex. The four you start run only when you name them: `$product:start-here`, `$ai-shipping:ship-check`, `$agent-harness:handover`, `$agent-harness:retro`. The rest also start themselves when you ask in plain words, and run when named the same way. Measured on Codex CLI 0.159.0 (`2026-10-27`). To update: `codex plugin marketplace upgrade product-engineering`, then a new session.
+Codex reads this repository's Claude Code marketplace as it is, and every skill runs there. The four you start run only when you name them: `$product:start-here`, `$ai-shipping:ship-check`, `$agent-harness:handover`, `$agent-harness:retro`. The rest also start themselves when you ask in plain words. To update: `codex plugin marketplace upgrade product-engineering`, then a new session.
 
 ### Any other agent (Cursor, Gemini CLI, OpenCode, Copilot, Windsurf …)
 
@@ -61,9 +65,9 @@ npx skills add phuryn/product-engineering          # pick skills and agents inte
 npx skills update                             # later, to update
 ```
 
-`npx skills` needs Node.js 22.20 or later; on an older Node it fails at start with `does not provide an export named 'glob'` (observed 2026-10-24 on Node 20.19). Upgrade Node, or run it once through a temporary Node 22: `npx -p node@22 -p skills -c "skills add phuryn/product-engineering"`.
+`npx skills` needs Node.js 22.20 or later; on an older Node it fails with `does not provide an export named 'glob'`. Upgrade Node, or run it through a temporary Node 22: `npx -p node@22 -p skills -c "skills add phuryn/product-engineering"`.
 
-Or copy skill folders by hand into the folder your agent reads (`.agents/skills/`, `.claude/skills/`, `.cursor/skills/`, `~/.gemini/skills/` …). Every skill works from its own folder alone.
+Or copy skill folders by hand into the folder your agent reads (`.agents/skills/`, `.claude/skills/`, `.cursor/skills/`, `~/.gemini/skills/` …). Every skill works from its own folder alone. A skill both copied and installed as a pack loads twice: keep one.
 
 </details>
 
@@ -72,10 +76,6 @@ Or copy skill folders by hand into the folder your agent reads (`.agents/skills/
 - **Its AI Shipping Kit moved here**, as the `ai-shipping` pack. Its skills and commands in pm-skills now only point here, so once `ai-shipping` is installed, turn off `pm-ai-shipping`. Its id is in `claude plugin list`: `pm-ai-shipping@pm-skills`, or `pm-ai-shipping@synced` when it comes from your claude.ai account (`claude plugin disable <id>`).
 - **Five `product` skills are in both** (`competitor-analysis`, `market-segments`, `value-proposition`, `beachhead-segment`, `growth-loops`), updated here. pm-skills carries them beside many others, so keep those plugins; each of the five loads twice and your agent picks either copy.
 - **The free `work-humanizer`**, if you installed it on its own, is the same skill as the pack here: keep one.
-
-### Into a product's own repository
-
-Several skills say it outright: **a rule that lives only in another repository doesn't get read**, and an agent sees only what is installed for that agent or committed in the repository it works in — a plugin installed in Claude Code is invisible to Codex run in the same folder. For a product you build with more than one agent, copy the skills it depends on into the product's `.claude/skills/` (or `.agents/skills/`) and commit them, then name them in the product's agent instructions. `agent-instructions` shows how. In Claude Code, once every skill the product uses from a pack is copied, disable that pack for the repository (`/plugin`, or `claude plugin disable <pack>@product-engineering --scope project`), or each copied skill loads twice; a pack the product still uses uncopied skills from stays enabled. When Claude Code and Codex both work there, copy into both folders.
 
 ## From the first idea to paying users
 
@@ -94,7 +94,7 @@ A change you can check in a minute skips to step 4. Each step with an example, f
 | **1. Start** | Say what you have: an idea, evidence from users, an agreed change, a bug or a release. | Read the request and the repository, and name the next step. | `start-here` |
 | **2. Proposal** | Try the prototype first. Then read the proposal, answer the few questions it asks, and accept it or say what to change. | Research what you didn't share: the alternatives people use and, while it's open, the segment. Propose a direction with every claim's source, and build a prototype on sample data. | `propose`, with `competitor-analysis`, `market-segments`, `beachhead-segment`, `value-proposition`, `value-curve`, `growth-loops`; `design` for the prototype's look |
 | **3. Plan**, complex changes only | Review its key assumptions (how it read your ask, where it disagrees with you, what it needs you to decide), question the ones that look wrong, and say "build it". | Open with the key assumptions, then plan whatever the build needs: phases and releases, the files and modules to change, how to test it, the acceptance criteria. | `start-here` carries the prompt; `app-lifecycle` for a SaaS |
-| **4. Build** | Pick when a stage offers options, such as a design direction. When the app needs accounts, keys or a domain, set them up as the agent walks you through: keys go where the agent asks, never into the chat, and production's only when it asks for them. You don't review the code line by line. | One session coordinates and another builds, and a different session reviews every change: no session reviews its own work. Tests and docs land with the change, and every fix with a test that failed before it. A fresh reviewer that never saw the build reviews every push that deploys, and again after each fix, round after round: the one your agent instructions name, when it can run the way `independent-review` requires (when it can't, the agent asks you before another runs); with none named, Grok when it's installed, otherwise a fresh Claude Code session with nothing carried over. Before the first stranger is asked for anything, the legal pages are drafted from the code for you to approve. | `delegation`, `codex-agents`, `claude-agents`, `test-harness`, `code-review`, `independent-review`, `design`, `legal-pages` |
+| **4. Build** | Pick when a stage offers options, such as a design direction. When the app needs accounts, keys or a domain, set them up as the agent walks you through: keys go where the agent asks, never into the chat, and production's only when it asks for them. You don't review the code line by line. | One session coordinates and another builds, and a different session reviews every change: no session reviews its own work. Tests and docs land with the change, and every fix with a test that failed before it. A fresh reviewer that never saw the build reviews every push that deploys, and again after each fix, round after round: the one your agent instructions name, or by default Grok, otherwise a fresh Claude Code session. Before the first stranger is asked for anything, the legal pages are drafted from the code for you to approve. | `delegation`, `codex-agents`, `claude-agents`, `grok-agents`, `test-harness`, `code-review`, `independent-review`, `design`, `legal-pages` |
 | **5. Click-through** | Once the review is clean or running, click through the key user flows on a link: 15 to 20 minutes for a mid-size app. Click first when the question is taste or whether it's the right thing, or when you want to. | Once the reviews are clean or running, send the link and what to try, each an action and what should happen. What you find goes back to the build and is reviewed again. No click-through when only code behind a screen changed. | `start-here`; the preview in `release-gate` |
 | **6. Release review** | Pick which deeper checks run, and decide where a doc, the coverage map and the code disagree, because a doc rewritten to match faulty code blesses the bug. | Before a release, propose the deeper checks: the docs and the legal pages against the code, the coverage map, security and performance. Run the ones you pick. | `document-app` and `derive-tests` in check mode; `intended-vs-implemented`, `security-audit-static`, `performance-audit-static` |
 | **7. Release** | Check what the stage promised; when a screen or its words changed, look over every screen in every state, theme, width and role, signed out included; then say go. Silence is not go. | Review everything unreleased again, round after round until one finds nothing introduced above low and nothing high or critical of any age, collect the evidence for every precondition, promote, and verify that the build serving is the one reviewed. | `release-gate` |
@@ -168,24 +168,23 @@ Most start themselves when the work matches what they're for. You start four, ma
 
 - `work-humanizer`: Edits AI-sounding text, or interviews you
 
-28 of the 44 skills were learned on real products built with Claude Code, Codex and Grok, and keep their receipts: the date, and what broke or was measured. 14 are established methods without dated notes: the strategy frameworks in `product` and the documentation and review methods in `ai-shipping`. `product-analytics` rests on its vendors' own docs, read in October 2026, and `work-humanizer` on a detector test from October 2026. Each pack's own `README.md` says more about every skill.
+28 of the 44 skills were learned on real products built with Claude Code, Codex and Grok; 14 are established methods (the strategy frameworks in `product`, the documentation and review methods in `ai-shipping`); `product-analytics` rests on its vendors' docs and `work-humanizer` on a detector test. Each pack's `README.md` says more about every skill.
 
 <details>
 <summary>What the skills cost your agent</summary>
 
-The descriptions of the 40 that start themselves are what your agent always carries, so they are kept short: about 6,000 characters together. Installed in Claude Code, all the packs add about 2,600 tokens to every turn, down from about 9,100 before the descriptions were rewritten (2,423 measured `2026-10-27` for 5,576 characters, scaled at that rate to the skills added since). `tools/validate.py` holds them to 6,000 characters in total and 300 each, because a crowded agent setup cuts every description short, and the cut falls on the words that say when to use it.
+Your agent always carries the descriptions of the 40 skills that start themselves: about 6,000 characters, about 2,600 tokens in Claude Code. A skill's full text loads only when it runs. `tools/validate.py` holds the descriptions to 6,000 characters in total and 300 each, because a crowded agent setup cuts descriptions short, and the cut falls on the words that say when to use a skill.
 
 </details>
 
 ## How it works
 
 - **Evidence before the build.** The agent reads what you shared and researches what's missing: alternatives, the market, what people say. It proposes informed hypotheses, each with its source, and asks only what the evidence can't decide.
-- **The product is the spec.** You review the interface first, often an interactive prototype on sample data. Once it's built and reviewed, you click through it yourself; before a release, agents propose deeper checks of the docs, the tests and the code, and you pick what runs.
+- **You decide on what you can see.** The proposal comes with a prototype on sample data, and the build reads the proposal you accepted. While agents work, what waits on you is on one page, each item with a recommendation. Once it's built and reviewed, you click through it; before a release, agents propose deeper checks of the docs, the tests and the code, and you pick what runs.
 - **Building is the experiment.** Building is cheap now, and use beats intent. Build the first version with payment in days, put it in front of real users, and go round again with what they did.
 - **Production is part of the method.** Nobody pays until payment works in production. The release gate, environments, authorization, billing, email and monitoring are in the collection, not left for later.
-- **The session that wrote the code never clears it.** Before every push that deploys, and again before a release, a fresh reviewer that never saw the build reads the change: Grok when it's installed, so another model family, otherwise a fresh Claude Code session with nothing carried over; with neither CLI, run it by hand (`independent-review` § Running it). Rounds repeat until one finds nothing the change introduced above low severity and nothing high or critical of any age. The reviewer is a default you can change: `independent-review` follows your repository's own instructions first, so a line in your agent instructions names the reviewer. One you name runs only if it can run the way `independent-review` requires (read-only tools, no MCP servers or connectors, its memory off); otherwise the agent asks you before the default runs instead (`--reviewer claude` forces the fallback).
+- **The session that wrote the code never clears it.** Before every push that deploys, and again before a release, a fresh reviewer that never saw the build reads the change, round after round, until one finds nothing the change introduced above low severity and nothing high or critical of any age. By default it's Grok, another model family, otherwise a fresh Claude Code session with nothing carried over. A line in your agent instructions names another, Codex included, if it can run the way `independent-review` requires: read-only, no MCP servers, its memory off.
 - **No ceremony for small work.** A change you can check in a minute goes straight to the build and its check. Only a complex change gets a plan, and the agent writes it.
-- **Rules learned in practice keep their receipts.** About 700 dated notes say when something broke or was measured, and how. A new rule of that kind needs an observed failure. Requests the collection turned down are in [rejected.md](rejected.md), with the reason.
 
 The process is the one in the [Product Engineering for PMs](https://www.productcompass.pm/p/product-engineering-for-pms) series, which builds a real SaaS app with it, step by step.
 
@@ -197,16 +196,16 @@ Collections written for engineers who own their code do what they are for well: 
 |---|---|---|
 | **Starts from** | Your idea, sharpened by an interview | Evidence: research on the alternatives and the segment, then a proposal with every claim's source |
 | **Questions** | About your idea; no market research | A few, after the research, each with a recommended answer |
-| **The spec** | A document, then tasks or tickets | The product: a prototype you click, then the app |
-| **You check** | The code, line by line | The product, by clicking through every change you can see |
+| **The spec** | A document, then tasks or tickets | The proposal you decide on, with a prototype you click; no tickets |
+| **You check** | The code, line by line | Your decisions, in the proposal, the plan and one page of what waits on you; the release's evidence; and the product, clicking through every change you can see |
 | **Tests** | Written first | Land with the change; every fix with a test that failed before it |
-| **Reviewed by** | The session that wrote the code, or its subagents | A fresh reviewer that never saw the build, from another model family when Grok is installed, or one you name that can run the way `independent-review` requires |
+| **Reviewed by** | The session that wrote the code, or its subagents | A fresh reviewer that never saw the build: Grok by default, another model family, or one you name |
 | **Ends at** | The pull request, sometimes the deploy | Paying users: legal pages, sign-in, payments, email, analytics and monitoring in production, through a release you say go to; then the next round |
 
 Three things can go wrong in any skill collection, and this one guards against them:
 - **Decisions get lost** between documents, and decision records pile up and go stale. Here there is one proposal, which the build reads, its recommendation rewritten, never appended to; for a SaaS, choices with real options go in one decision log (`app-lifecycle`), each with the trigger that reopens it.
 - **Skills fail to load what they depend on.** Every skill works from its own folder, and a validator checks every skill and every file a skill names.
-- **Rules read as common sense, with nothing behind them.** A rule learned in practice keeps its receipt: the date, and what broke or was measured.
+- **Rules read as common sense, with nothing behind them.** A rule learned in practice keeps its receipt, the date and what broke or was measured, about 700 of them; a new one needs an observed failure.
 
 ## Scripts
 

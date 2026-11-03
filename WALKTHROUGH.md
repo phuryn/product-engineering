@@ -154,7 +154,7 @@ A typical setup:
 - **Codex builds** what is worth handing off (`codex-agents`). The test is size: if the brief would be nearly as long as the change, the coordinator writes the change itself.
 - **Grok reviews** (`independent-review`, with Grok driven as `grok-agents` says).
 
-A rule that lives only in another repository doesn't get read. So for a product built with more than one agent, copy the skills it depends on into the folder each of its agents reads (`.claude/skills/`, `.agents/skills/`), commit them, and name them in the product's agent instructions. In Claude Code, once every skill the product uses from a pack is copied, disable that pack for the repository (`/plugin`, or `claude plugin disable <pack>@product-engineering --scope project`), or each copied skill loads twice; a pack the product still uses uncopied skills from stays enabled. When Claude Code and Codex both work there, copy into both folders. `agent-instructions` shows how to route to a skill from those instructions.
+Only the coordinator needs the skills: Codex builds from its brief, and the reviewer starts without them on purpose. If you also work in Codex directly, install the packs there too, since each agent reads skills from its own place. `agent-instructions` shows how to route to a skill from the product's agent instructions.
 
 ## What you do, and what you don't
 
