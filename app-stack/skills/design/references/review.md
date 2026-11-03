@@ -42,11 +42,11 @@ A monitoring product's design README said the method "applies unchanged" and poi
    - Each specimen is scoped (one class prefix, its own variables), so a set of them assembles into one page.
    - Publish that page where the owner can open it on a phone, as an artifact. Specimens decide faster than prose.
 7. **Sort fixes from owner's calls.** The test: does the change contradict something written, or is it taste? If either, it's the owner's call. Give each one a recommendation (do it / try it / don't) and what it goes against, and ask for the answers in one message, by number.
-8. **Build the fixes, and hold each rule with a test** where one can be written: a source scan, as the colour-literal guard is, or a pinned pair in the token test. Write each rule into the method (general) or the product's kit README (this product only), with its receipt. A rule that only exists in a review report is gone by the next product.
+8. **Build the fixes, and hold each rule with a test** where one can be written: a source scan, as the colour-literal guard is, or a pinned pair in the token test. Write a rule for this product only into its kit README, and a general one as a change for this collection that names `method.md` (`SKILL.md § When something is learned`), each with its receipt; an edit to the installed pack is lost at its next update. A rule that only exists in a review report is gone by the next product.
 9. **Review the change independently**, like any other code. Presentation changes misstate state.
    - A new green mark beside an existing all-clear headline showed for a monitor that hadn't been checked yet. Two more rounds each found another sentence on that screen disagreeing with it (`2026-10-22`).
    - When a change touches one sentence about state, the brief asks for an audit of **every** sentence on that screen about the same state.
-10. **Record every owner decision, including a no, with its reason**: in the product's decision log, and under the owner's preferences in `SKILL.md` when it is a preference rather than a product choice. A rejected recommendation without its reason comes back in the next review.
+10. **Record every owner decision, including a no, with its reason**: in the product's decision log, and, when it is a preference rather than a product choice, in the kit README or the owner's user-level agent instructions (`SKILL.md § The owner's standing preferences`). A rejected recommendation without its reason comes back in the next review.
 
 ## The report
 

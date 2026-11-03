@@ -154,7 +154,7 @@ A typical setup:
 - **Codex builds** what is worth handing off (`codex-agents`). The test is size: if the brief would be nearly as long as the change, the coordinator writes the change itself.
 - **Grok reviews** (`independent-review`, with Grok driven as `grok-agents` says).
 
-Only the coordinator needs the skills: Codex builds from its brief, and the reviewer starts without them on purpose. The one copy a product keeps is `design`, which a brief for screens points builders at by path. If you also work in Codex directly, install the packs there too, since each agent reads skills from its own place. `agent-instructions` shows how to route to a skill from the product's agent instructions.
+The coordinator needs the skills, and so does a builder whose brief names one: install `app-stack` in Codex too, so a brief for screens or an MCP server names `$app-stack:design` or `$app-stack:mcp-server`. The product keeps no copy of either. The reviewer starts without them on purpose. If you also work in Codex directly, install the other packs there too, since each agent reads skills from its own place. `agent-instructions` shows how to route to a skill from the product's agent instructions.
 
 ## What you do, and what you don't
 

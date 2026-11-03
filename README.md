@@ -38,7 +38,7 @@ In Claude Code or the Claude desktop app, that turns the six packs on for this p
 
 In Codex, plugins install for your user, in every project: run the Codex commands below, start a new session, then type `$product:start-here`. If your agent can't install from a prompt, use the commands below.
 
-**More than one agent?** Claude Code and Codex read skills from different places, so install in each one you work in. When one agent coordinates and drives the others, only that one needs the skills: a builder works from its brief, and a reviewer starts without them on purpose.
+**More than one agent?** Claude Code and Codex read skills from different places, so install in each one you work in. When one agent coordinates and drives the others, that one needs the skills, and a builder needs `app-stack` installed in it for screens and an MCP server, which its brief names; a reviewer starts without them on purpose.
 
 <details>
 <summary>Install commands: Claude Code, Codex, any other agent</summary>
