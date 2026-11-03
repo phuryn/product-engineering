@@ -77,12 +77,13 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 **Doing it well**
 
 - **The screens call the data and action functions the first real slice will make real, never the fixtures directly**, so the swap changes what is behind the seam and not the screens. **Invent no storage in the meantime.** The plan that later introduces the database names the workspace table, the authorization functions and the first migration; screens built before it read fixtures, never invented persistence.
+- **The front door's screens come with the first screens**: the landing at `/`, the same for every visitor, pricing on display where the product bills, and the legal pages as drafts marked as such, so the first click-through shows the whole product. Stage 8 makes them true before any stranger sees them.
 - **The sample data fills every screen**, every tab included, so the click-through never meets an empty one; the empty states are shown on purpose, beside it.
 - **Add the kit tests the design method asks for:** always contrast floors parsed from the tokens for every set, and no colour literal in the kit's stylesheet; then the pins for whatever the kit contains (the dialog's declarations, the button variants, complete wrapping). Pin the browser harness's colour scheme, with a comment saying why.
 - **Scaffold the app with Cache Components off.** `create-next-app` 16.4.3 turns `cacheComponents` and `partialPrefetching` on by default (read `2026-11-02` in the package), and the rules on this stack assume both off: the nonce CSP, `force-dynamic` on every live read, the server-read theme. Pass `--no-cache-components`, check that `next.config` has neither line, and pin it with a source guard (`test-harness`) until those rules have a Cache Components version. (`2026-10-31`, an evals product's fresh app had both on.)
 - Compose every screen from the kit; extend a primitive rather than invent one. Public screens are phone-first.
 - **A phone is a phone-sized viewport, not a resized window** — the `test-harness` skill says why.
-- Plan briefly, build, commit, run it, and give the owner the URL and what they can click. Then stop.
+- Plan briefly, build, commit and run it; then the newcomer walkthrough and the rendered-screen pass (the `design` skill), and only then give the owner the URL and what they can click. Then stop.
 - **The owner adjusts here, before setup**, as a flat list of what should happen: a screen is cheapest to change while nothing real is behind it.
 
 **How:** the `design` skill; the `test-harness` skill for the kit tests and viewports.
@@ -192,7 +193,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 | **B. Billing** — paid limits | billing is the provider's billing, in the organization shape; skipped with *none* |
 | **C. The public front door** — landing and legal; pricing only with billing | always |
 
-**Its first version comes right after the first real slice**, before the product's further feature phases (`SKILL.md` § Order the work by what the owner will see): block C's landing, its legal pages drafted from the code (`legal-pages`) and, where the product bills, pricing on display, read from the billing file; blocks A and B's enforcement, billing and limits come later. The owner judges the whole product from the first click-through. When the owner already runs a product on the same stack, start from its front door.
+**Block C never moves behind the product's further feature phases** (`SKILL.md` § Order the work by what the owner will see). Its screens were built at stage 3 on sample data; here they become true: the legal pages written from the code (`legal-pages`) and approved, pricing read from the billing file. A plan may split the stage, block C first and blocks A and B's billing and limits once the product is worth it. When the owner already runs a product on the same stack, start from its front door.
 
 **Done when** — read block by block: *(A)* organization boundaries and both roles are enforced server-side, and the second role's actions work on every surface that shows their effect; *(B)* every plan limit is enforced under concurrency and every capacity derives from the plan module; *(C)* signed-out visitors get the finished landing and legal pages, their text approved by the owner — plus pricing they can read without an account, where the product sells — **on a phone**; a pasted link renders a preview card; nothing reached by an unguessable id is indexable; and the full gate passes.
 

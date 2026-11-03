@@ -67,7 +67,7 @@ npx skills update                             # later, to update
 
 `npx skills` needs Node.js 22.20 or later; on an older Node it fails with `does not provide an export named 'glob'`. Upgrade Node, or run it through a temporary Node 22: `npx -p node@22 -p skills -c "skills add phuryn/product-engineering"`.
 
-Or copy skill folders by hand into the folder your agent reads (`.agents/skills/`, `.claude/skills/`, `.cursor/skills/`, `~/.gemini/skills/` …). Every skill works from its own folder alone. A skill both copied and installed as a pack loads twice: keep one.
+Or copy skill folders by hand into the folder your agent reads (`.agents/skills/`, `.claude/skills/`, `.cursor/skills/`, `~/.gemini/skills/` …). Every skill works from its own folder alone. A skill both copied and installed as a pack loads twice: keep one. The exception is `design`, which a product keeps a copy of so builders can read it by path; with `app-stack` installed too, both load, and they say the same while the copy is current.
 
 </details>
 
@@ -181,7 +181,7 @@ Your agent always carries the descriptions of the 40 skills that start themselve
 
 - **Evidence before the build.** The agent reads what you shared and researches what's missing: alternatives, the market, what people say. It proposes informed hypotheses, each with its source, and asks only what the evidence can't decide.
 - **You decide on what you can see.** The proposal comes with a prototype on sample data, and the build reads the proposal you accepted. While agents work, what waits on you is on one page, each item with a recommendation. Once it's built and reviewed, you click through it; before a release, agents propose deeper checks of the docs, the tests and the code, and you pick what runs.
-- **Building is the experiment.** Building is cheap now, and use beats intent. Build the first version with payment in days, put it in front of real users, and go round again with what they did. What people see comes first, because it's cheap: the landing, pricing and legal pages with the first slice, hard logic once the product is worth it.
+- **Building is the experiment.** Building is cheap now, and use beats intent. Build the first version with payment in days, put it in front of real users, and go round again with what they did. What people see comes first, because it's cheap: the landing, pricing and legal pages with the first screens, hard logic once the product is worth it.
 - **Production is part of the method.** Nobody pays until payment works in production. The release gate, environments, authorization, billing, email and monitoring are in the collection, not left for later.
 - **The session that wrote the code never clears it.** Before every push that deploys, and again before a release, a fresh reviewer that never saw the build reads the change, round after round, until one finds nothing the change introduced above low severity and nothing high or critical of any age. By default it's Grok, another model family, otherwise a fresh Claude Code session with nothing carried over. A line in your agent instructions names another, Codex included, if it can run the way `independent-review` requires: read-only, no MCP servers, its memory off.
 - **No ceremony for small work.** A change you can check in a minute goes straight to the build and its check. Only a complex change gets a plan, and the agent writes it.

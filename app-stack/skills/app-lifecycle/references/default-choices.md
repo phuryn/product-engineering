@@ -87,7 +87,7 @@ A member surface and a public surface, each its own rule, carried by passthrough
 
 - **Reason:** a `200` landing page hides a dead database, and a green `/health` hides a stopped worker.
 - **Receipt:** `2026-10-24`, a monitoring product's infrastructure pass ranked "nothing outside watches production" its first risk: no external monitor at all, and its one watchdog read only the probes, never the app, the status host, the alert sender or itself.
-- **Reopen:** the service, when the owner already uses another; the monitor, never; extend when error tracking arrives.
+- **Reopen:** the service, when the owner already uses another; watching development, when the owner chooses production only (the monitor then starts at go-live); the monitor on production, never; extend when error tracking arrives.
 
 ## Behaviour analytics, cookieless
 
