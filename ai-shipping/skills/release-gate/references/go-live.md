@@ -37,7 +37,7 @@ The first promotion to production, once: the product moves from a URL shared wit
 
 ## The health route and the uptime monitor
 
-`/health` from the first deploy; the monitor proposed once go-live's done-when holds (step 6), and not before, since development has nothing to watch. The principle: an external probe of one route that proves **configuration and database together**.
+`/health` from the first deploy; the monitor proposed at step 6, once step 5's done-when holds, and not before, since development has nothing to watch. The principle: an external probe of one route that proves **configuration and database together**.
 
 - **`/health` answers `200 {"status":"ok","database":"ok"}` only when the configuration parsed *and* the database replied, and `503` otherwise.** It returns a count, never a row. It is the one route an origin seal would have to exempt (`netlify.md`). Keep it at `/health` and in that shape: a monitoring service that reads the site finds it there and suggests the check itself (the collection's default service does: the `uptime-monitoring` skill's adapter).
 - **The monitor: apply the `uptime-monitoring` skill.** A check on `https://<host>/health` that asserts on the `database` field, not the status code alone, confirmed from a second location, a heartbeat for every scheduled job, and an alert route proven by a controlled failure. Until that drill has run, the monitor is reported as not yet proven.
