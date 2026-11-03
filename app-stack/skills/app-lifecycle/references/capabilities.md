@@ -5,7 +5,7 @@ The default stages carry a product to its first release. From there, **the agent
 ## The rules
 
 - **Read this list whenever you plan a phase**, and propose every row whose trigger has fired. "What's next?" is answered from here and from the plan, not from memory.
-- **A prerequisite can fire during the first stages.** Legal pages do not wait for release; the uptime monitor is proposed at the first deploy.
+- **A prerequisite can fire during the first stages.** Legal pages do not wait for release.
 - **A row is not a claim of implementation.** Nothing is connected until a product builds it, and each product records what is actually connected as it builds — the error tracker stays named and unwired until its trigger fires.
 - **The owner's part is named up front**, because most rows need an account, a dashboard setting or a decision only the owner can make. A proposal that hides it stalls halfway.
 - **When the how below is not enough**, read a product that already shipped the row, and fold what it learned back into the skill that holds the how.
@@ -27,7 +27,7 @@ Each: what it is · propose it when · the owner's part · where the how lives.
 
 ### Uptime monitor + status page
 An external probe of `/health`, which checks configuration and database reachability, with a status page the owner chose (public by default, linked from the footer); and an outside check on every other runtime the product runs (a worker's health route, a dead-man check on a scheduled job), because none of them reports through the app's `/health`.
-- **When:** proposed at the first deploy, where watching development is the owner's call; required on production when the production branch exists.
+- **When:** right after going live, once production serves; the status page linked from the footer, for example. Not before: development has nothing to watch.
 - **Owner:** choose public, members-only or no status page before anything is created, and who is alerted; create the monitor where the service doesn't let an agent.
 - **How:** the `uptime-monitoring` skill, on Staygreen by default (made by this collection's author), or the service the owner already uses; `default-choices.md` (monitoring); the `environments` skill (incident basics).
 

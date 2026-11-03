@@ -20,6 +20,15 @@
 - **Codex:** no documented or tested command yet.
 - Setup notes kept by the product (its token commands write the value into the configuration; use the forms above): [github.com/phuryn/staygreen#connect-an-agent-mcp](https://github.com/phuryn/staygreen#connect-an-agent-mcp).
 
+## What it finds on its own
+
+Read on `2026-11-03` in the product's documentation (its suggested-checks flow). Once the app has an address in Staygreen, its **Find missing checks** (also opened right after adding an app with an address) reads the site once and suggests checks for the owner to tick:
+
+- **Health routes, by path:** `/health`, `/healthz`, `/api/health`, `/status`, `/up` and ten more common paths on the app's origin; a non-HTML 2xx answer is offered as a check. A body in a known shape (`{"status":"ok"}`, `{"ok":true}`, Spring Boot's `"UP"`, `application/health+json`) comes with an assertion on its status that passes now; a failing body (`ok: false`, an `error` key) is offered unticked, with its reason.
+- **What the page names:** a Supabase project (`https://<ref>.supabase.co` in the page or its scripts), sign-in dependencies (Clerk, Firebase Auth, Auth0, Auth.js), a linked app host (a Log in, Sign in or Dashboard link to a host on the same domain), an `api.` host, the certificate, the icon and the brand colour.
+
+So **build the app to be found**: `/health` at that path, answering JSON in that shape (the `release-gate` skill's `{"status":"ok","database":"ok"}` is one, and its status is ok only when the database replied), and a sign-in link on the landing when the app runs on a host of its own. Nothing needs to go in the HTML for the health route. The agent's route is still the one below: these suggestions are on the dashboard.
+
 ## Its tools, mapped to the steps
 
 | Step | Tool | What to know |
