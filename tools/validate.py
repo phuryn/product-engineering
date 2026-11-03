@@ -61,7 +61,11 @@ LEAK_EXCEPTIONS = {
     # lines, and in the rule that allows it (owner, 2026-10-27, widened 2026-11-02).
     r"\bStaygreen\b": (r"app-stack/skills/uptime-monitoring/.*", r"app-stack/skills/app-lifecycle/SKILL\.md",
                         r"app-stack/skills/app-lifecycle/references/(?:default-choices|capabilities|stages)\.md",
-                        r"app-stack/README\.md", r"README\.md", r"AGENTS\.md"),
+                        r"app-stack/README\.md", r"README\.md", r"CASE-STUDIES\.md", r"AGENTS\.md"),
+    # The author's live products, named with their sites in the root README and CASE-STUDIES.md as
+    # the products the skills' cases come from (owner, 2026-11-03).
+    r"\bAskOne\b": (r"README\.md", r"CASE-STUDIES\.md", r"AGENTS\.md"),
+    r"\bafkpilot\b": (r"README\.md", r"CASE-STUDIES\.md", r"AGENTS\.md"),
     # The author's newsletter: linked from the root and pack READMEs; the author's address in the manifests.
     r"productcompass\.pm": (r"(?:[^/]+/)?README\.md", r"(?:[^/]+/)?\.claude-plugin/[^/]+\.json"),
 }

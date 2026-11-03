@@ -16,6 +16,16 @@ The skills work in Claude Code, Codex, Cursor, Gemini CLI, OpenCode, GitHub Copi
 - **Engineers who build a product, not only the code.** That means deciding what to build, and running it in production with real users and real payments.
 - **Anyone working with more than one agent**, where one session coordinates, another builds and a third reviews.
 
+## Built with it
+
+Three live products by the author, built with coding agents from the first prototype to production. The skills' dated cases come from them.
+
+| [![AskOne's home page](assets/case-studies/askone.png)](https://askone.org) | [![Staygreen's home page](assets/case-studies/staygreen.png)](https://staygreen.io) | [![AFK Pilot's home page](assets/case-studies/afkpilot.png)](https://afkpilot.com) |
+|---|---|---|
+| **[AskOne](https://askone.org)**: live Q&A and polls. Organizations with two roles, a paid plan, free AI moderation, Zoom and Google Meet apps, an MCP server in the official registry. | **[Staygreen](https://staygreen.io)**: monitoring that checks what your app answers. Probes on three continents, status pages on your own domain, alerts, an MCP server for agents. The default monitor here. | **[AFK Pilot](https://afkpilot.com)**: four coding agents in an editor, a desktop app or a cloud machine, steered from your phone through a relay. A paid plan, MCP connectors. |
+
+What each one runs on, what's in it, and what the skills learned from it: [CASE-STUDIES.md](CASE-STUDIES.md).
+
 ## Install
 
 **The quickest way:** open your agent in the project's folder and ask in the chat:
