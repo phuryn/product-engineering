@@ -27,7 +27,7 @@ Each: what it is · propose it when · the owner's part · where the how lives.
 
 ### Uptime monitor + status page
 An external probe of `/health`, which checks configuration and database reachability, with a status page the owner chose (public by default, linked from the footer); and an outside check on every other runtime the product runs (a worker's health route, a dead-man check on a scheduled job), because none of them reports through the app's `/health`.
-- **When:** right after going live, once production serves; the status page linked from the footer, for example. Not before: development has nothing to watch.
+- **When:** once go-live's done-when holds; the status page linked from the footer, for example, in a change of its own. Not before: development has nothing to watch.
 - **Owner:** choose public, members-only or no status page before anything is created, and who is alerted; create the monitor where the service doesn't let an agent.
 - **How:** the `uptime-monitoring` skill, on Staygreen by default (made by this collection's author), or the service the owner already uses; `default-choices.md` (monitoring); the `environments` skill (incident basics).
 

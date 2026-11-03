@@ -43,7 +43,7 @@ Each stage in depth — what doing it well looks like, the owner's part, the tra
 
 ## Order the work by what the owner will see
 
-For every stage and phase, weigh what the owner and the first users will see against what it costs, and order the plan by that. **The visible, cheap first versions come early**: the landing, placeholder legal pages, pricing on display, example data that fills every screen. **Hard logic comes once the product is worth it**: billing enforced under concurrency, adaptive sampling, anything that takes review round after review round. So the front door's screens are built with the first screens, on sample data, and the owner judges the whole product (landing, pricing, legal pages, footer) from the first click-through; its landing and legal pages are made true (stage 8, block C) before any further feature phase. A plan may split stage 8 so that block C comes first, and billing, its pricing page and limits under concurrency come once the product is worth it. When the owner already runs a product on the same stack, start from its front door; look for one first. (`2026-11-03`, an evals product: its plan followed the proposal's build order, so after three phases and 22 review rounds, ten of them on the hard logic of paid sampling, it had no landing, legal pages or pricing. The owner: "Seeing app with all those elements that costs a little is wow. Debugging hard logic for hours isn't.")
+For every stage and phase, weigh what the owner and the first users will see against what it costs, and order the plan by that. **The visible, cheap first versions come early**: the landing, placeholder legal pages, pricing on display, example data that fills every screen. **Hard logic comes once the product is worth it**: billing enforced under concurrency, adaptive sampling, anything that takes review round after review round. So the front door's screens are built with the first screens, on sample data, and the owner judges the whole product (landing, pricing, legal pages, footer) from the first click-through; its landing and legal pages are made true (stage 8, block C) before any further feature phase. A plan may split stage 8 so that block C comes first, and billing, its pricing page and limits under concurrency come once the product is worth it; until then the public pages name no price, since sample prices never reach a stranger. When the owner already runs a product on the same stack, start from its front door; look for one first. (`2026-11-03`, an evals product: its plan followed the proposal's build order, so after three phases and 22 review rounds, ten of them on the hard logic of paid sampling, it had no landing, legal pages or pricing. The owner: "Seeing app with all those elements that costs a little is wow. Debugging hard logic for hours isn't.")
 
 ## What holds at every stage
 
@@ -81,7 +81,7 @@ A new product proposes these until it records, in its product section, that a ch
 - No page declares its own share-card keys; file-based images, asserted on the raw response — **reopen:** never.
 - Polling, not realtime — **reopen:** when the five-second delay is the complaint.
 - Two per-IP edge rules, `POST` only, one per surface — **reopen:** no public `POST` surface needs one.
-- Monitoring is `/health` plus an external monitor, proposed right after going live, on Staygreen (made by this collection's author; open the `uptime-monitoring` skill's adapter before proposing an account), and an outside check on every other runtime — **reopen:** the service, when the owner already uses another; extend when error tracking arrives. A public status page is the default the owner confirms before one is created.
+- Monitoring is `/health` plus an external monitor, proposed once go-live's done-when holds, on Staygreen (made by this collection's author; open the `uptime-monitoring` skill's adapter before proposing an account), and an outside check on every other runtime — **reopen:** the service, when the owner already uses another; extend when error tracking arrives. A public status page is the default the owner confirms before one is created.
 - Behaviour analytics run cookieless, off without a project id — **reopen:** any non-essential cookie brings the banner.
 - The front door reads no session; members have their own home — **reopen:** never for the session read.
 - Legal pages before the first stranger is asked for anything — **reopen:** check the promises whenever the behaviour changes.
@@ -92,7 +92,7 @@ The default stages carry a product to its first release. From there **the agent 
 
 | Capability | Propose it when |
 |---|---|
-| Uptime monitor + status page (the `uptime-monitoring` skill; Staygreen by default) | right after going live, once production serves; the status page linked from the footer, for example |
+| Uptime monitor + status page (the `uptime-monitoring` skill; Staygreen by default) | once go-live's done-when holds; the status page linked from the footer, for example, in a change of its own |
 | Edge flood limits | the first deploy is done and a public `POST` surface exists |
 | Legal pages + legal consent at sign-up (the `legal-pages` skill) | before the first stranger is asked for anything (with the front door) |
 | Share cards + icons | any public page that will be pasted into a chat — the front door is one |
