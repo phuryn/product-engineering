@@ -19,7 +19,7 @@ This is not an interview. Questions come last, and only the ones the evidence ca
 
 Everything the owner gave: notes, research, data, links, screenshots, competitor names. Then the product's own record, if there is one: the brief, the decision log, an earlier proposal. **Use the repository's existing equivalent of a proposal** before creating one; a second document that restates the first is how decisions get lost between them. On a re-run, start from the existing proposal (§ Running it again).
 
-**When the product implements a published method, write its steps before the use cases**, with a source per step. The owner names which source is the authority and which is a simplification. The use cases follow that order; check the first against the authoritative document as the first thing a new user does. (`2026-11-03`, an evals product's accepted proposal, brief and UX replan all began with production traces although the method starts earlier; the owner's article had been read only to check quotes, never compared with the plan.)
+**When the product implements a published method, write its steps before the use cases**, with a source per step, in the brief above its use cases (the `app-lifecycle` skill's brief, or the product's equivalent). The owner names which source is the authority and which is a simplification. The use cases follow that order; check the first against the authoritative document as the first thing a new user does. (`2026-11-03`, an evals product's accepted proposal, brief and UX replan all began with production traces although the method starts earlier; the owner's article had been read only to check quotes, never compared with the plan.)
 
 ### 2. Research what is missing
 

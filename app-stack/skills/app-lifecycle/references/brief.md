@@ -30,6 +30,10 @@ Who the product is for and what it does for them: segments, value propositions, 
 
 <The important jobs as "When …, I want …, so …" statements, in the user's voice.>
 
+## The method
+
+<Only when the product implements a published method: its steps in order, a source for each, which source the owner names as the authority and which as the simplification. The use cases below follow this order; the first is the authority's first step, the first thing a new user does.>
+
 ## Use cases
 
 <Numbered end-to-end journeys. Each starts with an actor and an action and ends with an observable result. This is the only place they are written; other documents point here by number.>

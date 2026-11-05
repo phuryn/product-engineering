@@ -77,7 +77,7 @@ There is no organization, no task to land past and no second-role membership.
 
 ## Signing in for screen captures
 
-**A sign-in token gets a capture crawl into a development test account.** With that instance's secret key, call Clerk's Backend API `POST /v1/sign_in_tokens` with the test user's `user_id`, then open the app's sign-in URL with `?__clerk_ticket=<token>` in Playwright. Wait for Clerk to load and any required organization task to finish before capturing. This complements the testing token and test accounts above; the authenticated suite still exercises `<SignIn />`. (`2026-11-04`, observed on an evals product: this signed-in capture path enabled the newcomer walkthrough of every route and dialog.)
+**A sign-in token gets a capture crawl into a development test account.** With that instance's secret key, call Clerk's Backend API `POST /v1/sign_in_tokens` with the test user's `user_id`, then open the app's sign-in URL with `?__clerk_ticket=<token>` in Playwright. Run it after `globalSetup`, with the testing token `clerkSetup()` fetched (bot protection refuses the headless browser without it), and as a test user `globalSetup` has already landed past `choose-organization` in the organization shape: a headless crawl cannot finish that task, so a session still pending means setup didn't run, and the crawl stops rather than capturing Clerk's screen. Wait for Clerk to load before capturing. The token is a credential: keep it out of the chat, the walkthrough's handoff and commits. This complements the testing token and test accounts above; the authenticated suite still exercises `<SignIn />`. (`2026-11-04`, observed on an evals product: this signed-in capture path enabled the newcomer walkthrough of every route and dialog.)
 
 ## Locators
 
