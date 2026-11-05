@@ -352,7 +352,7 @@ It needs Python 3 (standard library only), and the search makes no network calls
 - **Its truncation recipes** (`.truncate`, `-webkit-line-clamp`, the first in `harden.md`). The method refuses them: text a person typed wraps.
 - **Its allowance for "a coloured rail or header"** (`reference/mode-operate.md`, read `2026-11-05`). The method keeps chrome neutral and the accent on actions. A tinted ground is allowed when it carries neither action nor state colour.
 
-**Get it.** Its install adds the hooks above, which is the owner's call on each machine. Without it, the checklists above are the audit: read its `reference/` files for the full text.
+**Get it.** Its install adds the hooks above, which is the owner's call on each machine. Without it, the checklists above are the audit: read its `skill/reference/` files for the full text.
 
 ## `dataviz` (built into Claude Code): charts
 
