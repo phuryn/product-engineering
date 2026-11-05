@@ -1,6 +1,6 @@
 ---
 name: performance-audit-static
-description: "Only when a performance audit is asked for (ship-check asks by name; a release proposes one, never runs it): a static audit for N+1 queries, over-fetching, missing indexes and caching."
+description: "Only when a performance audit is asked for (ship-check asks by name; a release proposes, never runs it): static audit of N+1 queries, over-fetching, indexes, caching."
 argument-hint: "<path or area> | <base>..<head> | changes; defaults to the whole repository"
 allowed-tools: Read, Grep, Glob, Task, Bash(git log:*), Bash(git diff:*), Bash(git show:*), Bash(git status:*), Write(reports/**)
 ---

@@ -4,7 +4,7 @@ Copy the fenced block at the end of this file into the repository's root as `AGE
 
 How to adapt it:
 
-- **Section 1 is general.** It was written for SaaS apps on Next.js + Supabase + Clerk + Netlify; lines marked *(stack)* name that stack's mechanism — replace them with your own stack's, keep the principle. Lines that point at a skill (`the release-gate skill`) assume this collection is installed; if it is not, point them at your own docs.
+- **Section 1's mechanics are general; its owner's choices and pack inventory are the product's.** It was written for SaaS apps on Next.js + Supabase + Clerk + Netlify; lines marked *(stack)* name that stack's mechanism — replace them with your own stack's, keep the principle. Lines that point at a skill (`the release-gate skill`) assume this collection is installed; if it is not, point them at your own docs.
 - **Section 2 is the product.** The `app-lifecycle` skill fills it at the brief stage (its `references/product-section.md` explains each heading).
 - **Paths** (`docs/…`) are defaults. Use your own, and keep the router's *Open* column true to them: `scripts/check_reachable.py` in this skill lists any doc the file no longer reaches.
 - **Delete what the product does not have** — the anonymous-public lines, billing, embedded agents — rather than leaving them as noise every session reads.
@@ -16,7 +16,7 @@ How to adapt it:
 
 Master instructions for every coding agent in this repository. Claude Code reads this file when there is no `CLAUDE.md`; a `CLAUDE.md` or `CLAUDE.local.md` that does not import `@AGENTS.md` stops it loading, so there is none (or one whose first line is `@AGENTS.md`).
 
-Two sections. **Section 1 is how we build any app** — reuse it in the next product. **Section 2 is this app** — replace it. When they conflict, Section 1 wins on mechanics and Section 2 wins on product. What neither says is the agent's call: decide, and say so in the summary. The longer material lives in `docs/`; **§ 1.8 says what opens when — find the moment you are in before every new task.** The path from idea to production is the `app-lifecycle` skill; each stage's done-when lives in `docs/product/plan.md`.
+Two sections. **Section 1 is how we build any app** — reuse its mechanics; replace its owner's choices and pack inventory. **Section 2 is this app** — replace it. When they conflict, Section 1 wins on mechanics and Section 2 wins on product. What neither says is the agent's call: decide, and say so in the summary. The longer material lives in `docs/`; **§ 1.8 says what opens when — find the moment you are in before every new task.** The path from idea to production is the `app-lifecycle` skill; each stage's done-when lives in `docs/product/plan.md`.
 
 ---
 
@@ -60,12 +60,19 @@ A new product proposes these choices rather than re-deriving them, and reopens o
 - **Read the exit code from the log, never the notification.**
 - **An inherited report is a claim, not evidence.** Re-run the gate yourself before repeating a count; take a release's subject from git, not prose.
 - **`docs/test-coverage.md` is written by whoever ran the gate, by nobody else.**
-- **An independent review before every push to a branch that deploys and at every promotion, however small the change.** A fresh session that never saw the build reads the unreleased diff plus the working tree, unsteered; fix, re-run the gate yourself, review again until no INTRODUCED finding above Low and no High or Critical of any age. The session that wrote the code never clears it: the `independent-review` skill.
+- **Default: an independent review before every push to a branch that deploys and at every promotion, however small the change.** A fresh session that never saw the build reads the unreleased diff plus the working tree, unsteered; fix, re-run the gate yourself, review again until no INTRODUCED finding above Low and no High or Critical of any age. The session that wrote the code never clears it: apply the `independent-review` skill.
 - The harness and the gate: the `test-harness` skill. How a change ships: the `release-gate` skill.
+
+### Owner's choices and installed packs
+
+Skill defaults apply. Departures: <none, or each choice once, dated and in the owner's words: model, builder, reviewer and fallback, review bar, what requires go, design taste and voice>. Product choices live here; global choices live in user-level instructions. **Precedence: current session owner instruction > this entry file > user-level instructions > skill defaults.** Memory in one agent does not reach another vendor's builder or reviewer: record standing choices here immediately. Design detail: `design/README.md`; apply the `design` skill.
+
+Installed packs: <each agent → the packs installed in it>. They update themselves; nothing pins a version.
 
 ## 1.7 Working rules for the agent
 
 - Read this file before the first plan.
+- **Apply skill defaults without asking.** Ask only when a model or CLI a default names is missing or out of usage and the product records no fallback that can run, and get the owner's clear go each time before anything irreversible or outward-facing (production, publishing, spend, deleting anything public). Questions about what the product should do are still the owner's.
 - **Tests and docs are part of the change.** A bug fix lands with a regression test that fails before the fix; every change updates the doc lines it made false.
 - **A doc that disagrees with code you did not change:** say so in the summary; the owner decides which side moves. When this file is silent, decide and say so. When a library default conflicts with this file, this file wins.
 - Every new environment variable: a placeholder in `.env.example`, a row in `docs/variables.md`, a line in the env schema that fails when it is missing — run at build, not only at boot. A value you generate rather than fetch is generated now, written into `.env`, and named in the summary.
@@ -74,8 +81,9 @@ A new product proposes these choices rather than re-deriving them, and reopens o
 - **A fix that carries an exclusion says in its comment why the excluded case does not need it.** A comment stating an invariant about a value protects only its own file: check every route that can receive the value.
 - **When a flag's meaning widens, rename it to what it does**, not to one of its reasons.
 - **A stage is done** when its done-when in `docs/product/plan.md` holds, the gate is green on your own run, its tests and docs landed — and, when it changes what a person sees, once the owner has tried it from a link and a short list.
-- **Delegation:** <the builder this repository uses, if any, and what never delegates — deciding what the product does, accepting a review finding, anything touching a real system, development included (any database, even one only you use, a server, a setting), the judgement that a stage is done>. If the brief would be nearly as long as the diff, write the diff (the `delegation` skill).
+- **Delegation:** use the builder and fallback in Owner's choices above; <what never delegates — deciding what the product does, accepting a review finding, anything touching a real system, development included (any database, even one only you use, a server, a setting), the judgement that a stage is done>. If the brief would be nearly as long as the diff, write the diff (apply the `delegation` skill).
 - **Proposing steps:** when planning a phase, propose the capabilities whose trigger has fired (the `app-lifecycle` skill).
+- **Skills teach method; this repository owns its docs, checks and automation**, reachable from this file. A procedure run by hand a second time becomes a script, its command in the matching § 1.8 row: release, review round and brief, owner's preview, extra checks. The release script runs gates and stops for the owner's go; `docs/RELEASE.md` names any steps the owner keeps.
 
 ## 1.8 What opens when
 
@@ -95,22 +103,23 @@ At the start of every new task, find the moment you are in — several can hold 
 | touching an integration's configuration (identity, database, host, DNS, email, analytics) | Read the gotchas first; each failed silently once | `docs/integrations.md` · the `clerk-production` / `supabase-production` skill |
 | touching environments, branches, backups or an incident, or rolling back | The target is stated, never inferred from a config file; a previous deploy goes back only once it is known to run against the current schema | the `environments` skill · `docs/environments.md` |
 | adding or reading an environment variable | Placeholder, row and schema line; the schema runs at build; a generated value is generated now | `docs/variables.md` · `.env.example` |
-| doing UI work, or changing what a screen says | Compose from the kit; a screen claims only what its feed can see | the `design` skill · `design/README.md` |
+| doing any visual work (screen, mock, prototype or artifact) | Apply `design`; without a provided design system, start the kit before the first screen, then extend its primitives so buttons, fields and dialogs stay one set; a screen claims only what its feed can see | the `design` skill · `design/README.md` |
 | writing framework code | <(stack) This framework version is newer than your training data> | <(stack) the framework's bundled docs, e.g. `node_modules/next/dist/docs/`> |
 | creating or removing a git worktree | Never remove one whose `node_modules` links to another checkout: delete the link first | the `independent-review` skill (its worktree recipe) |
-| writing or running a test, or claiming something is verified | The harness's runs column says gate, outside the gate or by hand; read exit codes from the log; the coverage map is written by whoever ran the gate | `docs/TESTS.md` · `docs/test-coverage.md` · the `test-harness` skill |
+| writing or running a test or extra check, or claiming something is verified | Use the product's check commands; the harness's runs column says gate, outside the gate or by hand; read exit codes from the log; the coverage map is written by whoever ran the gate | `docs/TESTS.md` (gate and extra-check commands) · `docs/test-coverage.md` · the `test-harness` skill |
 | reading a doc that disagrees with the code | Say so in the summary; the owner decides which side moves | at release, proposed to the owner: the `document-app` and `derive-tests` skills in `check` mode (they write nothing) |
 | deferring anything, or asked what remains | Every deferral has a reason and a revisit trigger | `docs/BACKLOG.md` |
 | **pushing a branch that deploys** — "just push it" is this row | A clean review round covering everything the push adds; the push closes it. Migrations applied first to the database that deploy reads (production's only at a promotion, after the go). A push deploys one runtime: every other one (workers, an edge) keeps its last bundle until redeployed, so check each one's build against the tree after the push. Name back any precondition still open rather than pushing past it | the `independent-review` skill · the `release-gate` skill |
-| saying a stage or a phase is done | Its done-when, the gate green on your own run, its tests and docs in the change; a change a person sees, once the owner has tried it | `docs/product/plan.md` · the `release-gate` skill (the owner's preview) |
-| **releasing** — promoting to production | The release checklist: the whole-range review, the audits proposed, the production ledger, the owner's **go** | the `release-gate` skill · `docs/RELEASE.md` |
-| triaging a review finding | A finding is a claim, its severity included | the `independent-review` skill (triage) |
+| saying a stage or a phase is done | Its done-when, the gate green on your own run, its tests and docs in the change; a change a person sees, once the owner has tried it | `docs/product/plan.md` · the `release-gate` skill (the owner's preview) · `docs/RELEASE.md` (preview command) |
+| **releasing** — promoting to production | Use the product's release doc and existing script: the whole-range review, the audits proposed, the production ledger, then stop for the owner's **go**; steps the owner keeps are named | the `release-gate` skill · `docs/RELEASE.md` (release command and owner steps) |
+| running a review loop or triaging a finding | Apply `independent-review`; use the product's round and brief commands; a finding is a claim, its severity included | the `independent-review` skill · `docs/RELEASE.md` (review commands) |
 | writing or checking a core doc — architecture, permissions, flows, variables, the coverage map | The definition is the minimum; this file wins where they differ | the `shipping-artifacts` skill · `docs/README.md` |
 | adding email, a scheduled job, automation or search | Document only what exists; unimplemented scope is a backlog row | the conditional doc once the capability exists |
 | adding a fail-closed guard or hosted CI | Never in the same change as the product it guards | the `release-gate` skill |
 | embedding an agent | <only when § 2.3 says so> | the `embedded-agents-messages-api` skill |
 | adding an MCP server | Every call authenticated unless a decision chose otherwise and named the cost | the `mcp-server` skill |
 | writing one of this repository's own skills, or adding a lesson to one | General guidance: a product appears only as an example, named by kind; what is true of one product goes in its own repository; date what a platform did | the skill's own `SKILL.md` |
+| learning a lesson for the shared collection | Keep the product's incident in its docs; send only the general lesson to the collection | type `/agent-harness:retro` (Codex: `$agent-harness:retro`) |
 | editing this file, or after a mistake this file should have prevented | Fix it in the moment with the receipt; route, don't summarize; a rule that depends on memory at the decisive moment becomes code | the `agent-instructions` skill |
 
 ## 1.9 This file is yours to manage

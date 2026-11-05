@@ -1,6 +1,6 @@
 ---
 name: design
-description: "Mandatory for any screen work, a builder's too: designing or building a screen or design system, choosing colours, type or components, judging the look."
+description: "Mandatory for any visual work, a builder's too: a screen, mock, prototype or artifact; starting or growing a design system; colour, type, components; judging the look."
 ---
 
 # Design
@@ -9,9 +9,9 @@ One skill for the whole of a product's look: the rules, which outside skill to u
 
 ## What binds, in order
 
-1. **The owner's words.** Taste, and any change to a written rule, is the owner's call. Put each visual question to them as specimens built in the product's real tokens, side by side, never described in words. `references/review.md` says how to sort a fix from an owner's call.
+1. **The owner's words.** Taste, and any change to a written rule, is the owner's call. Apply the `agent-instructions` skill to record choices and their precedence. Put each visual question to them as specimens built in the product's real tokens, side by side, never described in words. `references/review.md` says how to sort a fix from an owner's call.
 2. **The method** (`references/method.md`). Every kit and every screen satisfies it. A mock, prototype or artifact of a screen is high fidelity too: read the method; where the product has a kit, load its CSS and compose it rather than imitate it (a new product's prototype keeps its values in tokens, and the design stage builds the kit); and check a screenshot against the method before the owner sees it. A product departs from a rule only by the owner's decision, recorded in its kit README with the reason. (`2026-11-03`, an evals product's artifact imitated its kit, invented borderless buttons and misaligned chips; its builder had read this page but never the method.)
-3. **The product's kit**, three files wherever the product keeps them (often a `design/` folder): `tokens.css`, every raw value (colour, type, space, radius, duration); `kit.css`, the primitives, built from tokens only; and the **kit README**, the product's own design document: its direction, palette, type, layout and button roles, each with its reason, and every departure from the method. Screens compose the kit; a screen never invents a style.
+3. **The product's kit**, three files wherever the product keeps them (often a `design/` folder): `tokens.css`, every raw value (colour, type, space, radius, duration); `kit.css`, the primitives, built from tokens only; and the **kit README**, the product's own design document: its direction, palette, type, layout and button roles, each with its reason, and every departure from the method. With no provided design system, start the kit before the first screen; maintain it and extend its primitives for each later need so buttons, fields and dialogs remain one set (owner, `2026-11-05`). Screens compose the kit; a screen never invents a style.
 4. **The collections advise** (`references/collections.md`). A suggestion reaches code only as a token or a primitive in the kit, recorded in the kit README. Where a collection disagrees with the method, the method wins.
 
 **Every agent that builds the product's screens loads this skill from its installed pack, `app-stack`, and the product keeps no copy of it.** A copy freezes the method at the version it was taken from (the pack released three versions between `2026-11-02` and `2026-11-03`), and Claude Code loads it a second time beside the installed pack. A rule a builder can't load doesn't get read: a monitoring product's kit README pointed at the method in another repository, and the product shipped borderless Cancels in five places the method already forbade (`2026-10-22`).
@@ -56,7 +56,7 @@ Before a screen is drawn, a builder's included, work out what people come to do:
 
 ## The owner's standing preferences
 
-**Yours go in the kit README** (for one product) **or in your user-level agent instructions** (for every product), in your own words, with the date you said each. An edit to the installed pack is lost at its next update. The entries below are the author's, kept as a worked example of what belongs there: a taste call with its receipt, and how far it reaches. Until you write your own, treat them as one owner's taste, not as rules.
+**Yours go in the kit README, with a pointer from the product's entry file** (for one product) **or in your user-level agent instructions** (for every product), in your own words, with the date you said each. An edit to the installed pack is lost at its next update. The entries below are the author's, kept as a worked example of what belongs there: a taste call with its receipt, and how far it reaches. Until you write your own, treat them as one owner's taste, not as rules.
 
 
 - **Weight doesn't mark state.** "Colors already say this. Two things saying the same it unnecessary in my opinion." (`2026-10-22`, rejecting "bold only on problems".)

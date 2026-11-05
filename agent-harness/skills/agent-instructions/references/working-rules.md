@@ -10,6 +10,10 @@ The plan is where an unread rule does its damage: a plan built without the owner
 
 Plan, build, summarize once. Narration spends the owner's attention on progress instead of on the decisions that need them, and buries the one line that matters. Status lines only when blocked or when a run will take long.
 
+## Apply defaults; record the owner's choices
+
+Use the defaults without a questionnaire; unavailable models or CLIs without a usable product fallback and irreversible or outward-facing actions are the points that need the owner, as `SKILL.md` § The working rules says. Record standing departures once in the entry file or user-level instructions, so another agent can find them. (Owner, `2026-11-05`: "Don't want to overcomplicate that.")
+
 ## Commit messages go through a heredoc
 
 `git commit -F -` with a heredoc, never `git commit -m "…"`.

@@ -25,13 +25,13 @@ Grok, Claude Code and Codex can each be run as the reviewer, and the skills that
 agent (`grok-agents`, `claude-agents`, `codex-agents`) say how.
 
 **The repository's own instructions come first.** Its agent instructions or release docs may say
-which reviewer runs, when a review is required, which range a release covers, what the test gate is and where deferred
-findings go. Follow them. **One bar for every reviewer**, the wrapper's and one they name: a fresh session
+which reviewer and fallback run, the review bar, when a review is required, which range a release covers, what the test gate is and where deferred
+findings go. Follow them; apply the `agent-instructions` skill to record owner choices and their precedence. **One bar for every reviewer**, the wrapper's and one they name: a fresh session
 that never saw the build, never a resume, fork or subagent of it, with read-only tools only, no MCP servers
 or connectors, its memory off, at its highest effort, and the project's and the user's own instructions off
 where the CLI allows; what it can't switch off, the round's report names. A sandbox flag alone is not that: in Codex, `-s read-only` binds only
 the shell commands the model runs, and the user's config can add tools that act outside it (Codex CLI 0.159.0,
-`2026-10-29`) unless the run leaves that config out (`codex-agents` § Reviewer). A named reviewer that can't be run that way is not replaced on your own: say what it lacks and ask
+`2026-10-29`) unless the run leaves that config out (`codex-agents` § Reviewer). When a named reviewer can't run that way, use the product's recorded fallback if it can, without asking. With none usable, say what it lacks and ask
 the owner whether the wrapper's reviewer runs instead, naming it (Grok, so xAI, or Claude); the round
 waits for the answer, and its report records it. Where they say nothing, the defaults below apply, and where a default
 would need a fact only the owner has (which branch is released, what the last release was), ask.

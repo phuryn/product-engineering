@@ -36,6 +36,7 @@ Worked rows from an app repository:
 ## What gets a row
 
 - **Every rule placed in a doc gets a row**, keyed by what the agent is doing when it applies — unless the rule lives in the file the agent is already editing at that moment (a migration-writing rule at the top of the migrations README, say).
+- **Installed packs get rows for their moments; product scripts get their commands in those rows.** Skills teach method; the product owns the release, review-round/brief, preview and extra-check commands. A procedure run by hand a second time becomes a script, routed from the entry file; `agents-md-skeleton.md` has the starter rows.
 - **File at the fire point, not at the topic home.** A rule lands in the chain of the task where it must *change a decision*; the topically natural file keeps the durable record and a pointer. A rule reachable only from the wrong task is unreachable. (`2026-08-07`, a content repository: a rule governing a decision taken while drafting was filed in the strategy file, which only strategy sessions loaded; the owner had to ask "when is strategy read?" before it moved.)
 - **A new file rarely needs a row of its own**; it needs a reference from the right file in an existing row's chain. A row is for a genuinely new moment.
 - **What has no moment** — a worked example, the release history, a case study — is indexed in the docs' own index, not the router. That index is a catalog (what each file holds, which wins when two disagree), never a second router.

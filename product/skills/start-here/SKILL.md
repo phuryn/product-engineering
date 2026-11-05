@@ -24,6 +24,8 @@ First, whose repository is this folder? `git rev-parse --show-prefix` prints an 
 
 Read what came with the request, then the repository: its agent instructions, its product docs, its plan's status, `git status` and the recent commits. A status that disagrees with the code is a claim; the code wins. Fetch first: a checkout behind its remote describes the past. List what the remote has that the checkout lacks: `git log --oneline 'HEAD..@{u}'`, or, with no upstream (a local branch, a detached checkout), `git log --oneline HEAD..origin/HEAD` (`git remote set-head origin --auto` sets it when it is missing). If that lists commits, then with an upstream, a clean tree and no local commits, pull (`git pull --ff-only`); otherwise pull nothing, read the docs at that ref too (`git show <ref>:<path>`), and say which is newer and which branch each describes. Only a repository with no remote has nothing newer. (`2026-10-28`, a session read a product's docs from a checkout six days behind and reported its DNS provider as not set up, days after it had been.)
 
+After installing packs, apply the `agent-instructions` skill once to wire the product's entry file: owner's choices starting from skill defaults, a docs index, and router rows for installed packs — any visual work → apply `design`; a deploy-triggering push or release → apply `release-gate`; a review loop → apply `independent-review`; delegating → apply `delegation`; a lesson for the collection → type `/agent-harness:retro` (Codex: `$agent-harness:retro`).
+
 | You have | The next step | Where the how lives |
 |---|---|---|
 | **A new idea** | research it and propose, the interface first | the `propose` skill |

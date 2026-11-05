@@ -35,7 +35,7 @@ Then ask the two follow-up questions:
 2. **Every tool is referenced** from a tools index or from the doc that uses it.
 3. **New files are routed immediately** — added to the right index or parent file when created, not later.
 4. **The entry file's router is the entry layer.** It routes to doctrine and never summarizes it. A new file rarely needs a router row; it needs a reference from the right file in an existing chain.
-5. **Memory is not a substitute for structure.** An agent's memory is for behaviour corrections, not for routing to tools or knowledge files: a route that lives only in memory is invisible to every other agent and to the next machine.
+5. **Memory is not a substitute for structure.** An agent's memory is for behaviour corrections, not for routing to tools or knowledge files: a route or owner choice that lives only in memory is invisible to another vendor's builder or reviewer and to the next machine. Standing choices go straight to the entry file or user-level instructions (`SKILL.md` § The entry file).
 6. **Separate evidence from rules.** A file over about 200 lines where rules and their supporting data coexist splits: the rules stay where the router points, and the methodology, tables and postmortems move to an evidence file, opened only when revisiting a rule or running a new analysis. The rule file links to its evidence; the evidence file is never the one the router opens.
 
 ## Filing without accretion
@@ -63,7 +63,7 @@ An agent's memory holds behaviour corrections and facts that vary by conversatio
 
 **When promoting**, move the rule text into the file where the router already finds it, and delete the memory — two copies drift.
 
-**Keep in memory, don't promote:** facts about the user's role or preferences; project-state facts that decay ("the merge freeze begins on…"); pointers to external systems ("pipeline bugs are tracked in…"); tactical workarounds for ephemeral bugs.
+**Keep in memory, don't promote:** conversation-specific facts about the user's role or preferences, rather than standing owner choices; project-state facts that decay ("the merge freeze begins on…"); pointers to external systems ("pipeline bugs are tracked in…"); tactical workarounds for ephemeral bugs.
 
 ## Orphans — the check that holds reachability
 

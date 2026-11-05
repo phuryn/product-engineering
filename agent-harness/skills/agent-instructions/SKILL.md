@@ -29,10 +29,12 @@ entry file (loaded every session)   — routes; holds only what every session ne
 
 ## The entry file: two sections
 
-- **Section 1 — how we build any app.** The mechanics: ownership and authorization, the threat model, the stack and the choices made on it, testing and delivery, working rules, the router, how this file is maintained. Reused verbatim in the next product.
+- **Section 1 — how we build any app.** The mechanics: ownership and authorization, the threat model, the stack and the choices made on it, testing and delivery, working rules, the router, how this file is maintained. Reuse the mechanics in the next product; replace its owner's choices and installed-pack inventory.
 - **Section 2 — this app.** What it is, its users, its shape, who can do what, scope, data constraints, three lines of status. Replaced per product (the `app-lifecycle` skill has its skeleton).
 - **When they conflict, Section 1 wins on mechanics and Section 2 wins on product. What neither says is the agent's call** — decide, and say so in the summary. **When a library's default conflicts with the file, the file wins**, and the file says so where a vendored skill or a quickstart would teach otherwise.
 - The preamble says all of this in a few lines, names where the longer material lives, and tells the agent to **find the moment it is in, in the router, before it starts.**
+
+**Record the owner's departures from skill defaults once, dated and in their words:** product choices in a short entry-file section beside testing and working rules; choices for every product in user-level instructions. Model, builder, reviewer and fallback, review bar, what requires go, design taste and voice belong here. **Precedence: current session owner instruction > product entry file > user-level instructions > skill defaults.** Design detail can stay in the kit README, pointed to from the entry file: apply the `design` skill. For reviewer choices, apply the `independent-review` skill. Memory in one agent does not reach another vendor's builder or reviewer; graduate a standing choice to the file immediately (`references/maintenance.md`).
 
 A starter file to copy: `references/agents-md-skeleton.md`.
 
@@ -62,15 +64,20 @@ The pattern in depth, and a starter router for an app repository: `references/ro
 |---|---|
 | needed in every session, with no trigger that would send the agent looking | the entry file, Section 1 or 2 |
 | needed only when touching one area | that area's file: the doc its router row already opens, or a new one where there is none, routed the day it is made; re-read at the start of every task that touches it |
-| procedures, gotchas, depth | the doc or skill the row opens |
+| reusable method | the installed skill; product docs, checks and automation stay in the product's repository, reachable from the entry file |
+| product procedures, gotchas, depth | the product doc the row opens; a procedure run by hand a second time becomes a product script, with its command in the matching router row |
 | receipts, data tables, postmortems behind a rule | an evidence file, opened only when revisiting the rule |
 | the current status | the product's plan (its stages, each with what it produces and the test of done, and where each stands); at most three lines in the entry file |
 | what a release shipped, what its rounds and gates found | the release history (one dated section per release, never rewritten), moved there at the next release |
 | a decision that had options | the decision log (dated: the options, what was picked, by whom and why) |
+| an owner's departure from skill defaults | once, dated and in their words: the entry file for product choices, user-level instructions for global choices; design detail in the kit README with an entry-file pointer |
+| installed packs | the entry file: each agent and the packs installed in it; the packs update themselves, so nothing pins a version; never assume another agent loads the coordinator's install |
 | deferred work | the backlog, each item with the reason it waits and the trigger that reopens it |
-| a behaviour correction from one conversation | memory, until it graduates (`references/maintenance.md`) |
+| a behaviour correction from one conversation | memory, until it graduates; standing owner choices go straight to instructions (`references/maintenance.md`) |
 | what is true of one product only | that product's repository, never a shared skill |
 | a rule whose compliance depends on memory at the decisive moment | a test, a script or a required argument |
+
+**Script the repeated product work**, especially release, the review round and its brief, the owner's preview and extra checks; route each command from the entry file. A release script runs the gates and stops for the owner's go; steps the owner keeps are explicitly theirs in the release doc. (`2026-11-05`, a remote-control product: its production smoke, auth canary, update-feed and UI checks are scripts beside its tests, each with its command.)
 
 ## Always-on rules: an admission test and a cap
 
@@ -102,6 +109,7 @@ Most rules wait for their router row. A few must fire across every task — afte
 Each has a receipt (`references/working-rules.md`):
 
 - **Read the instruction file before the first plan.**
+- **Apply skill defaults without asking.** Ask only when a model or CLI a default names is missing or out of usage and the product records no fallback that can run, and get the owner's clear go each time before anything irreversible or outward-facing (production, publishing, spend, deleting anything public). Questions about what the product should do are still the owner's.
 - **No play-by-play.** Plan, build, summarize once.
 - **Commit messages go through a heredoc (`git commit -F -`), never `-m "…"`**: a backtick inside `-m` is command substitution, and the text vanishes silently.
 - **A fix that carries an exclusion says, in its comment, why the excluded case does not need it.**
