@@ -46,7 +46,7 @@ A prop named for one reason (`busy`) becomes a sentence the next reader has to d
 
 - **Receipt:** `2026-09-20`, a live Q&A product's dialog took a second, unrelated reason to refuse dismissal (a secret shown once, which dies when the dialog closes).
 
-## When the instruction file is silent, decide and say so
+## When the instruction file is silent, the skills' defaults apply; past them, decide and say so
 
 The skills' defaults cover what neither section of the file does; the agent decides what they don't cover either, and says what it decided in the summary, so the owner can correct it and the file can learn it. **When a library's default conflicts with the file, the file wins** — vendored skills and quickstarts teach their own defaults, and the file is where the product's choices against them are written.
 
