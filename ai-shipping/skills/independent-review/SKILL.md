@@ -156,7 +156,8 @@ instructions, personal notes, memory or skills list was in its context). `--revi
 forces the fallback. **An installed Grok can still be out of usage** (`2026-10-31`: a signed-in
 Grok CLI answered `402 usage balance exhausted`): the wrapper then exits 3 and prints the same
 round with `--reviewer claude`. Run it, unless the repository's instructions name Grok as the
-reviewer: then ask the owner first (§ The repository's own instructions come first). Neither CLI on PATH: `--subject-only` (with `--brief`, `--cwd` and
+reviewer: then do what they say for this case (a fallback they name runs as named, its model included,
+without asking), and ask the owner first only where they say nothing (§ The repository's own instructions come first). Neither CLI on PATH: `--subject-only` (with `--brief`, `--cwd` and
 `--subject` as above) writes the subject file and the prompt, the brief with the paging instructions added,
 into the git directory and prints their paths. Give the prompt to a fresh read-only session of your agent,
 run as a separate process you start in the checkout under review, never a subagent, fork or resumed session of

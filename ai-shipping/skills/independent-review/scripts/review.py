@@ -583,7 +583,8 @@ def out_of_usage(reviewer: str, *texts: str) -> None:
             skip = False
             continue
         key = a.split("=", 1)[0]
-        if len(key) > 4 and "--reviewer".startswith(key):  # argparse takes --rev for --reviewer
+        # argparse takes --rev for --reviewer; a model name belongs to one CLI, so it doesn't carry over
+        if (len(key) > 4 and "--reviewer".startswith(key)) or (len(key) > 3 and "--model".startswith(key)):
             skip = "=" not in a
             continue
         rest.append(a)
@@ -592,8 +593,10 @@ def out_of_usage(reviewer: str, *texts: str) -> None:
     sys.stderr.write(
         f"  Rerun the round with the other reviewer, {who}:\n"
         f"    {shlex.join(['python', sys.argv[0], *rest, '--reviewer', other])} < /dev/null\n"
-        "  Where the repository's instructions name this reviewer, ask the owner before switching, "
-        "and record the answer in the round's report.\n"
+        "  Add --model when the repository's instructions name the fallback's model. Where they name this "
+        "reviewer, do what they say for this case: a fallback they name runs as named, without asking; "
+        "where they say nothing about it, ask the owner before switching, and record the answer in the "
+        "round's report.\n"
     )
     sys.exit(3)
 
