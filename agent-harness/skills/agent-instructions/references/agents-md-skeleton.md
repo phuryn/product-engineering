@@ -16,7 +16,7 @@ How to adapt it:
 
 Master instructions for every coding agent in this repository. Claude Code reads this file when there is no `CLAUDE.md`; a `CLAUDE.md` or `CLAUDE.local.md` that does not import `@AGENTS.md` stops it loading, so there is none (or one whose first line is `@AGENTS.md`).
 
-Two sections. **Section 1 is how we build any app** — reuse its mechanics; replace its owner's choices and pack inventory. **Section 2 is this app** — replace it. When they conflict, Section 1 wins on mechanics and Section 2 wins on product. What neither says is the agent's call: decide, and say so in the summary. The longer material lives in `docs/`; **§ 1.8 says what opens when — find the moment you are in before every new task.** The path from idea to production is the `app-lifecycle` skill; each stage's done-when lives in `docs/product/plan.md`.
+Two sections. **Section 1 is how we build any app** — reuse its mechanics; replace its owner's choices and pack inventory. **Section 2 is this app** — replace it. When they conflict, Section 1 wins on mechanics and Section 2 wins on product. What neither says follows the skills' defaults; where those are silent too, it is the agent's call: decide, and say so in the summary. The longer material lives in `docs/`; **§ 1.8 says what opens when — find the moment you are in before every new task.** The path from idea to production is the `app-lifecycle` skill; each stage's done-when lives in `docs/product/plan.md`.
 
 ---
 
@@ -74,7 +74,7 @@ Installed packs: <each agent → the packs installed in it>. They update themsel
 - Read this file before the first plan.
 - **Apply skill defaults without asking.** Ask only when a model or CLI a default names is missing or out of usage and the product records no fallback that can run, and get the owner's clear go each time before anything irreversible or outward-facing (production, publishing, spend, deleting anything public). Questions about what the product should do are still the owner's.
 - **Tests and docs are part of the change.** A bug fix lands with a regression test that fails before the fix; every change updates the doc lines it made false.
-- **A doc that disagrees with code you did not change:** say so in the summary; the owner decides which side moves. When this file is silent, decide and say so. When a library default conflicts with this file, this file wins.
+- **A doc that disagrees with code you did not change:** say so in the summary; the owner decides which side moves. When this file is silent, the skills' defaults apply; when they are silent too, decide and say so. When a library default conflicts with this file, this file wins.
 - Every new environment variable: a placeholder in `.env.example`, a row in `docs/variables.md`, a line in the env schema that fails when it is missing — run at build, not only at boot. A value you generate rather than fetch is generated now, written into `.env`, and named in the summary.
 - **No play-by-play.** Plan, build, summarize once.
 - **Commit messages go through a heredoc (`git commit -F -`), never `-m "…"`**: a backtick inside `-m` is command substitution, and the text vanishes silently.
@@ -83,7 +83,7 @@ Installed packs: <each agent → the packs installed in it>. They update themsel
 - **A stage is done** when its done-when in `docs/product/plan.md` holds, the gate is green on your own run, its tests and docs landed — and, when it changes what a person sees, once the owner has tried it from a link and a short list.
 - **Delegation:** use the builder and fallback in Owner's choices above; <what never delegates — deciding what the product does, accepting a review finding, anything touching a real system, development included (any database, even one only you use, a server, a setting), the judgement that a stage is done>. If the brief would be nearly as long as the diff, write the diff (apply the `delegation` skill).
 - **Proposing steps:** when planning a phase, propose the capabilities whose trigger has fired (the `app-lifecycle` skill).
-- **Skills teach method; this repository owns its docs, checks and automation**, reachable from this file. A procedure run by hand a second time becomes a script, its command in the matching § 1.8 row: release, review round and brief, owner's preview, extra checks. The release script runs gates and stops for the owner's go; `docs/RELEASE.md` names any steps the owner keeps.
+- **Skills teach method; this repository owns its docs, checks and automation**, reachable from this file. A procedure run by hand a second time becomes a script, its command in the matching § 1.8 row: release, review round and brief, owner's preview, extra checks. The release script runs only after the owner's clear go, for the release that go authorizes; `docs/RELEASE.md` names the steps the owner keeps.
 
 ## 1.8 What opens when
 
@@ -103,7 +103,7 @@ At the start of every new task, find the moment you are in — several can hold 
 | touching an integration's configuration (identity, database, host, DNS, email, analytics) | Read the gotchas first; each failed silently once | `docs/integrations.md` · the `clerk-production` / `supabase-production` skill |
 | touching environments, branches, backups or an incident, or rolling back | The target is stated, never inferred from a config file; a previous deploy goes back only once it is known to run against the current schema | the `environments` skill · `docs/environments.md` |
 | adding or reading an environment variable | Placeholder, row and schema line; the schema runs at build; a generated value is generated now | `docs/variables.md` · `.env.example` |
-| doing any visual work (screen, mock, prototype or artifact) | Apply `design`; without a provided design system, start the kit before the first screen, then extend its primitives so buttons, fields and dialogs stay one set; a screen claims only what its feed can see | the `design` skill · `design/README.md` |
+| doing any visual work (screen, mock, prototype or artifact) | Apply `design`; without a provided design system, start the kit before the first app screen (a prototype before it keeps its values in tokens), then extend its primitives so buttons, fields and dialogs stay one set; a screen claims only what its feed can see | the `design` skill · `design/README.md` |
 | writing framework code | <(stack) This framework version is newer than your training data> | <(stack) the framework's bundled docs, e.g. `node_modules/next/dist/docs/`> |
 | creating or removing a git worktree | Never remove one whose `node_modules` links to another checkout: delete the link first | the `independent-review` skill (its worktree recipe) |
 | writing or running a test or extra check, or claiming something is verified | Use the product's check commands; the harness's runs column says gate, outside the gate or by hand; read exit codes from the log; the coverage map is written by whoever ran the gate | `docs/TESTS.md` (gate and extra-check commands) · `docs/test-coverage.md` · the `test-harness` skill |

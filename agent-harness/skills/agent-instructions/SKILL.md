@@ -31,7 +31,7 @@ entry file (loaded every session)   — routes; holds only what every session ne
 
 - **Section 1 — how we build any app.** The mechanics: ownership and authorization, the threat model, the stack and the choices made on it, testing and delivery, working rules, the router, how this file is maintained. Reuse the mechanics in the next product; replace its owner's choices and installed-pack inventory.
 - **Section 2 — this app.** What it is, its users, its shape, who can do what, scope, data constraints, three lines of status. Replaced per product (the `app-lifecycle` skill has its skeleton).
-- **When they conflict, Section 1 wins on mechanics and Section 2 wins on product. What neither says is the agent's call** — decide, and say so in the summary. **When a library's default conflicts with the file, the file wins**, and the file says so where a vendored skill or a quickstart would teach otherwise.
+- **When they conflict, Section 1 wins on mechanics and Section 2 wins on product. What neither says follows the skills' defaults; where those are silent too, it is the agent's call** — decide, and say so in the summary. **When a library's default conflicts with the file, the file wins**, and the file says so where a vendored skill or a quickstart would teach otherwise.
 - The preamble says all of this in a few lines, names where the longer material lives, and tells the agent to **find the moment it is in, in the router, before it starts.**
 
 **Record the owner's departures from skill defaults once, dated and in their words:** product choices in a short entry-file section beside testing and working rules; choices for every product in user-level instructions. Model, builder, reviewer and fallback, review bar, what requires go, design taste and voice belong here. **Precedence: current session owner instruction > product entry file > user-level instructions > skill defaults.** Design detail can stay in the kit README, pointed to from the entry file: apply the `design` skill. For reviewer choices, apply the `independent-review` skill. Memory in one agent does not reach another vendor's builder or reviewer; graduate a standing choice to the file immediately (`references/maintenance.md`).
@@ -77,7 +77,7 @@ The pattern in depth, and a starter router for an app repository: `references/ro
 | what is true of one product only | that product's repository, never a shared skill |
 | a rule whose compliance depends on memory at the decisive moment | a test, a script or a required argument |
 
-**Script the repeated product work**, especially release, the review round and its brief, the owner's preview and extra checks; route each command from the entry file. A release script runs the gates and stops for the owner's go; steps the owner keeps are explicitly theirs in the release doc. (`2026-11-05`, a remote-control product: its production smoke, auth canary, update-feed and UI checks are scripts beside its tests, each with its command.)
+**Script the repeated product work**, especially release, the review round and its brief, the owner's preview and extra checks; route each command from the entry file. A release script runs only after the owner's clear go, for the release that go authorizes; the release doc names the steps the owner keeps (the `release-gate` skill). (`2026-11-05`, a remote-control product: its production smoke, auth canary, update-feed and UI checks are scripts beside its tests, each with its command.)
 
 ## Always-on rules: an admission test and a cap
 
@@ -115,7 +115,7 @@ Each has a receipt (`references/working-rules.md`):
 - **A fix that carries an exclusion says, in its comment, why the excluded case does not need it.**
 - **A comment stating an invariant about a value protects only the file it is in**: list every route that can receive the value and check each.
 - **When a flag's meaning widens, rename it to what it does**, not to one of its reasons.
-- **When the file is silent, decide and say so in the summary.**
+- **When the file is silent, the skills' defaults apply; when they are silent too, decide and say so in the summary.**
 - **A doc that disagrees with code you did not change is reported, and the owner picks which side moves.**
 - **Tests and doc lines are part of the change**, not a later step.
 
