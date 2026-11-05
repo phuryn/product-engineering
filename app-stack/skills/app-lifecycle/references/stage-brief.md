@@ -51,7 +51,7 @@
 - The jobs map rows this stage serves: the job in the user's words → its screen → that screen's one question → its primary action.
 - The data rules that stay out of the copy, each with the plain-words outcome a screen shows instead.
 - Example data that fills every screen it touches.
-- Done includes the newcomer walkthrough, rendered-screen pass, app-screen screenshot critique at 1440/768/390 (three rounds at most), and scored Impeccable-style audit with P0 and P1 fixed, before the owner's look review and click-through (the `design` skill; its local checklists work without the collections).
+- Done includes the newcomer walkthrough, rendered-screen pass, and app-screen screenshot critique at 1440/768/390 (three rounds at most), plus the scored audit with P0 and P1 fixed when the stage builds the first screens or changes the kit, before the owner's look review and click-through (the `design` skill; its local checklists work without the collections).
 
 ## Files it will touch
 

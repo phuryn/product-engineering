@@ -263,10 +263,10 @@ It needs Python 3 (standard library only), and the search makes no network calls
   - Bands out of 20: 18+ excellent, 14+ good, 10+ acceptable, 6+ poor, below 6 critical.
   - Every finding names its severity, its location (`file:line`), its impact, the standard it breaks and the fix.
   - Never report a finding you haven't verified.
-  - Record the scores and fix P0 and P1 before the stage's owner preview; rescore after the fixes.
+  - It runs at the first screens, before every release, when the kit changes, and when the owner asks (`SKILL.md`). Record the scores, fix P0 and P1, and rescore.
 - **Severity for design findings.**
   - **P0** blocks the task: fix now.
-  - **P1** causes significant difficulty or breaks WCAG AA: fix before the stage's owner preview.
+  - **P1** causes significant difficulty or breaks WCAG AA: fix before the owner sees the screens it covered, and before release.
   - **P2** is an annoyance with a workaround: fix next pass.
   - **P3** is polish.
 

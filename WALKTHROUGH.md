@@ -76,7 +76,7 @@ Once the review is clean or running, for every change you can see, you get a lin
 Not built yet: the monthly plan's limits.
 ```
 
-Before it reaches you, a fresh session new to the domain has said what each new screen is for and what to press next, and the screens have been rendered, critiqued and audited, with the audit's P0 and P1 fixed. Expect 15 to 20 minutes for a mid-size app, every time. Screenshots taken by agents miss what moves and what is visible only for a moment, so this check is yours. What you find goes back to the build and is reviewed again. Click first when the question is taste or whether it's the right thing; skip it when only code behind a screen changed.
+Before it reaches you, a fresh session new to the domain has said what each new screen is for and what to press next, and the screens have been rendered and critiqued. Expect 15 to 20 minutes for a mid-size app, every time. Screenshots taken by agents miss what moves and what is visible only for a moment, so this check is yours. What you find goes back to the build and is reviewed again. Click first when the question is taste or whether it's the right thing; skip it when only code behind a screen changed.
 
 ## 6. Release review
 

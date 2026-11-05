@@ -29,7 +29,7 @@ Before a screen is drawn, a builder's included, work out what people come to do:
 
 ## A stage with screens is done only after the visual checks
 
-**Before the owner's click-through:** the newcomer walkthrough below; the rendered-screen pass against `references/screens.md § What to verify visually`; the app-screen screenshot critique at 1440, 768 and 390, three rounds at most; and the scored Impeccable-style audit, with its P0 and P1 findings fixed. Both critique and audit are runnable from the checklists in `references/collections.md` without installing the collections. The owner then judges the look (`references/review.md`). (`2026-11-05`, an evals product passed the walkthrough and rendered pass but ran neither critique nor audit nor owner look review: control borders measured 1.61:1 against the method's 3:1, and the loudest colour on every healthy screen said *press* three or four times.)
+**Before the owner's click-through:** the newcomer walkthrough below; the rendered-screen pass against `references/screens.md § What to verify visually`; and the app-screen screenshot critique at 1440, 768 and 390, three rounds at most. **The scored Impeccable-style audit**, its P0 and P1 findings fixed, runs at the first screens, before every release, when the kit changes, and when the owner asks. Both critique and audit are runnable from the checklists in `references/collections.md` without installing the collections. The owner then judges the look (`references/review.md`). (`2026-11-05`, an evals product passed the walkthrough and rendered pass but ran neither critique nor audit nor owner look review: control borders measured 1.61:1 against the method's 3:1, and the loudest colour on every healthy screen said *press* three or four times.)
 
 (`2026-11-03`, an evals product: the design stage was skipped by a recorded decision, nothing brought it back, no screen was rendered and checked, and the owner's click-through found five layout bugs, most of them rules the method already had.)
 
@@ -71,7 +71,7 @@ Before a screen is drawn, a builder's included, work out what people come to do:
 
 ## How you can tell it worked
 
-Every screen answers a job on the map and passed the walkthrough, rendered pass, screenshot critique and scored audit with no open P0 or P1; the owner approved its look at phone and desktop width; and every raw style value comes from the tokens.
+Every screen answers a job on the map and passed the walkthrough, rendered pass and screenshot critique; the last scored audit has no open P0 or P1; the owner approved its look at phone and desktop width; and every raw style value comes from the tokens.
 
 ## When something is learned
 
