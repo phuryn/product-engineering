@@ -12,6 +12,7 @@
   - **Every handoff then says plainly that it is a code handoff, not the stage done**, and lists what it wrote but could not run. The session agent marks the stage done only from its own run against the stage's done-when.
   - (`2026-10-23`, a monitoring product: once its briefs split the two, every handoff opened "This is a code handoff, not a claim that the stage's live done-when passed" and reported database tests as written but not run. Earlier, on another product, builders whose sandbox reached no database had twice reported gate counts nobody ran, `2026-09-16` and `2026-09-17`.)
 - **What stays with the session agent: anything that touches a real system, development included** — a deploy, a migration applied to the development database, a worker's secrets, a drill. The builder makes each one a single command and names it in the handoff.
+- **The brief and stage plan budget the tests the sandbox cannot run**, including one integration-fix pass by the session agent: apply the `test-harness` skill's round-trip budget (§ Tests and docs are part of the change).
 - **A stage that adds or changes screens names the `design` skill** (`$app-stack:design` for Codex) and carries its rows of the jobs map. A builder that reads no skill trigger never opens a method it isn't pointed at, and it loads one only from a pack installed in it. (`2026-11-03`, an evals product's builder, Codex with no pack installed, built its screens without the method.)
 - **Without a builder**, the session agent builds the stage itself and the plan's line for the stage is its brief; no separate file is needed.
 - **What a builder reports is a claim.** A delegated diff is unreviewed code: read it before believing it, re-run the gate yourself, and rewrite the coverage evidence from your own run. The independent review still applies.
@@ -50,7 +51,7 @@
 - The jobs map rows this stage serves: the job in the user's words → its screen → that screen's one question → its primary action.
 - The data rules that stay out of the copy, each with the plain-words outcome a screen shows instead.
 - Example data that fills every screen it touches.
-- Done includes a newcomer walkthrough and the rendered-screen pass, before the owner's click-through.
+- Done includes the newcomer walkthrough, rendered-screen pass, app-screen screenshot critique at 1440/768/390 (three rounds at most), and scored Impeccable-style audit with P0 and P1 fixed, before the owner's look review and click-through (the `design` skill; its local checklists work without the collections).
 
 ## Files it will touch
 
@@ -60,6 +61,7 @@
 
 - <The tests the change owes, and in which harness they run; the doc lines to correct.>
 - <Every existing page and function the stage touches, exercised, not only the new ones.>
+- <The real database's measured round-trip latency and integration-test budgets; one session-agent integration-fix pass when the sandbox cannot run them (the `test-harness` skill).>
 
 ## Needs a person
 

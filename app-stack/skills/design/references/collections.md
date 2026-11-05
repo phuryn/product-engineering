@@ -8,7 +8,7 @@ Six collections, each with a stage where it leads (`SKILL.md § Which collection
 
 **Over all of them: the kit binds and the collections advise.** A suggestion reaches code only as a token or a primitive in the kit, recorded in the kit README. Where a collection disagrees with `method.md`, the method wins. Where two collections disagree, § Where they disagree says which side this skill takes.
 
-The three third-party collections were read at their source on `2026-10-22`. Paths in brackets are inside each repository, so a claim can be checked. They change often, so re-read one before relying on a detail that matters.
+The collections were rechecked at their source on `2026-11-05`: Taste 2.5.0, Impeccable `c8891a9a`, UI/UX Pro Max `b7d5353`, and the installed official `frontend-design` plugin. Taste's app-screen checklist below preserves its last app chapter at `939b564`; the current release removed that run. Paths in brackets are inside each repository, so a claim can be checked. They change often, so re-read one before relying on a detail that matters.
 
 ## `frontend-design` (Anthropic): direction, always on
 
@@ -41,6 +41,7 @@ The three third-party collections were read at their source on `2026-10-22`. Pat
 - **Restraint.** Spend boldness in one place, and remove one accessory before calling it done.
 - **Words.**
   - Name things in the person's terms, not the system's.
+  - Legible to new users beats clever.
   - Use active voice, and make a button say what happens.
   - An action keeps its name through the flow ("Publish" → "Published").
   - An error says what happened and how to fix it, and never apologises.
@@ -60,7 +61,7 @@ The three third-party collections were read at their source on `2026-10-22`. Pat
 
 A Python script queries it and can also generate a whole design system. ([nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill), MIT.)
 
-**It leads when a decision needs options to choose between.** Examples: a palette for a second direction, a chart for a kind of data, or a stack's form-validation convention. Take the pick into the kit by hand. Its pre-delivery checklist is a quick pass before Impeccable's audit.
+**It leads when a decision needs options to choose between.** Examples: a palette for a second direction, a chart for a kind of data, or a stack's form-validation convention. Take the pick into the kit by hand. For web work, use `references/quick-reference.md` §1 Accessibility, §2 Touch & Interaction, §3 Performance, §8 Forms & Feedback and §9 Navigation Patterns before Impeccable's audit. Its pre-delivery checklist in `references/pro-rules.md` is native/mobile only (read `2026-11-05`).
 
 **Take** (its `references/quick-reference.md`, `data/ux-guidelines.csv`, `data/stacks/html-tailwind.csv`):
 - **Contrast and touch.**
@@ -77,6 +78,9 @@ A Python script queries it and can also generate a whole design system. ([nextle
   - An error sits below its field, linked with `aria-describedby`.
   - After a failed submit, focus goes to a linked error summary while the inline errors stay.
   - Validate on blur, not on every keystroke.
+  - Helper text explains a field before an error is made.
+  - Multi-step forms show progress and a way back or out; keep what was entered so nobody enters it twice (WCAG 2.2 A, redundant entry).
+  - Autosave long forms and restore drafts after interruption.
   - An error names the cause and the fix.
   - Read-only looks different from disabled.
   - Bulk deletes can be undone.
@@ -95,6 +99,7 @@ A Python script queries it and can also generate a whole design system. ([nextle
   - After a route change, focus moves to the main content.
   - Destructive items sit apart from the rest.
   - An unavailable destination says why instead of disappearing.
+  - Onboarding is skippable (`data/ux-guidelines.csv`, row 88).
 - **Charts.**
   - A table alternative.
   - No pie above five categories.
@@ -120,10 +125,12 @@ A Python script queries it and can also generate a whole design system. ([nextle
   - `brand`, which writes brand docs and design-token files;
   - `design-system`, which downloads stock images;
   - `design`, which generates logos through external image APIs and tells the agent to fix failing scripts itself;
-  - `ui-styling`, which ships shadcn scripts and fonts.
+  - `ui-styling`, which ships shadcn scripts and fonts;
+  - `banner-design` and `slides`, which are outside app-screen work.
 
   Use only `ui-ux-pro-max`.
-- **Its generated palettes are raw hex** and its product profiles are generic. For example, "SaaS" maps to glassmorphism, which the other two collections ban. Treat a palette as a candidate to measure with `scripts/color.py`, never a decision.
+- **Its generated palettes are raw hex** and its product profiles are generic. For example, "SaaS" maps to glassmorphism, which the other two collections ban; AI/Chatbot defaults to a violet primary (`#7C3AED`, read `2026-11-05`), not a choice for this product. Treat a palette as a candidate to measure with `scripts/color.py`, never a decision.
+- **`stack/.mcp.json` starts three MCP servers at `@latest`**: `@playwright/mcp`, `chrome-devtools-mcp` and `shadcn` (read `2026-11-05`). A catalogue lookup needs none of them; do not import its stack configuration.
 - **Its truncation rules:** ellipsis with a tooltip, `truncate`, `line-clamp`. The method refuses them; keep its wrapping rules, which match ours.
 - **`references/pro-rules.md`** is scoped to native mobile apps by its own notice.
 
@@ -136,20 +143,15 @@ A Python script queries it and can also generate a whole design system. ([nextle
 
 It needs Python 3 (standard library only), and the search makes no network calls.
 
-## Taste (`design-taste-frontend`): screens people work in
+## Taste: the app-screen checklist
 
-**What it is.** Art direction against the average generated screen. It has:
-- a house style that bans the common tells;
-- a script that deals researched directions;
-- a real-browser inspector;
-- a screenshot-critique loop;
-- a chapter for app screens drawn from 23 measured product screens.
+**What it is.** This checklist distils Taste's last [app-screen chapter at `939b564`](https://github.com/Leonxlnx/taste-skill/blob/939b564/skills/taste-skill/references/app-screens.md) (`2026-10-31`, MIT), drawn from 23 measured product screens. Taste 2.5.0 and later is a page system for company websites; 2.5.0 removed the chapter and the old draw, assets, lint, inspect and scenes pipeline (read `2026-11-05`). Its current run and its `motion.md`, `icons.md` and `system.md` are page rules, not app-screen guidance.
 
-([Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill), MIT.)
+**This checklist leads on screens people work in:** dashboards, admin, tables and lists, settings. Run it here; it needs no Taste install or scripts. With a kit in place, the kit is the style. (`2026-11-03`, an evals product: this distillation had kept the restraint and dropped the counterweights; its owner called the result "like a database".)
 
-**It leads on screens people work in:** dashboards, admin, tables and lists, settings. Use its app-screen run (`skills/taste-skill/references/app-screens.md`), not its page run. With a kit in place, run its draw with `--keep palette,type`: the kit is the style.
-
-**Take** (`app-screens.md` unless named):
+**Take** (the preserved app chapter unless named):
+- **Quiet is the starting point, not the goal.** Show the product's people, objects, numbers and the one thing to do next.
+- **Give the product a face.** Choose it before building and check it on the first screenshot: its mark and name in the shell, one element only this product has, its chart hue on the main data element, its people and objects as themselves, and words of the trade rather than "Items", "Records" or "Status".
 - **The screen's one question.**
   - Write it in one line. The biggest block answers it, and the largest figure answers the title row's sentence.
   - The screen's one finding goes under the title.
@@ -160,6 +162,7 @@ It needs Python 3 (standard library only), and the search makes no network calls
   - A change is the difference of the two values as displayed.
   - Every relative figure names its baseline ("vs prior 30 days").
   - A fact shown twice is one variable (the method's *one function per state summary*).
+  - Show the evidence beside the answer: a figure with one line on the event behind it.
   - No lorem, "Acme" or vanity totals.
 - **Shell.**
   - Product mark and name at the top, with the workspace as a switcher.
@@ -174,6 +177,7 @@ It needs Python 3 (standard library only), and the search makes no network calls
   - Column count follows item count: no orphan cells, no stretched empty cards.
   - Narrow tables (five columns or fewer) run about 760px wide, not the full canvas.
   - One h1, a noun rather than a greeting.
+  - Choose a density band: sparse 6–25 data points, medium 25–50, dense about 120. Row pitch, padding and type size move together.
 - **Counts and KPIs.**
   - One container split by 1px dividers beats separate tiles. No icon circles.
   - The answer figure is at least 1.3× its siblings.
@@ -203,6 +207,7 @@ It needs Python 3 (standard library only), and the search makes no network calls
   - A disabled control stays legible and says why.
   - Destructive actions go last, in their own section, naming the object.
   - One save model per view.
+  - Show what a setting produces beside its control: the invite email or the notification as it will arrive.
 - **Type and colour.**
   - Check that `tabular-nums` really changes the face's digit widths.
   - Every text tier, placeholders included, reaches 4.5:1.
@@ -212,6 +217,8 @@ It needs Python 3 (standard library only), and the search makes no network calls
   - Loading is the final layout, with flat placeholders at their real size and no layout shift.
   - An error stays inside the block that failed, says when the data was last good, and offers Retry.
   - An empty block keeps its frame and header, with one sentence across it.
+  - First run keeps the frame and title, puts the first action where the data will appear, and shows a setup progress strip at its true percentage when there are steps.
+  - An empty side card fills with reference data, such as last week's figures under "nothing yet today".
 - **Phone.**
   - A sidebar wider than 30% of the phone fails. Navigation folds into a top bar with a sheet, or a bottom bar of 4–5 items.
   - Below about 640px, a table becomes two-line rows: fields move to line 2 and are never dropped. Or it scrolls inside its own frame with the first column fixed.
@@ -220,7 +227,7 @@ It needs Python 3 (standard library only), and the search makes no network calls
   2. Answer in writing:
      - Is the biggest thing the answer?
      - Do the edges line up?
-     - Is colour only on data and status?
+     - Is colour only on data, status and the one primary action? Does the face you chose show on the first screen?
      - Do the numbers add up and align?
      - Do zeros and dashes read right?
      - Do legend swatches match their marks?
@@ -230,31 +237,22 @@ It needs Python 3 (standard library only), and the search makes no network calls
   Three rounds at most. "If a problem shows in a screenshot, it is real, whatever the code says."
 
 **Keep out:**
-- **Its page run**: four real pictures, a floor of eight moving elements, image-archive searches, and half an hour and hundreds of thousands of tokens per build.
-- **Its files and tokens.**
-  - Don't copy in `assets/app.css`, `base.css` or the scene files. They bring a second token vocabulary.
-  - Keep `.taste-skill/` (working files and screenshots) out of commits.
-  - `assets.mjs --get` downloads images into `assets/`.
-- **Its truncation** (§7.4: ellipsis on one line, IDs cut to about 8 characters). The method refuses it.
-- **Its bans that its author labels taste, not evidence** (`SKILL.md`, "Why these, honestly"): violet and indigo, monospace, hairlines, index numbers. The method has its own rules for mono and numbering; the rest is the product's call.
+- **Its current company-page run**, including its motion, icons and system chapters. It does not replace this app checklist.
+- **Its files and tokens.** Do not copy a second token vocabulary or working files into the product; take a useful choice into its kit.
+- **The old chapter's truncation** (§7.4: ellipsis on one line, IDs cut to about 8 characters). The method refuses it.
+- **The old run's bans labelled taste, not evidence** ("Why these, honestly"): violet and indigo, monospace, hairlines, index numbers. The method has its own rules for mono and numbering; the rest is the product's call.
 - **"A border or a shadow, never both."** That's taste. The owner approved a faint resting shadow under bordered panels for a monitoring product (`2026-10-22`), as Supabase does.
 - **"Toggle on is green or near-black."** On a product whose job is to report health, green is a state, so a toggle is never green there (the method: action and state never share a colour).
 
-**Get it:**
-
-```
-npx skills add https://github.com/Leonxlnx/taste-skill --skill "design-taste-frontend"
-```
-
-Or use its Claude Code or Codex plugin. Its inspector needs Node 22+ and an installed Chrome, Edge or Chromium; its other scripts need Node 18+. It needs no API keys and no hooks, and goes on the network only for pictures.
+**Get it.** For app screens, use the checklist above and its pinned source; a fresh install no longer supplies the app run. For company websites, follow [Taste's current README](https://github.com/Leonxlnx/taste-skill) (read `2026-11-05`).
 
 ## Impeccable: audit and harden before it ships
 
-**What it is.** One skill with 24 commands, backed by a 61-rule deterministic detector that also runs as an edit hook. ([pbakaus/impeccable](https://github.com/pbakaus/impeccable), Apache-2.0.)
+**What it is.** One skill with commands, backed by a deterministic detector with several dozen rules that also runs as an edit hook (registry read `2026-11-05`). ([pbakaus/impeccable](https://github.com/pbakaus/impeccable), Apache-2.0.)
 
 **It leads on a screen that works, before the release.** Run its audit, then harden, then polish, and fix what it finds inside the kit.
 
-**Take:**
+**Take** (paths under its `skill/` folder):
 - **The audit** (`reference/audit.md`).
   - Five dimensions, each scored 0–4:
     - accessibility;
@@ -265,9 +263,10 @@ Or use its Claude Code or Codex plugin. Its inspector needs Node 22+ and an inst
   - Bands out of 20: 18+ excellent, 14+ good, 10+ acceptable, 6+ poor, below 6 critical.
   - Every finding names its severity, its location (`file:line`), its impact, the standard it breaks and the fix.
   - Never report a finding you haven't verified.
+  - Record the scores and fix P0 and P1 before the stage's owner preview; rescore after the fixes.
 - **Severity for design findings.**
   - **P0** blocks the task: fix now.
-  - **P1** causes significant difficulty or breaks WCAG AA: fix before release.
+  - **P1** causes significant difficulty or breaks WCAG AA: fix before the stage's owner preview.
   - **P2** is an annoyance with a workaround: fix next pass.
   - **P3** is polish.
 
@@ -275,7 +274,8 @@ Or use its Claude Code or Codex plugin. Its inspector needs Node 22+ and an inst
 - **The critique** (`reference/critique.md`).
   - Nielsen's ten heuristics, each 0–4. Most real interfaces score 20–32 of 40.
   - At most four visible options at a decision point.
-  - Personas for dashboards: the impatient power user and the screen-reader-and-keyboard user.
+  - Pick personas from its table: dashboards/admin → Alex (power user), Sam (accessibility); onboarding → Jordan (first-timer), Casey (distracted mobile user); forms/wizards → Jordan, Sam, Casey. Walk the primary action as each, naming the controls that fail them.
+  - Cognitive load: check single focus, chunks of at most four, related items grouped, clear hierarchy, one decision at a time, at most four visible options, no recall from a previous screen, and complexity revealed when needed. Count failures: 0–1 low, 2–3 moderate, 4+ critical.
   - The critique is written before any detector output is read, the same unsteered principle as the code review.
 - **Harden** (`reference/harden.md`).
   - Test inputs:
@@ -304,6 +304,7 @@ Or use its Claude Code or Codex plugin. Its inspector needs Node 22+ and an inst
   - "Promote genuinely reusable values to tokens; do not create a system abstraction for one local exception."
   - End by reading your own diff for churn and leftovers.
 - **The craft floor** (`reference/craft-floor.md`).
+  - Real illustration or none.
   - Body and placeholder text at 4.5:1.
   - On a coloured surface, tint secondary text from the surface's hue, never plain grey.
   - More space above a heading than below it.
@@ -316,6 +317,7 @@ Or use its Claude Code or Codex plugin. Its inspector needs Node 22+ and an inst
     - decorative glass;
     - sparklines standing in for content;
     - emoji or glyphs as icons;
+    - monospace worn as a "technical" costume rather than for code, data or measurement (the method is stricter: mono is for code);
     - a modal for a task that needs neither interruption nor protected focus.
 - **App screens** (`reference/operate.md`).
   - A fixed rem type scale, not a fluid `clamp()`.
@@ -327,6 +329,9 @@ Or use its Claude Code or Codex plugin. Its inspector needs Node 22+ and an inst
   - An error says what failed, why when known, and how to recover. No internal codes as the message.
   - A confirmation names its action, never Yes, OK or Submit; prefer undo where recovery is safe.
   - Empty states tell apart first use, no results, filtered out, no permission and failure.
+- **Onboarding** (`reference/onboard.md`).
+  - Teach at the point of use, let experienced users skip, and make empty states teach the first action.
+  - Use an inline sentence or native `<details>` in place of its tooltips; the method refuses tooltips.
 - **Detector rules worth checking by hand:**
   - side tabs;
   - nested cards;
@@ -337,7 +342,7 @@ Or use its Claude Code or Codex plugin. Its inspector needs Node 22+ and an inst
   - skipped heading levels;
   - text under 12px;
   - tracking over 0.05em on body text;
-  - the same text repeated across containers.
+  - the same literal text three or more times inside one card or panel (`repeated-container-text`).
 
 **Keep out:**
 - **Its hooks.** `npx impeccable install` adds edit and stop hooks to `.claude/settings.local.json`, `.codex/hooks.json` and other harnesses' files. Its README warns that Claude Code hooks "run independently of model-tool approval". Its launcher fetches a pinned binary into `~/.impeccable/bin/` on first use.
@@ -345,7 +350,7 @@ Or use its Claude Code or Codex plugin. Its inspector needs Node 22+ and an inst
 - **Network and telemetry.** Starting a new design always asks its roll API at impeccable.style. Telemetry is on unless you opt out: `DO_NOT_TRACK=1`, `IMPECCABLE_NO_TELEMETRY=1`, or `"telemetry": false` in `.impeccable/config.json`.
 - **Live mode,** which runs a `package.json` script in a shell.
 - **Its truncation recipes** (`.truncate`, `-webkit-line-clamp`, the first in `harden.md`). The method refuses them: text a person typed wraps.
-- **Its allowance for "a coloured rail or header, a tinted ground"** (`mode-operate.md`). It contradicts its own `operate.md` and the method's *the accent acts*.
+- **Its allowance for "a coloured rail or header"** (`reference/mode-operate.md`, read `2026-11-05`). The method keeps chrome neutral and the accent on actions. A tinted ground is allowed when it carries neither action nor state colour.
 
 **Get it.** Its install adds the hooks above, which is the owner's call on each machine. Without it, the checklists above are the audit: read its `reference/` files for the full text.
 
@@ -376,7 +381,7 @@ Its non-negotiables:
 
 ## `artifact-design` (built into Claude Code): pages published as claude.ai artifacts
 
-**It leads only for a page published as an artifact**, such as a review's specimens or a report for the owner. Never for the product's own UI, which the product's kit governs.
+**It leads only for a page published as an artifact**, such as a review's specimens or a report for the owner. An artifact that mocks a product screen loads and composes the product's kit and satisfies the method (`SKILL.md § What binds`).
 
 ## Where they disagree, and the side this skill takes
 
@@ -387,6 +392,8 @@ Its non-negotiables:
 | Truncation | all three offer ellipsis or line-clamp | refused: text a person typed wraps, and the kit test refuses truncation (method) |
 | Dark neutrals | Taste: true neutral; Impeccable: always tinted | the kit decides, measured with `scripts/color.py`, recorded in the kit README |
 | Fonts | Impeccable flags Inter, Roboto and Geist; Taste defaults to Inter | the kit decides; `frontend-design`'s *choose deliberately* applies |
+| Illustration | Impeccable wants it in empty states; the preserved Taste app chapter bans it | the owner decides from specimens in the kit; real illustration or none |
+| Step numbers | the preserved Taste app chapter bans index numbers | allowed for a real sequence or rank, never decoration (method) |
 | Loading | Pro Max allows shimmer; Taste doesn't | placeholders at real size with no layout shift (all three agree); shimmer is taste, and honours reduced motion if used |
 | Widths | Pro Max 375/768/1024/1440; Taste 390/768/1440; Impeccable 640/768/1024 | the product's capture and assertion widths (`screens.md § What to verify visually`); theirs are advice |
 | Severity | three different scales | Impeccable's P0–P3 for design findings; code keeps the review's own |

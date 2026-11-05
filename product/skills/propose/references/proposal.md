@@ -50,6 +50,8 @@ The weakest consequential assumption: <ID>, because if it is wrong <what changes
 
 ## Jobs map
 
+<When the product implements a published method, put its ordered steps with a source per step before the use cases. Name the authority and the simplification as the owner chose them. The use cases follow that order, starting with what a new user does first, checked against the authority.>
+
 | Job, in the user's words | Screen | Its one question | Primary action |
 |---|---|---|---|
 | <answer what people upvoted most> | <the host's room> | <what should I answer next?> | <mark it answered> |

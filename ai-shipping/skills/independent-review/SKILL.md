@@ -272,7 +272,9 @@ Five parts, in this order. Anything else is steering.
 3. **The usage model**, so it can calibrate severity — who is on which surface, how many, at what
    moment. Say what stays serious however exotic the trigger (for most products: another tenant's
    data, private data on a public surface, a lost or duplicated write, anonymous access to a member
-   capability) and what does not block (cosmetic divergence the next refresh fixes).
+   capability) and what does not block (cosmetic divergence the next refresh fixes). When the product
+   hides information from its own users, say who it hides it from and why, what an honest user could
+   expose accidentally, and what requires deliberately defeating their own measurement (§ Triage).
 4. **The job.** Find what would block or break this release. Label every finding **INTRODUCED** or
    **PRE-EXISTING**. Require each one to state **the literal sequence that triggers it and who
    performs it** — a finding that cannot name its trigger usually has none, and demanding it makes
@@ -325,7 +327,11 @@ findings in one review came from a single wrong assumption about the product.
 **Rank by what it costs this product, not by where it sits in the list.** Read both user and
 business impact: ask who sees it, how many, at what moment. A widely seen instruction failing at a
 critical moment can cost more than its mechanism suggests; a recoverable flow one admin meets once
-can cost less than its label.
+can cost less than its label. For a rule that hides information from the person using the product,
+grade further probes by what goes wrong for an honest user. A probe usable only by someone deliberately
+defeating their own measurement, hiding information from themselves and then seeking it out, is Low.
+(`2026-11-04`, an evals product: rounds 27–29 each rated another way to distinguish held-out labels
+High; two cycles of patches opened the next probe before one simpler rule removed the surface.)
 
 **A fix has a price, and the price compounds.** This question gets skipped because a confirmed
 defect feels like a task rather than a decision. The tell that a loop has gone too far is **rounds

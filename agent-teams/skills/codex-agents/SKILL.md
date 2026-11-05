@@ -81,6 +81,8 @@ A brief that sends it to another repository for prior art says to read the files
 
 **A build that adds or changes screens names the design skill, `$app-stack:design`,** and carries its rows of the jobs map. Codex loads a skill only from a pack installed in Codex, so before the first such brief, `codex plugin list` shows `app-stack@product-engineering` installed and enabled; if it doesn't, install it (`codex plugin marketplace add phuryn/product-engineering`, then `codex plugin add app-stack@product-engineering`). (`2026-11-03`, an evals product: Codex, with no pack installed, built screens without the method, and the owner's click-through found five layout bugs. Once the pack was installed, a headless `codex exec` loaded `$app-stack:design`, codex-cli 0.166.0.)
 
+**A build brief budgets integration tests against the real database**, including the session agent's integration-fix pass when the sandbox cannot run them: apply the `test-harness` skill's round-trip budget (§ Tests and docs are part of the change). State the target's measured latency and which checks the session agent runs.
+
 ## Follow-up turns — conversational, short, peer-to-peer
 
 React like a colleague. Agree where it's right, push back where it's wrong, ask why where it's surprising, name what you notice it missed. Don't re-package the goal as a new structured prompt. Don't number your points.

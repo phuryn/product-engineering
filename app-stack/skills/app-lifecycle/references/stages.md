@@ -37,8 +37,8 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 - **One file that opens in a browser with no build and no server.** It walks the brief's use cases with realistic fake content.
 - **A panel of the options to compare** — every open decision a screen can show, and any others you see — so the owner switches between them while clicking.
 - **Show the behaviour a screen hides.** Where it matters, a second panel shows, as the owner clicks, which actor may do what and what is refused — and, if the product embeds agents, which agent answers and which tool call would be allowed or refused.
-- **Stop when it opens; the owner picks.** Record each pick with its options, the pick, why, and its reopen trigger; update the product section and brief where a pick changes them.
-- **The prototype is for deciding, not building.** It lives in its own folder (`design/prototype/`, say), and the app never imports anything from it. The next stage designs the kit from the picks.
+- **Before the owner sees it, screenshot it and check it against the design method** (the `design` skill); **then stop; the owner picks.** Record each pick with its options, the pick, why, and its reopen trigger; update the product section and brief where a pick changes them.
+- **The prototype is a high-fidelity screen under the design method.** It lives in its own folder (`design/prototype/`, say), loads and composes an existing kit's CSS rather than imitating it, or, for a new product, keeps its values in tokens; the app never imports anything from it. The next stage designs the kit from the picks.
 
 **Skip it** when nothing is open that a screen would settle.
 
@@ -50,7 +50,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 
 **Produces:** the jobs map (the `design` skill: each job in the user's words, its screen, that screen's one question and its primary action); the kit — tokens, primitives, and the kit's README (what it contains and why) — and artboards for the first screens, kept in the repository. Either two directions to pick from, or an existing design adopted. No code, no database, no `.env`.
 
-**Done when:** the owner has picked a direction or adopted one, the kit, its README and the artboards are in the repository, every agent that will build screens loads the `design` skill from `app-stack` installed in it (Codex too: `codex plugin list` shows the pack installed and enabled), with no copy of the skill in the repository, and **every raw value lives in the tokens and none in the kit's stylesheet** — so the kit tests the next stage adds have something to hold.
+**Done when:** the owner has picked a direction or adopted one, the kit, its README and the artboards are in the repository, every agent that will build screens loads the `design` skill from `app-stack` installed in it (Codex too: `codex plugin list` shows the pack installed and enabled), with no copy of the skill in the repository, and **every raw value lives in the tokens and none in the kit's stylesheet**, with the method's kit floor held by a token-name test before any screen is built.
 
 **Doing it well**
 
@@ -62,7 +62,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 - After the pick: build the kit, rebuild the two screens from it, keep the artboards, commit, and stop again.
 - Layout, copy, type, colour and what the kit contains are the agent's to propose. Real copy, an icon set, phone-first.
 - If a prototype ran, its picks bind both directions.
-- **Or adopt an existing design** when the product must match something that already exists (another site, a sibling product). There are no directions to invent: extract its colours, type, spacing, radii and motion as tokens, its layout and components as primitives, and say in the kit's README what came from where. **Where the source breaks a rule of the design method — a contrast floor, a raw value outside the tokens — keep the rule and say what you changed.**
+- **Or adopt an existing design** when the product must match something that already exists (another site, a sibling product). There are no directions to invent: extract its colours, type, spacing, radii and motion as tokens, its layout and components as primitives, and say in the kit's README what came from where. Keeping brand colours still runs the kit stage and completes the method's kit floor before screens. **Where the source breaks a rule of the design method — a contrast floor, a raw value outside the tokens — keep the rule and say what you changed.**
 
 **How:** the `design` skill — its method is what the kit must satisfy, and it says which design skill leads at this stage.
 
@@ -72,7 +72,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 
 **Produces:** the approved design as a running app — the first screens, with realistic content and their empty states — built from the kit, with sample data behind the seams the real system will use. The member's main screen sits at its own route, the **member home**, never at `/`. No database, no sign-in.
 
-**Done when:** a newcomer walkthrough has explained every screen (the `design` skill), then the owner has clicked through every screen state at phone and desktop width and what they asked for is in; the kit tests pass; nothing anywhere asks anyone to sign in.
+**Done when:** the newcomer walkthrough, rendered-screen pass, app-screen screenshot critique at 1440/768/390 (three rounds at most), and scored Impeccable-style audit passed with P0 and P1 fixed (the `design` skill; its local checklists work without the collections), then the owner approved the look and clicked through every screen state at phone and desktop width and what they asked for is in; the kit tests pass; nothing anywhere asks anyone to sign in.
 
 **Doing it well**
 
@@ -83,7 +83,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 - **Scaffold the app with Cache Components off.** `create-next-app` 16.4.3 turns `cacheComponents` and `partialPrefetching` on by default (read `2026-11-02` in the package), and the rules on this stack assume both off: the nonce CSP, `force-dynamic` on every live read, the server-read theme. Pass `--no-cache-components`, check that `next.config` has neither line, and pin it with a source guard (`test-harness`) until those rules have a Cache Components version. (`2026-10-31`, an evals product's fresh app had both on.)
 - Compose every screen from the kit; extend a primitive rather than invent one. Public screens are phone-first.
 - **A phone is a phone-sized viewport, not a resized window** — the `test-harness` skill says why.
-- Plan briefly, build, commit and run it; then the newcomer walkthrough and the rendered-screen pass (the `design` skill), and only then give the owner the URL and what they can click. Then stop.
+- Plan briefly, build, commit and run it; then the `design` skill's walkthrough, rendered pass, screenshot critique and scored audit with P0 and P1 fixed, and only then give the owner the URL for the look review and what they can click. Then stop.
 - **The owner adjusts here, before setup**, as a flat list of what should happen: a screen is cheapest to change while nothing real is behind it.
 
 **How:** the `design` skill; the `test-harness` skill for the kit tests and viewports.

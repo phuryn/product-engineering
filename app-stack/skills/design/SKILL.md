@@ -10,7 +10,7 @@ One skill for the whole of a product's look: the rules, which outside skill to u
 ## What binds, in order
 
 1. **The owner's words.** Taste, and any change to a written rule, is the owner's call. Put each visual question to them as specimens built in the product's real tokens, side by side, never described in words. `references/review.md` says how to sort a fix from an owner's call.
-2. **The method** (`references/method.md`). Every kit and every screen satisfies it. A product departs from a rule only by the owner's decision, recorded in its kit README with the reason.
+2. **The method** (`references/method.md`). Every kit and every screen satisfies it. A mock, prototype or artifact of a screen is high fidelity too: read the method, load the existing kit's CSS and compose it rather than imitate it, and check a screenshot against the method before the owner sees it. A product departs from a rule only by the owner's decision, recorded in its kit README with the reason. (`2026-11-03`, an evals product's artifact imitated its kit, invented borderless buttons and misaligned chips; its builder had read this page but never the method.)
 3. **The product's kit**, three files wherever the product keeps them (often a `design/` folder): `tokens.css`, every raw value (colour, type, space, radius, duration); `kit.css`, the primitives, built from tokens only; and the **kit README**, the product's own design document: its direction, palette, type, layout and button roles, each with its reason, and every departure from the method. Screens compose the kit; a screen never invents a style.
 4. **The collections advise** (`references/collections.md`). A suggestion reaches code only as a token or a primitive in the kit, recorded in the kit README. Where a collection disagrees with the method, the method wins.
 
@@ -27,22 +27,28 @@ Before a screen is drawn, a builder's included, work out what people come to do:
 - **The example data fills every screen**, every tab included, so a click-through never meets an empty one; the empty states are shown on purpose, beside it.
 - (`2026-11-03`, an evals product: its screens mirrored its tables and its method's vocabulary, and someone who knew the tool it replaced couldn't follow the process. The owner: "super technical, like a database".)
 
-## A stage with screens is done only after a newcomer walkthrough
+## A stage with screens is done only after the visual checks
 
-Before the owner's click-through, someone new to the domain says, for each screen, what it is for and what to press next, unaided: a fresh session given only the running app and the user's job, never the brief or the code, or a person. A screen it can't explain, or a next step it can't find, is fixed first. Then the rendered-screen pass: every screen captured and checked against `references/screens.md § What to verify visually`. (`2026-11-03`, an evals product: the design stage was skipped by a recorded decision, nothing brought it back, no screen was rendered and checked, and the owner's click-through found five layout bugs, most of them rules the method already had.)
+**Before the owner's click-through:** the newcomer walkthrough below; the rendered-screen pass against `references/screens.md § What to verify visually`; the app-screen screenshot critique at 1440, 768 and 390, three rounds at most; and the scored Impeccable-style audit, with its P0 and P1 findings fixed. Both critique and audit are runnable from the checklists in `references/collections.md` without installing the collections. The owner then judges the look (`references/review.md`). (`2026-11-05`, an evals product passed the walkthrough and rendered pass but ran neither critique nor audit nor owner look review: control borders measured 1.61:1 against the method's 3:1, and the loudest colour on every healthy screen said *press* three or four times.)
+
+(`2026-11-03`, an evals product: the design stage was skipped by a recorded decision, nothing brought it back, no screen was rendered and checked, and the owner's click-through found five layout bugs, most of them rules the method already had.)
+
+### The newcomer walkthrough
+
+**Give a fresh session only the ordered screenshots and the user's job**, never the brief or the code, or ask a person new to the domain. Ask the same questions for every screen: what is it for, what would you press next, and what is unclear? Fix any screen it cannot explain or next step it cannot find. Capture every route and every dialog with a Playwright crawl at 1280 and 390; crop pages taller than about 3,000px into ordered parts so the reviewer can read them without downscaling. For Clerk's test-user sign-in recipe, apply the `clerk-production` skill (`references/authenticated-mile.md`); other providers use their development test sessions. (`2026-11-04`, an evals product: a fresh `claude -p` session using this recipe found in about 20 minutes that no screen said how often each failure happened, a gap three review rounds missed.)
 
 ## Which collection leads, stage by stage
 
 | Stage | Leads | Take | Keep out |
 |---|---|---|---|
 | **The jobs.** Before any screen | this skill, § Before any screen | the jobs map; the data rules kept out of the copy | a screen per table |
-| **Direction.** No look yet; the look is the problem; a public page whose job is to persuade | `frontend-design` (always on) | a direction grounded in the product's subject; a plan (palette, type, layout, principles) checked against the generic defaults before anything is built | a new direction per screen. Once one is picked, it stops leading |
+| **Direction.** No look yet; the look is the problem; a public page whose job is to persuade | `frontend-design` (always on) | a direction grounded in the product's subject; a plan (palette, type, layout, principles) checked against the generic defaults before anything is built; keeping brand colours still runs the kit stage | a new direction per screen. Once one is picked, it stops leading |
 | **A choice between options.** A palette, a font pairing, a chart type, a stack's convention | UI/UX Pro Max | candidates to choose from. The pick goes into the kit by hand | its persisted design-system files and its installer: a second design system beside the kit |
 | **The kit** | the method, with `frontend-design`'s plan | tokens and primitives that satisfy every rule in `method.md`, each held by a test where one can be written | anything a collection proposes that the method forbids |
-| **Screens people work in.** Dashboards, admin, tables, settings | Taste (`design-taste-frontend`), its app-screen run | the screen's one question; every block's empty, zero, loading and error state; colour only on data, status and the one primary action; its screenshot critique, three rounds at most | its page run, and its palette and type when a kit exists |
+| **Screens people work in.** Dashboards, admin, tables, settings | the app-screen checklist in `references/collections.md § Taste`, distilled from its last upstream app chapter | the screen's one question and face; every block's empty, zero, loading and error state; colour only on data, status and the one primary action; its screenshot critique, three rounds at most | Taste's current company-page system, and its palette and type when a kit exists |
 | **Charts** | `dataviz` (built in) | form first, colour last; its palette validator; one axis; hover by default | state colours reused as series colours |
 | **What a screen says** | `references/screens.md § What a screen may claim`, and `frontend-design`'s section on writing | sentences only as true as what the renderer is handed; one function for every summary of a state | — |
-| **Before it ships** | `references/screens.md § What to verify visually`, then Impeccable | every width, state, theme and role; Pro Max's pre-delivery checklist as a quick pass; Impeccable's audit, hardening and polish | Impeccable's commands that write their own design documents, and any redesign through it; ellipsis for text a person typed |
+| **Before it ships** | `references/screens.md § What to verify visually`, then Impeccable | every width, state, theme and role; Pro Max's web checks (`quick-reference.md` §1–3, §8, §9) as a quick pass; Impeccable's audit, hardening and polish | Pro Max's native/mobile pre-delivery checklist for web work; Impeccable's commands that write their own design documents, and any redesign through it; ellipsis for text a person typed |
 | **The owner judges the look** | `references/review.md` | measured claims, before/after specimens in the real tokens, fixes split from the owner's calls | opinions without numbers |
 | **A page published as a claude.ai artifact** | `artifact-design` (built in) | its page contract and both themes | — |
 
@@ -65,7 +71,7 @@ Before the owner's click-through, someone new to the domain says, for each scree
 
 ## How you can tell it worked
 
-Every screen answers a job on the map and passed a newcomer walkthrough; the owner looked at the screens at phone and desktop width and approved them; and every colour, size and spacing value on them comes from the tokens.
+Every screen answers a job on the map and passed the walkthrough, rendered pass, screenshot critique and scored audit with no open P0 or P1; the owner approved its look at phone and desktop width; and every raw style value comes from the tokens.
 
 ## When something is learned
 

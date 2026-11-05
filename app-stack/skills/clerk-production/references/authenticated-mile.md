@@ -18,6 +18,7 @@ The harness design is `test-harness`: what each harness makes real, the separate
 - `globalSetup`, organization shape
 - `globalSetup`, individual shape
 - Signing in
+- Signing in for screen captures
 - Locators
 - Rules that came from bugs
 - Done when
@@ -73,6 +74,10 @@ There is no organization, no task to land past and no second-role membership.
   - signing in lands on the member home directly;
   - a signed-in visit to `/` stays on `/`;
   - a signed-out request to the member home lands on `/sign-in` with a `redirect_url` (`sessions-and-front-door.md`).
+
+## Signing in for screen captures
+
+**A sign-in token gets a capture crawl into a development test account.** With that instance's secret key, call Clerk's Backend API `POST /v1/sign_in_tokens` with the test user's `user_id`, then open the app's sign-in URL with `?__clerk_ticket=<token>` in Playwright. Wait for Clerk to load and any required organization task to finish before capturing. This complements the testing token and test accounts above; the authenticated suite still exercises `<SignIn />`. (`2026-11-04`, observed on an evals product: this signed-in capture path enabled the newcomer walkthrough of every route and dialog.)
 
 ## Locators
 
