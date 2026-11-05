@@ -101,3 +101,11 @@ Each entry: the date, the request, **rejected** or **deferred**, the reason, the
 - **Reason:** each was learned once, on one product, and lives in that product's own docs; a general rule written from one case would be guesswork. What was general from the same rounds went in: the stopping rule's pause for a surface that keeps drawing Highs (then `grok-agents`, `independent-review` since `2026-11-02`), and brief rules for decisions a builder raises (`delegation`).
 - **Reopen when:** a second product meets the same problem.
 - **Decided by:** the agent, on the owner's "implement the rest according to your judgement" (`2026-11-02`).
+
+## Pinning the collection to a version
+
+- **2026-11-05 · rejected.**
+- **Request:** let a product lock the installed packs to one version (a tag, a commit or a lock file), so the method can't change under it in the middle of a stage.
+- **Reason:** the packs are installed in every agent and update themselves, and a product keeps no copy of them; a pinned pack is the frozen copy by another name, missing every fix released after it. What a product records instead is which packs each agent has installed (the `agent-instructions` skill), because a builder without them works without the method. A third-party skill a skill tells you to install (a vendor's own, through `npx skills`) may still be locked by its lock file; that is the vendor's version, not this collection's.
+- **Evidence:** `2026-11-03`, an evals product: a copy of `design` taken weeks earlier had frozen the method while the pack moved three versions in four days, and its builder, with no pack installed, built screens without the method.
+- **Decided by:** the owner ("I don't want people to pin our skills collection").
