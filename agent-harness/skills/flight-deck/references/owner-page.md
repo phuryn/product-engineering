@@ -4,7 +4,7 @@
 
 ## The data
 
-The page (`assets/owner-page.html`) renders three things from its database and nothing else.
+The page (`assets/owner-page.html`) renders status documents, owner items and saved answers from its database and nothing else.
 
 **`status/current`**: one document, written by the agent, a projection of `STATUS.md`.
 
@@ -28,10 +28,57 @@ The page (`assets/owner-page.html`) renders three things from its database and n
 
 Only `phase` is needed. `percent` draws a bar; `milestones` are the plan's own phases, not tasks; the page shows at most three lines each of `done` (just built), `now` (in progress) and `next` (what's next), and adds "N things wait on you" itself. `done` is what landed since the owner last looked, in their terms, not a changelog: replace its lines, never append. Write the document when a milestone changes or a line stops being true, not on every step. It needs no republish. (Field names as a monitoring product's board ran them, 2026-10-25.)
 
+**Several areas: `status/<area>`**, one document per area. Use a short id such as `api`, `mobile-app` or `pricing-study`. Each has the fields above, plus:
+
+| Field | Holds |
+|---|---|
+| `name` | the tab and Overview name; falls back to the area id |
+| `where` | repository or folder, and branch if it matters, as the area's RESUME block in `STATUS.md` gives it; shown as written |
+| `kind` | `code` or `other` (work without code: its `done` lines show as "Just done" rather than "Just built"); anything else shows as code |
+| `touched` | when a session last worked on it (the newest session in its RESUME block), in ISO 8601; shown in the viewer's locale, or as written if it does not parse as a date |
+| `order` | tab and Overview order, then name |
+| `board` | an array of key work items, described below |
+
+For example, `status/pricing-study`:
+
+```json
+{
+  "name": "Pricing study",
+  "where": "Working folder: pricing study",
+  "kind": "other",
+  "touched": "2026-11-06T14:10:00Z",
+  "order": 3,
+  "phase": "Phase 2 of 3: testing assumptions",
+  "percent": 50,
+  "milestones": [
+    {"name": "Scope", "state": "done"},
+    {"name": "Test assumptions", "state": "now"},
+    {"name": "Recommendation", "state": "next"}
+  ],
+  "done": ["Compared the current plans"],
+  "now": ["Testing willingness to pay"],
+  "next": ["Recommend a plan structure"],
+  "board": [
+    {"title": "Draft the recommendation", "column": "next"},
+    {"title": "Test price assumptions", "column": "now"},
+    {"title": "Compare contract terms", "column": "blocked", "note": "Waiting on the owner for the current agreement"},
+    {"title": "Compare current plans", "column": "done", "note": "Compared all four plans against the same criteria"},
+    {"title": "Define the study", "column": "done", "note": "Scope and success measures recorded"}
+  ]
+}
+```
+
+**The mode comes from the `status` collection**, read through one subscription. With only `current` (or no documents), the page keeps its single-project layout and items need no `area`. Any other document turns on Overview and an area tab per document. A `current` beside other documents is one more area, with id `current`; nothing written there is hidden. To move a project to areas, write `status/<area>` from `status/current`, set `area` on its items, and delete `status/current`, in one batch.
+
+Overview lists each area's name, location, kind, phase, at most three lines each of done/now/next, waiting count and last touch; milestones and boards stay on the area's tab. Below it are full answerable cards for every item across areas, tagged with their area and sorted gate, now, decide, later, then `order`; an answered item stays there, showing its saved answer, until you delete it, as on its tab. Each area tab shows its status, board and items in the original groups. An item without `area`, or with an unknown area, stays on Overview tagged "No area". A gate waits until the go is in chat; any other item waits until answered. That count shows on each tab, each Overview row and the Overview's total. The page remembers each viewer's tab in their browser, opens on Overview otherwise, and falls back to it when that area is gone.
+
+**`board`** is an array on a status document: `[{"title": "…", "column": "next", "note": "…"}]`. Keep 5 to 10 key work items, not every task and not the owner's asks. `title` is required. `column` is `next`, `now`, `blocked` or `done`; an unknown value shows under Next. The page shows at most 10 cards, in the order written within each column. `note` is one line: why blocked and on whom, or the evidence it is done. A card blocked on the owner says so in its note, and the ask itself is an item in `items`, where they can answer it. Rewrite the array in place, like done/now/next; never append a history. A `status/current` with a board shows it too; without one, its layout stays the same.
+
 **`items/<id>`**: one per thing that needs the owner. The agent writes it.
 
 | Field | Holds |
 |---|---|
+| `area` | the status document's area id in a page with several areas; omitted for a single project |
 | `kind` | `decision`, `task` (something only they can do) or `gate` (a go/no-go on a one-way door) |
 | `group` | `now`, `decide`, `gate` or `later` (needed before a later milestone). Anything else shows under `later`. Work that will reach the owner but needs nothing yet is not an item; it is a `next` line in the status |
 | `title` | the ask, in a few words |
@@ -52,11 +99,11 @@ Only `phase` is needed. `percent` draws a bar; `milestones` are the plan's own p
 
 1. Copy `assets/owner-page.html`. Change the `<title>`, and the `<h1>` if you like, to the project's name ("Acme: what I need from you"). Change nothing else.
 2. Publish it with `capabilities: {db: {}}`. By default, everyone signed in who can open the page reads every document, people with Contributor access and up write and delete, and Viewers and Commenters never write (Claude's artifact runtime docs, read `2026-10-25`). So share the page only with people who may read every item on it.
-3. Write `status/current` and the first items with the artifact's database tool in one batch, after publishing; with nothing for the owner yet, write the status alone. Never put them in the HTML.
+3. Write `status/current` and the first items with the artifact's database tool in one batch, after publishing. For several areas, write `status/<area>` for each and put its id in each item's `area`; with nothing for the owner yet, write the status documents alone. Never put them in the HTML.
 4. Send the owner the link. On first use, ask them to save one answer, then quote it back, so they know Save works.
 5. Keep the URL in `STATUS.md`. Put it in every chat message that mentions the page.
 
-Reuse the same artifact for the whole project, and republish to that URL when the page changes. The database survives a republish.
+Reuse the same artifact for the whole project, or for every area on the page, and republish to that URL when the page changes. The database survives a republish. With areas, each area's `STATUS.md` keeps the URL and its area id.
 
 ## The loop
 
@@ -77,6 +124,16 @@ If the answer raises a new question, delete the answered item and add a new one.
 
 **When an item stops needing them**, delete it, and its answer if there is one: you found a way to do it yourself, it was overtaken, or they did it without saying.
 
+## A scheduled check without a session
+
+Where the harness has a scheduler (cron, the operating system's task scheduler, or the harness's own), schedule a pass in the work's folder for the hours no session is running. Keep the page URL, the area id, the last check's time and the schedule in `STATUS.md`, so a fresh session finds the check and can stop or replace it. One pass at a time, and none while a session is working the same area.
+
+A headless Claude Code run can do it: on `2026-11-06`, `claude -p` (Claude Code 2.1.319) had the Artifact tool directly, and ArtifactData and ArtifactComments as deferred tools it loads through ToolSearch. Check this in the harness you use. The pass's prompt says: read `STATUS.md` first, load the database tool, check the page, and follow this file's loop. Give it a finite `--max-turns`. A headless run has nobody to approve a tool, so allow what it uses up front with `--allowedTools` (ToolSearch, the database tool, and reading and editing the area's `STATUS.md` and `LOG.md`), by the names the harness shows; never skip permissions.
+
+The pass runs the loop's order: record the answer in the area's files, then delete the item and its answer, pinned to the versions it read. It queues the work an answer creates for the next session rather than doing it, unless the project's instructions allow that work unattended. **It never passes a gate and never takes a one-way step**, whatever a saved answer says: nobody is there to type the go. On a gate it records the note and deletes only the answer, as a session would.
+
+On a page with several areas, the pass consumes only the answers to its own area's items and leaves the rest for their own checks; an item whose area it can't place goes into `STATUS.md` for the next session. It refreshes its area's `status` document and `STATUS.md`, with the time of the check. With no chat to confirm in, its one-line confirmation goes into `STATUS.md`, marked for the next session to repeat in chat, and never onto the page as a reply.
+
 ## Without the Artifact tool: the same page as a file
 
 In a session where the Artifact tool does not exist (Codex, Cursor, a plain repository), keep `OWNER.md` at the root of the working area, shaped the same way:
@@ -92,4 +149,4 @@ Options: A. Starter / Pro (recommended) · B. Free / Builder
 Your answer:
 ```
 
-The owner writes under "Your answer:" and saves; you read it at the same fixed points, and the same consume rule applies: record it, delete the section, act, confirm in chat. Answered sections never stay in the file, except a gate's: it stays until the go is typed in chat, and you clear only its answer.
+For several areas, keep one section per area with its name, location, kind, phase, done/now/next, waiting count, last touch, board and asks. The owner writes under "Your answer:" and saves; you read it at the same fixed points, and the same consume rule applies: record it, delete the ask's section, act, confirm in chat. Answered asks never stay in the file, except a gate's: it stays until the go is typed in chat, and you clear only its answer.

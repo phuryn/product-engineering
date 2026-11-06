@@ -25,6 +25,11 @@ carries the status too, and a test is where the page gets exercised.
 Never append to it. A status file that grows is a log wearing a status file's name, and the reader
 cannot tell which line is still true. Sections that earn their place:
 
+- **RESUME**, first: where the work lives (repository or folder, and branch), the last few sessions
+  that touched it (date and a one-line summary each, the oldest dropping off), and how to resume:
+  open the agent in that folder and have it read `STATUS.md` first. Reopening an old session is the
+  fallback, because its memory is stale. (`2026-11-06`: with several areas in flight, an owner asked
+  for this because finding where a piece of work stood meant hunting through old sessions.)
 - **RUNNING NOW** — with process ids, log paths, and what each thing is waiting on
 - **QUEUED** — in order, so "what is next" is not a judgement call
 - **BLOCKED** — and *why*, and what would unblock it
@@ -33,6 +38,8 @@ cannot tell which line is still true. Sections that earn their place:
 - **DONE** — one line each, enough to prevent redoing it
 - **EVIDENCE** — measurements with their actual numbers (see below)
 - **STANDING RULES** — the constraints a fresh reader would otherwise violate
+
+Work that isn't code uses the same sections; `references/other-work.md` says how they map.
 
 **`LOG.md` — the flight recorder. Append only. Explains WHY.**
 
@@ -52,6 +59,7 @@ volatile; that one is durable and belongs in version control and in your routing
 **What is on it**
 
 - **At the top, where we are, short:** the phase ("3 of 5") and its milestones with the current one marked, then at most three lines each of what was just built, what's in progress and what's next, and how many things wait on them. Project it from `STATUS.md`, not every detail; a status block nobody reads to the end is no status.
+- **Several areas share one page:** Overview and one tab per area, with a board of 5 to 10 key work items per area, separate from the owner's asks. See `references/owner-page.md` for the data and migration.
 - **Only what needs them:** a decision, a go on a one-way door, or a task only they can do. Never status, receipts, finished work, or anything you could do yourself. (`2026-10-24`: one item asked the owner to create database logins, which the agent then made itself. The owner's reply: "I'm not sure what you need… should I put it where exactly?")
 - **Each item says** what you need, where (the link, the file or the setting), why only they can, your recommendation (preselected), and what happens after they answer. **It carries everything it needs**, never a pointer to the chat: "the curl loop from my message of 1 Nov" was gone two days and a compaction later (`2026-11-03`).
 - **Check every step against the product before it goes on the page.** A checklist sent the owner to open an incident with a button the product doesn't have.
@@ -67,7 +75,7 @@ volatile; that one is durable and belongs in version control and in your routing
 
 Acting first leaves answered items on the page for as long as the work takes.
 
-**Check at fixed points, because nothing notifies you when they save:** each stage boundary, while a build or review runs, before ending a turn, after a compaction, and whenever they say they answered. Answers the owner never mentioned were caught only this way. **A session that goes idle with items waiting schedules its own check** (a cron or a loop, where the harness has one) rather than waiting for the next message. (`2026-11-03`: six answers saved at 17:35 were read nine hours later, when the owner asked whether the page was up to date.) **An answer given in chat closes its item too**, and a gate only when it is the go.
+**Check at fixed points, because nothing notifies you when they save:** each stage boundary, while a build or review runs, before ending a turn, after a compaction, and whenever they say they answered. Answers the owner never mentioned were caught only this way. **A session that goes idle with items waiting schedules its own check** (a cron or a loop, where the harness has one) rather than waiting for the next message; for the hours no session runs, a scheduled headless pass checks instead (`references/owner-page.md` § A scheduled check without a session). (`2026-11-03`: six answers saved at 17:35 were read nine hours later, when the owner asked whether the page was up to date.) **An answer given in chat closes its item too**, and a gate only when it is the go.
 
 **Make Save trustworthy.** The owner asked "Can you really read my answers?" (`2026-10-22`). The page says that Save is what you read and that nothing notifies you. On first use, quote one saved answer back. Put the link in every chat message that mentions the page ("What was the url of the artifact", `2026-10-23`).
 

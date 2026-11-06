@@ -22,7 +22,7 @@ Codex, Cursor and other agents: see the collection's root `README.md`.
 
 - **agent-instructions** — Writing and maintaining the instruction file every session reads (AGENTS.md / CLAUDE.md): a general section and a product section, a router keyed by what the agent is doing, progressive disclosure, receipts, and the passes that keep it short and true.
 - **guardrail-hooks** — Turning a rule an agent must remember at the decisive moment into a code path: Claude Code hooks that ask before one-way doors or block a wrong commit identity, with templates to adapt.
-- **flight-deck** — Two files per area of work — a STATUS board rewritten in place and a LOG appended to — so long-running work stays legible across context compaction; and the owner's page, one shared page holding only what needs the human, under a three-line status.
+- **flight-deck** — Two files per area of work — a STATUS board rewritten in place and a LOG appended to — so long-running work stays legible across context compaction; and the owner's page, one shared page holding only what needs the human, under a three-line status, with several areas of work as tabs, each with a board of its key items.
 - **windows-agent-shell** — The Windows (Git Bash, PowerShell, cmd) traps that make coding agents fail or silently corrupt files, and the wider class of works-here-breaks-there.
 
 ## Author
