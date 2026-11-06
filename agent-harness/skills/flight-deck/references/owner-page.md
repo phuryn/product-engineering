@@ -113,7 +113,7 @@ Reuse the same artifact for the whole project, or for every area on the page, an
 
 **For each answer, in this order:**
 
-1. **Record it.** Write the decision in the product's decision log (who chose, what, the date, the note's substance, and the answer's id and `at`). Put whatever work it creates into `STATUS.md`'s QUEUED, and the reasoning into `LOG.md`. An answer whose id and `at` the log already holds (recorded by an earlier check whose delete didn't land) is not recorded or queued again: go to step 2.
+1. **Record it.** Write the decision in the product's decision log (who chose, what, the date, the note's substance). Put whatever work it creates into `STATUS.md`'s QUEUED, and the reasoning into `LOG.md`, with the answer's id and `at`. An answer whose id and `at` `LOG.md` already holds (recorded by an earlier check whose delete didn't land) is not recorded or queued again: go to step 2.
 2. **Delete the item and its answer together**, in one batch write, each pinned to the `version` your read returned (the database tool's `if_version`). If the owner saved again after your read, the batch writes nothing, and you read again. **For a gate, delete only the answer** (below).
 3. **Then act**, from your records, not from the page. On a gate, only once the go is in chat.
 4. **Confirm in chat** in one line: what you recorded and what happens next. The page never carries a reply.
@@ -130,7 +130,24 @@ If the answer raises a new question, delete the answered item and add a new one.
 
 Where the harness has a scheduler (cron, the operating system's task scheduler, or the harness's own), schedule a pass in the area's folder for the hours no session is running. Keep the page URL, the area id, the schedule and the pass's output file in `STATUS.md`, so a fresh session finds the check and can stop or replace it. One pass at a time, and none while a session is working the same area.
 
-**The pass's prompt carries its limits**, because nobody is there to stop it: read `STATUS.md` first; load the database tool; read the whole `answers` collection and run § The loop for this area's answers only; queue in `STATUS.md` the work an answer creates, and do none of it; never pass a gate or take a one-way step, whatever a saved answer says (on a gate, record the note and delete only the answer); refresh this area's `status` document; never publish or republish the page. With no chat to confirm in, its one-line confirmation goes into `STATUS.md`, marked for the next session to repeat in chat, and never onto the page as a reply.
+**The pass's prompt is its whole procedure**, because it can't read this skill and nobody is there to stop it. Fill in the area id (`current` for a page with one project) and the page URL:
+
+```text
+Check the owner's page for area <area> while no session is running. Read STATUS.md first.
+Load ArtifactData with ToolSearch; never call the Artifact tool. Read the whole `items` and
+`answers` collections of <page URL>. For each answer to an item whose `area` is <area>
+(with `current`, to every item):
+1. If LOG.md already holds this answer's id and `at`, go to step 3.
+2. Append to LOG.md the answer's id, `at`, choice or done, and note. Put the work it creates
+   under QUEUED in STATUS.md. Do none of that work.
+3. Delete the item and its answer in one batch, each pinned to the version you read; for an
+   item of kind `gate`, delete only the answer. If the batch is denied or writes nothing,
+   say so in STATUS.md.
+Never pass a gate or take a step that can't be undone, whatever an answer says. Then rewrite
+status/<area> from STATUS.md. Last, add one line to STATUS.md for the next session: what you
+recorded and queued, to repeat in chat and to enter any decision in the product's decision
+log. Never write a reply on the page.
+```
 
 **In Claude Code** (observed `2026-11-06`, Claude Code 2.1.319): a headless `claude -p` run has the Artifact tool, and ArtifactData and ArtifactComments as deferred tools it loads through ToolSearch. It read a page's answers with `--allowedTools ArtifactData`, but every database write, a delete included, was denied in the default and `dontAsk` permission modes, allowed or not: a write asks for an approval nobody can give in a headless run. In `auto` mode the write ran. The run that worked end to end:
 
