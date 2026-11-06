@@ -109,6 +109,8 @@ Reuse the same artifact for the whole project, or for every area on the page, an
 
 **Check for answers** at the fixed points in `SKILL.md`. Read the `answers` collection, or query `at` greater than the time of your last check, which you keep in `STATUS.md`.
 
+**On a page with several areas, consume only your own area's answers**: those to items whose `area` is the one your `STATUS.md` names (a session working on several areas, each of theirs). Leave the others on the page for their own sessions. An item with no `area`, or one naming no area, is fixed by the session that wrote it: set its `area`.
+
 **For each answer, in this order:**
 
 1. **Record it.** Write the decision in the product's decision log (who chose, what, the date, the note's substance). Put whatever work it creates into `STATUS.md`'s QUEUED, and the reasoning into `LOG.md`.
@@ -126,13 +128,17 @@ If the answer raises a new question, delete the answered item and add a new one.
 
 ## A scheduled check without a session
 
-Where the harness has a scheduler (cron, the operating system's task scheduler, or the harness's own), schedule a pass in the work's folder for the hours no session is running. Keep the page URL, the area id, the last check's time and the schedule in `STATUS.md`, so a fresh session finds the check and can stop or replace it. One pass at a time, and none while a session is working the same area.
+Where the harness has a scheduler (cron, the operating system's task scheduler, or the harness's own), schedule a pass in the area's folder for the hours no session is running. Keep the page URL, the area id, the last check's time and the schedule in `STATUS.md`, so a fresh session finds the check and can stop or replace it. One pass at a time, and none while a session is working the same area.
 
-A headless Claude Code run can do it: on `2026-11-06`, `claude -p` (Claude Code 2.1.319) had the Artifact tool directly, and ArtifactData and ArtifactComments as deferred tools it loads through ToolSearch. Check this in the harness you use. The pass's prompt says: read `STATUS.md` first, load the database tool, check the page, and follow this file's loop. Give it a finite `--max-turns`. A headless run has nobody to approve a tool, so allow what it uses up front with `--allowedTools` (ToolSearch, the database tool, and reading and editing the area's `STATUS.md` and `LOG.md`), by the names the harness shows; never skip permissions.
+**The pass's prompt carries its limits**, because nobody is there to stop it: read `STATUS.md` first; load the database tool; consume only this area's answers, in the loop's order (record them in `STATUS.md` and `LOG.md`, then delete each item and its answer, pinned to the versions read); queue in `STATUS.md` the work an answer creates, and do none of it; never pass a gate or take a one-way step, whatever a saved answer says (on a gate, record the note and delete only the answer); refresh this area's `status` document; never publish or republish the page. With no chat to confirm in, its one-line confirmation goes into `STATUS.md`, marked for the next session to repeat in chat, and never onto the page as a reply.
 
-The pass runs the loop's order: record the answer in the area's files, then delete the item and its answer, pinned to the versions it read. It queues the work an answer creates for the next session rather than doing it, unless the project's instructions allow that work unattended. **It never passes a gate and never takes a one-way step**, whatever a saved answer says: nobody is there to type the go. On a gate it records the note and deletes only the answer, as a session would.
+**In Claude Code** (observed `2026-11-06`, Claude Code 2.1.319): a headless `claude -p` run has the Artifact tool, and ArtifactData and ArtifactComments as deferred tools it loads through ToolSearch. It read a page's answers with `--allowedTools ArtifactData`, but every database write, a delete included, was denied in the default and `dontAsk` permission modes, allowed or not: a write asks for an approval nobody can give in a headless run. In `auto` mode the write ran. The run that worked end to end:
 
-On a page with several areas, the pass consumes only the answers to its own area's items and leaves the rest for their own checks; an item whose area it can't place goes into `STATUS.md` for the next session. It refreshes its area's `status` document and `STATUS.md`, with the time of the check. With no chat to confirm in, its one-line confirmation goes into `STATUS.md`, marked for the next session to repeat in chat, and never onto the page as a reply.
+```bash
+claude -p "<the prompt above>" --permission-mode auto --permission-prompts none --strict-mcp-config --tools "ToolSearch,Artifact,ArtifactData,Read,Edit" --max-turns 20
+```
+
+`--tools` is the run's whole tool set (ArtifactData was missing unless Artifact was listed too, so the prompt forbids publishing); `--strict-mcp-config` leaves out the account's other connectors; `--permission-prompts none` denies at once whatever would wait on a prompt. Where auto mode isn't available (a model or an organization without it), the run starts in a mode that denies the writes: the pass then records the answers and leaves deleting them to the next session, and the last check's time keeps the next pass from recording them twice. A run stopped by `--max-turns` exits non-zero; don't retry it on failure, since the next scheduled pass continues. The `claude-agents` skill has more on what a `-p` run loads and why its permission mode is always passed.
 
 ## Without the Artifact tool: the same page as a file
 
@@ -149,4 +155,4 @@ Options: A. Starter / Pro (recommended) · B. Free / Builder
 Your answer:
 ```
 
-For several areas, keep one section per area with its name, location, kind, phase, done/now/next, waiting count, last touch, board and asks. The owner writes under "Your answer:" and saves; you read it at the same fixed points, and the same consume rule applies: record it, delete the ask's section, act, confirm in chat. Answered asks never stay in the file, except a gate's: it stays until the go is typed in chat, and you clear only its answer.
+For several areas, keep one section per area with its name, location, kind, phase, done/now/next, waiting count, last touch, board and asks. The owner writes under "Your answer:" and saves; you read it at the same fixed points, and the same consume rule applies, to your own area's section only: record it, delete the ask's section, act, confirm in chat. Answered asks never stay in the file, except a gate's: it stays until the go is typed in chat, and you clear only its answer.
