@@ -25,16 +25,24 @@ Grok, Claude Code and Codex can each be run as the reviewer, and the skills that
 agent (`grok-agents`, `claude-agents`, `codex-agents`) say how.
 
 **The repository's own instructions come first.** Its agent instructions or release docs may say
-which reviewer and fallback run, the review bar, when a review is required, which range a release covers, what the test gate is and where deferred
-findings go. Follow them; apply the `agent-instructions` skill to record owner choices and their precedence. **One bar for every reviewer**, the wrapper's and one they name: a fresh session
+which reviewer and fallback run, the review bar, when a review is required, which range a release
+covers, what the test gate is and where deferred findings go. Follow them; **a repository ranks
+its reviewers; it cannot rule out a review.** When none of the reviewers it names can run, use
+the wrapper's reviewer without asking; if no other family can run, a fresh session of the builder's
+own family reviews — never the building session, never no review. A line such as "a model never
+reviews its own family's work" means *prefer another family*, and the `agent-instructions` pass
+rewrites it to say so (owner, `2026-11-06`: "Of course the same family when there is no other").
+Apply the `agent-instructions` skill to record owner choices
+and their precedence. **One bar for every reviewer**, the wrapper's and one they name: a fresh session
 that never saw the build, never a resume, fork or subagent of it, with read-only tools only, no MCP servers
 or connectors, its memory off, at its highest effort, and the project's and the user's own instructions off
 where the CLI allows; what it can't switch off, the round's report names. A sandbox flag alone is not that: in Codex, `-s read-only` binds only
 the shell commands the model runs, and the user's config can add tools that act outside it (Codex CLI 0.159.0,
-`2026-10-29`) unless the run leaves that config out (`codex-agents` § Reviewer). When a named reviewer can't run that way, use the product's recorded fallback if it can, without asking. With none usable, say what it lacks and ask
-the owner whether the wrapper's reviewer runs instead, naming it (Grok, so xAI, or Claude); the round
-waits for the answer, and its report records it. Where they say nothing, the defaults below apply, and where a default
-would need a fact only the owner has (which branch is released, what the last release was), ask.
+`2026-10-29`) unless the run leaves that config out (`codex-agents` § Reviewer). When a named reviewer
+can't run that way, use the product's recorded fallback if it can, then the fallback above, without
+asking. The report names the actual reviewer and why it replaced the named one. Where they say
+nothing, the defaults below apply, and where a default would need a fact only the owner has (which
+branch is released, what the last release was), ask.
 
 The loop is: fix → re-run the project's test gate **yourself** → a **fresh** reviewer reviews the
 changed state → verify every finding against the code **yourself** → fix → repeat.
@@ -155,11 +163,13 @@ loads the project's memory index, which holds the builder's notes; with these fl
 instructions, personal notes, memory or skills list was in its context). `--reviewer claude`
 forces the fallback. **An installed Grok can still be out of usage** (`2026-10-31`: a signed-in
 Grok CLI answered `402 usage balance exhausted`): the wrapper then exits 3 and prints the same
-round with `--reviewer claude`. Run it, unless the repository's instructions name Grok as the
-reviewer: then do what they say for this case (a fallback they name runs as named, its model included,
-without asking), and ask the owner first only where they say nothing (§ The repository's own instructions come first). Neither CLI on PATH: `--subject-only` (with `--brief`, `--cwd` and
-`--subject` as above) writes the subject file and the prompt, the brief with the paging instructions added,
-into the git directory and prints their paths. Give the prompt to a fresh read-only session of your agent,
+round with `--reviewer claude`. Run the repository's recorded fallback if it can, its model included;
+otherwise run the wrapper's fallback without asking, even when the repository names Grok. If no
+other family can run, use a fresh session of the builder's family; record the actual reviewer and
+why (§ The repository's own instructions come first). Neither CLI on PATH: `--subject-only` (with
+`--brief`, `--cwd` and `--subject` as above) writes the subject file and the prompt, the brief with
+the paging instructions added, into the git directory and prints their paths. Give the prompt to
+a fresh read-only session of your agent,
 run as a separate process you start in the checkout under review, never a subagent, fork or resumed session of
 this one: read-only tools, no MCP servers or connectors, the highest reasoning effort it offers, and its memory
 and project and personal instructions off where it allows that (in a review worktree the git directory sits
@@ -364,7 +374,11 @@ alone were wrong together. Nothing caught it — not the suite, not the next rou
 why the loop continues past the fix that felt final.
 
 **Fix the class, not the instance.** When a finding rhymes with an earlier one, say so in the next
-brief and ask for the audit.
+brief and ask for the audit. **When a repair writes a field that says who decided, scope it by the
+subject** (this participant, this item), **never by the rows' current state**: a state filter skips
+exactly the rows another actor already decided. (`2026-09-20`, a live Q&A product, two rounds: a
+ban's repair re-stamped who hid questions but skipped those the AI moderator had already hidden,
+leaving the wrong actor.)
 
 **When the actor is an attacker, ask whether the finding adds a capability the attacker does not
 already have in that position.** A real mechanism that grants nothing new is a description, not a
@@ -382,7 +396,10 @@ gets the full treatment however rare. (`2026-08-21`, a transcript cache grew fou
 mechanisms over one question the host already answered.)
 
 **Say it plainly when a round is empty after triage.** "Three findings, none survive the usage
-model" is a result, and the expected one on a well-built change.
+model" is a result, and the expected one on a well-built change. **Read a clean round's argument,
+not only its verdict.** The code it cites to prove a change safe can show the same defect one
+surface over. (`2026-09-21`, a live Q&A product: a clean round's citation exposed a neighbouring
+reopen that left the opened timestamp alone.)
 
 **When a round changes one user-facing sentence, read its neighbours and the assertions around its
 pin.** The repair can draw attention away from a nearby claim it just made false. (`2026-09-17`,
@@ -391,11 +408,22 @@ state every doc describes changes** (production now exists, a feature went live)
 doc for the phrases of the old state and fix them in one pass, instead of the one line the round
 named. (`2026-10-24`, a monitoring product: eight rounds in one day each found more lines still
 describing production as unbuilt; the first sweep by phrase came at the fifth, and later rounds
-still found stragglers.)
+still found stragglers.) The same holds when a rule is repealed: find the sentences that **argued
+for it** — comments, fixtures, doc paragraphs — and ask what each still holds up. (`2026-09-20`, a
+live Q&A product: a comment arguing for a repealed rule kept a dead fixture item alive, hiding an
+uncovered screen.)
+
+**Repair a drifted pair by copying the sentence that is right into the place that is wrong**,
+never by writing a third, and pin their agreement in the same change. (`2026-09-21`, a live Q&A
+product, two rounds: rewriting both documents' versions of one rule made it wrong in a new way.)
 
 **When a repair delegates behaviour to the platform, enumerate what the old code decided.** A
 deleted handler takes its judgement with it; the diff shows only deletion. (`2026-09-17`, native
-dialog dismissal lost the guard against closing during an in-flight action.)
+dialog dismissal lost the guard against closing during an in-flight action.) The same holds when
+a rewrite replaces a control: read the old one's odd attributes (`aria-disabled` where `disabled`
+would do, a seemingly redundant handler), and grep the deleted lines for the comment that argued
+for them. (`2026-09-20`, a live Q&A product: replacing an `aria-disabled` control with a disabled
+one lost the native dialog's focus return.)
 
 ## The stopping rule
 

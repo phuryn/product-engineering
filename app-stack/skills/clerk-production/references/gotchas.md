@@ -8,6 +8,7 @@ Read these before touching Clerk. Each one failed silently, or looked like a dif
 - Test mode is a dashboard toggle, and the whole authenticated suite hangs off it
 - A development instance occasionally refuses a Server Action, silently
 - Clerk's visible wording is not in your tree
+- Below its breakpoint the organization profile hides its navigation instead of unmounting it
 - Clerk v7 deleted `<SignedIn>` and `<SignedOut>`
 - `<ClerkProvider dynamic>` reads the session into every page it wraps
 - The server's sign-in redirect does not read the provider's `signInUrl`
@@ -73,6 +74,10 @@ Clerk's English labels load from its CDN at runtime, and `node_modules` holds on
 
 (`2026-09-20`, *Manage organization* became *Manage*, and six authenticated specs timed out at once.)
 
+## Below its breakpoint the organization profile hides its navigation instead of unmounting it
+
+The section buttons stay in the DOM, hidden behind a menu button (`cl-navbarMobileMenuButton`); a lookup by name resolves and then waits for visibility until the timeout. Opening the menu renders a second copy of every button: open it first and scope the lookup to visible elements. (A live Q&A product, two gate runs, observed `2026-09-20`; the Clerk version was not recorded.)
+
 ## Clerk v7 deleted `<SignedIn>` and `<SignedOut>`
 
 They throw *"not available in @clerk/nextjs Core 3"* at render, and a page built from them 500s with only a digest in the browser.
@@ -87,7 +92,7 @@ Clerk's own skills still describe the deleted pair, for Core 2 projects.
 
 ## `<ClerkProvider dynamic>` reads the session into every page it wraps
 
-It is the documented way to make auth state available during server rendering, and Clerk's setup skill shows it. On the root layout it puts a session lookup in front of the landing page's first byte. **The provider takes the CSP `nonce` and nothing else.**
+It is the documented way to make auth state available during server rendering, and Clerk's setup skill shows it. On the root layout it puts a session lookup before a signed-in visitor's first byte; without a session cookie `auth()` is local, so a signed-out visitor gains nothing measurable from removing it (measured `2026-11-07`, `sessions-and-front-door.md`). **The provider takes the CSP `nonce` and nothing else.**
 
 ## The server's sign-in redirect does not read the provider's `signInUrl`
 

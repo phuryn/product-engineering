@@ -12,7 +12,7 @@ Plan, build, summarize once. Narration spends the owner's attention on progress 
 
 ## Apply defaults; record the owner's choices
 
-Use the defaults without a questionnaire; unavailable models or CLIs without a usable product fallback and irreversible or outward-facing actions are the points that need the owner, as `SKILL.md` § The working rules says. Record standing departures once in the entry file or user-level instructions, so another agent can find them. (Owner, `2026-11-05`: "Don't want to overcomplicate that.")
+Use the defaults without a questionnaire; unavailable builder or other non-reviewer models or CLIs without a usable product fallback and irreversible or outward-facing actions are the points that need the owner, as `SKILL.md` § The working rules says. Reviewers always fall back as the `independent-review` skill requires. Record standing departures once in the entry file or user-level instructions, so another agent can find them. (Owner, `2026-11-05`: "Don't want to overcomplicate that.")
 
 ## Commit messages go through a heredoc
 
@@ -36,9 +36,9 @@ When a fix carves out a case, the comment must say why that case does not need t
 
 ## A comment stating an invariant protects only the file it is in
 
-A comment that states an invariant about a value — *never parse, reflect or store X* — protects only the file it is written in. List every route that can receive that value and check each one, because the comment cannot. A vendor may send a credential to more of your URLs than the one you registered as its callback.
+A comment that states an invariant about a value — *never parse, reflect or store X* — protects only the file it is written in. List every route that can receive that value and check each one, because the comment cannot. A vendor may send a credential to more of your URLs than the one you registered as its callback. When one validates the parameter for its own meaning, **a rejection there is a dead end, not a validation success**: strip the parameter and carry on (a redirect also takes the credential out of the address bar, history and referrer). Keep not-found for a well-formed value that names nothing.
 
-- **Receipt:** `2026-09-22`, a live Q&A product's install route kept such an invariant while the page next to it broke it on a fresh install, in production.
+- **Receipt:** `2026-09-22`, a live Q&A product's install route kept such an invariant while its home page parsed the meeting vendor's OAuth code as its own code, rejected it and answered not-found on every fresh install in production.
 
 ## When a flag's meaning widens, rename it to what it does
 

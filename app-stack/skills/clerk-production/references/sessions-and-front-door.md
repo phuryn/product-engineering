@@ -60,11 +60,11 @@
   - A `__client_uat` or `__client_uat_<suffix>` cookie that is neither empty nor `0` reads as signed in.
   - The server renders the signed-out label, so without JavaScript the button still works.
   - The label is a guess used for nothing else. A stale cookie says "signed in", and the member home sends the visitor to sign-in at no cost, because both labels open the same page.
-  - **Read the cookie with `useSyncExternalStore`**: a `subscribe` that does nothing, the cookie test as the client snapshot, and `false` as the server snapshot, so hydration starts from the signed-out label. Not `useEffect` plus `setState`, which Next 16's default lint fails (`react-hooks/set-state-in-effect`; `2026-10-31`, an evals product).
+  - **Read the cookie with `useSyncExternalStore`**: a `subscribe` that does nothing, the cookie test as the client snapshot, and `false` as the server snapshot, so hydration starts from the signed-out label. Not `useEffect` plus `setState`, which Next 16's default lint fails (`react-hooks/set-state-in-effect`; `2026-10-31`, an evals product). (`2026-11-07`, a live Q&A product, medians of 20 on a local production build, Next 16 with a Clerk development instance: the cookie was readable at 43 ms, before first paint at 124 ms; Clerk's client had a user at 621 ms. Waiting for Clerk client state swaps the header about half a second after the page appears; production network and instance were not measured.)
 
 **What it does not do.** `/` is not static, and this rule does not make it so. The nonce CSP and the theme cookie render every page per request; Next's CSP guide says a nonce needs dynamic rendering.
 
-- What the rule removes is the session lookup: the Clerk Backend API call, and the workspace write a session seam in the root layout puts in front of every first byte.
+- What the rule removes is session-dependent page work: Backend API calls and workspace writes a session seam in the root layout can put before the first byte. **Do not promise a signed-out speed gain:** `auth()` without a session cookie was local in the measurement; the signed-in visit gained, and the other reasons are architectural. (`2026-11-07`, a live Q&A product: two local production builds of one commit, Next 16 with a Clerk development instance, medians of 20. Signed-out TTFB was 262 versus 257 ms, no measurable gain; signed in, `/` answered in 22 ms versus 283 ms for the old redirect plus the member home's TTFB — not a measure of the session read alone. Production network and instance were not measured.)
 - One wait remains outside the page. Clerk's middleware still runs on `/` to write the CSP, and a browser whose session token has expired gets a token refresh or a handshake redirect before any page renders (`gotchas.md`).
 
 **Rejected:**

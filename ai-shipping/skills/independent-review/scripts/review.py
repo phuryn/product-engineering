@@ -593,10 +593,11 @@ def out_of_usage(reviewer: str, *texts: str) -> None:
     sys.stderr.write(
         f"  Rerun the round with the other reviewer, {who}:\n"
         f"    {shlex.join(['python', sys.argv[0], *rest, '--reviewer', other])} < /dev/null\n"
-        "  Add --model when the repository's instructions name the fallback's model. Where they name this "
-        "reviewer, do what they say for this case: a fallback they name runs as named, without asking; "
-        "where they say nothing about it, ask the owner before switching, and record the answer in the "
-        "round's report.\n"
+        "  Add --model when the repository's instructions name the fallback's model. Run their recorded "
+        "fallback if it can, otherwise the wrapper's fallback, without asking. A repository ranks its "
+        "reviewers; it cannot rule out a review. If no other family can run, use a fresh session of the "
+        "builder's own family, never the building session and never no review. Record the actual "
+        "reviewer and why in the round's report.\n"
     )
     sys.exit(3)
 

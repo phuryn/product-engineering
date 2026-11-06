@@ -65,14 +65,14 @@ A new product proposes these choices rather than re-deriving them, and reopens o
 
 ### Owner's choices and installed packs
 
-Skill defaults apply. Departures: <none, or each choice once, dated and in the owner's words: model, builder, reviewer and fallback, review bar, what requires go, design taste and voice>. Product choices live here; global choices live in user-level instructions. **Precedence: current session owner instruction > this entry file > user-level instructions > skill defaults.** Memory in one agent does not reach another vendor's builder or reviewer: record standing choices here immediately. Design detail: `design/README.md`; apply the `design` skill.
+Skill defaults apply. Departures: <none, or each choice once, dated and in the owner's words: model, builder, reviewer with its fallback, review bar, what requires go, design taste and voice>. A reviewer always has a fallback, never "none"; prefer another family, with a fresh session of the builder's family when no other can run (`independent-review`). Product choices live here; global choices live in user-level instructions. **Precedence: current session owner instruction > this entry file > user-level instructions > skill defaults.** Memory in one agent does not reach another vendor's builder or reviewer: record standing choices here immediately. Design detail: `design/README.md`; apply the `design` skill.
 
 Installed packs: <each agent → the packs installed in it>. They update themselves; nothing pins a version.
 
 ## 1.7 Working rules for the agent
 
 - Read this file before the first plan.
-- **Apply skill defaults without asking.** Ask only when a model or CLI a default names is missing or out of usage and the product records no fallback that can run, and get the owner's clear go each time before anything irreversible or outward-facing (production, publishing, spend, deleting anything public). Questions about what the product should do are still the owner's.
+- **Apply skill defaults without asking.** Ask only when a builder or other non-reviewer model or CLI a default names is missing or out of usage and the product records no fallback that can run; reviewers always fall back as the `independent-review` skill requires. Get the owner's clear go each time before anything irreversible or outward-facing (production, publishing, spend, deleting anything public). Questions about what the product should do are still the owner's.
 - **Tests and docs are part of the change.** A bug fix lands with a regression test that fails before the fix; every change updates the doc lines it made false.
 - **A doc that disagrees with code you did not change:** say so in the summary; the owner decides which side moves. When this file is silent, the skills' defaults apply; when they are silent too, decide and say so. When a library default conflicts with this file, this file wins.
 - Every new environment variable: a placeholder in `.env.example`, a row in `docs/variables.md`, a line in the env schema that fails when it is missing — run at build, not only at boot. A value you generate rather than fetch is generated now, written into `.env`, and named in the summary.

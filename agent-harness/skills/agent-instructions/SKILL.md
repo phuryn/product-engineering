@@ -34,9 +34,11 @@ entry file (loaded every session)   — routes; holds only what every session ne
 - **When they conflict, Section 1 wins on mechanics and Section 2 wins on product. What neither says follows the skills' defaults; where those are silent too, it is the agent's call** — decide, and say so in the summary. **When a library's default conflicts with the file, the file wins**, and the file says so where a vendored skill or a quickstart would teach otherwise.
 - The preamble says all of this in a few lines, names where the longer material lives, and tells the agent to **find the moment it is in, in the router, before it starts.**
 
-**Record the owner's departures from skill defaults once, dated and in their words:** product choices in a short entry-file section beside testing and working rules; choices for every product in user-level instructions. Model, builder, reviewer and fallback, review bar, what requires go, design taste and voice belong here. **Precedence: current session owner instruction > product entry file > user-level instructions > skill defaults.** Design detail can stay in the kit README, pointed to from the entry file: apply the `design` skill. For reviewer choices, apply the `independent-review` skill. Memory in one agent does not reach another vendor's builder or reviewer; graduate a standing choice to the file immediately (`references/maintenance.md`).
+**Record the owner's departures from skill defaults once, dated and in their words:** product choices in a short entry-file section beside testing and working rules; choices for every product in user-level instructions. Model, builder, reviewer with its fallback, review bar, what requires go, design taste and voice belong here. **Precedence: current session owner instruction > product entry file > user-level instructions > skill defaults.** Design detail can stay in the kit README, pointed to from the entry file: apply the `design` skill. For reviewer choices, apply the `independent-review` skill: a reviewer always has a fallback, never "none"; the pass rewrites "a model never reviews its own family's work" as *prefer another family*, with a fresh session of the builder's family when no other can run (owner, `2026-11-06`). Memory in one agent does not reach another vendor's builder or reviewer; graduate a standing choice to the file immediately (`references/maintenance.md`).
 
 A starter file to copy: `references/agents-md-skeleton.md`.
+
+**After installing packs, wire them once:** record the owner's choices, a docs index and router rows for the installed skills. For existing code, read every installed skill that touches it against the code and add the missing tests the skills name. (`2026-11-06`, a live Q&A product built before a billing rule: reading the rule against the code found both reads it forbids while every unit test passed.)
 
 ## Make sure it loads
 
@@ -109,7 +111,7 @@ Most rules wait for their router row. A few must fire across every task — afte
 Each has a receipt (`references/working-rules.md`):
 
 - **Read the instruction file before the first plan.**
-- **Apply skill defaults without asking.** Ask only when a model or CLI a default names is missing or out of usage and the product records no fallback that can run, and get the owner's clear go each time before anything irreversible or outward-facing (production, publishing, spend, deleting anything public). Questions about what the product should do are still the owner's.
+- **Apply skill defaults without asking.** Ask only when a builder or other non-reviewer model or CLI a default names is missing or out of usage and the product records no fallback that can run; reviewers always fall back as the `independent-review` skill requires. Get the owner's clear go each time before anything irreversible or outward-facing (production, publishing, spend, deleting anything public). Questions about what the product should do are still the owner's.
 - **No play-by-play.** Plan, build, summarize once.
 - **Commit messages go through a heredoc (`git commit -F -`), never `-m "…"`**: a backtick inside `-m` is command substitution, and the text vanishes silently.
 - **A fix that carries an exclusion says, in its comment, why the excluded case does not need it.**

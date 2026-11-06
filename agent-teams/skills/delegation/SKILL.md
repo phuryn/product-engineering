@@ -61,7 +61,7 @@ Then:
 | **The Grok CLI** (`grok-agents`) | A peer, builder or reviewer from a different model family; the independent review's default reviewer (`independent-review`) | A round that could not read exits 0 after a sentence; length is the tell |
 | **Headless Claude Code** (`claude-agents`) | A session with none of your conversation: a builder or peer for an agent that is not Claude, or a reviewer | A plain `-p` run still loads the project's and the user's instruction files and auto-memory; only a restricted review run starts from the repository alone. A resume keeps the model but drops effort, permission mode and tools unless re-sent (observed 2026-10-24) |
 
-**The session that wrote the code never clears it.** The reviewer is a fresh session, ideally another model family, never the building thread resumed or forked and never a subagent of it. The loop and its stopping rule are `independent-review`.
+**The session that wrote the code never clears it.** The reviewer is a fresh session, ideally another model family, or the builder's family when no other can run, never the building thread resumed or forked and never a subagent of it (owner, `2026-11-06`). The loop and its stopping rule are `independent-review`.
 
 ## Model and effort (Claude subagents)
 

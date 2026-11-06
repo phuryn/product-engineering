@@ -40,7 +40,7 @@ In Codex, plugins install for your user, in every project: run the Codex command
 
 **More than one agent?** Claude Code and Codex read skills from different places, so install in each one you work in. When one agent coordinates and drives the others, that one needs the skills, and a builder needs `app-stack` installed in it for screens and an MCP server, which its brief names; a reviewer starts without them on purpose.
 
-After installing packs, apply the `agent-instructions` skill once to wire the product's entry file: owner's choices starting from skill defaults, a docs index, and router rows for installed packs — any visual work → apply `design`; a deploy-triggering push or release → apply `release-gate`; a review loop → apply `independent-review`; delegating → apply `delegation`; a lesson for the collection → type `/agent-harness:retro` (Codex: `$agent-harness:retro`).
+After installing packs, apply the `agent-instructions` skill once to wire the product's entry file: owner's choices starting from skill defaults, a docs index, and router rows for installed packs — any visual work → apply `design`; a deploy-triggering push or release → apply `release-gate`; a review loop → apply `independent-review`; delegating → apply `delegation`; a lesson for the collection → type `/agent-harness:retro` (Codex: `$agent-harness:retro`). In a product that already has code, the same pass reads each installed skill whose area the code touches against that code and adds the tests those skills name that it lacks.
 
 <details>
 <summary>Install commands: Claude Code, Codex, any other agent</summary>
