@@ -68,7 +68,7 @@ volatile; that one is durable and belongs in version control and in your routing
 
 **Once you have read an answer, the item and the answer are deleted**, except a gate, which stays until the go is typed in chat: a note on it deletes only the answer. No reply on the page, no "settled" list, nothing showing that their feedback was processed. (`2026-10-24`, the owner: "I don't need answers when something is done." Replies left on finished items had left him not knowing what to do with them.) Work in this order:
 
-1. Record the decision (the product's decision log, `STATUS.md` QUEUED for the work it creates, `LOG.md` for the why).
+1. Record the decision (the product's decision log, with the answer's id and `at`; `STATUS.md` QUEUED for the work it creates; `LOG.md` for the why). An answer whose id and `at` the log already holds is not recorded or queued again.
 2. Delete the item and its answer in one write. For a gate, delete only the answer: the gate stays until the go is typed in chat.
 3. Act. On a gate, only once the go is in chat.
 4. Confirm in chat, in one line.
