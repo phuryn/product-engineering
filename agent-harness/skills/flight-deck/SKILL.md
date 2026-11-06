@@ -16,7 +16,8 @@ The fix is not a better memory. It is writing state down where it cannot be summ
 tool exists, build the page in the first pass as an artifact with a database (`capabilities: {db: {}}`)
 from `assets/owner-page.html`, following `references/owner-page.md`; use `OWNER.md` only when the tool
 does not exist. A test run, or a run with nothing for the owner to decide yet, still builds the page: it
-carries the status too, and a test is where the page gets exercised.
+carries the status too, and a test is where the page gets exercised. A scheduled pass with no chat never
+builds or publishes a page: it checks the one its prompt names.
 
 ## The two files (per area, not per repo)
 
@@ -73,7 +74,7 @@ volatile; that one is durable and belongs in version control and in your routing
 3. Act. On a gate, only once the go is in chat.
 4. Confirm in chat, in one line.
 
-Acting first leaves answered items on the page for as long as the work takes. **On a page with several areas, consume only the answers to your own area's items**; the others wait on the page for their own sessions.
+Acting first leaves answered items on the page for as long as the work takes. **On a page with several areas, consume only the answers to your own area's items**; the others wait on the page for their own sessions. **A run with no chat** (a scheduled pass) does steps 1 and 2 only: it does none of the work, puts its confirmation in `STATUS.md` for the next session to repeat in chat, and never passes a gate.
 
 **Check at fixed points, because nothing notifies you when they save:** each stage boundary, while a build or review runs, before ending a turn, after a compaction, and whenever they say they answered. Answers the owner never mentioned were caught only this way. **A session that goes idle with items waiting schedules its own check** (a cron or a loop, where the harness has one) rather than waiting for the next message; for the hours no session runs, a scheduled headless pass checks instead (`references/owner-page.md` § A scheduled check without a session). (`2026-11-03`: six answers saved at 17:35 were read nine hours later, when the owner asked whether the page was up to date.) **An answer given in chat closes its item too**, and a gate only when it is the go.
 

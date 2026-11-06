@@ -118,7 +118,7 @@ Reuse the same artifact for the whole project, or for every area on the page, an
 3. **Then act**, from your records, not from the page. On a gate, only once the go is in chat.
 4. **Confirm in chat** in one line: what you recorded and what happens next. The page never carries a reply.
 
-**A run with no chat** (a scheduled pass, below) does steps 1 and 2 as written; in step 3 it queues the work in `STATUS.md` and does none of it; its step 4 line goes into `STATUS.md`, for the next session to repeat in chat. Nobody can type a go there, so it never passes a gate.
+**A run with no chat** (a scheduled pass, below) does steps 1 and 2 as written and stops there: step 1 has queued the work, and it does none of it. Its confirmation goes into `STATUS.md`, for the next session to repeat in chat. Nobody can type a go there, so it never passes a gate, and it never builds or publishes a page.
 
 If the answer raises a new question, delete the answered item and add a new one. Don't edit the old one into a conversation.
 
@@ -137,7 +137,8 @@ Where the harness has a scheduler (cron, the operating system's task scheduler, 
 ```text
 Apply the flight-deck skill. Read STATUS.md first. Then check the owner's page at <page URL>
 for area <area>, following its references/owner-page.md, section The loop, for a run with no
-chat. Never call the Artifact tool: the page is never published or republished from here.
+chat. Do none of the work an answer creates. Never call the Artifact tool: no page is built,
+published or republished from here.
 ```
 
 **In Claude Code** (observed `2026-11-06`, Claude Code 2.1.319): a headless `claude -p` run has the Artifact tool, and ArtifactData and ArtifactComments as deferred tools it loads through ToolSearch. It read a page's answers with `--allowedTools ArtifactData`, but every database write, a delete included, was denied in the default and `dontAsk` permission modes, allowed or not: a write asks for an approval nobody can give in a headless run. In `auto` mode the write ran, and with `Skill` in `--tools` the run listed the installed skills, this one among them. The run that worked end to end, its prompt read from stdin:
@@ -163,4 +164,4 @@ Options: A. Starter / Pro (recommended) · B. Free / Builder
 Your answer:
 ```
 
-For several areas, keep one section per area with its name, location, kind, phase, done/now/next, waiting count, last touch, board and asks. The owner writes under "Your answer:" and saves; you read it at the same fixed points, and the same consume rule applies, to your own area's section only: record it, delete the ask's section, act, confirm in chat. Answered asks never stay in the file, except a gate's: it stays until the go is typed in chat, and you clear only its answer.
+For several areas, keep one section per area with its name, location, kind, phase, done/now/next, waiting count, last touch, board and asks. The owner writes under "Your answer:" and saves; you read it at the same fixed points, and the same consume rule applies, to your own area's section only: record it, delete the ask's section, act, confirm in chat (a run with no chat records and deletes only). Answered asks never stay in the file, except a gate's: it stays until the go is typed in chat, and you clear only its answer.
