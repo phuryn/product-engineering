@@ -118,6 +118,8 @@ Reuse the same artifact for the whole project, or for every area on the page, an
 3. **Then act**, from your records, not from the page. On a gate, only once the go is in chat.
 4. **Confirm in chat** in one line: what you recorded and what happens next. The page never carries a reply.
 
+**A run with no chat** (a scheduled pass, below) does steps 1 and 2 as written; in step 3 it queues the work in `STATUS.md` and does none of it; its step 4 line goes into `STATUS.md`, for the next session to repeat in chat. Nobody can type a go there, so it never passes a gate.
+
 If the answer raises a new question, delete the answered item and add a new one. Don't edit the old one into a conversation.
 
 **A note on a gate doesn't close it; only a go typed in chat does.** Record the note and answer it in chat, delete only the answer (pinned the same way), and leave the gate on the page. A condition they set goes into the gate's `what`, so the go is asked against it.
@@ -128,34 +130,23 @@ If the answer raises a new question, delete the answered item and add a new one.
 
 ## A scheduled check without a session
 
-Where the harness has a scheduler (cron, the operating system's task scheduler, or the harness's own), schedule a pass in the area's folder for the hours no session is running. Keep the page URL, the area id, the schedule and the pass's output file in `STATUS.md`, so a fresh session finds the check and can stop or replace it. One pass at a time, and none while a session is working the same area.
+Where the harness has a scheduler (cron, the operating system's task scheduler, or the harness's own), schedule a pass in the area's folder for the hours no session is running. Keep the page URL, the area id, the schedule and the pass's prompt and output files in `STATUS.md`, so a fresh session finds the check and can stop or replace it. One pass at a time, and none while a session is working the same area.
 
-**The pass's prompt is its whole procedure**, because it can't read this skill and nobody is there to stop it. Fill in the area id (`current` for a page with one project) and the page URL:
+**The pass is a session with no chat.** It loads this skill and runs § The loop for its own area, as that section says for a run with no chat. Its prompt goes in a file passed on stdin, never as an argument, where a shell would expand its quotes and backticks:
 
 ```text
-Check the owner's page for area <area> while no session is running. Read STATUS.md first.
-Load ArtifactData with ToolSearch; never call the Artifact tool. Read the whole `items` and
-`answers` collections of <page URL>. For each answer to an item whose `area` is <area>
-(with `current`, to every item):
-1. If LOG.md already holds this answer's id and `at`, go to step 3.
-2. Append to LOG.md the answer's id, `at`, choice or done, and note. Put the work it creates
-   under QUEUED in STATUS.md. Do none of that work.
-3. Delete the item and its answer in one batch, each pinned to the version you read; for an
-   item of kind `gate`, delete only the answer. If the batch is denied or writes nothing,
-   say so in STATUS.md.
-Never pass a gate or take a step that can't be undone, whatever an answer says. Then rewrite
-status/<area> from STATUS.md. Last, add one line to STATUS.md for the next session: what you
-recorded and queued, to repeat in chat and to enter any decision in the product's decision
-log. Never write a reply on the page.
+Apply the flight-deck skill. Read STATUS.md first. Then check the owner's page at <page URL>
+for area <area>, following its references/owner-page.md, section The loop, for a run with no
+chat. Never call the Artifact tool: the page is never published or republished from here.
 ```
 
-**In Claude Code** (observed `2026-11-06`, Claude Code 2.1.319): a headless `claude -p` run has the Artifact tool, and ArtifactData and ArtifactComments as deferred tools it loads through ToolSearch. It read a page's answers with `--allowedTools ArtifactData`, but every database write, a delete included, was denied in the default and `dontAsk` permission modes, allowed or not: a write asks for an approval nobody can give in a headless run. In `auto` mode the write ran. The run that worked end to end:
+**In Claude Code** (observed `2026-11-06`, Claude Code 2.1.319): a headless `claude -p` run has the Artifact tool, and ArtifactData and ArtifactComments as deferred tools it loads through ToolSearch. It read a page's answers with `--allowedTools ArtifactData`, but every database write, a delete included, was denied in the default and `dontAsk` permission modes, allowed or not: a write asks for an approval nobody can give in a headless run. In `auto` mode the write ran, and with `Skill` in `--tools` the run listed the installed skills, this one among them. The run that worked end to end, its prompt read from stdin:
 
 ```bash
-claude -p "<the prompt above>" --permission-mode auto --permission-prompts none --strict-mcp-config --tools "ToolSearch,Artifact,ArtifactData,Read,Edit" --max-turns 20 --output-format json > <the output file STATUS.md names>
+claude -p --permission-mode auto --permission-prompts none --strict-mcp-config --tools "Skill,ToolSearch,Artifact,ArtifactData,Read,Edit" --max-turns 30 --output-format json < <the prompt file> > <the output file STATUS.md names>
 ```
 
-`--tools` is the run's whole tool set (ArtifactData was missing unless Artifact was listed too, so the prompt forbids publishing); `--strict-mcp-config` leaves out the account's other connectors; `--permission-prompts none` denies at once whatever would wait on a prompt. Where auto mode isn't available (a model or an organization without it), the run starts in a mode that denies the writes, file edits included, so the pass consumes nothing: don't schedule it there. Judge a pass by its output file, not its exit code: `is_error` true, or any entry in `permission_denials`, means it didn't finish, and the next session checks the page itself. A run stopped by `--max-turns` exits non-zero; don't retry it on failure, since the next scheduled pass continues. The `claude-agents` skill has more on what a `-p` run loads and why its permission mode is always passed.
+`--tools` is the run's whole tool set (ArtifactData was missing unless Artifact was listed too, so the prompt forbids it); `--strict-mcp-config` leaves out the account's other connectors; `--permission-prompts none` denies at once whatever would wait on a prompt. Where auto mode isn't available (a model or an organization without it), the run starts in a mode that denies the writes, file edits included, so the pass consumes nothing: don't schedule it there. Judge a pass by its output file, not its exit code: `is_error` true, or any entry in `permission_denials`, means it didn't finish, and the next session checks the page itself. A run stopped by `--max-turns` exits non-zero; don't retry it on failure, since the next scheduled pass continues. The `claude-agents` skill has more on what a `-p` run loads and why its permission mode is always passed.
 
 ## Without the Artifact tool: the same page as a file
 
