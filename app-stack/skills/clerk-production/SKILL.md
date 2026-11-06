@@ -66,6 +66,7 @@ Three things of the product's own are named throughout. **The integration notes*
     - a provider-less surface linking into one that needs Clerk;
     - Clerk's menus opening behind a modal dialog, and a design token that loops through Clerk's own variable;
     - the plan tab that must match the workspace model;
+    - the organization profile's navigation, hidden rather than unmounted below its breakpoint;
     - a dashboard feature's slug derived from its name, and a billing patch that moves features to Free;
     - a subscription read that carries only a plan's visible features;
     - the personal-data webhooks, and Clerk's own deletion paths;
