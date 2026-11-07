@@ -36,7 +36,7 @@ Learned on a remote-control product: a relay service with a web client, and an e
 - **The module sets `reuseExistingServer: false`** (`rules-from-bugs.md § Servers, builds and worktrees`). The suites cannot drift apart, and a server started by hand copies the module rather than remembers it.
 - **The browser suites build into their own directory and serve on their own port**, so they never fight a `next dev` you have open — Next refuses two dev servers in one repository.
 - **All three configs pin `colorScheme`, and say why in the config** (`rules-from-bugs.md`, a harness default decides what every test asserts).
-- **A suite whose screens show a secret turns off trace, screenshot and video**, because the runner's artifacts keep what the page showed — a one-time token in a dialog included. (`2026-10-23`, a monitoring product's API-token journey.)
+- **A suite whose screens show a secret turns off trace and video**, because they keep what the page showed, a one-time token in a dialog included. Screenshots stay off too, unless a capture must show the screen: then it masks the secret's element (Playwright's `mask` option) or revokes the secret in a `finally`, so the image holds a dead one, and the spec says which. (`2026-10-23`, a monitoring product's API-token journey.) (`2026-11-07`, a live Q&A product: a release capture reviewed by people held a valid write token until the next run.)
 
 ## The script contract
 
@@ -60,6 +60,7 @@ The suite that signs in as real accounts on the identity provider's development 
 1. fetches the provider's testing token (Clerk's bot protection refuses a headless browser without it);
 2. creates the test users if the instance lacks them;
 3. in the organization shape, **creates an organization for each and lands it past any screen the provider puts in front of the app** (Clerk's `choose-organization` task: with organizations on and membership required, a session without one is pending, and `auth()` treats it as signed out);
+   - **One new-customer test covers what setup skips:** a fresh test address per run (on Clerk, `+clerk_test`), through the provider's own sign-up component (`<SignUp/>`) and the organization task to the member home and a first created resource; teardown deletes the user and organization. (`2026-11-07`, a live Q&A product: its adoption pass found no suite drove sign-up or the organization task.)
 4. gives each secondary role its membership in the first admin's organization;
 5. deletes everything those accounts own.
 

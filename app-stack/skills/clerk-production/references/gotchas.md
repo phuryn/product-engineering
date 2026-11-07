@@ -52,6 +52,7 @@ One authenticated mutation `POST` came back `200` with `x-clerk-auth-status: sig
 
 - It carried `__clerk_db_jwt` and `__session` cookies byte-identical to the requests Clerk accepted 200 ms before and 140 ms after it.
 - `@clerk/backend` reaches that branch only when the dev-browser cookie is *absent*. So the inputs and the verdict disagree, and nothing in `proxy.ts` (a bare `clerkMiddleware` with no route matching) is party to it.
+- **Rule the harness out first:** an action before the identity provider's client script loads also answers signed out; wait after **every navigation** to prevent that cause (`test-harness`, `references/rules-from-bugs.md`). It does not explain the refusal above, three seconds after sign-in with byte-identical cookies. (`2026-11-07`, a live Q&A product: its backlog recorded such refusals in three of six gates, mechanism unknown, while its harness waited only for the URL.)
 
 **What makes it expensive is the aftermath, not the refusal.**
 

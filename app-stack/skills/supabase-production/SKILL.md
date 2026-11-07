@@ -51,6 +51,12 @@ The principles carry to any hosted Postgres. Under them:
 9. **Separate development and production projects, each with its own key set.** The app refuses to boot on a partial configuration. Record the verified project and branch mapping with its date, and **never infer the target from an old MCP configuration or the CLI's link**. (`2026-09-15`: the former development project was promoted to production and a new development branch created.) → `references/projects-and-backups.md`
 10. **Read the gotchas before writing a query, a migration or a connection string.** Server reads must never be cached. PostgREST will not guess an ambiguous embed. `create or replace` cannot widen a return type. A refused delete changed its SQLSTATE in Postgres 18. Some error codes answer with misleading HTTP statuses, and a conflict raised as `40001` can arrive with no code at all. A plpgsql loop variable named like a table alias, and an array bound to a `jsonb` parameter in node-postgres, fail only at runtime. The generated types call every argument without a default non-null. supabase-js needs a global `WebSocket`. The direct database host is IPv6-only, and TLS is whatever each URL asks for. The hosted development project fails intermittently in three costumes. → `references/gotchas.md`
 
+## Scheduled SQL with `pg_cron`
+
+A `cron.schedule` in a migration runs on every database the migration reaches, a development branch included, so its SQL must be safe there. It runs as the role that scheduled it (`cron.job.username`); read that role's `rolbypassrls`: if it bypasses RLS, the job's own SQL is its only authorization (read in a live Q&A product's database, `2026-11-07`). A catalog suite that enumerates `public` misses the `cron` schema: assert the job by name, schedule and command, and read failures from `cron.job_run_details`.
+
+**Give it an outside witness** (`uptime-monitoring`): either success pings the monitor's heartbeat URL through `pg_net`, with the secret URL in Vault, never a committed migration, or `/health` reports the newest successful run's age and the monitor asserts it. (`2026-11-07`, a live Q&A product: its adoption pass found a deletion job absent from the catalog suite and external monitoring.)
+
 ## Applying a migration
 
 ```sh

@@ -176,7 +176,7 @@ List every table that holds something a person wrote. The privacy page has to na
 
 ## Scheduled work
 
-- **No public cron endpoint.** A cron service runs the job code directly and exits.
+- **No public cron endpoint.** A cron service runs the job code directly and exits. A database-scheduled job runs as the role that scheduled it; its SQL is its only authorization when that role bypasses RLS (`supabase-production`, scheduled SQL).
 - **Each run is idempotent**, by one of two means. Test either the same way: runs twice, acts once.
   - **A run table**: a `job_runs` row with a unique key per run, for a job that acts once per period.
   - **A receipt per unit of work**: each unit (an event × a channel × a recipient, say) a unique row, claimed under a lease (`for update skip locked`), acted on only while the claim is fresh, and marked done only while it is still yours. A pass may then run any number of times, overlap another, or be missed and caught up by the next. (`2026-10-23`, a monitoring product's alert sender, on a one-minute cron.)
