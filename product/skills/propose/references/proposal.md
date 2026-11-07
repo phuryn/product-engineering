@@ -1,26 +1,26 @@
-# The proposal
+# The proposal artifact
 
-**What it is for:** the evidence behind what the product should do next, the hypotheses it rests on, the alternatives considered, the recommendation, and how the weakest assumption will be tested. It is the one record of *why*; the brief holds *what was accepted*, the decision log *what was chosen*.
+**What it is for:** the evidence, hypotheses, alternatives, recommendation and experiment behind what the product should do next. This HTML page is the one record of why; the brief holds accepted intent, the decision log what was chosen.
 
 **Rules**
 
-- **Every claim has a kind and a source** (`SKILL.md` § 3). A claim with no source is the agent's inference or an assumption, and says so.
-- **Hypotheses keep their IDs for life.** Observations attach to an ID; a hypothesis that turned out wrong is marked refuted, not deleted.
-- **One current recommendation.** Rewrite it when the evidence changes; history lives in the observation log.
-- **The prototype is sample data**, and the record says so where it links it.
+- **Every claim has a kind and source** (`SKILL.md` § 3). A claim with no source is labelled as the agent's inference or an assumption.
+- **Hypotheses keep their IDs for life.** Observations attach to an ID; a refuted hypothesis stays in the record.
+- **One current recommendation.** Rewrite it when evidence changes; history lives in the observation log on the page.
+- **Each key screen labels its realistic sample data** and displays its matching job number.
 
-## Skeleton — copy from here
+## Page sections, in order
 
-```markdown
+Use these sections inside the self-contained HTML file, with the table shapes below rendered as HTML tables. These are page contents, not a second proposal document.
+
+```text
 # Proposal: <the idea, in a line>
 
-Updated <YYYY-MM-DD>. Prototype: <link> (sample data). Status: <draft | reviewed by the owner on <date> | accepted on <date>>
+Updated <YYYY-MM-DD>. Status: <draft | reviewed by the owner on <date> | accepted on <date>>.
 
-## What was shared
+## Research
 
-<What the owner gave, one line each, with where it lives.>
-
-## Evidence
+<What the owner shared and what research found, each claim with kind, source and date read.>
 
 | # | Claim | Kind | Source, date read |
 |---|---|---|---|
@@ -30,48 +30,55 @@ Updated <YYYY-MM-DD>. Prototype: <link> (sample data). Status: <draft | reviewed
 
 ## Alternatives
 
-<Up to five that the people in question actually use, direct competitors kept apart from substitutes and doing nothing. Each: what it does for them, where it falls short, the source.>
+<Up to five alternatives people actually use, including substitutes and doing nothing. Keep competitors distinct; give each one's benefit, shortfall and source.>
 
-## Hypotheses
+## Segment
+
+<Who this is for, why this segment, and any comparison scores with their scales.>
+
+## Value proposition and value curve
+
+<The value proposition for the chosen segment, and the value curve against the alternatives, each score with its scale and source.>
+
+## Recommendation
+
+<One direction, or two or three when the choice is real: who it is for, the value proposition, what the first version does and deliberately doesn't do, the trade-off. Then the one recommended, and why. Rewritten, never appended to.>
+
+## Jobs map
+
+<For a published method, follow its sourced steps in the brief.>
+
+| # | Job, in the user's words | Screen | Its one question | Primary action |
+|---|---|---|---|---|
+| 1 | <answer what people upvoted most> | <the host's room> | <what should I answer next?> | <mark it answered> |
+
+## Key screens
+
+<One high-fidelity screen per key job, with matching job number and realistic sample data labelled. Static or clickable as agreed.>
+
+**The owner's preview:** <each key screen and what to inspect on it, before any plan>.
+
+## Open decisions
+
+<Each question: options, recommendation and reason. Support saved viewer picks where the host can, plus copying choices as text for chat.>
+
+## Hypotheses and experiments
 
 | ID | Hypothesis | Rests on | Status | Last evidence |
 |---|---|---|---|---|
 | H1 | <solo educators will pay monthly for ranked questions> | E1, E3 | untested | — |
 
-The weakest consequential assumption: <ID>, because if it is wrong <what changes in the recommendation>.
-
-## Directions
-
-<One, or two or three when the choice is real: who it is for, the value proposition, what the first version does and doesn't do, the trade-off.>
-
-## Recommendation
-
-<One direction and why. Rewritten, never appended to.>
-
-## Jobs map
-
-<When the product implements a published method, the jobs follow the method's steps, written with a source per step in the brief above its use cases.>
-
-| Job, in the user's words | Screen | Its one question | Primary action |
-|---|---|---|---|
-| <answer what people upvoted most> | <the host's room> | <what should I answer next?> | <mark it answered> |
-
-## The owner's preview
-
-1. <action> → <what should happen>
-2. …
-
-## Experiments
+<The weakest consequential assumption's ID and what changes in the recommendation if it is wrong.>
 
 | Tests | Who takes part | What they do | What is observed | The result that changes the recommendation |
 |---|---|---|---|---|
 | H1 | <ten educators from the waitlist> | <run one session with the first version> | <how many pay after the trial> | <fewer than two pay> |
 
-## Open decisions for the owner
+**Observation log on the page:** <dated, appended observations: what people did, the source and the hypothesis IDs they bear on>.
 
-<Each with the agent's recommendation and the reason. Moved to the decision log once decided.>
+## The plan
 
-## Observation log
+<For a complex change that alters what people see or leaves choices open: the key assumptions first, then high-fidelity screens of the flows that change, then the open choices, picked as `SKILL.md` § 7 says.>
 
-<Dated, appended. Each: the date, what people did (used, returned to, abandoned, paid for), the source, and the hypothesis IDs it bears on.>
+<The builder's plan stays in the repository: phases, files per phase, tests and acceptance criteria. Tests touching production, its users or its data need the owner's go.>
 ```

@@ -11,7 +11,7 @@ That split is what let an owner answer seven questions in one message rather tha
 
 ## First: does every builder load the method?
 
-Check that **every agent that builds the product's screens loads the method from `app-stack` installed in it** (`SKILL.md § Where the method lives`), never from a link. An older copy inside the product (`.claude/skills/design/`, or the method pasted into its design README) is stale: what it says that the pack doesn't is sorted as `SKILL.md § Where the method lives` says, and the copy is deleted.
+Check that **every agent that builds the product's screens loads the method from `app-stack` installed in it** (`SKILL.md § Where the method lives`), never from a link. An older copy inside the product (`.claude/skills/design/` or `ui-design/`, or the method pasted into its design README) is stale: what it says that the pack doesn't is sorted as `SKILL.md § Where the method lives` says, and the copy is deleted.
 
 A monitoring product's design README said the method "applies unchanged" and pointed at it in another repository, which no agent working in the product ever opened. The method already said "Cancel is always the secondary", and the product still shipped borderless Cancels in five places (`2026-10-22`). A rule another product already paid for costs the full price again when this one only points at it.
 

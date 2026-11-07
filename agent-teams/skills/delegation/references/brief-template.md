@@ -25,8 +25,8 @@ Copy, fill, delete what doesn't apply. Order matters: the goal comes first becau
  that holds them, folded in before the builder starts: a builder working from
  an older brief repeats what those rounds fixed. Who commits: where the
  builder's sandbox can't write the main checkout's git directory (a linked
- worktree's index lives there), you do. For a change with screens: the design
- skill by name, from the pack installed in the builder ($app-stack:design in
+ worktree's index lives there), you do. For a change with screens: the `ui-design`
+ skill by name, from the pack installed in the builder ($app-stack:ui-design in
  Codex), the jobs map rows it serves, and the data rules that stay out of the
  copy.>
 

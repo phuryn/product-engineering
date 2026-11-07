@@ -107,13 +107,13 @@ Each entry: the date, the request, **rejected** or **deferred**, the reason, the
 - **2026-11-05 · rejected.**
 - **Request:** let a product lock the installed packs to one version (a tag, a commit or a lock file), so the method can't change under it in the middle of a stage.
 - **Reason:** the packs are installed in every agent and update themselves, and a product keeps no copy of them; a pinned pack is the frozen copy by another name, missing every fix released after it. What a product records instead is which packs each agent has installed (the `agent-instructions` skill), because a builder without them works without the method. A third-party skill a skill tells you to install (a vendor's own, through `npx skills`) may still be locked by its lock file; that is the vendor's version, not this collection's.
-- **Evidence:** the pack released three versions between `2026-11-02` and `2026-11-03`, each carrying lessons from live products, and a frozen copy gets none of them (`design` § What binds). `2026-11-03`, an evals product: its builder, with no pack installed, built screens without the method, and the owner's click-through found five layout bugs the method already named.
+- **Evidence:** the pack released three versions between `2026-11-02` and `2026-11-03`, each carrying lessons from live products, and a frozen copy gets none of them (`ui-design` § What binds). `2026-11-03`, an evals product: its builder, with no pack installed, built screens without the method, and the owner's click-through found five layout bugs the method already named.
 - **Decided by:** the owner ("I don't want people to pin our skills collection").
 
 ## Grep selling pages until there is a launch list
 
 - **2026-11-07 · rejected.**
 - **Request:** a rule to grep every selling page when a change makes a selling sentence false, until the product has a launch list.
-- **Reason:** `design`'s "Sell only what runs" already requires every selling page to read one launch list in code. A workaround teaches the wrong solution; add the list instead.
+- **Reason:** `ui-design`'s "Sell only what runs" already requires every selling page to read one launch list in code. A workaround teaches the wrong solution; add the list instead.
 - **Evidence:** `2026-09-20`, a live Q&A product without the list changed a plan, corrected three surfaces and left its plan summary promising a footer logo that was absent; no gate failed on the marketing strings.
 - **Decided by:** the maintaining session, as the proposing session offered to decline it in favour of the launch list.

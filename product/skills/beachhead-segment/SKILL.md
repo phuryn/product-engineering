@@ -114,7 +114,7 @@ Use $ARGUMENTS to pass:
 
 ## Output
 A beachhead segment analysis including:
-- Top 3-5 recommended segments with scoring
+- Top 3-5 recommended segments with scoring; every displayed score names its scale beside the number or in the subtitle
 - Primary beachhead segment recommendation
 - Pain point validation and evidence
 - Willingness to pay assessment and pricing guidance
@@ -134,6 +134,8 @@ Based on Geoffrey Moore's beachhead market strategy in "Crossing the Chasm." Foc
 - Ensure beachhead can reference to adjacent market segments
 - Focus all resources on dominating the beachhead (not diluting efforts)
 - Plan exit from beachhead only after 60%+ market share
+
+(`2026-11-07`, a static discovery page: a reader asked "91 out of what?" about a weighted beachhead score.)
 
 ## How you can tell it worked
 

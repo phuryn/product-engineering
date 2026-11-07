@@ -21,7 +21,7 @@ Codex, Cursor and other agents: see the collection's root `README.md`.
 
 **They start on their own**, in the order they are usually used:
 
-- **propose** — Research an idea or a product's next step and propose what to build: it reads what you shared, looks for what's missing (alternatives, the market, what people say), marks every claim by its source, and ends in a prototype you review, interface first. It asks only what the evidence can't decide, and runs again once people have used the product, with what they did.
+- **propose** — Research an idea or a product's next step and propose what to build: it reads what you shared, looks for what's missing (alternatives, the market, what people say), marks every claim by its source, and ends in one artifact you review: the research, the key screens in high fidelity, and the open decisions with its recommendations. It asks only what the evidence can't decide, and runs again once people have used the product, with what they did.
 - **competitor-analysis** — The competitive landscape: five direct competitors, their strengths and weaknesses, and where to differentiate.
 - **market-segments** — Three to five customer segments, each with its jobs to be done, desired outcomes, pains and product fit.
 - **beachhead-segment** — The first segment to win, scored on burning pain, willingness to pay, winnable share and referral potential (Geoffrey Moore's *Crossing the Chasm*).

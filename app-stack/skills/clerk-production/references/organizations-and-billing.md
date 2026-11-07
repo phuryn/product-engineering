@@ -48,7 +48,7 @@ The principle behind all of this is `saas-authorization`: a role says *who may a
   - Only an undismissable dialog also calls `preventDefault()`. A plain confirmation still closes, while the vendor behind it does not.
   - Test a refusal from the deepest place the component is really rendered, not in isolation.
   - (`2026-09-20`, a live Q&A product: one Escape on a dialog holding an API token shown once, inside Clerk's organization modal, closed Clerk's modal and destroyed the secret.)
-  - The dialog primitive itself is `design`.
+  - The dialog primitive itself is `ui-design`.
 
 ## Billing
 

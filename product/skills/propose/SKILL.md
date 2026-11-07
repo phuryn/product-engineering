@@ -1,6 +1,6 @@
 ---
 name: propose
-description: "'I have an idea', 'is this worth building', 'what next': research it and propose what to build, with sources and a prototype to review. Not for agreed changes or bugs."
+description: "'I have an idea', 'is this worth building', 'what next': research it and propose what to build, with sources and key screens to review. Not for agreed changes or bugs."
 ---
 
 # Propose — research an idea, then propose what to build
@@ -11,7 +11,7 @@ This is not an interview. Questions come last, and only the ones the evidence ca
 
 **Not for** an agreed change, a bug or a small UI change: those go straight to a plan or a build. **Not when** the owner has already decided and asks for the build.
 
-**Who decides.** The owner owns the thesis, the segment, what gets built and when. The agent owns the evidence, the proposal and the prototype, and says plainly where the evidence and the owner's idea disagree.
+**Who decides.** The owner owns the thesis, the segment, what gets built and when. The agent owns the evidence and the proposal artifact, and says plainly where the evidence and the owner's idea disagree.
 
 ## Steps
 
@@ -47,9 +47,9 @@ Everything the owner gave: notes, research, data, links, screenshots, competitor
 - **The owner's preference is a decision; the owner's assertion is a hypothesis.** "I want this segment" is recorded as a choice. "This segment will pay" stays a hypothesis with no source but the owner, and the proposal says so.
 - For a new product most evidence is other people's words, read by a model that writes fluently. **If the proposal doesn't show each claim's source and mark the agent's own inferences, it is assumptions in a confident tone.**
 
-### 4. Check feasibility before the prototype
+### 4. Check feasibility before drawing screens
 
-When the idea depends on something that may not exist or may not be allowed (an API, a platform rule, access to the data, a cost per user that eats the price), check it now and say what was checked. A prototype of something that can't be built wastes the owner's review.
+When the idea depends on something that may not exist or may not be allowed (an API, a platform rule, access to the data, a cost per user that eats the price), check it now and say what was checked. Screens of something that can't be built waste the owner's review.
 
 ### 5. Propose
 
@@ -60,45 +60,50 @@ When the idea depends on something that may not exist or may not be allowed (an 
 
 ### 6. Build what the owner reviews, interface first
 
-- **The jobs map first** (the `design` skill): each job in the user's words, the screen it happens on, the one question that screen answers and its primary action. The prototype draws those screens, and the proposal lists the map. When the product replaces a tool the owner knows, start from that tool's structure and say why wherever it departs.
-- **An interactive prototype on realistic sample data that fills every screen**, every screen marked as sample data. A mock, prototype or artifact is a high-fidelity screen: apply the `design` skill, read its `references/method.md`, where the product has a kit, load and compose its CSS rather than imitate it, and check screenshots against the method before the owner sees it. HTML is enough. The owner tries it before reading any plan. When the product needs them, the plan and the technical assumptions come after, for the owner to challenge once the interface makes sense. (`2026-11-03`, an evals product's artifact imitated its kit and invented borderless buttons; the owner caught those and misaligned chips.)
-- **A look, not a template.** For a new product, give the prototype one direction from the `design` skill's direction stage: grounded in the product's subject and checked against the generic defaults, its values in tokens. The design stage builds the kit from the owner's picks. An existing product composes its kit.
-- **The owner's preview:** a link and the key user flows to try, each an action and what should happen.
-- **The customer experiment** is a different thing: the hypothesis it tests (by ID), who takes part, what they are asked to do, the behaviour that is observed, and **which result would change the recommendation**. Building the first version and putting it in front of paying users is often the experiment.
+- **One self-contained HTML page**, opening from its file with no server or build. Order: research, alternatives, segment, value proposition and value curve, the recommendation (§ 5), jobs map, key screens, open decisions, hypotheses with the weakest consequential assumption and its experiment. Research marks every claim by kind and source (§ 3).
+- **The jobs map first:** each job numbered and in the user's words, the screen it happens on, the one question that screen answers and its primary action. Draw one high-fidelity screen per key job, each showing its job's number, with realistic sample data marked as such. When replacing a familiar tool, start from its structure and justify departures. (`2026-11-07`, a static discovery page: a cold reader valued the jobs map most; matching numbers connected its rows to screens.)
+- **Apply the `ui-design` skill**, reading its method before screens; it needs `app-stack` installed. Without it, use the jobs map above, `frontend-design` direction, token values and a checked screenshot. Embed and compose an existing kit's CSS inside the HTML file; for a new product, choose one subject-grounded direction and keep values in tokens. Check screenshots against the method, where present, before the owner sees them. (`2026-11-03`, an evals product's artifact imitated its kit and invented borderless buttons; the owner caught those and misaligned chips.)
+- **Static or clickable screens**, as the person and agent agree. The first working version takes hours and tests the full flow; build no separate app prototype.
+- **Charts:** use `dataviz`, built into Claude Code (observed `2026-11-07`), for the value curve, segment scores and impact/effort view. Elsewhere use its distilled rules in `ui-design`'s `references/collections.md` § `dataviz`. (`2026-11-07`, a static discovery page: a scatter was unreadable; a labelled 3×3 grid with a legend read clearly.)
+- **Fresh eyes before the owner:** apply the `ui-design` newcomer walkthrough to the artifact when installed. A fresh session receives only artifact screenshots and the reader's role. Ask what the page is, what decisions they would make and what is unclear. Fix failures before the owner sees the page. (`2026-11-07`, a static discovery page: screenshots alone exposed a reversed label, a band contradicting its chart title and screens disconnected from jobs.)
+- **The owner's preview:** name the key screens and what to inspect on each, before any plan.
+- **The customer experiment:** its hypothesis ID, participants, task, observed behaviour and the result that would change the recommendation. Building the first version and putting it in front of paying users is often the experiment.
 
 ### 7. Ask only what the evidence can't decide
 
-One round, a few questions at most, each with the agent's recommendation and the reason. These are the decisions that are the owner's: a trade-off between values, a segment, a scope line. (`2026-09`, a live Q&A product: the agent asked "what if there is a single user and no moderator?", and the answer, moderated by default with a switch to turn it off, went into the build prompt.)
+Keep the few questions in the artifact's open decisions, each with options, a recommendation and its reason. They concern the owner's values, segment or scope. Where hosts save viewer picks, as claude.ai artifacts can (read `2026-11-07`), the person picks on the page. Read those picks back next iteration and record them in the decision log. For local files and other hosts without that capability, a button copies choices as text for chat; the person can also answer in chat. The same file supports both paths. (The author's preference, as an example to replace with your own: "a person talking to Claude", `2026-11-07`.) The owner may share the page like any other; the decisions stay the owner's. (`2026-09`, a live Q&A product: the agent asked "what if there is a single user and no moderator?", and the answer, moderated by default with a switch to turn it off, went into the build prompt.)
 
 ### 8. Write the record
 
-One durable file, in the repository's existing place for it, else `docs/product/proposal.md`; its sections are in `references/proposal.md`. Link the prototype from it.
+The HTML file is the one durable record, in the repository's existing place, else `docs/product/proposal.html`; `references/proposal.md` gives its sections. Where the host publishes pages, publish from this file and republish from it each iteration, keeping both aligned. In Claude, that is a claude.ai artifact (observed `2026-11-07`). Create no Markdown duplicate: a second document restating the first loses decisions. Key screens live inside the record.
 
 | Record | Holds |
 |---|---|
-| The proposal | evidence, hypotheses with IDs, alternatives, the recommendation, experiments, the prototype link |
+| The proposal artifact | research with claim kinds and sources, alternatives, segment, value proposition and curve, jobs, screens, decisions, hypotheses and experiments |
 | The brief (or the product's refined idea) | the accepted intent and use cases |
 | The decision log, if there is one | the choices made, their reasons, what would reopen them |
 
-**After the owner accepts**, update the brief and the decision log where needed and link the proposal as their evidence. Don't write a second brief when the accepted proposal already does that job. For a SaaS, the `app-lifecycle` skill picks up from here with the brief and the prototype in hand; for a complex change in any product, the next step is a plan that opens with its key assumptions (what the ask means in this product, where a number or a word the owner gave is wrong, what the owner must decide), then what to implement, how to test it (a test that would touch production, its users or its data runs only with the owner's go) and acceptance criteria.
+**After the owner accepts**, update the brief and decision log where needed and link the artifact as evidence. Write no second brief when the accepted proposal already does that job. For a SaaS, apply the `app-lifecycle` skill with the accepted artifact. For a complex change in any product, the next step is a plan that opens with its key assumptions (what the ask means in this product, where a number or a word the owner gave is wrong, what the owner must decide). When the change alters what people see or leaves choices open, that part goes on this page, or a new one in the same form: the key assumptions first, then the screens of the flows that change in high fidelity, then the choices still open, picked as § 7 says. The builders' part stays in the repository's plan: phases, the files each changes, how to test it (a test that would touch production, its users or its data runs only with the owner's go) and acceptance criteria.
 
 ## Running it again, once people have used it
 
 The proposal is run again after real people have tried the product, with what they **did**: what they used, returned to, abandoned and paid for, and where that came from (analytics, payments, support, interviews).
 
-- **Append evidence, update conclusions.** Add each dated observation under the hypothesis it bears on, by ID. Then update each hypothesis's current status (supported, weakened, refuted, untested) and replace the recommendation. Never leave the old recommendation beside the new one: a proposal that only grows leaves the builder choosing between them.
+- **Update and republish the same HTML file.** Append evidence, update conclusions. Add each dated observation under the hypothesis it bears on, by ID. Then update each hypothesis's current status (supported, weakened, refuted, untested) and replace the recommendation. Never leave the old recommendation beside the new one: a proposal that only grows leaves the builder choosing between them.
 - **What people say they did counts; what they say they would do is a hypothesis again.**
 
 ## Receipt
 
 (`2026-10-16` to `2026-10-21`, a monitoring product.) Competitor and market research over three days led to a first-version spec the owner reviewed (`2026-10-18`), then a prototype of every screen on simulated data, then the build. A pre-order test was dropped for a narrower first version that works. No tickets anywhere: the reviewed artifact was the unit of work.
 
+(`2026-11-07`, the author dropped the separate prototype: "building an app like the first version that works is like what? A few hours." Screens "perhaps with some dynamic elements, perhaps clickable" in one artifact with the research and the decisions are enough, and the plan for a complex change grows the same page.)
+
 ## How you can tell it worked
 
-The owner can say where each claim came from, tried the prototype before reading any plan, was asked only questions they alone could answer, and knows which hypothesis the first users will test and what result would change the plan.
+The owner can say where each claim came from, saw the key screens before any plan, made the open decisions on the page or in the chat, and was asked only what they alone could answer; they know which hypothesis the first users will test and what result would change the plan.
 
 ## Files
 
 | File | Holds | Read when |
 |---|---|---|
-| `references/proposal.md` | the proposal's sections, the hypothesis table and the observation log, as a skeleton to copy | writing or updating the record |
+| `references/proposal.md` | the proposal's sections, the hypothesis table and the observation log, as HTML page sections | writing or updating the record |

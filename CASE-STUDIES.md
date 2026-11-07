@@ -58,9 +58,9 @@ Each one below: what it is, its home page, what's in it, what it runs on, and wh
 
 **What the skills learned from it**
 
-- **Sell only what runs.** Its paid plan was found selling four capabilities that weren't built, and its terms promised locations. Every page that sells now reads one list of what is live, and a go-live check fails while anything sold is unbuilt (`release-gate`, `design`, `2026-10-23`).
-- **A scope the person picks never hides an alarm outside it.** An overview scoped to a healthy app read "Everything is working" while another app was down (`design`, `2026-10-22`).
-- **A form fills in only what the person told it.** Its add form appended a path and prefilled an assertion, a subdomain and a schedule nobody had given it (`design`, `2026-10-22`).
+- **Sell only what runs.** Its paid plan was found selling four capabilities that weren't built, and its terms promised locations. Every page that sells now reads one list of what is live, and a go-live check fails while anything sold is unbuilt (`release-gate`, `ui-design`, `2026-10-23`).
+- **A scope the person picks never hides an alarm outside it.** An overview scoped to a healthy app read "Everything is working" while another app was down (`ui-design`, `2026-10-22`).
+- **A form fills in only what the person told it.** Its add form appended a path and prefilled an assertion, a subdomain and a schedule nobody had given it (`ui-design`, `2026-10-22`).
 - **A monitor running on what it monitors can't vouch for it.** Its own status page ran on itself (`uptime-monitoring`, `2026-10-27`).
 
 ## AFK Pilot

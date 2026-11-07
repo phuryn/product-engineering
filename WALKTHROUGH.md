@@ -7,7 +7,7 @@ You don't need to remember any of this. `/product:start-here` names the next ste
 ## Before you start
 
 1. **Open your agent in a folder**: an empty one for a new idea (the agent runs `git init` there), or the repository of a product you already have.
-2. **Install the packs from that folder** ([Install](README.md#install)); in Claude Code the one-prompt install turns them on for that folder only; in Codex they install for your user, in every project. For this walkthrough: `product`, `ai-shipping`, `agent-teams` and `agent-harness`, plus `app-stack`: its `design` and `uptime-monitoring` apply to any product with screens and a URL, and the rest mostly assumes a SaaS on Next.js, Supabase, Clerk and Netlify.
+2. **Install the packs from that folder** ([Install](README.md#install)); in Claude Code the one-prompt install turns them on for that folder only; in Codex they install for your user, in every project. For this walkthrough: `product`, `ai-shipping`, `agent-teams` and `agent-harness`, plus `app-stack`: its `ui-design` and `uptime-monitoring` apply to any product with screens and a URL, and the rest mostly assumes a SaaS on Next.js, Supabase, Clerk and Netlify.
 3. **Optional, and worth it:** the Codex CLI as a second builder and peer (`codex-agents`), and the Grok CLI as a reviewer from another model family (`independent-review` runs it by default, and `grok-agents` drives it in any role). Without Codex, the session you work in builds the change itself or briefs a Claude subagent. Without Grok, the review runs in a fresh Claude Code session with nothing carried over (with neither CLI, a fresh read-only session of your agent). The wrappers that drive them need Python 3.9 or later.
 
 ## 1. Say what you have
@@ -20,22 +20,21 @@ The agent reads your request and the folder: its agent instructions, product doc
 
 The same command answers "where are we?" at any point later. Bring whatever you have: an idea, evidence from users, an agreed change, a bug, a release, or nothing at all.
 
-## 2. Research, then a proposal you can click through
+## 2. Research, then one proposal artifact
 
 Say "go ahead". The `propose` skill takes over. It is not an interview: questions come last, and only the ones the evidence can't decide.
 
 **What the agent does:**
 - **Reads what you shared**: notes, links, screenshots, competitor names. Then it researches what is missing: up to five alternatives tutors actually use, including substitutes such as a spreadsheet and a payment link, and doing nothing. When the segment is still open, it works on that too. It sets the value proposition and the value curve against the alternatives. If you want it, it also reads what people say in reviews and forums.
 - **Marks every claim by kind**: an observed fact with its source and date, your call, its own inference, or an unsupported assumption. Your preference ("start with music tutors") is recorded as a decision. Your assertion ("tutors will pay monthly") stays a hypothesis with you as its only source, and the proposal says so.
-- **Checks feasibility before the prototype.** When the idea depends on something that may not exist or may not be allowed, it checks that before anything is drawn.
+- **Checks feasibility before drawing screens.** When the idea depends on something that may not exist or may not be allowed, it checks that before anything is drawn.
 - **Proposes one direction**, or two or three with their trade-offs when the choice is real. It names the weakest assumption that would change the recommendation if it turned out wrong.
-- **Builds an interactive prototype on sample data**, every screen marked as sample data, with a link and the key user flows to try.
-- **Writes one record**, by default `docs/product/proposal.md`, with the prototype linked from it.
+- **Builds one artifact you review**: a single HTML page kept in the repository (by default `docs/product/proposal.html`), and, where your agent can publish pages, a link to it (in Claude, an artifact). It holds the research, the jobs map, a high-fidelity screen per key job on sample data marked as such, and the open decisions, each with the agent's recommendation and the reason. There is no separate prototype: the first working version comes in hours, and you try the full flow there.
 
 **What you do:**
-1. Try the prototype before reading anything else.
-2. Then read the proposal.
-3. Answer the few questions it asks. Each comes with the agent's recommended answer and the reason.
+1. Look at the key screens first.
+2. Then read the research and the recommendation on the same page.
+3. Make the open decisions. Each comes with the agent's recommended answer and the reason. Pick on the page where your agent saves picks (in Claude it can); otherwise copy your choices into the chat, or just answer there.
 4. Accept the proposal, or say what to change. Once you accept, the agent updates the record, and the build reads it from there.
 
 ## 3. A plan, for a complex change only
@@ -46,9 +45,9 @@ Building the first version is a complex change, so it gets a plan. Ask for one w
 The first version of the product in the accepted proposal. Create a plan. Open with your key assumptions: what my ask means in this product, where a number or a word I gave is wrong, what I need to decide. Then what to implement, how to test it (a test that would touch production, its users or its data runs only with my go), acceptance criteria.
 ```
 
-The plan is for the agents as much as for you. The prompt names the least it holds; past that they plan whatever the build needs: phases and releases, the files and modules each phase changes, the order. Your part is what it opens with, its key assumptions: what your ask means in this product, where a number or a word you gave is wrong, and what needs you to decide. Review those and question the ones that look wrong. The testing is the agents': a test that would touch production, its users or its data still runs only with your go, and the agent asks before it runs. When the assumptions hold, say "build it". The agent may ask you questions first, and may show the plan as a page (in Claude, an artifact), which is easier to review than terminal text. The page is a view: the plan itself goes into the repository, where the next session reads it.
+The plan is for the agents as much as for you. The prompt names the least it holds; past that they plan whatever the build needs: phases and releases, the files and modules each phase changes, the order. That part goes into the repository, where the next session reads it. Your part is what it opens with, its key assumptions: what your ask means in this product, where a number or a word you gave is wrong, and what needs you to decide. Review those and question the ones that look wrong. When the change alters what people see or leaves choices open, they go on the proposal's page, with the screens of the flows that change in high fidelity and the choices still open, picked the same way. The testing is the agents': a test that would touch production, its users or its data still runs only with your go, and the agent asks before it runs. When the assumptions hold and choices are settled, say "build it".
 
-**For a SaaS on Next.js, Supabase, Clerk and Netlify**, the plan is the `app-lifecycle` skill's stages, each built and checked before the next, each with its done-when. Say "Plan the first version as app-lifecycle's stages. Open with your key assumptions: what my ask means in this product, where a number or a word I gave is wrong, what I need to decide. Then what each stage implements, how to test it (a test that would touch production, its users or its data runs only with my go), its done-when" instead. The stages run from brief and design, through screens on sample data, setup and the first real slice, to browser proof, publishing, the front door and go-live. The accepted proposal and prototype are its starting input.
+**For a SaaS on Next.js, Supabase, Clerk and Netlify**, the plan is the `app-lifecycle` skill's stages, each built and checked before the next, each with its done-when. Say "Plan the first version as app-lifecycle's stages. Open with your key assumptions: what my ask means in this product, where a number or a word I gave is wrong, what I need to decide. Then what each stage implements, how to test it (a test that would touch production, its users or its data runs only with my go), its done-when" instead. The stages run from brief and design, through screens on sample data, setup and the first real slice, to browser proof, publishing, the front door and go-live. The accepted proposal artifact is its starting input.
 
 A stage that offers options stops until you pick, such as two design directions. Five stages need you in a dashboard, because the agent can't make those clicks: setup, browser proof, publishing, the front door and go-live. It tells you which clicks.
 
@@ -154,12 +153,12 @@ A typical setup:
 - **Codex builds** what is worth handing off (`codex-agents`). The test is size: if the brief would be nearly as long as the change, the coordinator writes the change itself.
 - **Grok reviews** (`independent-review`, with Grok driven as `grok-agents` says).
 
-The coordinator needs the skills, and so does a builder whose brief names one: install `app-stack` in Codex too, so a brief for screens or an MCP server names `$app-stack:design` or `$app-stack:mcp-server`. The product keeps no copy of either. The reviewer starts without them on purpose. If you also work in Codex directly, install the other packs there too, since each agent reads skills from its own place. `agent-instructions` shows how to route to a skill from the product's agent instructions.
+The coordinator needs the skills, and so does a builder whose brief names one: install `app-stack` in Codex too, so a brief for screens or an MCP server names `$app-stack:ui-design` or `$app-stack:mcp-server`. The product keeps no copy of either. The reviewer starts without them on purpose. If you also work in Codex directly, install the other packs there too, since each agent reads skills from its own place. `agent-instructions` shows how to route to a skill from the product's agent instructions.
 
 ## What you do, and what you don't
 
 **You:**
-- try prototypes and answer a few questions;
+- inspect key screens and pick open decisions in the artifact;
 - accept the proposal;
 - review a complex change's key assumptions;
 - pick and approve the design;

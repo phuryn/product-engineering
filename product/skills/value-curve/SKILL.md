@@ -22,15 +22,15 @@ It is a starting point, not the whole answer. It feeds the Alternatives part of 
    - The needs with the highest opportunity scores.
    - **Must-haves:** needs this segment rates highly important even though today's products already satisfy them. Their low opportunity score doesn't make them optional; dropping one loses the customer.
    - Leave out needs this segment doesn't rate as important, even if competitors compete hard on them.
-   - Add **relative price** as a factor, scored so a lower price scores higher. Then every factor reads the same way: higher is better for the customer.
+   - Add **relative price** as a factor, scored so a lower price scores higher. Name factors with customer direction, such as "Low price for one host"; higher always means better for the customer.
 3. **List the offerings.** Your product (as planned, or as it is), the 2-4 competitors the segment actually uses, and at least one substitute: the spreadsheet, the agency, the manual workaround, doing nothing.
 4. **Score each offering 0-100 on each factor** from what customers said and what reviews show, not from feature lists. A feature that exists but doesn't serve the need scores low.
-5. **Draw it.** Factors on the horizontal axis, ordered by importance to the segment; score on the vertical axis; one line per offering, with a legend. Keep the table of scores beside the chart, with the source of each score.
+5. **Draw it.** Factors on the horizontal axis, ordered by importance to the segment; score on the vertical axis; one line per offering, with a legend. Keep the table of scores beside the chart, with the source of each score. Every displayed score names its scale beside the number or in the subtitle.
 6. **Read it,** and write the reading down in a few sentences:
    - **Where we must be far ahead:** the segment's top-opportunity needs. If our line isn't clearly above everyone else's there, there is no reason to switch.
    - **Where parity is enough:** the must-haves.
    - **What we deliberately don't compete on:** factors where we sit at or below competitors because this segment doesn't care. Saying it out loud is the strategy.
-   - **Lines that look the same:** if our curve has the same shape as a competitor's, we're competing on degree, not difference. Blue Ocean's four actions help reshape it: which factors to eliminate, reduce, raise, or create.
+   - **Lines that look the same:** if our curve has the same shape as a competitor's, we're competing on degree, not difference. Blue Ocean's four actions help reshape it: which factors to eliminate, reduce, raise, or create. Word each in the customer's direction, such as "Raise: one host pays less". Label an unbuilt factor "to create" while its score remains low. (`2026-11-07`, a static discovery page: a fresh reader read the price curve's "Raise" as charge more.)
 
 ## Output
 
@@ -42,7 +42,7 @@ It is a starting point, not the whole answer. It feeds the Alternatives part of 
 
 ## Example
 
-A streaming service for one segment: people who care about live sports events and concerts, and whose needs today's services underserve. The scores are illustrative.
+A streaming service for one segment: people who care about live sports events and concerts, and whose needs today's services underserve. The scores are illustrative, on a 0–100 scale.
 
 | Factor | Our product | Competitor A | Competitor B |
 |---|---|---|---|
@@ -64,6 +64,8 @@ A streaming service for one segment: people who care about live sports events an
 - **Trying to beat every competitor on every factor.** That is the opposite of a strategy, and usually unaffordable.
 - **One curve for several segments.**
 - **Treating assumed scores as findings.** Unlabelled guesses look exactly like evidence on a chart.
+
+(`2026-11-07`, a static discovery page: a reader asked "91 out of what?" about a weighted beachhead score.)
 
 ## How you can tell it worked
 

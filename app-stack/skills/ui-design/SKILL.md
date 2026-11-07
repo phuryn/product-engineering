@@ -1,26 +1,28 @@
 ---
-name: design
-description: "Mandatory for any visual work, a builder's too: a screen, mock, prototype or artifact; starting or growing a design system; colour, type, components; judging the look."
+name: ui-design
+description: "Mandatory for any product's screens, a builder's too, and any mock, prototype or artifact that shows them: its design system, colour, type, components; judging the look."
 ---
 
-# Design
+# UI design
 
 One skill for the whole of a product's look: the rules, which outside skill to use when, and how to judge the result. Before it, the method lived in one file, the choice of skills in another, the screen rules in the test docs and the review in a skill of its own, and a product that read only some of them repeated mistakes the others had already written down.
+
+Formerly `design`, renamed `2026-11-07`: in a content repository without `app-stack` enabled, `Skill("design")` reached Claude Code's own `/design` command, which only the user can start, and its refusal read as if this skill were user-only.
 
 ## What binds, in order
 
 1. **The owner's words.** Taste, and any change to a written rule, is the owner's call. Apply the `agent-instructions` skill to record choices and their precedence. Put each visual question to them as specimens built in the product's real tokens, side by side, never described in words. `references/review.md` says how to sort a fix from an owner's call.
-2. **The method** (`references/method.md`). Every kit and every screen satisfies it. A mock, prototype or artifact of a screen is high fidelity too: read the method; where the product has a kit, load its CSS and compose it rather than imitate it (a new product's prototype keeps its values in tokens, and the design stage builds the kit); and check a screenshot against the method before the owner sees it. A product departs from a rule only by the owner's decision, recorded in its kit README with the reason. (`2026-11-03`, an evals product's artifact imitated its kit, invented borderless buttons and misaligned chips; its builder had read this page but never the method.)
-3. **The product's kit**, three files wherever the product keeps them (often a `design/` folder): `tokens.css`, every raw value (colour, type, space, radius, duration); `kit.css`, the primitives, built from tokens only; and the **kit README**, the product's own design document: its direction, palette, type, layout and button roles, each with its reason, and every departure from the method. With no provided design system, start the kit at the design stage, before the first app screen (a prototype before it keeps its values in tokens); maintain it and extend its primitives for each later need so buttons, fields and dialogs remain one set (owner, `2026-11-05`). Screens compose the kit; a screen never invents a style.
+2. **The method** (`references/method.md`). Every kit and every screen satisfies it. A mock, prototype or artifact of a screen is high fidelity too: read the method; where the product has a kit, load its CSS and compose it rather than imitate it (a new product's artifact keeps its values in tokens, and the design stage builds the kit); and check a screenshot against the method before the owner sees it. A product departs from a rule only by the owner's decision, recorded in its kit README with the reason. (`2026-11-03`, an evals product's artifact imitated its kit, invented borderless buttons and misaligned chips; its builder had read this page but never the method.)
+3. **The product's kit**, three files wherever the product keeps them (often a `design/` folder): `tokens.css`, every raw value (colour, type, space, radius, duration); `kit.css`, the primitives, built from tokens only; and the **kit README**, the product's own design document: its direction, palette, type, layout and button roles, each with its reason, and every departure from the method. With no provided design system, start the kit at the design stage, before the first app screen (an artifact before it keeps its values in tokens); maintain it and extend its primitives for each later need so buttons, fields and dialogs remain one set (owner, `2026-11-05`). Screens compose the kit; a screen never invents a style.
 4. **The collections advise** (`references/collections.md`). A suggestion reaches code only as a token or a primitive in the kit, recorded in the kit README. Where a collection disagrees with the method, the method wins.
 
 **Every agent that builds the product's screens loads this skill from its installed pack, `app-stack`, and the product keeps no copy of it.** A copy freezes the method at the version it was taken from (the pack released three versions between `2026-11-02` and `2026-11-03`), and Claude Code loads it a second time beside the installed pack. A rule a builder can't load doesn't get read: a monitoring product's kit README pointed at the method in another repository, and the product shipped borderless Cancels in five places the method already forbade (`2026-10-22`).
 
-**A builder that isn't Claude Code has the pack installed in it too.** Codex reads the same marketplace (`codex plugin add app-stack@product-engineering`), and a brief names the skill there as `$app-stack:design`: a headless `codex exec` loaded it once the pack was installed (`2026-11-03`, codex-cli 0.166.0). An agent with no plugin installer takes the folder through `npx skills add`, into its own skills folder only. Whatever a collection taught that the next screen needs goes into the kit README, not just the session that used it.
+**A builder that isn't Claude Code has the pack installed in it too.** Codex reads the same marketplace (`codex plugin add app-stack@product-engineering`), and a brief names the skill there as `$app-stack:ui-design`: a headless `codex exec` loaded it once the pack was installed (`2026-11-03`, codex-cli 0.166.0). An agent with no plugin installer takes the folder through `npx skills add`, into its own skills folder only. Whatever a collection taught that the next screen needs goes into the kit README, not just the session that used it.
 
 ## Before any screen: the jobs map
 
-Before a screen is drawn, a builder's included, work out what people come to do: one row per job, **the job in the user's words → the screen it happens on → the one question that screen answers → its primary action.** The map goes in the proposal's prototype and in every stage brief that adds screens. A screen with no job is cut; a job with no screen is a gap.
+Before a screen is drawn, a builder's included, work out what people come to do: one row per job, **the job in the user's words → the screen it happens on → the one question that screen answers → its primary action.** The map goes in the proposal artifact and in every stage brief that adds screens. A screen with no job is cut; a job with no screen is a gap.
 
 - **The product's data rules stay out of the copy.** The brief lists them (how records are split, sampled, versioned or locked), and a screen shows each only as an outcome in plain words: "12 traces wait for your review", never the table or the method's own vocabulary.
 - **When the product replaces a tool the owner knows, that tool's structure is the default to generalize**, and each departure is justified in the kit README.
@@ -86,8 +88,10 @@ Every screen answers a job on the map and passed the walkthrough, rendered pass 
 
 ## Where the method lives
 
+- **A product whose agent instructions say "apply `design`"** changes the name there to `ui-design`.
+
 - **In the installed `app-stack` pack, in every agent that builds screens**: Claude Code for the user, or with `--scope project` so every checkout of the product asks for it; Codex from the same marketplace; any other agent through `npx skills`. Each keeps it current with its own update command (the collection's README, § Install).
-- **A product that still carries a copy** (`.claude/skills/design/`, `.agents/skills/design/`) **deletes it** once the pack is installed. Before that, `diff -r` against the pack's installed folder shows what the copy says that the pack doesn't: this product's lessons go to the kit README, the owner's preferences as above, and a lesson for any product to this collection (§ When something is learned).
+- **A product that still carries a copy** (`.claude/skills/design/` or `ui-design/`, `.agents/skills/` the same) **deletes it** once the pack is installed. Before that, `diff -r` against the pack's installed folder shows what the copy says that the pack doesn't: this product's lessons go to the kit README, the owner's preferences as above, and a lesson for any product to this collection (§ When something is learned).
 - **Nobody edits the installed pack and hopes it travels.** A product's lesson goes into its own docs the day it is learned, and the general one goes to this collection as above (`2026-11-03`, an evals product).
 
 ## Files

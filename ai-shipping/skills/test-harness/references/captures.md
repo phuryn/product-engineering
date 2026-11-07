@@ -2,7 +2,7 @@
 
 The visual harness and the person who looks at it. A capture is a picture of a screen taken by a spec; the exploratory pass is a person opening the running app and going looking. A release needs both, because each is blind to what the other sees.
 
-What to look *for* — the widths, the states, the themes, the roles, the 320 px floor asserted with geometry, and what a screen may claim — is the `design` skill's `references/screens.md`. This file is how the captures are kept so that the looking is worth something.
+What to look *for* — the widths, the states, the themes, the roles, the 320 px floor asserted with geometry, and what a screen may claim — is the `ui-design` skill's `references/screens.md`. This file is how the captures are kept so that the looking is worth something.
 
 ## Why both
 
@@ -18,7 +18,7 @@ What to look *for* — the widths, the states, the themes, the roles, the 320 px
 
 ## Reading a capture
 
-- **A capture proves a screen was seen, not that it was compared against the system.** A capture catches a screen that moved, never one that never matched the kit: a single frame cannot say what its spacing was supposed to be, so a defect that is the same in every release reads as that screen's style. When a screen is added to the captures, or a capture is read, **look at it beside its siblings** — the product's other forms, lists, dialogs — because the comparison is the instrument. Fix a mismatch with the kit primitive that already owns the pattern, never with a number invented for the screen (`design`). (`2026-09-22`, a form caption sat directly on its input in the same capture across several releases, until the field was put inside the kit's field-group primitive.)
+- **A capture proves a screen was seen, not that it was compared against the system.** A capture catches a screen that moved, never one that never matched the kit: a single frame cannot say what its spacing was supposed to be, so a defect that is the same in every release reads as that screen's style. When a screen is added to the captures, or a capture is read, **look at it beside its siblings** — the product's other forms, lists, dialogs — because the comparison is the instrument. Fix a mismatch with the kit primitive that already owns the pattern, never with a number invented for the screen (`ui-design`). (`2026-09-22`, a form caption sat directly on its input in the same capture across several releases, until the field was put inside the kit's field-group primitive.)
 - **A layout or performance finding is a hypothesis until it is measured on the running build, and the measurement settles it in either direction.** Reading the stylesheet can give correct arithmetic and a false conclusion — a flex item's automatic minimum is its content, so cells wider than their container may shrink rather than overflow — and "obviously it shrinks" is as much a guess as "obviously it overflows". **Measure the copy, not the container**, and compare it with what sits beside it, because matching box edges can be produced by the defect itself. For a performance claim, **measure both builds**: the baseline from `HEAD` in its own worktree with its own `npm ci`, one script against both, the numbers written down before and after. The measurement can retire the fix you proposed. (`2026-09-20`, a reported overflow measured 16 px clear at ten widths; `2026-09-25`, a proposed layout-shift fix targeted 0.002 of shift while 0.031 came from a poll.)
 
 ## Where captures live

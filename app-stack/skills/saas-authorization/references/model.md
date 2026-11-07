@@ -94,7 +94,7 @@ The order on every protected request is: resolve the thing from the URL, find it
   - A control the caller cannot see is a gap. A sentence promising them the control is a lie they will act on.
   - **Assert it as the capability**, not state by state: no state offers this caller anything their permissions withhold. The defect is always in the state nobody enumerated.
   - (`2026-09-17`, two lifecycle states promised the second role actions reserved for the first.)
-  - What a screen may claim in general is `design`.
+  - What a screen may claim in general is `ui-design`.
 - **A permission that exists in the model and is held by nobody** belongs in the permissions doc's "not implemented yet" section, not in the matrix as though it worked.
 - **Organization management is the identity provider's own UI**, never a page you build.
   - What it lacks goes in as a custom page inside it. That page's data moves only through server actions that re-resolve the caller and recheck the permission the page is shown under.

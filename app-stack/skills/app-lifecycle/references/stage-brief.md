@@ -13,7 +13,7 @@
   - (`2026-10-23`, a monitoring product: once its briefs split the two, every handoff opened "This is a code handoff, not a claim that the stage's live done-when passed" and reported database tests as written but not run. Earlier, on another product, builders whose sandbox reached no database had twice reported gate counts nobody ran, `2026-09-16` and `2026-09-17`.)
 - **What stays with the session agent: anything that touches a real system, development included** — a deploy, a migration applied to the development database, a worker's secrets, a drill. The builder makes each one a single command and names it in the handoff.
 - **The brief and stage plan budget the tests the sandbox cannot run**, including one integration-fix pass by the session agent: apply the `test-harness` skill's round-trip budget (§ Tests and docs are part of the change).
-- **A stage that adds or changes screens names the `design` skill** (`$app-stack:design` for Codex) and carries its rows of the jobs map. A builder that reads no skill trigger never opens a method it isn't pointed at, and it loads one only from a pack installed in it. (`2026-11-03`, an evals product's builder, Codex with no pack installed, built its screens without the method.)
+- **A stage that adds or changes screens names the `ui-design` skill** (`$app-stack:ui-design` for Codex) and carries its rows of the jobs map. A builder that reads no skill trigger never opens a method it isn't pointed at, and it loads one only from a pack installed in it. (`2026-11-03`, an evals product's builder, Codex with no pack installed, built its screens without the method.)
 - **Without a builder**, the session agent builds the stage itself and the plan's line for the stage is its brief; no separate file is needed.
 - **What a builder reports is a claim.** A delegated diff is unreviewed code: read it before believing it, re-run the gate yourself, and rewrite the coverage evidence from your own run. The independent review still applies.
 - **When the stage is done, the brief moves unchanged to an archive folder** (`docs/history/briefs/<stage>.md`, say), and the stage's line in the plan points there. **A folder holding no brief means no stage is in flight.**
@@ -47,11 +47,11 @@
 
 ## Screens (when the stage adds or changes any)
 
-- The design method: the `design` skill, from `app-stack` installed in the builder (`$app-stack:design` in Codex); its `references/method.md` read before any screen.
+- The design method: the `ui-design` skill, from `app-stack` installed in the builder (`$app-stack:ui-design` in Codex); its `references/method.md` read before any screen.
 - The jobs map rows this stage serves: the job in the user's words → its screen → that screen's one question → its primary action.
 - The data rules that stay out of the copy, each with the plain-words outcome a screen shows instead.
 - Example data that fills every screen it touches.
-- Done includes the newcomer walkthrough, rendered-screen pass, and app-screen screenshot critique at 1440/768/390 (three rounds at most), plus the scored audit with P0 and P1 fixed when the stage builds the first screens or changes the kit, before the owner's look review and click-through (the `design` skill; its local checklists work without the collections).
+- Done includes the newcomer walkthrough, rendered-screen pass, and app-screen screenshot critique at 1440/768/390 (three rounds at most), plus the scored audit with P0 and P1 fixed when the stage builds the first screens or changes the kit, before the owner's look review and click-through (the `ui-design` skill; its local checklists work without the collections).
 
 ## Files it will touch
 
