@@ -33,7 +33,7 @@ Updated in the same change as any route, role or permission. Read it before addi
 4. **The database's access posture.** On this stack: RLS on with zero policies, the app's server the only holder of the secret key, tenant isolation by the three functions rather than RLS. Grants revoked, invoker views, a security-definer function only where the access model allows one, and the catalog suite that proves it. Any legacy grant the suite pins as debt is in the backlog with a revisit trigger. The mechanics: `supabase-production`.
 5. **Roles versus entitlements.**
    - Which questions a role answers (who may act) and which a plan feature answers (how much).
-   - Where entitlements are read from: on Clerk Billing, through the session's `has({ feature })`, failing towards the free tier; for a caller with no session, the subscription and the provider's plan list. Any plan mirror, what writes it, and the statement that no permission or quota reads it.
+   - Where entitlements are read from: on Clerk Billing, through the session's `has({ feature })`, failing towards the free tier; for a caller with no session, the subscription and the provider's plan list. Any plan mirror, what writes it, and the statement that no permission or quota reads it. Any allowance stamped on a resource for anonymous actions: what writes it, how long a lapsed plan's stamp outlives it, and that a missing stamp passes the free allowance.
    - The statement that no feature is attached to a provider permission.
    - A product with no billing says so in one line.
    - Write it even when it feels obvious. It is the rule a later phase breaks by accident, and prose is all that guards it.

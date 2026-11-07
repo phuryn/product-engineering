@@ -62,7 +62,7 @@ Plans and features live in a JSON file in the repository, applied to each instan
 
 1. **Organizations on, with *Membership required*, before billing is enabled.**
 2. **Start the file from the instance** (`npx clerk config pull --keys billing --output <file>`). Its `billing` block holds `organization_enabled: true`, `user_enabled: false`, a `features` map and a `plans` map.
-   - **A feature's key is its slug; its `name` is only a label.** (In the dashboard the slug is derived from the name: § Gotchas.)
+   - **A feature's key is its slug; its `name` is only a label.** (In the dashboard the slug is generated from the name when the feature is created: § Gotchas.)
    - Each plan has `payer_type: "org"`, its prices in cents (`amount`, `annual_monthly_amount`), `publicly_visible`, and the list of feature slugs it carries.
    - Free and one paid plan, both for organizations, even before the product means to charge: the plan module and the pricing page are where the limits are stated. Leave user billing off. A plan bought by a person belongs to a person, and a person owns no workspace data.
 3. **Two kinds of feature, kept apart.**
@@ -82,7 +82,7 @@ Two things stay in the dashboard: connecting the production instance's Stripe ac
   - It imports nothing from Clerk, so the unit suite holds the whole table without a key.
 - **The session seam reads it.** The `has` from `auth()`, called as `has({ feature })`, is passed to `entitlementsFrom`. Signed out is Free. The authenticated harness substitutes a verifier, so a test puts a plan on a request without a checkout.
 - **Each quota is checked inside the transaction that creates the thing.**
-  - The server passes the allowance the session proved to the SQL function, as a required parameter.
+  - The server passes the allowance the session proved to the SQL function, as a required parameter (for an anonymous action, the stamp on its resource: `saas-authorization`, `references/model.md`).
   - The function locks the owning workspace row `for update`, counts, and raises a named error at the limit.
   - The screen explains the limit; the database enforces it (`saas-authorization § Invariants`).
 - **A caller with no session that the app server handles** (an API token, a job on the app's own server) has no `has()`. Only when the product has such callers:
@@ -155,9 +155,9 @@ If the paid tier is refused, one of three things is wrong:
   - `has({ feature })` evaluates whichever entity is active. Get the plan's tab and the workspace's entity out of step and the failure is silent.
   - The quietest version: plans in the *user* tab, while forced organization selection means every caller always has an organization active. The paid tier is then unreachable for everybody, with nothing in any log to say so.
   - (`2026-09-03`, building plans.)
-- **In the dashboard, a feature's slug is derived from its display name.**
-  - Call a feature "Up to 1,000 participants / room" there and Clerk slugs it `up_to_1_000_participants_room`, which matches nothing, and every paying account silently drops back to Free. Renaming it to something friendlier changes its slug the same way.
-  - In the billing file the key is the slug and the name is free text: one more reason to keep plans in the file. Reword a display feature, never a gated one.
+- **In the dashboard, a feature's slug is generated from its display name when the feature is created.**
+  - Call a feature "Up to 1,000 participants / room" there and Clerk slugs it `up_to_1_000_participants_room`, which matches nothing, and every paying account silently drops back to Free. Renaming the feature later keeps its slug; only editing the slug itself changes it (owner, `2026-11-07`).
+  - In the billing file the key is the slug and the name is free text: one more reason to keep plans in the file. Reword any feature's name; never change a gated feature's key.
   - Gate only on slugs chosen for that purpose, never on a plan's display lines. Those are written to sell, and sometimes state numbers that contradict the plan they sit on.
   - Make the mapping **fail towards the free tier**, so an instance that has not caught up costs a customer rather than giving the product away.
   - (`2026-09-03`.)

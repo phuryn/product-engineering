@@ -154,7 +154,7 @@ The full entry: `organizations-and-billing.md § Billing › Gotchas`. (`2026-09
 
 ## A dashboard feature's slug is derived from its display name; a features-only patch moves features to Free
 
-In the dashboard, a friendlier display name changes the slug and drops every paying account to Free in silence. In the billing file the Clerk CLI applies, the key is the slug and the name is only a label, so keep plans in the file. A patch carrying only the `features` block re-attached every feature no plan listed to Free: always patch with the `plans` block.
+In the dashboard, the slug is generated from the display name when the feature is created, so a feature named for its sales line gets a slug no code reads, and every paying account drops to Free in silence. Renaming it later keeps the slug; only editing the slug itself changes it (owner, `2026-11-07`). In the billing file the Clerk CLI applies, the key is the slug and the name is only a label, so keep plans in the file. A patch carrying only the `features` block re-attached every feature no plan listed to Free: always patch with the `plans` block.
 
 - Pin the gated slugs as literals in a test, and read the instance back against the file.
 - Gate only on slugs chosen for that purpose, never on display lines.
