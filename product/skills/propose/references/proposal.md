@@ -44,6 +44,8 @@ Updated <YYYY-MM-DD>. Status: <draft | reviewed by the owner on <date> | accepte
 
 <One direction, or two or three when the choice is real: who it is for, the value proposition, what the first version does and deliberately doesn't do, the trade-off. Then the one recommended, and why. Rewritten, never appended to.>
 
+<The first version's parts and the next builds on a labelled 3×3 impact-and-effort grid with a legend, "do first" marked (`SKILL.md` §§ 5–6).>
+
 ## Jobs map
 
 <For a published method, follow its sourced steps in the brief.>

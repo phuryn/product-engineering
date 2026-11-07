@@ -13,7 +13,7 @@
 - **A pick the agent made under the owner's blanket go is provisional** — *Picked: provisional*, by the agent, with the go quoted — and listed for the owner's one read. It becomes a pick once the owner has read it, or a new entry where the owner says otherwise. (`2026-10-30`, an evals product: with an accepted proposal and a go on every suggestion, the useful brief-stage output was provisional entries listed for one read, and the log had no word for them.)
 - **Every entry has a reopen trigger.** A decision with no stated condition for revisiting it gets re-argued every time someone new meets it.
 - **Every pick says who made it.** *Picked by the owner*, with their own words; *picked by the agent*, with why it was the agent's call to make. A number the agent proposed is labelled as its proposal until the owner confirms it. An unattributed pick reads, a week later, as the owner's. (`2026-10-22` to `2026-10-24`, a monitoring product's log attributed every pick this way, quoting the owner wherever the owner decided.)
-- **The log records decisions.** Proposal and plan choices are asked in the artifact; ongoing asks use the `flight-deck` owner's page. Once answered, record the decision here and close the ask there.
+- **The log records decisions.** Proposal and plan choices are asked on the proposal's page, which the `flight-deck` owner's page links to rather than repeats; other asks go on the owner's page. Once answered, record the decision here in the same turn and close the ask.
 - Product decisions only. A rule about how to build goes in the agent instructions; deferred work goes in the backlog with its revisit trigger.
 
 ## Skeleton — copy from here

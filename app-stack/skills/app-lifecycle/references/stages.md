@@ -41,7 +41,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 
 **Skip it** when the accepted proposal settled these options, or no open choice needs a screen.
 
-**How:** apply the `propose` skill and the `ui-design` skill.
+**How:** the `propose` skill (the `product` pack) and the `ui-design` skill. Without the `product` pack, the page is one self-contained HTML file holding only the open options on screens and their decisions, each with a recommendation, drawn under `ui-design`'s method.
 
 ---
 
