@@ -38,7 +38,7 @@ entry file (loaded every session)   — routes; holds only what every session ne
 
 A starter file to copy: `references/agents-md-skeleton.md`.
 
-**After installing packs, wire them once:** record the owner's choices, a docs index and router rows for the installed skills. For existing code, read every installed skill that touches it against the code and add the missing tests the skills name. (`2026-11-06`, a live Q&A product built before a billing rule: reading the rule against the code found both reads it forbids while every unit test passed.)
+**After installing packs, wire them once:** record the owner's choices, a docs index and router rows for the installed skills. For existing code, read every installed skill that touches it against the code and add the missing tests the skills name. (`2026-11-06`, a live Q&A product built before a billing rule: reading the rule against the code found both reads it forbids while every unit test passed; its development instance then confirmed that every API-token and MCP call from a paid workspace had been getting the free plan's AI allowance.)
 
 ## Make sure it loads
 
