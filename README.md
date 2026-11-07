@@ -61,7 +61,7 @@ These install for your user, in every project. Add `--scope project` to each lin
 
 Then turn on updates, which third-party marketplaces don't do by default: `/plugin` → Marketplaces → `product-engineering` → enable auto-update. To update by hand: Update marketplace on the same screen, or `claude plugin update <pack>@product-engineering`.
 
-With project-scope installs in several worktrees of one repository, check each worktree's entry in `~/.claude/plugins/installed_plugins.json` after an update (`projectPath` and `gitCommitSha`): the command may act on another worktree's record. (`2026-11-07`, a live Q&A product: with three worktrees, an update changed another worktree's record, then reported "already at the latest version" while the invoking worktree stayed on the old commit. The Claude Code version was not recorded.)
+With project-scope installs in several worktrees of one repository, check each worktree's entry in `~/.claude/plugins/installed_plugins.json` after an update (`projectPath` and `gitCommitSha`): the command may act on another worktree's record. (`2026-11-07`, a live Q&A product, Claude Code 2.1.319: with three worktrees, an update changed another worktree's record, then reported "already at the latest version" while the invoking worktree stayed on the old commit; the same day, updating to v1.6.0, it reported all six packs updated under the other worktree's path.)
 
 ### Codex
 
