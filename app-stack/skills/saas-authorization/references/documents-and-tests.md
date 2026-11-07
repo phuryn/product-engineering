@@ -33,7 +33,7 @@ Updated in the same change as any route, role or permission. Read it before addi
 4. **The database's access posture.** On this stack: RLS on with zero policies, the app's server the only holder of the secret key, tenant isolation by the three functions rather than RLS. Grants revoked, invoker views, a security-definer function only where the access model allows one, and the catalog suite that proves it. Any legacy grant the suite pins as debt is in the backlog with a revisit trigger. The mechanics: `supabase-production`.
 5. **Roles versus entitlements.**
    - Which questions a role answers (who may act) and which a plan feature answers (how much).
-   - Where entitlements are read from: on Clerk Billing, through the session's `has({ feature })`, failing towards the free tier; for a caller with no session, the subscription and the provider's plan list. Any plan mirror, what writes it, and the statement that no permission or quota reads it. Any allowance stamped on a resource for anonymous actions: what writes it, how long a lapsed plan's stamp outlives it, and that a missing stamp passes the free allowance.
+   - Where entitlements are read from: on Clerk Billing, through the session's `has({ feature })`, failing towards the free tier; for an API token or an agent's grant, the subscription and the provider's plan list. Any plan mirror, what writes it, and the statement that no permission or quota reads it. Any allowance stamped on a resource for anonymous actions, the one exception (`model.md` § Entitlements come from billing): written from a member's verified session, never refreshed from a failed read, and a missing stamp passes the free allowance, never a null.
    - The statement that no feature is attached to a provider permission.
    - A product with no billing says so in one line.
    - Write it even when it feels obvious. It is the rule a later phase breaks by accident, and prose is all that guards it.
@@ -42,7 +42,7 @@ Updated in the same change as any route, role or permission. Read it before addi
 
 The architecture doc documents what exists. What is planned is a backlog row, never a paragraph there.
 
-- **Stack and boundaries.** Say explicitly what is *not* there. On this stack: no browser database key, no identity token forwarded to the database, no realtime subscription. Also: all live reads dynamic and uncached, the CSP and how it is made, framing denied, and pages reached by an unguessable id `noindex`.
+- **Stack and boundaries.** Say explicitly what is *not* there. On this stack: no browser database key, no identity token forwarded to the database, no realtime subscription. Also: all live reads dynamic and uncached, the CSP and how it is made, framing denied (and any surface that must be framed, with its own policy), and pages reached by an unguessable id `noindex`.
 - **Routes.** A table of route · behaviour and access: the permission it checks, or *public*. Missing and not-owned return the same 404. The health route is public and returns a count, never a row.
 - **Ownership and authorization.** It covers:
   - the workspace table;
@@ -57,7 +57,8 @@ The architecture doc documents what exists. What is planned is a backlog row, ne
   - the plan module by path;
   - each feature slug the code gates on, with what it unlocks and the free value it falls back to;
   - the seam that reads the entitlement;
-  - which SQL function receives each allowance as a parameter.
+  - which SQL function receives each allowance as a parameter;
+  - any stamped allowance: which write stamps it, and how long a lapsed plan's stamp outlives it.
 
   A product with no billing says so in one line.
 - **Rate limits.**
