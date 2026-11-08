@@ -5,13 +5,15 @@ description: "'I have an idea', 'is this worth building', 'what next': research 
 
 # Propose — research an idea, then propose what to build
 
-**Research the idea and propose something the owner reviews, interface first.** Use this for a new idea or a product's next step, testing what the owner shared against the evidence you find.
+**Research the idea, then propose what to build, interface first.** The owner has an idea, or a product in use needs its next step. Read what the owner shared, find what is missing, set the idea against that evidence, and propose something the owner reviews.
 
-**Treat product claims as sourced hypotheses until people use and pay.** Bring in what the owner does not yet know, presenting informed hypotheses rather than findings. Questions come last, limited to what evidence cannot decide; interviewing alone sharpens what the owner already thinks.
+**Every claim is a hypothesis with a source until people use and pay.** What comes out is informed hypotheses, never findings.
 
-**Plan or build agreed changes, bugs and small UI changes directly.** Also go straight to the build when the owner has already decided and asks for it.
+**This is not an interview.** Questions come last, and only the ones the evidence cannot decide. An interview sharpens what the owner already thinks; this brings in what the owner doesn't know yet.
 
-**Leave thesis, segment, build scope and timing with the owner.** You own the evidence and proposal artifact, and say plainly where evidence disagrees with the owner's idea.
+**Not for an agreed change, a bug or a small UI change.** Those go straight to a plan or a build, as does anything the owner has already decided and asks to have built.
+
+**The owner decides; the agent owns the evidence.** The owner owns the thesis, the segment, what gets built and when. The agent owns the evidence and the proposal artifact, and says plainly where the evidence and the owner's idea disagree.
 
 ## Steps
 
@@ -35,10 +37,10 @@ description: "'I have an idea', 'is this worth building', 'what next': research 
 
 **Handle standalone market research here without building a proposal.** For requests covering competitors, segments, a value proposition, a value curve or people's comments, follow this order without a proposal. Gather people's comments alongside under the same rules:
 
-1. **Apply `competitor-analysis` to the alternatives.**
-2. **Apply `market-segments`, then `beachhead-segment` while the segment is open.**
-3. **Apply `value-proposition` for the chosen segment.**
-4. **Apply `value-curve` against the alternatives.**
+1. The alternatives: `competitor-analysis`.
+2. The segments: `market-segments`, then `beachhead-segment` while the first one is open.
+3. The value proposition for the chosen segment: `value-proposition`.
+4. The value curve against the alternatives: `value-curve`.
 
 Finish by marking every claim by kind (step 3); standalone research ends there.
 
@@ -85,12 +87,12 @@ Finish by marking every claim by kind (step 3); standalone research ends there.
 - **Map jobs before drawing one high-fidelity screen per key job.** Number each job in the user's words, naming its screen, the question that screen answers and its primary action. Each screen shows its job's number and realistic sample data labelled as such. When replacing a familiar tool, start from its structure and justify departures.
 - **Apply the `ui-design` skill.** Read the method first, with `app-stack` installed, or use the jobs map, `frontend-design` direction, token values and a checked screenshot without it. Embed and compose an existing kit's CSS inside the HTML. For new products, choose one subject-grounded direction and keep values in tokens. Where the method is present, check screenshots against it before the owner sees them.
 - **Agree on static or clickable screens and build no separate prototype.** The person and agent choose together. The first working version takes hours and tests the full flow.
-- **Choose chart forms first and inspect their renders.** In Claude Code, apply built-in `dataviz` (read `2026-11-07`). In other agents, follow its rules:
-  - **Choose the form first, using a number when that fits.** Sometimes a number serves better than a chart.
-  - **Use one axis and legends for two or more series.**
-  - **Keep colour with the entity and status colours for status.**
-  - **Use text colours for text, never a series colour.**
-  - **Inspect the rendered chart.**
+- **Charts follow `dataviz`'s rules in any agent.** In Claude Code, apply the built-in `dataviz` skill (read `2026-11-07`). In any other agent, follow its rules:
+  - The form first: sometimes a number, not a chart.
+  - One axis, and a legend for two or more series.
+  - Colour follows the entity; status colours only for status.
+  - Text in text colours, never a series colour.
+  - Look at the render.
 
   Draw the value curve, segment scores and impact-and-effort grid. The grid weighs § 5's first-version parts and next builds by what people will see against cost. Mark "do first".
 - **Give a fresh session only screenshots and a reader's role.** Cut tall pages into ordered parts, sharing neither brief nor code with the fresh reader. Ask what the page is, what the reader would decide from it and what is unclear, then fix what they cannot explain. This checks the page itself: no app crawl or sign-in.

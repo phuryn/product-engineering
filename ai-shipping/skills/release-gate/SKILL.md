@@ -7,7 +7,9 @@ description: "Before 'push it', 'ship it', a deploy, release or go-live, or call
 
 A release is a decision: **the owner says go; the agent supplies the evidence.** This skill defines the evidence needed at each shipping step, the promotion procedure and how to prove the reviewed build serves.
 
-**The product's own instructions come first.** Use its named branches, gate, backlog and record files, taking these rules as defaults where its instructions or release doc say nothing. Keep each principle when replacing a stack-specific mechanism.
+**The product's own instructions come first.** Use its named branches, gate, backlog and record files, taking these rules as defaults where its instructions or release doc say nothing.
+
+**On another stack, keep the principle and swap the mechanism.** Each rule states its principle first and the stack's mechanism second. The web-app rules were learned on Next.js (App Router), Supabase, Clerk and Netlify, with Vitest and Playwright. The client-and-backend rules were learned on a relay service with a web client and an editor extension with desktop installers (`references/runbook.md`).
 
 ## Two branches, named once
 
@@ -99,7 +101,7 @@ The session must never have seen the build; choose it in this order:
 
 ## The owner's preview
 
-**Send a preview link and actions once the change is ready.** This applies to a stage or any change a person would see. First run a green gate yourself, with the independent review either clean or running. Apply `ui-design` to new or changed screens: walkthrough, rendered pass, screenshot critique and its scored audit where required. Include a look review in the actions, since the owner finds things by using the product that reading code misses.
+**Send the owner a link and a short list of what to try.** Do it when a stage, or any change a person would see, is ready. Ready means your own gate is green, the independent review is clean or running, and new or changed screens have passed `ui-design`: its walkthrough, rendered pass and screenshot critique, and its scored audit where that skill calls for one. Include the look review in the list. Ten minutes of the owner using the product finds what reading code does not, so their time is best spent there, not on code review.
 
 - **List changed flows as actions with their expected results.** For example: "Upload a 6 MB photo as the logo: the page shows it sharp." Then state missing or unverified work and unbuilt features, naming the stage that brings each. This keeps the owner's review focused on what exists.
 - **Link deployed development or use a temporary development tunnel.** Prefer the deployed development URL when hosting exists and contains the change. Otherwise, or before deployment, use a Cloudflare quick tunnel to `next dev`. Its address is public: use development only, share the link only with the owner, then stop tunnel and server when done. Apply `environments`, `references/environments-and-branches.md § Showing development to the owner`.
@@ -127,7 +129,7 @@ Commands and the record are in `references/checklist.md § 4`.
 **Run each release as one ordered, logged checklist.** This includes packages, extensions, installers, store listings, and clients with backends. Log each step's command, pass and evidence in the release plan (`references/runbook.md`). Record every skip with its reason; correct a faulty list in the same pass.
 
 - **If a script exists for a step, use the script.** Reinventing a step can change what ships. On the first manual release, record commands and evidence in the release doc. On the second, script them and route the command from the entry file; apply `agent-instructions`. Run the script only after the owner's clear go, authorizing that one release (`references/runbook.md`). The doc names the steps the owner keeps.
-- **And the script refuses every option it does not read.** Name no target by default. Never echo a flag's value. An ignored `--dry-run` deploys for real.
+- **A release script refuses every option it does not read.** Name no target by default. Never echo a flag's value. An ignored `--dry-run` deploys for real.
 - **The backend ships first.** Publish a client relying on new backend behaviour only once that backend is in production. Keep every backend release usable with the last published client.
 - **A release is finished only when every artifact is attached.** Read the asset list.
 - **Publishing is not availability.** Poll the store for the version. A publishing timestamp is insufficient, so describe a listing as live only once it serves the version.
@@ -140,12 +142,7 @@ Commands and the record are in `references/checklist.md § 4`.
 
 ## Never
 
-- **Fast-forward production and keep its history intact.** Never force-push the production branch.
-- **Resolve skipped suites, stale docs and unrun gates before promotion.** Record waivers honestly; do not promote with a skipped suite, stale doc or unrun local gate.
-- **Use dedicated canary credentials and development test data.** Never run authenticated smoke with real-user credentials or test against production data.
-- **Apply migrations by CLI connection string with the CLI unlinked.** Never apply through an MCP server or dashboard, or link the database CLI to any project.
-- **Deploy from the release tip and use encoded release steps.** Keep the checkout clean and use the release script rather than hand-rolling its steps.
-- **Get an unambiguous go and confirm store availability.** Ask for clarity on an ambiguous reply. Announce a listing as live only when it serves the version.
+Force-push the production branch · promote with a skipped suite, a stale doc, or an unrun local gate · run any authenticated smoke with a real user's credentials · test against production data · apply a migration through an MCP server or the dashboard · link the database CLI to any project · deploy a runtime from a checkout that is not the release tip · hand-roll a step a release script encodes · infer a go from an ambiguous reply · announce a store listing as live before it serves the version.
 
 ## A promotion, in order
 

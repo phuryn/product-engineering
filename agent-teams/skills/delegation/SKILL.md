@@ -38,7 +38,9 @@ description: "Before spawning a subagent or dispatching a build, review or resea
 
 ## The brief
 
-1. **Explain what you are trying to achieve and why.** Name the decision this handoff feeds. In the owner's terms, "we are choosing between A and B" lets a delegate suggest a third option or challenge the question. "Research A and B" gives it less room.
+Three things, and the first is the one most often skipped:
+
+1. **Explain what you are trying to achieve and why.** Name the decision this handoff feeds. In the owner's terms, "we are choosing between A and B" lets a delegate suggest a third option or challenge the question. A delegate told "research A and B" cannot.
 2. **State the constraints that bind, including the do-nots.** Explain traps that would make a plausible local fix wrong in the larger system. For example: "Keep this out of the argument builder; the same string feeds another spawn path."
 3. **Define proof for this handoff, including checks you must run.** Name the tests, gate and handoff's done-when, keeping that narrower than the stage's whenever completion needs real systems. Say what the sandbox cannot reach, such as a database, browser, Docker or network, and assign those checks: "Write them; I run them." Ask for a code handoff with checks marked "written, not run", rather than invented counts or a stage marked done.
 
@@ -65,7 +67,7 @@ description: "Before spawning a subagent or dispatching a build, review or resea
 
 ## Model and effort (Claude subagents)
 
-- **Set the model explicitly on every spawn.** Omitting it inherits the parent's model; choose a tier deliberately.
+- **Set the model explicitly on every spawn.** Omitting it inherits the parent's model, and "inherit" is never a routing decision: it is the absence of one.
 - **Route by the job, not by how important it feels.** Use the smallest tier for bulk mechanics without judgement, such as renames, CSV parsing and log scans. Use the mid tier for scoped research, code exploration and building to a written spec. Reserve top tiers for multi-step reasoning and judgement bottlenecks: architecture, adversarial review and taste. Model names change every few months; the routing principle stays the same.
 - **Use the top tier adversarially.** For example, ask "refute this audit" to test your own conclusions against the reviewer's reasoning.
 - **Consult up.** A cheaper parent running a plan spawns one top-tier child for the judgement-heavy step. Give it the full context, why and specific decision, then treat its answer as the ruling on that step.
@@ -86,7 +88,7 @@ description: "Before spawning a subagent or dispatching a build, review or resea
 ## While it runs
 
 - **Don't edit a tree a delegate is building in.** Wait or use another worktree.
-- **Never `git checkout -- <file>` (or `git restore`) on a tree carrying uncommitted work.** Re-edit the exact change back, or use `git stash push -- <file>` around the probe. Either command destroys all uncommitted work in the file. Commit a build before deliberately breaking it to verify a test.
+- **Never `git checkout -- <file>` (or `git restore`) on a tree carrying uncommitted work.** Either destroys everything uncommitted in the file, a delegate's whole build included. Undo a probe by re-editing the exact change back, or use `git stash push -- <file>` around it. Commit a build before deliberately breaking it to verify a test.
 - **Long runs go detached, with a completion marker.** Watch the marker for completion. Shell-tool timeouts kill their process trees. Keep state in files that survive your context window; apply `flight-deck`.
 
 ## When it comes back
@@ -98,7 +100,7 @@ description: "Before spawning a subagent or dispatching a build, review or resea
 - **A builder's objection that is a product decision goes to the owner.** Give it its own handoff section, keeping it separate from corrections you can accept yourself.
 - **When you take a handoff over, put a dated status line at its top.** Say whether it is merged, which rounds reviewed it, where it is deployed, and what still waits. Keep your changes in their own section, leaving the delegate's text as written. Check claimed deploys against your environment log.
 - **Audits record `HEAD` and `git status --short` at the start and again before delivering.** Put this instruction in the audit brief. Reverify findings about deleted, moved or renamed files against current `HEAD`.
-- **Repeated correct fixes that don't work mean the model of the problem is wrong.** Stop fixing and distinguish two mechanisms with a screenshot or a question the owner can answer in a minute. Do this on the second failed fix, rather than the fifth. Green tests of a sequence the user never receives cannot establish that the symptom is fixed.
+- **Repeated correct fixes that don't work mean the model of the problem is wrong.** Stop fixing and distinguish two mechanisms with a screenshot or a question the owner can answer in a minute. Do this on the second failed fix, rather than the fifth. Green tests that exercise a sequence the user never receives turn "I don't understand this" into "this is fixed".
 - **Converge before surfacing.** Bring one result or a clearly stated disagreement, leaving the owner to arbitrate intent and taste.
 - **"Ready to test" means testable with nothing to do first.** Build, install or deploy it on the surface the owner uses, and say what needs reloading. Complete the handoff, or state its remaining edges plainly.
 

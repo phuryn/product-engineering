@@ -42,7 +42,7 @@ The rules come from two kinds of product, named here only by kind. The web-app h
 
 - `2026-10-23`, a monitoring product: a review round observed `db push --linked --project-ref <production ref>` write to the linked project. On CLI 2.122.0, read 2026-10-25, a probe with dummy refs saw the typed ref used for the first request, so the precedence of that pair is not something to rely on across versions; a connection string names one database on every version.
 
-## Send a preview link and actions once the change is ready.
+## Send the owner a link and a short list of what to try.
 
 - `2026-10-22`, a monitoring product: through a tunnel to `next dev`, its owner found six problems no review had — placeholder examples naming the owner's own app, guessed defaults such as `/api/health` and `$.db.ok` prefilled as if they were real, both free-tier locations in Europe, an image size limit, an accent colour that did nothing visible, and a switch for a feature not built yet.
 

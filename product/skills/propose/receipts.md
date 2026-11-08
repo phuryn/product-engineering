@@ -26,7 +26,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-11-03`, an evals product's artifact imitated its kit and invented borderless buttons; the owner caught those and misaligned chips.
 
-## Choose chart forms first and inspect their renders.
+## Charts follow `dataviz`'s rules in any agent.
 
 - `2026-11-07`, a static discovery page: a scatter was unreadable; a labelled 3×3 grid with a legend read clearly.
 
