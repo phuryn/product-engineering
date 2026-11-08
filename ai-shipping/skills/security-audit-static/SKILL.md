@@ -108,9 +108,9 @@ Never apply attacker-equals-victim refutation to SSRF/outbound-network sinks, sh
 
 **Re-open every cited location before the final report.** Confirm that the line number is current and quoted code is verbatim. Refute or re-investigate a finding whose evidence doesn't hold up; never report it as-is.
 
-### 6. Report only what survives — with an OWASP Top 10 backstop
+### 6. Report only what survives — with an OWASP Top 10 2021 backstop
 
-**Map every surviving finding to OWASP Top 10 before writing the report.** Flag every category with zero findings as an explicit "not covered — double-check" line. This coverage check catches classes the engine underweights:
+**Map every surviving finding to OWASP Top 10 2021 before writing the report.** Flag every category with zero findings as an explicit "not covered — double-check" line. This coverage check catches classes the engine underweights:
 
 - A02 cryptographic failures: plaintext or weakly-hashed credentials, tokens or PII at rest; predictable tokens; missing encryption on sensitive columns.
 - A06 vulnerable and outdated components: a dependency with a *reachable* exploit path, not version-drift noise.
@@ -127,7 +127,7 @@ The backstop does not require invented findings. An honest "no evidence found in
 - Gate/action field mismatch: permission checked on one ID, action performed on an independent ID never proven to belong to it.
 - Forgeable request signals: endpoints gated by `?source=cron`, `?bot=1`, guessable headers or unsigned webhook-like payloads instead of real auth. Raise severity when the endpoint mutates data, sends email or triggers paid usage.
 - Output encoding vs. input validation, and CSP: encode user data for its sink when interpolating it into HTML, `<title>`, attributes, JSON-LD, SQL or Markdown. Input validation doesn't count. Check Content-Security-Policy for weak or missing directives, `unsafe-inline`, wildcard sources and inline event handlers. Recommend a stricter policy that still supports app features. (XSS, CSP.)
-- Prompt injection and agent abuse (AI apps): treat the model as both a sink and a source. Check untrusted content (fetched pages, uploaded files, DB rows, tool output) reaching an LLM prompt; attacker text driving a privileged tool call or agent action (confused deputy); system-prompt or secret exfiltration; and unvalidated LLM output flowing into SQL, shell, HTML or a follow-on tool call.
+- Prompt injection and agent abuse (AI apps): treat the model as both a sink and a source. Check untrusted content (fetched pages, uploaded files, DB rows, tool output) reaching an LLM prompt; attacker text driving a privileged tool call or agent action (confused deputy); system-prompt or secret exfiltration; and unvalidated LLM output flowing into a downstream sink (SQL, shell, HTML, a follow-on tool call).
 - SSRF / renderer abuse: attacker-influenced URLs, HTML, SVG or Markdown reaching an outbound fetch or renderer, including a headless browser or PDF/OG-image generator.
 - Parser / validator differentials: the validator accepts a value the consumer interprets differently. Check unanchored regex, `startsWith`/substring allowlists, URL-parser disagreement, encoding/case/slash/path-normalization mismatch, and validation on one representation with execution on another.
 - Fail-open paths: error, `catch`, timeout, cancellation, cache-miss, stale-cache, feature-flag or boundary-value branches that default to allow. AI code loves a permissive fallback.
@@ -173,4 +173,4 @@ Security Audit: [scope — path, or range / changes and N changed files]
 
 ## How you can tell it worked
 
-Every reported finding quotes the code it accuses at a current line, and each OWASP category with no finding has its "not covered" line. The report says which model each cluster ran on.
+Every reported finding quotes the code it accuses at a current line, and each OWASP Top 10 2021 category with no finding has its "not covered" line. The report says which model each cluster ran on.

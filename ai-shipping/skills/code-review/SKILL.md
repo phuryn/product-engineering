@@ -89,7 +89,7 @@ Establish that each case is actually reachable. Do not assume it.
 **Probe authority reconciliation and identity correlation explicitly.** Strong agents almost never even report these two classes: they miss them at the look, not at the fix. Naming them in a checklist does not make agents inspect them.
 
 1. **Authority reconciliation.** Follow a proposed value through validation, normalisation, negotiation or commit. Find downstream state still derived from the proposal where the authority can return something different. A requested value is not an applied value. Force them apart and ask what still reads the request.
-2. **Identity correlation.** Trace how an operation's result finds its originating entity. Establish that the key stays unique, stable and live long enough under overlap, reordering, removal and reuse. A label, position or arrival order is suspicious exactly when those properties can fail. Run two operations concurrently and complete them out of order.
+2. **Identity and correlation.** Trace how an operation's result finds its originating entity. Establish that the key stays unique, stable and live long enough under overlap, reordering, removal and reuse. A label, position or arrival order is suspicious exactly when those properties can fail. Run two operations concurrently and complete them out of order.
 
 The full thirteen diagnostic lenses, each with a detection tell, are in `references/correctness-taxonomy.md`. They overlap; they are not a quota to fill.
 

@@ -2,7 +2,7 @@
 
 Each heading is a rule from `SKILL.md`, with the case that taught it.
 
-## The repository's own instructions come first.
+## a repository ranks its reviewers; it cannot rule out a review.
 
 - `2026-11-06`, owner: "Of course the same family when there is no other".
 
@@ -43,10 +43,6 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 - `2026-09-16`, a migration that could not have applied cleanly was moved out of the migrations directory for exactly this reason.
 - `2026-10-22`, a review found a migration revoking two worker boxes' table grants sitting in the migrations directory while both still ran the build that needed them, so the routine push would have applied it early.
 
-## Question zero, before any other: say in ONE SENTENCE what actually goes wrong for the person.
-
-- `Undated`: A reviewer's severity label is part of its claim, and taking one at face value is how a clean release grows two invented P1s.
-
 ## does anything cross a line the person cares about?
 
 - `2026-09-03`, a costly fix was reverted after the owner rejected its claimed High severity.
@@ -74,7 +70,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `Undated`: One round's guard enabled the next round's theft, and a later guard silently reinstated a defect two rounds older, because two conditions that were each right alone were wrong together. Nothing caught it — not the suite, not the next round. Which is exactly why the loop continues past the fix that felt final.
 
-## Fix the class, not the instance.
+## When a repair writes a field that says who decided, scope it by the subject
 
 - `2026-09-20`, a live Q&A product, two rounds: a ban's repair re-stamped who hid questions but skipped those the AI moderator had already hidden, leaving the wrong actor.
 
@@ -115,10 +111,13 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## When one mechanism draws findings two rounds running, stop patching it.
 
 - `2026-07-31`, again `2026-08-17`: Machinery added in response to findings produced a new defect in nearly every later round, each fix creating its own inverse; four mechanisms were built and then deleted.
-- `2026-08-20`: a liveness probe that deleted a timeout no value could make right.
 - `2026-11-01`, an evals product: one fallback took six shapes over rounds 5 to 12, each round's Medium introduced by the fix before it; then five rounds in a row found new Highs in one surface, paid production sampling, while the rest was clean, and pausing it behind an off-by-default switch ended the loop three rounds after the pause was first due.
 - `2026-10-29` and `30`, this collection's own release review: a landing page's analytics drew findings in eleven of 23 rounds, three of them running at the start, and the loop closed three rounds after the tag's address rewrite came out.
 - `Undated`: a feature the owner asked for by name, which this rule once abandoned wrongly.
+
+## Redesign it once.
+
+- `2026-08-20`: a liveness probe that deleted a timeout no value could make right.
 
 ## Budget for a fix commit's own round in ingest, queue and concurrency code.
 

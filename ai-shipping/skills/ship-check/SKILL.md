@@ -84,8 +84,8 @@ Run authority reconciliation: a requested value still drives state where the aut
 **Use the repo's named reviewer only when it meets every review requirement.** Every reviewer must have:
 
 - A fresh session that never saw the build, never a resume, fork or subagent of it.
-- Read-only tools only, no MCP servers or connectors, memory off and its highest effort.
-- Project and user instructions off where its CLI allows; a sandbox flag alone does not do this.
+- Read-only tools only, no MCP servers or connectors, memory off and its highest effort; a sandbox flag alone does not make tools read-only.
+- Project and user instructions off where its CLI allows.
 
 Replace a named reviewer that cannot meet these requirements with the repo's recorded fallback when that one can, without asking. If none can, run the wrapper's reviewer without asking. If no other family can run, use a fresh session of the builder's family. Never use the building session, and never skip review.
 

@@ -23,7 +23,7 @@ Never use the building thread, resumed or forked, or a subagent of it. The revie
 
 A sandbox flag alone is insufficient. In Codex, `-s read-only` binds only shell commands; user configuration can add tools acting outside it (Codex CLI 0.159.0, observed `2026-10-29`). Leave that configuration out; apply `codex-agents` § Reviewer.
 
-When a named reviewer cannot meet that bar, use the product's recorded fallback if it can. Otherwise use the fallback above, without asking. Name the actual reviewer and why it replaced the named one in the report. Where repository instructions say nothing, use these defaults. Ask when a default needs an owner-only fact, such as the released branch or last release.
+When a named reviewer cannot meet that bar, use the product's recorded fallback if it can, without asking. Otherwise use the fallback above, without asking. Name the actual reviewer and why it replaced the named one in the report. Where repository instructions say nothing, use these defaults. Ask when a default needs an owner-only fact, such as the released branch or last release.
 
 **Verify findings yourself and rerun the project's gate yourself after every fix.** The loop is fix → rerun the project's test gate yourself → fresh review of the changed state → verify every finding against code yourself → fix → repeat.
 
@@ -47,16 +47,16 @@ git diff $RELEASED...HEAD --stat                # its shape
 git status --porcelain -uall                    # and anything uncommitted, file by file
 ```
 
-**Read that status for what does not belong, too.** The wrapper inlines every untracked file under 200 KB, including its content. The cap is per file. A directory of small generated files therefore goes in whole: copied data, fixtures, scratch output or build artefacts without ignore rules. The turn cap rises to fit it. Put anything outside the change into `.gitignore` or delete it before the round. A subject much longer than the diff's `--stat` suggests usually signals this. The wrapper warns when untracked files add more than 20,000 lines or most of a subject over 5,000, and never refuses.
+**Read that status for what does not belong, too.** The wrapper inlines every untracked file under 200 KB, including its content. The cap is per file. A directory of small generated files therefore goes in whole: copied data, fixtures, scratch output or build artefacts without ignore rules. The turn cap rises to fit it. For anything outside the change, delete only what this session generated; otherwise `.gitignore` it or ask the owner before the round. A subject much longer than the diff's `--stat` suggests usually signals this. The wrapper warns when untracked files add more than 20,000 lines or most of a subject over 5,000, and never refuses.
 
 **Use the repository's last released state as `$RELEASED`.** It may be production branch `origin/<prod>`, a release tag or the deployed commit.
 
-**Before the first release, review the whole history with `--subject HEAD`.** The wrapper writes every commit's author and message, every file `HEAD` holds, and every line its history removed. Include the first commit: a push sends every commit, and `<first commit>..HEAD` would omit it. A clone or fork uses the same `--subject HEAD`. The source repository's tags and branches are not this product's releases. Before any release, nothing is live yet. The brief therefore marks every finding INTRODUCED, including code that came with the history.
+**Before the first release, review the whole history with `--subject HEAD`.** The wrapper writes every commit's author and message, every file `HEAD` holds, and every line its history removed. Include the first commit: a push sends every commit, and `<first commit>..HEAD` would omit it. A clone or fork whose history began in another repository uses the same `--subject HEAD`. The source repository's tags and branches are not this product's releases. Before any release, nothing is live yet. The brief therefore marks every finding INTRODUCED, including code that came with the history.
 
 **Never narrow the range by hand to make it fit.** Round 1 includes already-pushed code: when pushes deploy, that code is exactly what users run. A range too large for one round is split, never shortened, in one of two ways:
 
 - **Split by commits when the history falls into stages.** Give each round a contiguous slice and the rest of the range as context, oldest first. Each later round reads earlier slices for interactions. This fits a few build stages.
-- **Split by surface when the history does not partition.** This fits a first release covering the whole product, or commits that each touch everything. Each round takes the whole range and reads its assigned area in full, with other areas named as context. Examples are public surfaces; data, permissions and money; and member screens. Together, the areas cover every changed file. Area rounds read one still snapshot and run in parallel, each with its own brief and output file.
+- **Split by surface when the history does not partition.** This fits a first release covering the whole product, or commits that each touch everything. Each round takes the whole range and reads its assigned area in full, with other areas named as context. Examples are public surfaces; data, permissions and money; and member screens. Together, the areas cover every changed file. Area rounds read one still snapshot and run in parallel, each with its own brief and output file so concurrent rounds do not all read the last brief written.
 
 **Narrow every later round to commits since the previous round.** Give the remaining unreleased range as context to read for interactions. Naming new code is scoping, not steering. Re-reviewing cleared code adds time and pre-existing noise while burying new findings. Passes find bugs, so cheap rounds beat thorough ones.
 
@@ -82,9 +82,9 @@ echo "exit=$?"   # 2: the round was too short, treat it as failed; 3: the review
 
 **Use the repository's runnable fallback when the default reviewer cannot run.** `--reviewer auto` defaults to installed Grok, otherwise `claude -p` with `--restricted`, `--tools Read,Grep,Glob`, `--strict-mcp-config`, `--no-session-persistence`, `--effort max` and `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`. Measured on 2026-10-10: without that variable, a headless session loads the project's memory index holding builder notes. With these flags, no project instructions, personal notes, memory or skills list was in its context. `--reviewer claude` forces that fallback.
 
-**An installed Grok can still be out of usage.** The wrapper then exits 3 and prints the same round with `--reviewer claude`. Run the repository's recorded fallback if it can run, including its model. Otherwise run the wrapper's fallback without asking, even if the repository names Grok. If no other family can run, use a fresh session of the builder's family. Record the actual reviewer and reason (§ The repository's own instructions come first).
+**An installed Grok can still be out of usage.** The wrapper then exits 3 and prints the same round with `--reviewer claude`. Run the repository's recorded fallback if it can run, including its model. Otherwise run the wrapper's fallback without asking, even if the repository names Grok. If no other family can run, use a fresh session of the builder's family. Record the actual reviewer and reason (§ Apply one bar to every reviewer, including a repository's named reviewer).
 
-**With neither CLI, give the wrapper's prompt to a fresh separate process.** Use `--subject-only` with `--brief`, `--cwd` and `--subject` as above. It writes the subject and prompt into the git directory and prints their paths. The prompt contains the brief plus paging instructions. Give it to a fresh read-only session of your agent, started as a separate process in the checkout under review. Never use a subagent, fork or resumed session of this one. Require read-only tools, no MCP servers or connectors, the highest available reasoning effort, and memory off. Switch off project and personal instructions where allowed. In a review worktree, the git directory is outside the checkout; give read access there, never write.
+**With neither CLI, give the wrapper's prompt to a fresh separate process.** Use `--subject-only` with `--brief`, `--cwd` and `--subject` as above. It writes the subject and prompt into the git directory and prints their paths. The prompt contains the brief plus paging instructions. Give it to a fresh read-only session of your agent, started as a separate process in the checkout under review. Never use a subagent, fork or resumed session of this one. Require read-only tools, no MCP servers or connectors, the highest available reasoning effort, and memory off where it allows. Switch off project and personal instructions where allowed. In a review worktree, the git directory is outside the checkout; give read access there, never write.
 
 Where no fresh session can be started, stop and hand the owner the prompt path. The round has not run until a fresh session answers. A short clean answer fails the round. Delete both files when the round ends.
 
@@ -153,15 +153,15 @@ Do not include earlier findings, suspected files, your argument for the design, 
 
 ## Triage — the part that goes wrong
 
-**Question zero, before any other: say in ONE SENTENCE what actually goes wrong for the person.** If it does not sound bad read aloud, there is nothing to fix. "You land on one of your own items that a filter was hiding" dies unaided. The reviewer's severity label is part of its claim.
+**Question zero, before any other: say in ONE SENTENCE what actually goes wrong for the person.** If it does not sound bad read aloud, there is nothing to fix. "You land on one of your own items that a filter was hiding" dies unaided. The reviewer's severity label is part of its claim, and taking one at face value is how a clean release grows two invented P1s.
 
-**does anything cross a line the person cares about?** Examples are another tenant's data, private data on a public surface, another user's private content, disappearing work, lost writes or anonymous member capabilities. If everything already belongs to the person and stays visible, it is a surprise; a surprise is polish. Distrust a real mechanism with a scary label and speculative harm. Ask whether the person can see where they are. Builder reports and reviewer priorities are both claims; neither model decides.
+**does anything cross a line the person cares about?** Examples are another tenant's data, private data on a public surface, another user's private content, disappearing work, lost writes or anonymous access to a member capability. If everything already belongs to the person and stays visible, it is a surprise; a surprise is polish. Distrust a real mechanism with a scary label and speculative harm. Ask whether the person can see where they are. Builder reports and reviewer priorities are both claims; neither model decides.
 
 **Require literal steps, permitted execution and a person with a reason.** A finding that cannot answer these three questions is not a finding:
 
 1. **What exact sequence produces it?** Not "an attacker could": literal steps in order.
 2. **Does this system permit that sequence?** Check the code that must allow it. This is where most die.
-3. **Who does it, and why?** Someone already holding the owner's session on the owner's own screen already had that screen.
+3. **Who does it, and why?** If it needs someone already holding the owner's session on the owner's own screen, they had the screen.
 
 **A layout or performance claim is settled on the running build, not by re-reading the file — in either direction.** Stylesheet arithmetic may be right while the conclusion is false. A flex item's automatic minimum is its content; cells wider on paper than their container can shrink rather than overflow. "Obviously it shrinks" is as speculative as "obviously it overflows": measure before accepting or rejecting. Measure visible text against neighbours in the same column, not the named container. The defect itself can produce matching box edges. Measure performance on both builds, with the baseline built from `HEAD` in its own worktree. Let the numbers retire the fix.
 
@@ -201,7 +201,7 @@ Do not include earlier findings, suspected files, your argument for the design, 
 
 ## The stopping rule
 
-**Stop at no INTRODUCED finding above Low and no High or Critical of any age.** Fix High and Critical now, regardless of age. Small releases reach that bar fastest; later rounds review only their own commits.
+**Stop at no INTRODUCED finding above Low and no High or Critical of any age.** Fix High and Critical now, regardless of age. Small releases reach that bar fastest; later releases review only their own commits.
 
 **When one mechanism draws findings two rounds running, stop patching it.** Repeated inverse defects in one area mean the design is wrong. Before the next round, choose one option in writing:
 
@@ -213,7 +213,7 @@ Scale this by whether the work was requested. Apply it hardest to unrequested ha
 
 **Budget for a fix commit's own round in ingest, queue and concurrency code.** When planning, allow for that tendency.
 
-**Record pre-existing findings with their deferral reason and a revisit trigger.** Use the repository's backlog file or issue tracker; ask if it names none. High and Critical are the exception: fix them now, regardless of age. Never silently drop a finding. The release summary states each round's finding count and what happened to each, including those not worth fixing and why.
+**Record pre-existing findings with their deferral reason and a revisit trigger.** Include the trigger because it is what gets the finding fixed. Use the repository's backlog file or issue tracker; ask if it names none. High and Critical are the exception: fix them now, regardless of age. Never silently drop a finding. The release summary states each round's finding count and what happened to each, including those not worth fixing and why.
 
 **Number rounds in one sequence per repository.** Cite the number wherever the outcome lands: fix commit, backlog row, merge and release record.
 

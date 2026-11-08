@@ -27,7 +27,7 @@ description: "Documenting an AI-built app for handoff, review or audit: the docs
 - **Say which you did.** Name every location and file written, and whether each follows the repo's setup or a plugin default.
 - **Never create a file whose name differs from an existing one only in letter case** — `tests.md` beside `TESTS.md`, or `Architecture.md` beside `architecture.md`. On Windows and macOS, they are the same file, so writing overwrites it. Elsewhere, they become two files that collide on the next checkout. Check case-insensitively before creating a file. Use the existing one if it covers the same thing. If it covers something else, such as a testing-method `TESTS.md`, don't write into it. Use the repo's real equivalent; where none exists, pick a name that collides with nothing.
 
-Throughout this plugin, `architecture.md` or `tests.md` means that document, wherever and under whatever name the repo keeps it.
+Throughout this plugin, a name such as `architecture.md` or `tests.md` means that document, wherever and under whatever name the repo keeps it.
 
 ## How the set is organized
 

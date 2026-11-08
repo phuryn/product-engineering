@@ -8,7 +8,7 @@ description: "Writing or running tests, proving a fix, a red or flaky run, a fix
 
 **Make each harness prove something real before trusting its green result.** A suite can pass against the wrong server, database, fixture branch, or developer's `.env` and prove nothing. This skill arranges the harnesses, defines gate runs and reporting, and keeps green runs honest with rules learned from bugs.
 
-**On another stack, keep the principle and swap the mechanism.** Each rule states its principle first and the mechanism second. The web-app mechanisms use Next.js (App Router), Supabase Postgres, Clerk, Vitest, and Playwright. The two-halves mechanisms cover a relay service, web client, and editor extension with desktop installers that drives a CLI agent.
+**On another stack, keep the principle and swap the mechanism.** Each rule states its principle first and the mechanism second. The web-app mechanisms use Next.js (App Router), Supabase Postgres, Clerk, Vitest, and Playwright. The two-halves mechanisms were learned on a relay service with a web client and an editor extension with desktop installers that drives a CLI agent.
 
 **The product's own instructions come first** — where they name its scripts, folders, or coverage file, follow them.
 
