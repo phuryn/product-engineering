@@ -39,7 +39,7 @@ description: "Before adding a remote MCP server or tool to a web product, adding
 
 - **Descriptions, titles and the server's instructions are product copy, and each sentence is a claim.** Directories score them and show them; agents choose tools from them alone. Review them like code, since a sentence can promise behaviour the handlers do not keep. `references/tools.md`.
 - **Every argument has a description and every tool an `outputSchema`, and a test holds both against the real handlers.** Smithery scores each out of 10 (observed `2026-10`). `references/tools.md § The tests`.
-- **Every tool carries a `title` and the hints a directory requires.** Claude's directory flags tools lacking a title and `readOnlyHint` or `destructiveHint`. OpenAI's listing check requires a tool that closes something to declare itself destructive. `references/tools.md § Annotations`.
+- **Every tool carries a `title` and the hints a directory requires.** Claude's directory flags tools lacking a title and `readOnlyHint` or `destructiveHint` (observed `2026-10`). OpenAI's guidelines keep an action destructive even when another tool can undo it (read `2026-10-26`). `references/tools.md § Annotations`.
 - **`tools/list` has a size budget.** Pin it in a test. Every client loads it into the model's context, so per-field descriptions can expand it.
 - **Log every call, refused ones included, before the server is listed anywhere.** It is the only way to learn which clients and directories actually call you. `references/server.md § The per-call log`.
 - **A client is supported only once a happy path with it is recorded.** Record the date, the client and what was called, by this product and against this product. A client another product verified, or someone reports working, is unverified for you. `references/clients.md`.
@@ -53,7 +53,7 @@ description: "Before adding a remote MCP server or tool to a web product, adding
 3. **Build the tools with both required tests.** Read `references/tools.md`.
 4. **Configure OAuth, then prove a real grant and client.** Apply `clerk-production` § MCP OAuth, then `references/server.md § Proving it` for the automated real grant and real client.
 5. **Write the API contract, public developer page and distribution record.** Include the API contract, a public page for developers pinned to the code by a test, and the distribution record.
-6. **Release with independent review of descriptions and instructions.** Apply `independent-review`; descriptions and instructions are in the subject, not context.
+6. **Release with independent review of the whole release.** Apply `independent-review`; descriptions and instructions are in the subject, not context.
 7. **Publish listings and the package from production after promotion.** Read `references/directories.md` and `references/companion-repo.md`; apply `chatgpt-plugin` for a ChatGPT plugin.
 
 Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.

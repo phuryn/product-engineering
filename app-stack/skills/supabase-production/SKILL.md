@@ -82,7 +82,7 @@ description: "A Supabase query, RPC or migration, 'db push', 'supabase link', RL
 npx supabase migration list --db-url "$PROD_DB_URL" && npx supabase db push --db-url "$PROD_DB_URL" --dry-run
 ```
 
-**Apply production only after reading the dry run and receiving chat approval.** Run this as its own command:
+**Apply production only after reading the dry run and getting the owner's go in the chat.** Run this as its own command:
 
 ```sh
 npx supabase db push --db-url "$PROD_DB_URL" && npx supabase migration list --db-url "$PROD_DB_URL"

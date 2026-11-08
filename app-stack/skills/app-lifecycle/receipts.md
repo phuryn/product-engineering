@@ -10,7 +10,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-11-03`, an evals product: its plan followed the proposal's build order, so after three phases and 22 review rounds, ten of them on the hard logic of paid sampling, it had no landing, legal pages or pricing. The owner: "Seeing app with all those elements that costs a little is wow. Debugging hard logic for hours isn't."
 
-## A stage is done when its done-when holds and its own gate passes.
+## A stage is done when its done-when holds and its own gate passes on the agent's own run.
 
 - `2026-10-22`, a monitoring product: ten minutes of its owner using a preview found six problems no review had.
 

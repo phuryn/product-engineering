@@ -98,6 +98,7 @@ Those decisions are here.
 - test mode: `PATCH /v1/instance` with `test_mode: true`. No `GET` returns it, so the `+clerk_test` user above is its proof.
 
 The rest stays the owner's, in the dashboard.
+
 5. **Configure billing only when the product bills, after organizations.** Use Free and one paid plan for organizations, written in a billing file (its `plans` block included) and applied in two commands: `npx clerk config patch --file <file> --dry-run`, read what it would send, then the same without `--dry-run`. *Manage billing* goes to the admin role alone. → `references/organizations-and-billing.md § Billing`
 6. **Enable legal consent once the legal pages are live.** Use *Configure → Legal → Require express consent to legal documents*, with their URLs. The sign-up form then carries the consent checkbox.
 7. **Configure OAuth application settings only for an MCP server.** See § MCP OAuth.
@@ -106,7 +107,7 @@ The rest stays the owner's, in the dashboard.
    - its own OAuth client for each social sign-in (development borrows Clerk's shared ones);
    - legal consent on;
    - a real Stripe account connected to Clerk Billing, and the billing file applied with the same two commands plus `--instance prod`, the dry run read first, when the product bills;
-   - every dashboard setting above applied again and read back. An instance cloned from development drops the settings only the API sets;
+   - every dashboard setting above applied again and read back. An instance cloned from development drops the settings only the API sets (observed `2026-10-24`);
    - generated secrets generated afresh, never copied from development.
 
    → `references/csp-and-variables.md § The production instance`; the release around it is `release-gate`.
@@ -140,7 +141,7 @@ Use *OAuth applications → Settings* (observed `2026-10-06`); these settings ca
   - The route requires its own exact URL as the resource in `aud`: `<APP_URL>/api/mcp` by default, or the path the product chose instead (one product mounts it at `/mcp`).
   - The protected-resource metadata describes that path, never the origin root.
 - **Apply, then re-read.** Use `PATCH`, then `GET /v1/instance/oauth_application_settings`, with that instance's own secret key. Record the re-read in the integration notes: development and production separately, dated.
-- **An instance cloned from development does not carry these settings.** Apply and re-read them on the clone as on any new instance.
+- **An instance cloned from development does not carry these settings.** (Observed `2026-10-24`.) Apply and re-read them on the clone as on any new instance.
 - **No new environment variable.** The publishable key gives the issuer, the secret key verifies tokens and reads membership, and `APP_URL` gives the resource and the discovery URLs.
 
 **Allow for all four OAuth verification behaviours in the route.**

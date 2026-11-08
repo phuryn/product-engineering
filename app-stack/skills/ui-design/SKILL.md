@@ -30,7 +30,7 @@ description: "Mandatory for any product's screens, a builder's too, and any mock
 
 **Run every visual check before the owner's click-through.** Complete the newcomer walkthrough below, the rendered-screen pass against `references/screens.md § What to verify visually`, and the app-screen screenshot critique. Critique at 1440, 768 and 390, with three rounds at most.
 
-**Run the scored Impeccable-style audit when its triggers apply.** Fix its P0 and P1 findings. Add it at the first screens and when the kit changes. Rerun it before a release changing a screen or kit, and whenever the owner asks. Both critique and audit run from `references/collections.md` checklists without installing the collections. The owner then judges the look (`references/review.md`).
+**Run the scored Impeccable-style audit before the owner's click-through at the first screens and whenever the kit changes.** Fix its P0 and P1 findings. Rerun it before a release changing a screen or kit, and whenever the owner asks. Both critique and audit run from `references/collections.md` checklists without installing the collections. The owner then judges the look (`references/review.md`).
 
 ### The newcomer walkthrough
 

@@ -2,7 +2,7 @@
 
 Each heading is a rule from `SKILL.md`, with the case that taught it.
 
-## Keep these mechanics when changing providers with an HTTP send API.
+## Apply these mechanics to any provider with an HTTP send API.
 
 - `Undated`: It was learned on a monitoring product that sends alert email (an incident opened, an incident resolved, a test) through Postmark, over its HTTP API with plain `fetch`, from a scheduled sender, named here only by kind.
 

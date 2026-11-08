@@ -7,7 +7,7 @@ description: "Adding transactional or alert email, choosing a provider, 'sent tw
 
 **Commit messages durably and name the narrow cases that can duplicate them.** A plain "insert, then call the provider" can lose a message or send it twice, depending on where it crashes. This skill covers durable delivery, unsubscribe, environments and domains.
 
-**Keep these mechanics when changing providers with an HTTP send API.** They carry to Resend, SES and others; provider differences are stated with their read dates. The identity provider's own email, such as sign-in codes and invitations, is not covered here: it sends that itself.
+**Apply these mechanics to any provider with an HTTP send API.** They carry to Resend, SES and others; provider differences are stated with their read dates. The identity provider's own email, such as sign-in codes and invitations, is not covered here: it sends that itself.
 
 **Distinguish the event, its messages, their receipts and the sender.** An event is what happened: an incident opened, an invoice paid. A message is one email about it to one recipient. A receipt is the durable row saying what became of that message. The sender turns pending receipts into provider calls, wherever it runs.
 
@@ -46,7 +46,7 @@ description: "Adding transactional or alert email, choosing a provider, 'sent tw
 
 ## Proving it
 
-- **Test the sender's real functions against Postgres with every migration.** Integration tests cover a retried send; a dropped answer settled by the search with no second send; a crash before the provider; several senders racing over many receipts, each sent once; a refusal not retried; a stale claim that never sends; a follow-up never sent after its first failed. → `references/delivery.md § Tests`
+- **Test the sender's real functions against a real Postgres with every migration.** Integration tests cover a retried send; a dropped answer settled by the search with no second send; a crash before the provider; several senders racing over many receipts, each sent once; a refusal not retried; a stale claim that never sends; a follow-up never sent after its first failed. → `references/delivery.md § Tests`
 - **Drill the provider's real API before production, using only discard addresses.** Prove one event, one message, a second pass that sends nothing, and a simulated crash after the send that must be settled from the search without a second copy. The drill waits until the search has answered *found* several times in a row before the next pass, which is what the lease buys a real sender.
 - **Run production's own drill before customers rely on it.** Otherwise the first real incident is the first test of delivery.
 

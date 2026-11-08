@@ -5,7 +5,7 @@ description: "Building, adding or wiring up an agent or an agent chat inside a N
 
 # Embedded agents — Claude API
 
-**Use the Messages API by default for a new product.** The Anthropic SDK's tool runner (`client.beta.messages.toolRunner`) drives the loop inside the app's process. The agent has exactly the wrapper's tools, with nothing built in. Both embedded-agent skills run the same agent directories, which move between them unchanged (playbook § 10). Apply `embedded-agents-agent-sdk` when the agent needs what only the Claude Code engine has, or when the product already runs it. That SDK starts the engine as a subprocess, provides built-in file and shell tools, and needs a long-lived Node host.
+**Use the Messages API by default for a new product.** The Anthropic SDK's tool runner (`client.beta.messages.toolRunner`) drives the loop inside the app's process. The agent has exactly the wrapper's tools, with nothing built in. Both embedded-agent skills run the same agent directories, which move between them unchanged (playbook § 10). Apply `embedded-agents-agent-sdk` only when the agent needs what only the Claude Code engine has, or when the product already runs it. That SDK starts the engine as a subprocess, provides built-in file and shell tools, and needs a long-lived Node host.
 
 **Read the product's own agent instructions before changing its embedded agents.** Start with its root `AGENTS.md` or `CLAUDE.md`, and tell any subagent spawned for this work to read it too. Its rules on secrets, environment variables, validation, callers, tests and release apply here. Read `reference/playbook.md` before changing the wrapper's contract or explaining it in depth. It holds the full playbook and the measurement behind every choice.
 

@@ -11,7 +11,7 @@ description: "Adding a variable or secret, 'set up production', a domain or a pr
 
 **The product's own instructions come first.** Follow its names for the environments doc, variables doc and branches.
 
-**Write to the product's existing records, whatever it calls them.** They hold:
+**Write to the product's records, whatever it calls them.** They hold:
 
 - The environments doc: which resource each environment uses, verified and dated, ending in the environment log, one row per environment event;
 - The variables doc: one row per variable, and where every copy of each secret lives;
