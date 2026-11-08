@@ -121,7 +121,7 @@ Finish by marking every claim by kind (step 3); standalone research ends there.
 | The brief (or the product's refined idea) | the accepted intent and use cases |
 | The decision log, if there is one | the choices made, their reasons, what would reopen them |
 
-**After acceptance, reuse a proposal that already serves as the brief.** After owner acceptance, update the brief and decision log where needed, linking the artifact as evidence. When the accepted proposal already serves as the brief, keep it as that record. For SaaS, apply `app-lifecycle` with the accepted artifact.
+**After the owner accepts, update the brief and link the page as evidence.** Update the decision log where needed too. Write no second brief when the accepted proposal already does that job. For a SaaS, apply the `app-lifecycle` skill with the accepted artifact.
 
 **Plan complex changes next, opening with assumptions the owner must review.** After acceptance, the next step for a complex change in any product is a plan. Explain what the ask means in this product, any wrong number or word the owner supplied, and what needs their decision.
 
