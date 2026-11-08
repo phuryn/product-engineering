@@ -204,19 +204,23 @@ def check_skill(skill_md):
         check_receipts(rel, text, receipts)
 
 
+STORY = re.compile(r"\((?:(?:the )?owner,\s*)?`?20\d\d-\d\d-\d\d", re.I)
+
+
 def check_receipts(rel, text, receipts):
-    """AGENTS.md rule 2: a skill with a receipts.md keeps its incident stories there, each under a rule the
-    skill states in bold. Dates left in the skill are platform facts ("read", "observed", "measured") or a
-    labelled example of the author's taste (rule 6)."""
+    """AGENTS.md rule 2, for a SKILL.md that has a receipts.md beside it: every heading there is a rule the
+    skill states in bold, and no story stays in the skill. A story opens its parenthetical with its date
+    ("(`2026-09-16`, a review round found ...)", "(owner, `2026-11-05`: ...)"); a platform fact kept under
+    rule 3 names its verb first ("observed `2026-11-07`", "`grok-4.7` on `2026-11-02`") and passes."""
     leads = {m.group(1).strip() for m in re.finditer(r"\*\*(.+?)\*\*", text)}
     for heading in re.findall(r"(?m)^## (.+)$", receipts.read_text(encoding="utf-8")):
         if heading.strip() not in leads:
             errors.append(f"{receipts.relative_to(ROOT)}: heading {heading!r} is not a bold rule in SKILL.md "
                           "(AGENTS.md, rule 2)")
-    for m in re.finditer(r"`20\d\d-\d\d-\d\d`", text):
-        if not re.search(r"\b(read|observed|measured|example)\b|preference", text[max(0, m.start() - 120):m.start()], re.I):
-            errors.append(f"{rel}: {text[max(0, m.start() - 50):m.end()]!r} reads as an incident story; it belongs "
-                          "in receipts.md (AGENTS.md, rule 2)")
+    for m in STORY.finditer(text):
+        line = text.count("\n", 0, m.start()) + 1
+        errors.append(f"{rel}:{line}: {text[m.start():m.start() + 60]!r} opens with its date, the form a story "
+                      "takes; it belongs in receipts.md (AGENTS.md, rule 2)")
 
 
 def check_listing():
