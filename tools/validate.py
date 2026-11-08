@@ -204,7 +204,7 @@ def check_skill(skill_md):
         check_receipts(rel, text, receipts)
 
 
-STORY = re.compile(r"\((?:(?:the )?owner,\s*)?`?20\d\d-\d\d-\d\d", re.I)
+STORY = re.compile(r"\((?:(?:the )?owner,\s*)?`?20\d\d-\d\d(?:-\d\d)?\b", re.I)
 
 
 def check_receipts(rel, text, receipts):
