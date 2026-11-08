@@ -97,7 +97,7 @@ Record the actual reviewer in the packet's Independent Review section. Say why i
 python <skill dir>/scripts/review.py --brief <scratch>/brief.md --cwd <repo> --subject <range> --out <scratch>/round-N.md < /dev/null
 ```
 
-Keep both files outside the repository; one left in the checkout enters the next round's subject. When the wrapper warns about untracked files, keep the ones that belong to the change: step 1's docs and step 2's edits stay in the subject. Gitignore the rest or ask the owner; delete only what this session generated and the change does not need. Exit 2 means a round came back too short: a failed round. The wrapper runs Grok when its CLI is installed, giving another model family. Otherwise it uses fresh headless Claude Code with nothing carried over, the builder's own family when Claude built the code.
+Keep both files outside the repository; one left in the checkout enters the next round's subject. When the wrapper warns about untracked files, keep every file that belongs to the change, step 2's edits included, and step 1's docs as context. For the rest, delete only what this session generated; otherwise gitignore it or ask the owner. Exit 2 means a round came back too short: a failed round. The wrapper runs Grok when its CLI is installed, giving another model family. Otherwise it uses fresh headless Claude Code with nothing carried over, the builder's own family when Claude built the code.
 
 #### Compute the subject from releases and the working tree
 

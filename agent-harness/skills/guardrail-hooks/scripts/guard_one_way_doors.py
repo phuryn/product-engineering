@@ -60,7 +60,7 @@ CONFIG = {
     ],
     # Scripts not opened and scanned (regex on the forward-slash path), because their
     # dangerous subcommands are already covered by command_rules, e.g. r"(^|/)tools/[^/]+$".
-    "skip_scripts": [r"(^|/)test_hooks\.py$"],  # its samples would trip the code rules on every test run
+    "skip_scripts": [],
     "reason_prefix": "Irreversible or public action, needs the owner's explicit OK: ",
     "reason_suffix": ". Agent: never approve this on the owner's behalf.",
 }
@@ -69,6 +69,15 @@ HEREDOC = re.compile(r"<<-?\s*['\"]?(\w+)['\"]?[^\n]*\n.*?\n\s*\1\s*(?:\n|$)", r
 RUNS_FILE = re.compile(
     r"\b(?:python3?|py|node|bun|deno\s+run)\s+(?:-[\w-]+\s+)*([^\s;&|<>]+\.(?:py|mjs|cjs|js|ts))"
 )
+# Code passed inline: python -c "...", node -e '...'. Scanned with code_rules like a heredoc body.
+INLINE = re.compile(r"""\b(?:python3?|py|node|bun|deno)\b[^\n;&|]*?\s-[ce]\s+(?:"((?:[^"\\]|\\.)*)"|'([^']*)')""")
+# A leading `cd <dir> &&` moves where the scripts after it are found.
+CD = re.compile(r"\bcd\s+(['\"]?)([^\s;&|'\"]+)\1\s*&&")
+# The wiring canary. It always answers, whatever the config's rules, so a person can prove the
+# hook runs with `true guard-canary`: a command that does nothing when the hook is not wired.
+CANARY = re.compile(r"\bguard-canary\b")
+# This guard's own test runner holds the code rules' samples; scanning it would ask on every test run.
+OWN_TESTS = os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_hooks.py"))
 
 
 def read_payload():
@@ -135,23 +144,33 @@ def main():
     hits = [f"{w} [command]" for w in scan(shell_only, cfg["command_rules"])]
     for body in bodies:
         hits += [f"{w} [inline script]" for w in scan(body, cfg["code_rules"])]
+    for m in INLINE.finditer(shell_only):
+        code = m.group(1) if m.group(1) is not None else m.group(2)
+        hits += [f"{w} [inline -c/-e]" for w in scan(code, cfg["code_rules"])]
 
+    # Where a script path is looked for: the payload's cwd first, then any `cd` target, then ours.
+    bases = [win(cwd)] + [os.path.join(win(cwd), win(d)) for _, d in CD.findall(shell_only)] + [os.getcwd()]
     for path in RUNS_FILE.findall(shell_only):
         path = win(path.strip("'\""))
         if any(re.search(p, path.replace("\\", "/")) for p in cfg["skip_scripts"]):
             continue
-        for base in ("", win(cwd), os.getcwd()):
+        for candidate in ([path] if os.path.isabs(path) else [os.path.join(b, path) for b in bases]):
+            if os.path.realpath(candidate) == OWN_TESTS:
+                break
             try:
-                with open(os.path.join(base, path) if base else path, encoding="utf-8", errors="ignore") as fh:
+                with open(candidate, encoding="utf-8", errors="ignore") as fh:
                     src = fh.read()
             except OSError:
                 continue
             hits += [f"{w} [in {os.path.basename(path)}]" for w in scan(src, cfg["code_rules"])]
             break
 
-    if not hits:
+    if hits:
+        reason = cfg["reason_prefix"] + "; ".join(dict.fromkeys(hits)) + cfg["reason_suffix"]
+    elif CANARY.search(shell_only):
+        reason = "guard-canary: the one-way-door hook is wired and answered. Decline this; nothing ran."
+    else:
         return 0
-    reason = cfg["reason_prefix"] + "; ".join(dict.fromkeys(hits)) + cfg["reason_suffix"]
     if cfg["mode"] == "block":
         sys.stderr.write(reason + "\n")
         return 2

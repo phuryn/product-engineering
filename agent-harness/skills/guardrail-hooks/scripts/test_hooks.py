@@ -8,7 +8,7 @@ its config:
     python <this file's folder>/test_hooks.py    (once installed: python .claude/hooks/test_hooks.py)
 
 It tests the shipped example rules. When you replace them, replace the cases in
-GUARD_CASES with your own: one that must ask, one look-alike that must not. The
+guard_cases with your own (keep the canary case): one that must ask, one look-alike that must not. The
 look-alikes are the point; the original guard was narrowed after firing on a heredoc
 that only mentioned a command.
 """
@@ -55,6 +55,12 @@ def main():
         fh.write("from client import Client\nClient().delete_post(42)\n")
     with open(os.path.join(tmp, "notes.py"), "w", encoding="utf-8") as fh:
         fh.write('"""Never run publish_cli.py delete from here."""\nprint("ok")\n')
+    os.makedirs(os.path.join(tmp, "tools"))
+    with open(os.path.join(tmp, "tools", "purge.py"), "w", encoding="utf-8") as fh:
+        fh.write("from client import Client\nClient().delete_post(7)\n")
+    os.makedirs(os.path.join(tmp, "webhooks"))
+    with open(os.path.join(tmp, "webhooks", "test_hooks.py"), "w", encoding="utf-8") as fh:
+        fh.write("from client import Client\nClient().delete_post(9)\n")
 
     # (name, command, env, expected exit code, expected decision)
     guard_cases = [
@@ -67,6 +73,14 @@ def main():
          "python - <<'EOF'\nfrom client import Client\nClient().delete_post(42)\nEOF", None, 0, "ask"),
         ("local script calling the delete API asks", "python cleanup.py", None, 0, "ask"),
         ("local script whose docstring mentions a delete passes", "python notes.py", None, 0, None),
+        ("the wiring canary asks", "true guard-canary", None, 0, "ask"),
+        ("python -c calling the delete API asks",
+         'python -c "from client import Client; Client().delete_post(42)"', None, 0, "ask"),
+        ("node -e calling the delete API asks", "node -e 'client.delete_post(42)'", None, 0, "ask"),
+        ("python -c that only prints passes", 'python -c "print(1)"', None, 0, None),
+        ("a script run after cd asks", "cd tools && python purge.py", None, 0, "ask"),
+        ("another project's test_hooks.py calling the delete API asks", "python webhooks/test_hooks.py", None, 0, "ask"),
+        ("this guard's own test runner passes", f'python "{os.path.join(HERE, "test_hooks.py")}"', None, 0, None),
         ("deny mode denies", "gh gist delete 123", {"ONE_WAY_DOORS_MODE": "deny"}, 0, "deny"),
         ("block mode exits 2", "npm publish", {"ONE_WAY_DOORS_MODE": "block"}, 2, None),
         ("unparseable input passes", "<<not json>>", None, 0, None),
@@ -110,6 +124,8 @@ def main():
           code == 2 and "wdrożenie na produkcję" in err, f"exit {code}, stderr {err!r}")
     code, _, _, err = run(GUARD, pre_tool_use("npm publish", tmp), {"ONE_WAY_DOORS_CONFIG": config})
     check("guard: a config file's rules replace the built-in ones", code == 0, f"exit {code}, stderr {err!r}")
+    code, _, _, err = run(GUARD, pre_tool_use("true guard-canary", tmp), {"ONE_WAY_DOORS_CONFIG": config})
+    check("guard: the canary answers whatever a config file's rules", code == 2 and "canary" in err, f"exit {code}, stderr {err!r}")
 
     cursor = {"hook_event_name": "beforeShellExecution", "command": "gh release delete v1 --yes", "cwd": tmp}
     code, _, _, err = run(GUARD, cursor, {"ONE_WAY_DOORS_MODE": "block"})

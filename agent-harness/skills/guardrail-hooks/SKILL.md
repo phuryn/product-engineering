@@ -47,7 +47,7 @@ Each rule came from a receipt.
 
 | File | Does | Configure |
 |---|---|---|
-| `scripts/guard_one_way_doors.py` | asks (or denies, or exits 2) before an irreversible or public action: command rules on what the shell runs with heredocs cut out; code rules inside heredoc bodies and local scripts the command runs | `command_rules`, `code_rules`, `skip_scripts`, `mode` in `CONFIG`; or `--config <file>` / `ONE_WAY_DOORS_CONFIG` (keys replace CONFIG's); `ONE_WAY_DOORS_MODE=ask\|deny\|block` |
+| `scripts/guard_one_way_doors.py` | asks (or denies, or exits 2) before an irreversible or public action: command rules on what the shell runs with heredocs cut out; code rules inside heredoc bodies, `-c`/`-e` code and local scripts the command runs by path (after a leading `cd`); it does not see `./script`, `python -m`, `uv run` or `python - < file`; it always answers `guard-canary` | `command_rules`, `code_rules`, `skip_scripts`, `mode` in `CONFIG`; or `--config <file>` / `ONE_WAY_DOORS_CONFIG` (keys replace CONFIG's); `ONE_WAY_DOORS_MODE=ask\|deny\|block` |
 | `scripts/block_wrong_identity.py` | exits 2 when a forbidden address is set as a git identity (`user.email`, `-c user.email=`, `GIT_AUTHOR_EMAIL=` and friends) or passed as a commit's `--author`; searching for it is allowed | `blocked_emails` in `CONFIG`, or `BLOCKED_GIT_EMAILS=a@x,b@y`; `GIT_IDENTITY_HINT` for what to use instead |
 | `scripts/test_hooks.py` | pipes sample payloads into both and checks exit codes and decisions: the triggers, the look-alikes, each mode, a config file, a Git Bash `/c/` path and a non-ASCII rule | replace the cases with yours |
 
@@ -76,7 +76,7 @@ Install for Claude Code:
 ```
 
    In `~/.claude/settings.json`, give the absolute path with forward slashes; there is no project directory. Use `python3` where `python` is Python 2 or missing.
-4. **Check both hooks in `/hooks`, then trigger a rule with a quoted `echo`.** Ask the agent to run `echo '<one command a rule of yours matches>'`, in single quotes. Pick one with no `&&`, `;`, `|`, `$(` or quote of its own; from a chained sample, echo only the part the rule matches. In quotes it is only text, so nothing real runs whether or not the hook is wired. A prompt labelled `[settings]` (ask mode) or a refusal naming the rule (deny or block mode) means the hook fired; decline the prompt. Anything else means it did not: a prompt without the label is the agent's own permission check. A guard you adapted to match only what runs (rule 2) may ignore an echo; prove that one with its test cases and a real command you decline.
+4. **Check both hooks in `/hooks`, then run the canary.** Ask the agent to run `true guard-canary`. `true` does nothing, so nothing runs whether or not the hook is wired, and the guard answers the canary whatever its rules. A prompt labelled `[settings]` (ask mode) or a refusal naming the canary (deny or block mode) means it fired; decline the prompt. Anything else means it is not wired. **Never test a guard with a real one-way door:** when the hook is not wired, it runs.
 
 **Use block mode and trust each Codex hook after every edit.** Wire the same scripts in `.codex/hooks.json` and set `mode` to `block`. Codex parses `ask` but doesn't support it yet: it marks the run failed and lets the call through (read `2026-10-24`). Trust each hook in `/hooks`, then again after every edit.
 
@@ -98,7 +98,7 @@ Install for Claude Code:
 1. **Read Claude Code's current hook contract and correct its recorded dates.** Run `claude --version`, then read `https://code.claude.com/docs/en/hooks.md` (append `.md` for the raw page). Check exit codes, `permissionDecision` values, `onFailure` and Windows notes. Correct `references/hook-contract.md` and its dates.
 2. **Check whether Codex now supports `ask` before keeping its block advice.** Read `https://developers.openai.com/codex/hooks`; if supported, the guard's `block` advice for Codex can go.
 3. **Check Cursor's events enforcing `ask` and their input shape.** Read `https://cursor.com/docs/agent/hooks`.
-4. **Run the tests, then trigger every wired hook in a real session.** Run the installed copy (`python .claude/hooks/test_hooks.py`, or `python ~/.claude/hooks/test_hooks.py` machine-wide), then see each hook act through a quoted `echo`, as Install step 4 does. A test proves the script; only the live trigger proves the wiring.
+4. **Run the tests, then the canary in a real session.** Run the installed copy (`python .claude/hooks/test_hooks.py`, or `python ~/.claude/hooks/test_hooks.py` machine-wide), then `true guard-canary`, as Install step 4 does. A test proves the script; only the live canary proves the wiring.
 
 Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
