@@ -66,15 +66,18 @@ CONFIG = {
 }
 
 HEREDOC = re.compile(r"<<-?\s*['\"]?(\w+)['\"]?[^\n]*\n.*?\n\s*\1\s*(?:\n|$)", re.S)
-RUNS_FILE = re.compile(
-    r"\b(?:python3?|py|node|bun|deno\s+run)\s+(?:-[\w-]+\s+)*([^\s;&|<>]+\.(?:py|mjs|cjs|js|ts))"
-)
+# Where a command can start: the line's start, after a separator, or after a wrapper that runs
+# the rest (sudo, env, uv run ...), then any NAME=value assignments. An interpreter only counts
+# there, so `git add a.py b.py` or `grep --include=*.py -e ...` is not read as running code.
+START = (r"(?:^|[;&|(\n`]|\b(?:do|then|else|exec|sudo|env|time|nohup|xargs|timeout\s+\S+|uv\s+run|poetry\s+run|pipenv\s+run)\s)"
+         r"\s*(?:\w+=\S*\s+)*(?:[\w./\\:~-]*[/\\])?")
+INTERPRETER = r"(?:python[\d.]*|py|node|bun|deno\s+run)(?:\.exe)?"
+# A script the command runs by path, after the interpreter's own options (with or without a value).
+RUNS_FILE = re.compile(START + INTERPRETER + r"(?:\s+-\S+(?:\s+(?!-)\S+)??)*?\s+([^\s;&|<>]+\.(?:py|mjs|cjs|js|ts))\b")
 # Code passed inline: python -c "...", node -e '...'. Scanned with code_rules like a heredoc body.
-# The interpreter must stand in command position (start of a segment), so a `--include=*.py` or a
-# `grep -e` elsewhere in the line is not read as code.
-INLINE = re.compile(r"""(?:^|[;&|(\n])\s*(?:[\w./\\-]*[/\\])?(?:python3?|py|node|bun)(?:\.exe)?(?:\s+-[\w-]+)*?\s+-[ce]\s+(?:"((?:[^"\\]|\\.)*)"|'([^']*)')""")
-# A leading `cd <dir> &&` moves where the scripts after it are found.
-CD = re.compile(r"\bcd\s+(['\"]?)([^\s;&|'\"]+)\1\s*&&")
+INLINE = re.compile(START + INTERPRETER + r"""\b[^\n;&|]*?\s-[ce]\s+(?:"((?:[^"\\]|\\.)*)"|'([^']*)')""")
+# A `cd <dir>` before them moves where the scripts after it are found.
+CD = re.compile(r"\bcd\s+(['\"]?)([^\s;&|'\"]+)\1\s*(?:&&|;|\n)")
 # The wiring canary. It always answers, whatever the config's rules, so a person can prove the
 # hook runs with `true guard-canary`: a command that does nothing when the hook is not wired.
 CANARY = re.compile(r"\btrue\s+guard-canary\b")
