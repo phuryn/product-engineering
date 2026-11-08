@@ -60,7 +60,7 @@ CONFIG = {
     ],
     # Scripts not opened and scanned (regex on the forward-slash path), because their
     # dangerous subcommands are already covered by command_rules, e.g. r"(^|/)tools/[^/]+$".
-    "skip_scripts": [],
+    "skip_scripts": [r"(^|/)test_hooks\.py$"],  # its samples would trip the code rules on every test run
     "reason_prefix": "Irreversible or public action, needs the owner's explicit OK: ",
     "reason_suffix": ". Agent: never approve this on the owner's behalf.",
 }

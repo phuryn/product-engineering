@@ -72,7 +72,7 @@ Run authority reconciliation: a requested value still drives state where the aut
 
 **Run security and performance audits in parallel once the docs exist.** They are independent then. Use parallel subagents where the agent has them, and continue when both return.
 
-- Apply `security-audit-static`, with `intended-vs-implemented` to flag code diverging from `permissions.md`, `flows.md` and `architecture.md`. Summarize surviving findings. Carry through its reported model mix: which clusters ran on the strongest model and which Fable's classifiers rerouted to the fallback, Opus 4.8.
+- Apply `security-audit-static`, with `intended-vs-implemented` to flag code diverging from `permissions.md`, `flows.md` and `architecture.md`. Summarize surviving findings. Carry through its reported model mix: which clusters ran on the strongest model and which Fable's classifiers rerouted to an Opus model, and which.
 - Apply `performance-audit-static`: N+1 queries and waterfalls, over-fetching, missing indexes and caching. Summarize findings.
 
 ### Step 6: Independent unsteered review
@@ -97,7 +97,7 @@ Record the actual reviewer in the packet's Independent Review section. Say why i
 python <skill dir>/scripts/review.py --brief <scratch>/brief.md --cwd <repo> --subject <range> --out <scratch>/round-N.md < /dev/null
 ```
 
-Keep both files outside the repository; one left in the checkout enters the next round's subject. When the wrapper warns that untracked files make up most of the subject, gitignore them or ask the owner; delete only what this session generated. Exit 2 means a round came back too short: a failed round. The wrapper runs Grok when its CLI is installed, giving another model family. Otherwise it uses fresh headless Claude Code with nothing carried over, the builder's own family when Claude built the code.
+Keep both files outside the repository; one left in the checkout enters the next round's subject. When the wrapper warns about untracked files, keep the ones that belong to the change: step 1's docs and step 2's edits stay in the subject. Gitignore the rest or ask the owner; delete only what this session generated and the change does not need. Exit 2 means a round came back too short: a failed round. The wrapper runs Grok when its CLI is installed, giving another model family. Otherwise it uses fresh headless Claude Code with nothing carried over, the builder's own family when Claude built the code.
 
 #### Compute the subject from releases and the working tree
 
@@ -171,7 +171,7 @@ Agent instructions: [path edited — the file the repo's structure makes canonic
 [Which model and session ran it, how the subject was computed, how many findings it returned, how many survived hand-verification — and the ones that survived. Note whether the last round was clean.]
 
 ### Audit Provenance
-[Which model each audit actually ran on, any clusters Fable's classifiers rerouted to the fallback (Opus 4.8), and the reviewer used in Step 6 (another model family, or a fresh session of the same one) — so the reviewer knows how much of the work saw the strongest model vs. the fallback, and how independent the unsteered pass was]
+[Which model each audit actually ran on, any clusters Fable's classifiers rerouted to an Opus model, and which, and the reviewer used in Step 6 (another model family, or a fresh session of the same one) — so the reviewer knows how much of the work saw the strongest model vs. the fallback, and how independent the unsteered pass was]
 
 ### Launch Blockers
 [Unresolved Critical/High items — including any boundary rule that is both unverified and unaudited — that should stop a ship]

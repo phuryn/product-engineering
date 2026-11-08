@@ -42,7 +42,7 @@ Code the change neither touches nor newly reaches is out of scope. Report a pre-
 
 - **Run every subagent on the strongest model available** — Fable or Mythos when you have access, otherwise the newest Opus. Match the effort level of the current session when the surface exposes it.
 - **Keep fan-out flat unless one cluster exceeds an agent's context.** For a big repo, use parallel subagents, one per view/route/table cluster running the three checks below. Rank the merged findings yourself. Target one level; nest a second only when a cluster is too big for one agent's context. Don't reach for a self-generating workflow.
-- **Reroutes are unlikely here, but report them if they happen.** Unlike the security audit, performance work rarely trips Fable's safety classifiers. If a cluster gets rerouted to Opus 4.8, note it in the report so the reader knows the model mix.
+- **Reroutes are unlikely here, but report them if they happen.** Unlike the security audit, performance work rarely trips Fable's safety classifiers. If a cluster gets rerouted to an Opus model, note it in the report so the reader knows the model mix.
 
 ## The audit
 

@@ -54,7 +54,7 @@ Medium confidence is fine at this stage. Merge the candidate sets and run self-r
 ## Model and orchestration
 
 - **Run every subagent on the strongest model available** — Fable or Mythos when you have access, otherwise the newest Opus. Match the effort level of the current session when the surface exposes it. This work prioritizes recall: a missed cross-file flow is costly. Don't let a cluster silently drop to a cheaper model or lower effort.
-- **Expect reroutes, and report them.** Fable's safety classifiers screen for security-audit content, so some subagents will be automatically rerouted to Opus 4.8. That is fine for this work. Note which clusters ran on the fallback model so the reader knows the audit's model mix.
+- **Expect reroutes, and report them.** Fable's safety classifiers screen for security-audit content, so some subagents will be automatically rerouted to an Opus model; record which. That is fine for this work. Note which clusters ran on the fallback model so the reader knows the audit's model mix.
 - **Keep fan-out flat unless one cluster exceeds an agent's context.** Target one level of parallel subagents: parent → cluster auditors → merge. Nest a second level only when a single cluster is too big for one agent's context. A deep org chart or self-generating workflow adds coordination cost without improving recall here.
 
 ## The audit (small engine, strong constraint)
