@@ -2,7 +2,7 @@
 name: performance-audit-static
 description: "Only when a performance audit is asked for (ship-check asks by name; a release proposes, never runs it): static audit of N+1 queries, over-fetching, indexes, caching."
 argument-hint: "<path or area> | <base>..<head> | changes; defaults to the whole repository"
-allowed-tools: Read, Grep, Glob, Task, Bash(git log:*), Bash(git diff:*), Bash(git show:*), Bash(git status:*), Write(reports/**)
+allowed-tools: Read, Grep, Glob, Task, Bash(git status:*), Write(reports/**)
 ---
 
 # Static performance audit -- Find What Won't Scale
@@ -40,7 +40,7 @@ Code the change neither touches nor newly reaches is out of scope. Report a pre-
 
 ## Model and orchestration
 
-- **Run every subagent on the strongest model available** — Fable or Mythos when you have access, otherwise Opus 4.8. Match the effort level of the current session when the surface exposes it.
+- **Run every subagent on the strongest model available** — Fable or Mythos when you have access, otherwise the newest Opus. Match the effort level of the current session when the surface exposes it.
 - **Keep fan-out flat unless one cluster exceeds an agent's context.** For a big repo, use parallel subagents, one per view/route/table cluster running the three checks below. Rank the merged findings yourself. Target one level; nest a second only when a cluster is too big for one agent's context. Don't reach for a self-generating workflow.
 - **Reroutes are unlikely here, but report them if they happen.** Unlike the security audit, performance work rarely trips Fable's safety classifiers. If a cluster gets rerouted to Opus 4.8, note it in the report so the reader knows the model mix.
 
@@ -93,7 +93,7 @@ Performance Audit: [scope — path, or range / changes and N changed files]
 ## Notes
 
 - **Rank by impact per effort.** One missing index on a hot table usually beats ten micro-optimizations.
-- **The audit never edits the code it audits.** In Claude Code, the pre-approved toolset covers reading, searching, subagent fan-out and writing under `reports/`. Writing to the repo's own reports location instead falls outside that pre-approval, so ask the user before that write.
+- **The audit never edits the code it audits.** In Claude Code, the pre-approved toolset covers reading, searching, subagent fan-out, `git status` and writing under `reports/`. Other git commands ask first: `git log`, `git diff` and `git show` take `--output=<file>`, which writes. Writing to the repo's own reports location instead falls outside that pre-approval, so ask the user before that write.
 - **Flag what breaks as rows or traffic scale.** Don't flag theoretical inefficiency with no growth path.
 - **Use the `security-audit-static` skill for security risks.** This audit covers performance only. Authorization, injection and data-exposure risks belong there.
 - **Use the `code-review` skill for logic, state or several review dimensions.** This audit specializes that skill's performance sub-case for data-backed applications.

@@ -20,7 +20,7 @@ because finding where it was used is how you clean up after it.
 
 Exit 2 is honored as a block by Claude Code, Codex and Cursor alike (read 2026-10-24).
 Input: tool_input.command (Claude Code, Codex) or a top-level "command" (Cursor).
-Test after every edit: python <skill dir>/scripts/test_hooks.py
+Test after every edit: run the test_hooks.py beside this file (python .claude/hooks/test_hooks.py once installed).
 """
 import json
 import os

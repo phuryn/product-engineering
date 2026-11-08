@@ -5,7 +5,7 @@ No agent needed: a command hook is a program that reads JSON on stdin and answer
 an exit code and stdout, so it is tested like one. Run after every edit to a hook or
 its config:
 
-    python <skill dir>/scripts/test_hooks.py
+    python <this file's folder>/test_hooks.py    (once installed: python .claude/hooks/test_hooks.py)
 
 It tests the shipped example rules. When you replace them, replace the cases in
 GUARD_CASES with your own: one that must ask, one look-alike that must not. The

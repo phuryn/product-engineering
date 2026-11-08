@@ -19,7 +19,7 @@ Each entry: the date, the request, **rejected** or **deferred**, the reason, the
 - **2026-10-27 · rejected.**
 - **Request:** a test-driven-development skill: tests written first at agreed seams.
 - **Reason:** what it protects is already a rule where it matters: a fix lands with a regression test whose failing half is run before the fix (the `test-harness` skill). Writing every test first makes the code the human checks; here the human checks the product.
-- **Evidence:** `test-harness/receipts.md` (`2026-10-23`: a fix's journey check passed on the commit before it, so the fix was reverted and the assertion kept).
+- **Evidence:** `test-harness`'s `receipts.md`, § A bug fix lands with a regression test run against broken behaviour (`2026-10-23`: a fix's journey check passed on the commit before it, so the fix was reverted and the assertion kept).
 - **Decided by:** the owner, accepting the comparison's recommendation.
 
 ## A glossary or domain-modeling skill

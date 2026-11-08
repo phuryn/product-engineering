@@ -2,7 +2,7 @@
 name: security-audit-static
 description: "Only when a security audit is asked for (ship-check asks by name; a release proposes one, never runs it): a static audit of AI-built code against its documented trust boundaries."
 argument-hint: "<path or area> | <base>..<head> | changes; defaults to the whole repository"
-allowed-tools: Read, Grep, Glob, Task, Bash(git log:*), Bash(git diff:*), Bash(git show:*), Bash(git status:*), Write(reports/**)
+allowed-tools: Read, Grep, Glob, Task, Bash(git status:*), Write(reports/**)
 ---
 
 # Static security audit -- Audit the Code You Already Have
@@ -53,7 +53,7 @@ Medium confidence is fine at this stage. Merge the candidate sets and run self-r
 
 ## Model and orchestration
 
-- **Run every subagent on the strongest model available** — Fable or Mythos when you have access, otherwise Opus 4.8. Match the effort level of the current session when the surface exposes it. This work prioritizes recall: a missed cross-file flow is costly. Don't let a cluster silently drop to a cheaper model or lower effort.
+- **Run every subagent on the strongest model available** — Fable or Mythos when you have access, otherwise the newest Opus. Match the effort level of the current session when the surface exposes it. This work prioritizes recall: a missed cross-file flow is costly. Don't let a cluster silently drop to a cheaper model or lower effort.
 - **Expect reroutes, and report them.** Fable's safety classifiers screen for security-audit content, so some subagents will be automatically rerouted to Opus 4.8. That is fine for this work. Note which clusters ran on the fallback model so the reader knows the audit's model mix.
 - **Keep fan-out flat unless one cluster exceeds an agent's context.** Target one level of parallel subagents: parent → cluster auditors → merge. Nest a second level only when a single cluster is too big for one agent's context. A deep org chart or self-generating workflow adds coordination cost without improving recall here.
 
@@ -166,7 +166,7 @@ Security Audit: [scope — path, or range / changes and N changed files]
 ## Notes
 
 - **Report concrete security impact and reachable paths, including logic and authorization bugs.** Those bugs count without a classic sink. Don't report generic hardening with no concrete impact, outdated deps without a reachable path, or test/mock code unless it ships.
-- **The audit never edits the code it audits.** In Claude Code, the pre-approved toolset covers reading, searching, subagent fan-out and writing under `reports/`. Writing to the repo's own reports location instead falls outside that pre-approval, so ask the user before that write.
+- **The audit never edits the code it audits.** In Claude Code, the pre-approved toolset covers reading, searching, subagent fan-out, `git status` and writing under `reports/`. Other git commands ask first: `git log`, `git diff` and `git show` take `--output=<file>`, which writes. Writing to the repo's own reports location instead falls outside that pre-approval, so ask the user before that write.
 - **Use the `performance-audit-static` skill for over-fetching, indexes and caching.** This audit covers security only.
 - **Use the `code-review` skill for logic, state or several review dimensions.** This audit is the specialized procedure behind that skill's security sub-case.
 - **Use the ship check for documentation and a shipping packet.** It documents first in an end-to-end pass. Type `/ai-shipping:ship-check`, or `$ai-shipping:ship-check` in Codex.

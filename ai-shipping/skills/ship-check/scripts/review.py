@@ -479,8 +479,8 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
         largest = ", ".join(u[2] for u in sorted(untracked, key=lambda u: -u[1])[:5])
         sys.stderr.write(f"[review.py] warning: {len(untracked)} untracked files add "
                          f"{from_untracked} of {total} subject lines; the largest: {largest}. "
-                         "If they are not part of the change, stop this round, gitignore or delete "
-                         "them, and run it again (the independent-review skill, 'The subject'; ship-check, Step 6).\n")
+                         "If they are not part of the change, stop this round, gitignore them (delete only "
+                         "files this session generated; ask the owner about the rest), and run it again (the independent-review skill, 'The subject'; ship-check, Step 6).\n")
     path = git_dir(cwd) / f"review-subject-{RUN_ID}.diff"
     path.write_text(text, encoding="utf-8")
     return path, total

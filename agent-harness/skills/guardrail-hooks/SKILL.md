@@ -35,7 +35,7 @@ Each rule came from a receipt.
 6. **Never block the way out.** A spend fuse exempts its own management commands, so disarming works when the session is over budget. A guard blocking the command that clears it has to be removed by hand.
 7. **Decide which way it fails.** By default, a hook that cannot start, crashes, exits 1 or times out lets the action through. For policy hooks, set `"onFailure": "block"` (Claude Code 2.1.295 or later) and use exit 2, never 1, to block. Watch the first run for a `hook error` notice. A mistyped settings path means the hook never runs and nothing else says so.
 8. **Keep stdout to one JSON object.** Anything else, such as a shell profile's greeting, makes the decision unreadable. An unreadable decision is a non-blocking error.
-9. **Test it like a program, before wiring it.** A command hook reads JSON on stdin and answers with an exit code and stdout. Pipe in samples that must trigger and look-alikes that must not. `scripts/test_hooks.py` does this; replace its cases when you replace the rules.
+9. **Test it like a program, before wiring it.** A command hook reads JSON on stdin and answers with an exit code and stdout. Pipe in samples that must trigger and look-alikes that must not. `scripts/test_hooks.py` does this, testing the guards in its own folder: run the copy beside the hooks you installed, and replace its cases when you replace the rules.
 10. **Know what a hook can't see.** `PreToolUse` fires on tool calls only, not files the user `@`-mentions. A `Bash` matcher doesn't cover an MCP tool or browser doing the same thing. Codex's docs say some tool paths opt out of hooks entirely. A hook is a guardrail, not a sandbox.
 11. **To stop a run, use `Stop`.** `continue: false` from a `Stop` hook stops the agent and takes precedence over event-specific “continue” decisions. This lets a spend fuse beat `/goal`, itself a Stop hook (precedence confirmed in docs, read `2026-10-24`). A blocking `Stop` hook must check `stop_hook_active`; Claude Code ends the turn after 8 consecutive continuations anyway.
 
@@ -76,7 +76,7 @@ Install for Claude Code:
 ```
 
    In `~/.claude/settings.json`, give the absolute path with forward slashes; there is no project directory. Use `python3` where `python` is Python 2 or missing.
-4. **Check both hooks in `/hooks`, then trigger one of your own rules.** Confirm its expected ask or block, declining any prompt.
+4. **Check both hooks in `/hooks`, then trigger a rule with an `echo`.** Ask the agent to run `echo <a command one of your rules matches>`: the guard matches the text and prompts, and nothing real runs if the hook is not wired. Decline it. A prompt without the hook's `[settings]` label means the hook did not fire.
 
 **Use block mode and trust each Codex hook after every edit.** Wire the same scripts in `.codex/hooks.json` and set `mode` to `block`. Codex parses `ask` but doesn't support it yet: it marks the run failed and lets the call through (read `2026-10-24`). Trust each hook in `/hooks`, then again after every edit.
 
@@ -98,7 +98,7 @@ Install for Claude Code:
 1. **Read Claude Code's current hook contract and correct its recorded dates.** Run `claude --version`, then read `https://code.claude.com/docs/en/hooks.md` (append `.md` for the raw page). Check exit codes, `permissionDecision` values, `onFailure` and Windows notes. Correct `references/hook-contract.md` and its dates.
 2. **Check whether Codex now supports `ask` before keeping its block advice.** Read `https://developers.openai.com/codex/hooks`; if supported, the guard's `block` advice for Codex can go.
 3. **Check Cursor's events enforcing `ask` and their input shape.** Read `https://cursor.com/docs/agent/hooks`.
-4. **Run the tests, then trigger every wired hook in a real session.** Run `scripts/test_hooks.py`, then see each hook act. A test proves the script; only the live trigger proves the wiring.
+4. **Run the tests, then trigger every wired hook in a real session.** Run the installed copy (`python .claude/hooks/test_hooks.py`), then see each hook act through an `echo` of a matching command, as Install step 4 does. A test proves the script; only the live trigger proves the wiring.
 
 Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
@@ -113,4 +113,4 @@ The hook asks or blocks on a sample that must trigger and stays silent on look-a
 | `references/hook-contract.md` | Claude Code's hook contract (locations, matchers, exec vs shell form, stdin, exit codes, JSON decisions, failure modes, debugging) and how Codex and Cursor differ, each dated | writing or debugging any hook |
 | `scripts/guard_one_way_doors.py` | the one-way-door guard template | gating irreversible or public actions |
 | `scripts/block_wrong_identity.py` | the commit-identity guard template | an agent sees an address it must never commit as |
-| `scripts/test_hooks.py` | the hooks' test runner | after every edit to a hook or its rules |
+| `scripts/test_hooks.py` | the hooks' test runner; run the copy beside the installed hooks | after every edit to a hook or its rules |

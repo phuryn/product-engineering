@@ -33,7 +33,7 @@ Input: the PreToolUse JSON on stdin. The command is read from tool_input.command
 Code, Codex) or from a top-level "command" (Cursor's beforeShellExecution). Anything it
 cannot parse is allowed through (exit 0): the guard never breaks an unrelated call.
 
-Test after every edit: python <skill dir>/scripts/test_hooks.py
+Test after every edit: run the test_hooks.py beside this file (python .claude/hooks/test_hooks.py once installed).
 """
 import json
 import os
