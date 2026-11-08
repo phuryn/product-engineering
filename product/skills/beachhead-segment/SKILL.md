@@ -2,56 +2,71 @@
 name: beachhead-segment
 description: "Choosing the first market or customer segment to win, scored on burning pain, willingness to pay, winnable share and referrals."
 ---
-# Beachhead Segment
+
+# Beachhead segment
 
 ## Overview
-Identify the first beachhead market segment for product launch. This skill evaluates potential market segments against key criteria to find your initial winning segment that enables fast PMF validation and adjacent expansion.
 
-## When to Use
+**Choose the first market segment to win before expanding to adjacent markets.** Evaluate potential segments to find an initial winner that enables fast PMF validation.
+
+## When to use
+
+Use this analysis for:
+
 - Choosing a first market for your product
 - Targeting an initial customer segment
 - Planning initial market entry strategy
 - Deciding where to focus limited resources
 - Validating GTM assumptions with early adopters
 
-## Key Evaluation Criteria
+## Key evaluation criteria
 
-### 1. Burning Pain Point
-Does this segment experience an acute, unmet problem?
+### 1. Burning pain point
+
+**Assess whether the segment experiences an acute, unmet problem.** Look for:
+
 - Daily frustration with the status quo
 - Significant productivity loss or cost impact
 - Emotional urgency to find a solution
-- Current workarounds are expensive or fragile
-- Problem is getting worse over time
+- Current workarounds that are expensive or fragile
+- A problem getting worse over time
 
-### 2. Willingness to Pay
-Does this segment have budget and motivation to pay for a solution?
+### 2. Willingness to pay
+
+**Assess whether the segment has budget and motivation to pay.** Look for:
+
 - Documented budget allocation for this problem area
-- ROI is clear and compelling (value > cost)
-- Economic impact of problem justifies solution cost
-- Decision-maker has autonomy or influence over budget
-- No free or DIY alternatives that fully satisfy need
+- Clear and compelling ROI (value > cost)
+- Economic impact of the problem that justifies the solution cost
+- A decision-maker with autonomy or influence over budget
+- No free or DIY alternatives that fully satisfy the need
 
-### 3. Winnable Market Share
-Can you realistically capture 60-70% of this segment in 3-18 months?
-- Segment is large enough but not oversaturated
+### 3. Winnable market share
+
+**Assess whether you can realistically capture 60-70% of the segment in 3-18 months.** Look for:
+
+- A segment large enough but not oversaturated
 - Limited competition or easy differentiation
-- Market players are fragmented or complacent
-- Your product has clear competitive advantage
-- You have unique access or distribution advantage
+- Fragmented or complacent market players
+- Your product's clear competitive advantage
+- Your unique access or distribution advantage
 
-### 4. Referral Potential
-Will customers naturally refer or recommend to others?
-- Segment contains professional communities
-- Customers interact with adjacent segments (expansion opportunity)
-- High word-of-mouth culture in this industry
+### 4. Referral potential
+
+**Assess whether customers will naturally refer or recommend the product.** Look for:
+
+- Professional communities within the segment
+- Customers interacting with adjacent segments (expansion opportunity)
+- A high word-of-mouth culture in the industry
 - Network effects within the segment
-- Solving problem for one creates demand in adjacent segments
+- Demand in adjacent segments created by solving the problem for one
 
-## How It Works
+## How it works
 
-### Step 1: List Potential Segments
-Brainstorm all possible target segments:
+### Step 1: List potential segments
+
+**Brainstorm all possible target segments.** Consider:
+
 - Industry verticals (SaaS, healthcare, manufacturing, etc.)
 - Company size (SMB, mid-market, enterprise)
 - Job titles or roles
@@ -59,26 +74,32 @@ Brainstorm all possible target segments:
 - Use cases or use-case variations
 - Customer maturity level
 
-### Step 2: Research Pain Points
-Validate burning pain in each segment:
+### Step 2: Research pain points
+
+**Validate burning pain in each segment.** Use:
+
 - Customer interviews and discovery calls
 - Problem validation through surveys
 - Market research and analyst reports
 - Competitor positioning and customer reviews
-- Quantify cost/impact of the problem
-- Identify current workarounds and limitations
+- Quantified cost/impact of the problem
+- Current workarounds and their limitations
 
-### Step 3: Assess Willingness to Pay
-Determine budget and economic viability:
-- Segment's budget for this problem category
+### Step 3: Assess willingness to pay
+
+**Determine the segment's budget and economic viability.** Assess:
+
+- The segment's budget for this problem category
 - ROI calculation (value gained vs cost)
 - Current spending on solutions or workarounds
 - Budget decision-making process
 - Typical deal size expectations
 - Pricing sensitivity in the segment
 
-### Step 4: Evaluate Winnability
-Assess realistic market share potential:
+### Step 4: Evaluate winnability
+
+**Assess realistic market share potential.** Consider:
+
 - Total addressable market (TAM) size
 - Competitive landscape and positioning
 - Your differentiation or unfair advantage
@@ -86,25 +107,31 @@ Assess realistic market share potential:
 - Time and resources required
 - Market growth and momentum
 
-### Step 5: Identify Referral Pathways
-Map expansion opportunities:
-- Adjacent segments that reference segment influences
+### Step 5: Identify referral pathways
+
+**Map the segment's opportunities for expansion.** Include:
+
+- Adjacent segments that the reference segment influences
 - Network effects within the segment
 - Professional communities and associations
 - Customer-to-customer recommendations
-- Natural expansion path to adjacent markets
-- Viral or network effects from solving core pain
+- A natural expansion path to adjacent markets
+- Viral or network effects from solving the core pain
 
-### Step 6: Select Beachhead
-Choose your primary launch segment:
-- Highest combined score across four criteria
-- Most achievable for your current resources
-- Shortest path to PMF and revenue
-- Best reference for adjacent expansion
-- Most enthusiastic early customer cohort
+### Step 6: Select beachhead
 
-## Input Format
-Use $ARGUMENTS to pass:
+**Choose your primary launch segment across all four criteria.** Look for:
+
+- The highest combined score across the four criteria
+- The most achievable segment for your current resources
+- The shortest path to PMF and revenue
+- The best reference for adjacent expansion
+- The most enthusiastic early customer cohort
+
+## Input format
+
+**Pass the product and market context through $ARGUMENTS.** Include:
+
 - Product description and capabilities
 - Initial market research and validation data
 - Potential segment options
@@ -113,29 +140,35 @@ Use $ARGUMENTS to pass:
 - Current customer data or feedback
 
 ## Output
-A beachhead segment analysis including:
-- Top 3-5 recommended segments with scoring; every displayed score names its scale beside the number or in the subtitle
+
+**Produce a beachhead analysis with recommendations, evidence and an acquisition plan.** Include:
+
+- Top 3-5 recommended segments with scoring
 - Primary beachhead segment recommendation
 - Pain point validation and evidence
 - Willingness to pay assessment and pricing guidance
 - Realistic market share and revenue projections
 - Referral and expansion pathways to adjacent segments
-- 90-day customer acquisition plan for beachhead
+- 90-day customer acquisition plan for the beachhead
 - Post-beachhead expansion roadmap
 
+**Every displayed score names its scale beside the number or in the subtitle.**
+
 ## Framework
-Based on Geoffrey Moore's beachhead market strategy in "Crossing the Chasm." Focuses on finding the smallest winnable, referenceable market that validates PMF and enables expansion.
+
+Based on Geoffrey Moore's beachhead market strategy in "Crossing the Chasm." The focus is the smallest winnable, referenceable market that validates PMF and enables expansion.
 
 ## Tips
-- Start absurdly specific. A niche beachhead is better than a vague mass market
-- Choose the segment most likely to evangelize your solution
-- Validate all four criteria with at least 10 customer interviews
-- Select segment with fastest path to revenue and references
-- Ensure beachhead can reference to adjacent market segments
-- Focus all resources on dominating the beachhead (not diluting efforts)
-- Plan exit from beachhead only after 60%+ market share
 
-(`2026-11-07`, a static discovery page: a reader asked "91 out of what?" about a weighted beachhead score.)
+- **Start absurdly specific.** A niche beachhead is better than a vague mass market.
+- **Choose the segment most likely to evangelize your solution.**
+- **Validate all four criteria with at least 10 customer interviews.**
+- **Select the segment with the fastest path to revenue and references.**
+- **Ensure the beachhead can reference to adjacent market segments.**
+- **Focus all resources on dominating the beachhead.** Do not dilute efforts.
+- **Plan an exit from the beachhead only after 60%+ market share.**
+
+Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 

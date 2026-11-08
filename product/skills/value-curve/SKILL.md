@@ -2,37 +2,44 @@
 name: value-curve
 description: "Comparing a product with competitors or choosing what to be best at: a value curve on one segment's top needs, plus price."
 ---
-# Value Curve
 
-A value curve compares offerings on the factors one customer segment values. It comes from Blue Ocean Strategy (W. Chan Kim and Renée Mauborgne). Used here, it answers one question: **does our offering meet this segment's specific needs far better than anything else they can use?** A good strategy competes to be unique, not the best at everything.
+# Value curve
 
-It is a starting point, not the whole answer. It feeds the Alternatives part of the value proposition (the `value-proposition` skill), and the value proposition needs all six parts.
+**Compare offerings on the factors one customer segment values.** The value curve comes from Blue Ocean Strategy (W. Chan Kim and Renée Mauborgne). It asks: does our offering meet this segment's specific needs far better than anything else they can use?
+
+**A good strategy competes to be unique, not the best at everything.** The curve is a starting point, not the whole answer. It feeds the Alternatives part of the value proposition (the `value-proposition` skill), which needs all six parts.
 
 ## Before you start
 
-- **One segment per curve.** Needs differ between segments, so a curve that mixes them shows no focus. If the segment isn't chosen yet, find clusters of customers with similar underserved needs first (`market-segments`, then `beachhead-segment`).
-- **The factors are the segment's needs, not your features.** Phrase each as an outcome the customer wants ("find live sports events", "content for kids"), solution-agnostic, the way jobs to be done are phrased.
-- **Evidence comes from customers.** For every need, interviews ask how important it is and how satisfied they are with what they use today. They also ask which competitors' products they use, and what they would pay relative to those (a Van Westendorp price survey is one way). About 10-15 interviews per segment.
-- **With no interviews yet** (only websites, reviews, the owner's own knowledge), the curve can still be drawn, but label every score an assumption and name its source. Its first output is then what to test with customers.
+- **One segment per curve.** Needs differ between segments, so mixing them shows no focus. If the segment isn't chosen, find clusters of customers with similar underserved needs first (`market-segments`, then `beachhead-segment`).
+- **The factors are the segment's needs, not your features.** Phrase each as a solution-agnostic outcome the customer wants, as jobs to be done are phrased: "find live sports events", "content for kids".
+- **Evidence comes from customers.** For every need, interviews ask its importance and satisfaction with what customers use today. Ask which competitors' products they use and what they would pay relative to those. A Van Westendorp price survey is one way. About 10-15 interviews per segment.
+- **With no interviews yet, label every score an assumption and name its source.** A curve can still use only websites, reviews and the owner's own knowledge. Its first output is then what to test with customers.
 
 ## Steps
 
-1. **Score every need for the segment.** For each one, *opportunity to add value = importance × (1 − satisfaction)*, with both on a 0-1 scale. This is Dan Olsen's formula from *The Lean Product Playbook*: simple, and it agrees with the jobs-to-be-done opportunity score where it matters most (high importance, low satisfaction).
-2. **Pick 5-7 factors.**
+1. **Score every need for the segment.** For each, *opportunity to add value = importance × (1 − satisfaction)*, with both on a 0-1 scale. This is Dan Olsen's formula from *The Lean Product Playbook*. It is simple and agrees with the jobs-to-be-done opportunity score where it matters most: high importance, low satisfaction.
+2. **Pick 5-7 factors.** Include:
    - The needs with the highest opportunity scores.
-   - **Must-haves:** needs this segment rates highly important even though today's products already satisfy them. Their low opportunity score doesn't make them optional; dropping one loses the customer.
+   - Must-haves: needs this segment rates highly important even though today's products already satisfy them. Their low opportunity score doesn't make them optional; dropping one loses the customer.
    - Leave out needs this segment doesn't rate as important, even if competitors compete hard on them.
-   - Add **relative price** as a factor, scored so a lower price scores higher. Name factors with customer direction, such as "Low price for one host"; higher always means better for the customer.
-3. **List the offerings.** Your product (as planned, or as it is), the 2-4 competitors the segment actually uses, and at least one substitute: the spreadsheet, the agency, the manual workaround, doing nothing.
-4. **Score each offering 0-100 on each factor** from what customers said and what reviews show, not from feature lists. A feature that exists but doesn't serve the need scores low.
-5. **Draw it.** Factors on the horizontal axis, ordered by importance to the segment; score on the vertical axis; one line per offering, with a legend. Keep the table of scores beside the chart, with the source of each score. Every displayed score names its scale beside the number or in the subtitle.
-6. **Read it,** and write the reading down in a few sentences:
-   - **Where we must be far ahead:** the segment's top-opportunity needs. If our line isn't clearly above everyone else's there, there is no reason to switch.
-   - **Where parity is enough:** the must-haves.
-   - **What we deliberately don't compete on:** factors where we sit at or below competitors because this segment doesn't care. Saying it out loud is the strategy.
-   - **Lines that look the same:** if our curve has the same shape as a competitor's, we're competing on degree, not difference. Blue Ocean's four actions help reshape it: which factors to eliminate, reduce, raise, or create. Word each in the customer's direction, such as "Raise: one host pays less". Label an unbuilt factor "to create" while its score remains low. (`2026-11-07`, a static discovery page: a fresh reader read the price curve's "Raise" as charge more.)
+   - Relative price, scored so a lower price scores higher. Name factors with customer direction, such as "Low price for one host"; higher always means better for the customer.
+3. **List the offerings.** Include your product (as planned, or as it is), the 2-4 competitors the segment actually uses, and at least one substitute. Substitutes include the spreadsheet, the agency, the manual workaround and doing nothing.
+4. **Score each offering 0-100 on each factor.** Use what customers said and what reviews show, not feature lists. A feature that exists but doesn't serve the need scores low.
+5. **Draw it.** Put factors on the horizontal axis, ordered by importance to the segment, and scores on the vertical axis. Draw one line per offering, with a legend. Keep the score table beside the chart, with each score's source.
+6. **Read the curve and write its meaning in a few sentences.** Cover:
+   - Where we must be far ahead: the segment's top-opportunity needs. If our line isn't clearly above everyone else's there, there is no reason to switch.
+   - Where parity is enough: the must-haves.
+   - What we deliberately don't compete on: factors where we sit at or below competitors because this segment doesn't care. Saying it out loud is the strategy.
+   - Lines that look the same: the same shape as a competitor's means competing on degree, not difference. Blue Ocean's four actions help reshape it: which factors to eliminate, reduce, raise or create.
+
+**Every displayed score names its scale beside the number or in the subtitle.**
+
+**Word each action in the customer's direction.** For example: "Raise: one host pays less". Label an unbuilt factor "to create" while its score remains low.
 
 ## Output
+
+**Provide the segment, score table, chart, reading and assumptions to test.** Include:
 
 - The segment the curve is for, in one line.
 - The table: factors × offerings, each score with its source (an interview count, a review, or "assumption").
@@ -58,15 +65,15 @@ A streaming service for one segment: people who care about live sports events an
 
 ## Mistakes
 
-- **Scoring features instead of needs**, which turns the curve into a feature comparison.
-- **Too many factors.** Past seven, the shape stops saying anything.
-- **Factors the segment doesn't care about**, kept because competitors fight over them.
-- **Trying to beat every competitor on every factor.** That is the opposite of a strategy, and usually unaffordable.
-- **One curve for several segments.**
-- **Treating assumed scores as findings.** Unlabelled guesses look exactly like evidence on a chart.
+- **Score needs rather than features.** Scoring features turns the curve into a feature comparison.
+- **Keep the curve to seven factors or fewer.** Past seven, the shape stops saying anything.
+- **Leave out factors the segment doesn't care about.** Don't keep them because competitors fight over them.
+- **Don't try to beat every competitor on every factor.** That is the opposite of a strategy, and usually unaffordable.
+- **Don't use one curve for several segments.**
+- **Don't treat assumed scores as findings.** Unlabelled guesses look exactly like evidence on a chart.
 
-(`2026-11-07`, a static discovery page: a reader asked "91 out of what?" about a weighted beachhead score.)
+Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 
-The curve is for one segment, every score has a source or is labelled an assumption, and the reading says where the product must be far ahead and what it deliberately doesn't compete on.
+The curve is for one segment, and every score has a source or is labelled an assumption. Its reading says where the product must be far ahead and what it deliberately doesn't compete on.

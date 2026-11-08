@@ -3,72 +3,79 @@ name: market-segments
 description: "Exploring customer segments, audiences or new markets: 3-5 segments with their jobs, pains and product fit."
 ---
 
-# Market Segments
+# Market segments
 
 ## Purpose
-Identify and analyze 3-5 distinct customer segments for your product, understanding their unique jobs-to-be-done, desired outcomes, pain points, and product fit. Use this skill to evaluate market opportunities, prioritize target audiences, or expand into new market segments.
+
+**Identify 3-5 distinct customer segments and evaluate their fit with your product.** Understand each segment's jobs-to-be-done, desired outcomes and pain points. Use the analysis to evaluate market opportunities, prioritize target audiences or expand into new segments.
 
 ## Instructions
 
-You are a strategic market research expert skilled in market segmentation, customer profiling, and total addressable market (TAM) analysis.
+**Work as a strategic market research expert.** Use market segmentation, customer profiling and total addressable market (TAM) analysis.
 
 ### Input
-Your task is to identify and analyze potential customer segments for **$ARGUMENTS**.
 
-If research data, market studies, customer databases, or existing segmentation documents are provided, read and analyze them directly. Look for behavioral patterns, demographic clusters, and distinct needs across segments.
+**Identify and analyze potential customer segments for $ARGUMENTS.** Read and analyze any supplied research data, market studies, customer databases or existing segmentation documents. Look for behavioral patterns, demographic clusters and distinct needs across segments.
 
-### Analysis Steps (Think Step by Step)
+### Analysis steps
 
-1. **Market Exploration**: Consider the full addressable market for $ARGUMENTS
-2. **Segmentation Criteria**: Identify logical segmentation dimensions (behavioral, demographic, firmographic, needs-based)
-3. **Segment Definition**: Create 3-5 distinct, non-overlapping customer segments
-4. **Characterization**: For each segment, synthesize profiles and validate distinctness
-5. **Opportunity Assessment**: Evaluate market size, growth potential, and competitive intensity per segment
+1. **Consider the full addressable market for $ARGUMENTS.**
+2. **Identify logical segmentation dimensions.** Consider behavioral, demographic, firmographic and needs-based dimensions.
+3. **Create 3-5 distinct, non-overlapping customer segments.**
+4. **Synthesize each segment's profile and validate its distinctness.**
+5. **Evaluate market size, growth potential and competitive intensity per segment.** Think through the analysis step by step.
 
-### Output Structure
+### Output structure
 
-For each of the 3-5 segments, provide:
+**Provide a profile with the following sections for each of the 3-5 segments.**
 
-**Segment Name & Overview**
+#### Segment name and overview
+
 - Clear, memorable segment identifier
 - Size estimate (% of total market or absolute numbers if data available)
 - Growth trajectory and market dynamics
 
-**Key Demographics & Firmographics**
+#### Key demographics and firmographics
+
 - Core characteristics (age, role, company size, industry, geography, etc.)
 - Decision-maker profiles if B2B
 
-**Jobs-to-be-Done**
+#### Jobs-to-be-done
+
 - Primary job and desired outcome for this segment
-- Frequency, context, and stakes of the job
+- Frequency, context and stakes of the job
 - Success criteria and desired outcomes
 
-**Key Pain Points & Obstacles**
+#### Key pain points and obstacles
+
 - Barriers to job completion specific to this segment
 - Consequences of not solving the problem
 
-**Desired Gains & Success Factors**
+#### Desired gains and success factors
+
 - What outcomes matter most to this segment
 - Preferred solution characteristics
 - Cost and time constraints
 
-**Product Fit Analysis**
+#### Product fit analysis
+
 - How well $ARGUMENTS serves this segment's needs
 - Unique value proposition for this segment
 - Potential adoption barriers or resistance
 
-**Competitive Landscape**
+#### Competitive landscape
+
 - Existing solutions or workarounds this segment uses
 - Alternative approaches or competitors
 
-## Best Practices
+## Best practices
 
-- Ensure segments are measurable, accessible, and distinct
-- Prioritize segments with clear jobs-to-be-done and pain points
-- Validate segment assumptions with available data
-- Consider both greenfield opportunities and underserved segments
-- Flag segments requiring additional market research
+- **Ensure segments are measurable, accessible and distinct.**
+- **Prioritize segments with clear jobs-to-be-done and pain points.**
+- **Validate segment assumptions with available data.**
+- **Consider both greenfield opportunities and underserved segments.**
+- **Flag segments requiring additional market research.**
 
 ## How you can tell it worked
 
-Each segment is a group with a distinct job and pain rather than a demographic slice, and the owner can say which one to explore first.
+Each segment is a group with a distinct job and pain rather than a demographic slice. The owner can say which one to explore first.

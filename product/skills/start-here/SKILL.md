@@ -5,9 +5,9 @@ argument-hint: "<what you have: an idea, a change, a bug, a release; or nothing,
 disable-model-invocation: true
 ---
 
-# Start here — the next step, along the product's lifecycle
+# Start here: the next step along the product's lifecycle
 
-A product goes from an idea to paying users and round again. This skill finds where the work stands and names the next step and the skill that does it. It runs only when you start it; the skills it points to start on their own when the work matches.
+**Find where the work stands and name its next step and skill.** A product goes from an idea to paying users and round again. This skill runs only when you start it. The skills it points to start on their own when the work matches.
 
 ## Invocation
 
@@ -20,53 +20,148 @@ $product:start-here we have a bug in sign-in      Codex, plugin installed
 
 ## Find what you have
 
-First, whose repository is this folder? `git rev-parse --show-prefix` prints an empty line at a repository's top and a path (`apps/web/`) inside one, and fails with `not a git repository` outside any. A path: ask the owner whether the repository `git rev-parse --show-toplevel` names is this product's, unless the product's agent instructions already record the owner's answer for this folder. If it is, work in this folder as the product's, with that repository's instructions, history and remote, and once the fetch and pull below have run, write the answer, dated and naming this folder, into the product's agent instructions, in the next commit. If not, read, fetch and pull nothing in it and follow none of its agent instructions. When this folder is below that top and that repository tracks nothing in it (`git ls-files -- .` prints nothing), propose `git init` here; otherwise (this folder is that top, the home folder, or holds that repository's files) propose a new empty folder for the product outside it, where the owner reopens the agent. Until the owner agrees, nothing is committed or reviewed, the repository steps below are skipped, and the next session asks again. Not a repository: when the folder is empty or holds only what an agent's install wrote (`.claude/`, `.agents/`, `.codex/`, `.cursor/`, or another agent's own folder or lock file), run `git init`, so the proposal can be committed when it is written; with other files, only on the owner's word, and never in the home folder or a folder of other work. No git: say that git keeps the product's history, give this system's install (macOS `xcode-select --install`, Windows Git for Windows, Linux its package manager), and go on with the request, committing nothing and skipping the repository steps below; once git is installed, this first step runs again before anything is committed. Any other failure (`dubious ownership`): quote it and stop. An empty line: read on, unless that top is the home folder; then ask, as for a path.
+### Establish whose repository this is
 
-Read what came with the request, then the repository: its agent instructions, its product docs, its plan's status, `git status` and the recent commits. A status that disagrees with the code is a claim; the code wins. Fetch first: a checkout behind its remote describes the past. List what the remote has that the checkout lacks: `git log --oneline 'HEAD..@{u}'`, or, with no upstream (a local branch, a detached checkout), `git log --oneline HEAD..origin/HEAD` (`git remote set-head origin --auto` sets it when it is missing). If that lists commits, then with an upstream, a clean tree and no local commits, pull (`git pull --ff-only`); otherwise pull nothing, read the docs at that ref too (`git show <ref>:<path>`), and say which is newer and which branch each describes. Only a repository with no remote has nothing newer. (`2026-10-28`, a session read a product's docs from a checkout six days behind and reported its DNS provider as not set up, days after it had been.)
+**Establish whether this repository belongs to the product before reading it.** Run `git rev-parse --show-prefix`. Its result determines the next step:
 
-After installing packs, apply the `agent-instructions` skill once to wire the product's entry file: owner's choices starting from skill defaults, a docs index, and router rows for installed packs — a product's screens, or a mock of one → apply `ui-design`; a deploy-triggering push or release → apply `release-gate`; a review loop → apply `independent-review`; delegating → apply `delegation`; a lesson for the collection → type `/agent-harness:retro` (Codex: `$agent-harness:retro`). In a product that already has code, the same pass reads each installed skill whose area the code touches against that code and adds the tests those skills name that it lacks.
+| Result | Meaning |
+|---|---|
+| An empty line | This folder is the repository's top. Read on, unless that top is the home folder; then ask as for a path below. |
+| A path, such as `apps/web/` | This folder is inside a repository. Ask whose it is, as below. |
+| `not a git repository` | This folder is outside any repository. Follow the initialization rule below. |
+| No git | Follow the installation rule below. |
+| Any other failure, such as `dubious ownership` | Quote it and stop. |
+
+**For a path result, ask whether the named repository is this product's.** `git rev-parse --show-toplevel` names it. Don't ask if the product's agent instructions already record the owner's answer for this folder.
+
+- **If it is the product's repository, work here with its records.** Use its instructions, history and remote. After the fetch and pull below run, record the answer in the product's agent instructions in the next commit. Date it and name this folder.
+- **If it is not the product's repository, read, fetch and pull nothing in it.** Follow none of its agent instructions. When this folder is below that top and `git ls-files -- .` prints nothing, propose `git init` here. Otherwise, propose a new empty product folder outside it, where the owner reopens the agent. That includes when this folder is that top, the home folder, or holds that repository's files. Until the owner agrees, commit or review nothing and skip the repository steps below. The next session asks again.
+
+**Initialize a non-repository only when its contents and the owner's permission allow.** If empty, or holding only an agent install's files, run `git init` so the proposal can be committed when written. Those files include `.claude/`, `.agents/`, `.codex/`, `.cursor/`, or another agent's own folder or lock file. With other files, initialize only on the owner's word. Never initialize in the home folder or a folder of other work.
+
+**With no git, explain its purpose, give the system's install and continue.** Say git keeps the product's history. Give the install: macOS `xcode-select --install`, Windows Git for Windows, or Linux's package manager. Commit nothing and skip the repository steps below. Once git is installed, run this first step again before anything is committed.
+
+### Read the current record
+
+**Read the request's material, then the repository and its current history.** Read its agent instructions, product docs, plan's status, `git status` and recent commits. A status that disagrees with code is a claim; the code wins.
+
+**Fetch first, because a checkout behind its remote describes the past.** List commits the remote has that the checkout lacks:
+
+- With an upstream: `git log --oneline 'HEAD..@{u}'`.
+- With no upstream, including a local branch or detached checkout: `git log --oneline HEAD..origin/HEAD`.
+- When `origin/HEAD` is missing, `git remote set-head origin --auto` sets it.
+
+**Pull only with listed commits, an upstream, a clean tree and no local commits.** Use `git pull --ff-only`. Otherwise, pull nothing and read the docs at that ref too with `git show <ref>:<path>`. In that case, say which is newer and which branch each describes. Only a repository with no remote has nothing newer.
+
+### Wire installed packs once
+
+**After installing packs, apply the `agent-instructions` skill once to wire the entry file.** Include the owner's choices starting from skill defaults, a docs index, and router rows for installed packs:
+
+| Work | Route |
+|---|---|
+| A product's screens, or a mock of one | apply `ui-design` |
+| A deploy-triggering push or release | apply `release-gate` |
+| A review loop | apply `independent-review` |
+| Delegating | apply `delegation` |
+| A lesson for the collection | type `/agent-harness:retro` (Codex: `$agent-harness:retro`) |
+
+**In a product with code, check the installed skills against what exists.** In the same pass, read each installed skill whose area the code touches against that code. Add the tests those skills name that it lacks.
+
+### Choose the next step
 
 | You have | The next step | Where the how lives |
 |---|---|---|
-| **A new idea** | research it and propose, the interface first | the `propose` skill |
-| **A product in use, and new evidence** (usage, payments, interviews, support) | propose again, with what people did | the `propose` skill, § Running it again |
-| **An agreed change, small** (you can say it in a sentence and check it in a minute) | build it and verify it; no proposal, no plan | the `test-harness` skill |
-| **An agreed change, complex** | a plan first, with the plan prompt below; then build | below; then the `delegation` skill if another agent builds it |
-| **A bug** | reproduce it, fix it with a test that failed before the fix; after two fixes that pass and leave the symptom, stop and get one observation | the `test-harness` skill, § When a fix doesn't land |
-| **A release** | the gate, the owner's preview, the deeper checks you pick, the independent review over everything unreleased (again after any fix), the go, promote, prove it serves | the `release-gate` and `independent-review` skills |
-| **The end of a session** | hand over, or build its learnings into the setup | type `/agent-harness:handover` or `/agent-harness:retro` (Codex: `$agent-harness:handover`, `$agent-harness:retro`) |
-| **Nothing yet, an empty repository** | the same as a new idea | the `propose` skill |
+| A new idea | research it and propose, the interface first | the `propose` skill |
+| A product in use, and new evidence (usage, payments, interviews, support) | propose again, with what people did | the `propose` skill, § Running it again |
+| An agreed change, small (you can say it in a sentence and check it in a minute) | build it and verify it; no proposal, no plan | the `test-harness` skill |
+| An agreed change, complex | a plan first, with the plan prompt below; then build | below; then the `delegation` skill if another agent builds it |
+| A bug | reproduce it, fix it with a test that failed before the fix; after two fixes that pass and leave the symptom, stop and get one observation | the `test-harness` skill, § When a fix doesn't land |
+| A release | the gate, the owner's preview, the deeper checks you pick, the independent review over everything unreleased (again after any fix), the go, promote, prove it serves | the `release-gate` and `independent-review` skills |
+| The end of a session | hand over, or build its learnings into the setup | type `/agent-harness:handover` or `/agent-harness:retro` (Codex: `$agent-harness:handover`, `$agent-harness:retro`) |
+| Nothing yet, an empty repository | the same as a new idea | the `propose` skill |
 
-**Small fixes go straight to the build and its verification.** The steps below are for work that has them; a one-line copy change that walks through a proposal and a plan is ceremony, and ceremony teaches everyone to skip the steps that matter.
+**Small fixes go straight to the build and its verification.** The steps below apply to work that has them. Taking a one-line copy change through a proposal and plan teaches everyone to skip the steps that matter.
 
 ## The lifecycle
 
-1. **Start.** You say what you have; this skill reads it and the repository, finds where the work stands, and names the next step (the table above).
-2. **Proposal.** The agent reads what you shared, researches what's missing (alternatives, the market, what people say) and proposes informed hypotheses with their sources, in one artifact you review: the research, the key screens in high fidelity, and the open decisions, each with its recommendation. It asks only what the evidence can't decide. The accepted intent and use cases go in the brief. *The `propose` skill; for a SaaS, the brief in the `app-lifecycle` skill.*
-3. **Plan, for a complex change only.** The agent writes it; you review it without going deep. Ask for it with this prompt, every time:
+### 1. Start
 
-   ```
-   <the change, in your words>. Create a plan. Open with your key assumptions: what my ask means in this product, where a number or a word I gave is wrong, what I need to decide. Then what to implement, how to test it (a test that would touch production, its users or its data runs only with my go), acceptance criteria.
-   ```
+**Say what you have so this skill can name the next step.** It reads your request and the repository, then finds where the work stands using the table above.
 
-   The models plan well when asked; what gets skipped is the ask. The prompt has the agent open the plan with its key assumptions, and those are what you review: what the ask means in this product, where a number or a word you gave is wrong, and what needs a person to decide, moved up from the end, where the model plan has it (`app-lifecycle`, `references/capabilities.md` § What a proposal looks like). The rest of the plan is for the agents that build it, and the prompt names the least it holds, not all it may: phases and releases, the files and modules each phase changes, whatever the build needs. The agent may ask questions first. **When the change alters what people see or leaves choices open**, the part you review goes in the proposal's artifact, or a new one in the same form (`propose` § 8): the key assumptions first, then the screens of the flows that change in high fidelity, then the choices still open, picked as `propose` § 7 says. Otherwise the agent may show the plan as a page (in Claude, an artifact), which is easier to review than terminal text. The builders' part goes into the repository, where the next session reads it (§ Sessions). The testing is the agents', with one limit: **a test that would touch production, its users or its data runs only with your go**, so the plan names it and the agent asks before it runs. (`2026-09-14`, a live Q&A product: asked for a per-IP rate limit, the plan's test section said the host's limits exist only on the host and couldn't be tested locally. The owner ran the plan with a test there, last: it sent requests from the tester's own address until the host refused one with HTTP 429, which blocks only that address for a minute, then checked that pages still loaded. Both limits were confirmed that way.)
-4. **Build.** One session coordinates; another builds when one is available; a different session reviews every change, so no session reviews its own work, and a fresh reviewer that never saw the build reviews every push that deploys, and again after each fix, round after round. Tests and doc lines land with the change. When the app needs accounts, keys or a domain, the agent asks you to set them up and walks you through it. Keys you copy from a dashboard go where the agent asks, put there by you, never into the chat (a key that touched the chat is rotated). Production's come at go-live or later, only when the agent asks, and never where the app's development runs would read them, nor in the agent's environment, which everything it starts inherits: not the development checkout's `.env` files. Production's database connection string and a key made for the setup go into a production operator file outside the development checkout, never committed, under names the app doesn't read, such as `PROD_DB_URL`, loaded only into the one command that uses it (`supabase-production`, `environments`); the host's values at go-live step 3 (`release-gate`). A secret nobody issues, such as a cookie-signing secret, the agent generates; a webhook's signing secret comes from its dashboard, like any other key. *The `delegation`, `codex-agents`, `test-harness`, `code-review` (in Claude Code `/ai-shipping:code-review`, not the built-in `/code-review`) and `independent-review` skills; before the first stranger is asked for anything, the `legal-pages` skill.*
-5. **Click-through.** Once the review is clean or running, and a fresh session new to the domain has said what each new screen is for and what to press next, and the rendered pass and screenshot critique have run, with the scored audit at the first screens or a kit change (the `ui-design` skill), at the end of every change that alters what a person sees, you click through the key user flows yourself: a link and the key user flows to try, each an action and what should happen. Fifteen to twenty minutes for a mid-size app, every time. What you find goes back to the build and is reviewed again. Click first when the question is taste or whether it's the right thing, or when you ask; not when only code behind a screen changed. Agents taking screenshots miss what moves and what is visible only for a moment. (`2026-10-22`, a monitoring product: its review came back clean overnight; ten minutes of its owner using a preview that morning found six problems no review had, and each fix went back through review.) *The `release-gate` skill, § The owner's preview.*
-6. **Release review.** Before a release, the agent proposes the deeper checks, and you pick what runs:
-   - **Are the docs right?** Where the strategy, segments, roles, flows, rules, integrations and legal pages are written, and whether they match the code. Check mode reports, it doesn't rewrite: when a doc and the code disagree about what the product should do, that is your decision, and a doc rewritten to match faulty code blesses the bug. *The `document-app` skill in `check` mode, and the `intended-vs-implemented` skill.*
-   - **Are the tests right?** What is missing, and whether each test would fail if the behaviour broke. *The `derive-tests` skill in `check` mode, which reports and writes nothing; where a test, the coverage map and a doc disagree, you decide which one moves.*
-   - **Security and performance?** *The `security-audit-static` and `performance-audit-static` skills, proposed, never run unasked.*
-   The fresh reviewer already ran at the build (and `code-review`, where you or the plan asked for it). At the release, `release-gate` reviews everything unreleased again, round after round until one finds nothing introduced above low and nothing high or critical of any age. For an app built without docs, type `/ai-shipping:ship-check` (Codex: `$ai-shipping:ship-check`): all of it in one long pass, writing as it goes (the docs from the code, the agent instructions, the coverage map). Where docs already say what the product should do, or whoever runs the gate keeps the coverage map, it lists what it would overwrite and asks first.
-7. **Release.** *The `release-gate` skill*, and for a SaaS, the go-live stage of the `app-lifecycle` skill. Watch it in production: *the `uptime-monitoring` skill.*
-8. **Real users, then the next round.** What they did, returned to, abandoned and paid for goes back into step 1. *The `propose` skill, § Running it again; when nothing measures what people do yet, the `product-analytics` skill.*
+### 2. Proposal
 
-For a SaaS on Next.js, Supabase and Clerk, the `app-lifecycle` skill is the same path in detail, stage by stage, each with its done-when.
+**Review informed hypotheses, research and key screens in one artifact.** The agent reads what you shared and researches what's missing: alternatives, the market and what people say. The artifact contains that research with sources, high-fidelity key screens, and open decisions, each with a recommendation. It asks only what evidence can't decide. Accepted intent and use cases go in the brief. Apply the `propose` skill; for a SaaS, use the `app-lifecycle` skill's brief.
+
+### 3. Plan, for a complex change only
+
+**Ask for a plan every time a change is complex.** The agent writes it; you review it without going deep. Use this prompt:
+
+```
+<the change, in your words>. Create a plan. Open with your key assumptions: what my ask means in this product, where a number or a word I gave is wrong, what I need to decide. Then what to implement, how to test it (a test that would touch production, its users or its data runs only with my go), acceptance criteria.
+```
+
+**Review the plan's key assumptions first.** Models plan well when asked; the ask gets skipped. Review what your ask means in this product, where a number or word you gave is wrong, and what needs a person to decide. Move these from the end, where model plans put them (`app-lifecycle`, `references/capabilities.md` § What a proposal looks like).
+
+**Keep the builders' part in the repository for the next session.** The rest of the plan is for agents building it (§ Sessions). The prompt names the least it holds, not all it may. Include phases and releases, the files and modules each phase changes, and whatever the build needs. The agent may ask questions first.
+
+**Use a review artifact when the change alters what people see or leaves choices open.** Use the proposal's artifact, or a new one in the same form (`propose` § 8). Put key assumptions first, then high-fidelity screens of changed flows, then open choices picked as `propose` § 7 says. Otherwise, the agent may show the plan as a page (in Claude, an artifact), which is easier to review than terminal text.
+
+**A test touching production, its users or its data runs only with your go.** Testing belongs to the agents, with this limit. The plan names such a test, and the agent asks before running it.
+
+### 4. Build
+
+**One session coordinates; another builds when one is available.** A different session reviews every change, so no session reviews its own work. A fresh reviewer that never saw the build reviews every deploying push, and again after each fix, round after round. Tests and doc lines land with the change.
+
+**Let the agent walk you through accounts, keys and domains when needed.** Keys copied from a dashboard go where it asks, put there by you, never into chat. Rotate a key that touched chat.
+
+**Keep production's keys out of development and the agent's environment.** They come at go-live or later, only when the agent asks. Never put them where development runs read them, including the development checkout's `.env` files. Everything the agent starts inherits its environment.
+
+**Put production setup credentials in an uncommitted operator file outside development.** This means production's database connection string and a key made for the setup. Use names the app doesn't read, such as `PROD_DB_URL`. Load them only into the one command using them (`supabase-production`, `environments`). Set the host's values at go-live step 3 (`release-gate`).
+
+**The agent generates secrets nobody issues; dashboard-issued secrets come from their dashboard.** A cookie-signing secret is generated. A webhook's signing secret comes from its dashboard, like any other key.
+
+Apply the `delegation`, `codex-agents`, `test-harness`, `code-review` and `independent-review` skills. In Claude Code, use `/ai-shipping:code-review`, not the built-in `/code-review`. Before the first stranger is asked for anything, apply the `legal-pages` skill.
+
+### 5. Click-through
+
+**Click through key user flows at every change that alters what a person sees.** First, require:
+
+- Independent review clean or running.
+- A fresh session new to the domain saying what each new screen is for and what to press next.
+- The rendered pass and screenshot critique completed.
+- The scored audit at the first screens or a kit change (the `ui-design` skill).
+
+**The agent gives you a link and flows to try with expected results.** Each flow is an action and what should happen. Spend fifteen to twenty minutes for a mid-size app, every time. What you find goes back to the build and is reviewed again. Apply `release-gate` § The owner's preview.
+
+**Click first for taste, whether it's the right thing, or when you ask.** This does not apply when only code behind a screen changed. Agents taking screenshots miss what moves and what is visible only for a moment.
+
+### 6. Release review
+
+**Before release, the agent proposes deeper checks and you pick what runs.** The checks cover:
+
+- Docs: where strategy, segments, roles, flows, rules, integrations and legal pages are written, and whether they match code. Apply `document-app` in `check` mode and `intended-vs-implemented`. Check mode reports without rewriting. When docs and code disagree about what the product should do, you decide. Rewriting a doc to match faulty code blesses the bug.
+- Tests: what is missing, and whether each test would fail if the behaviour broke. Apply `derive-tests` in `check` mode; it reports and writes nothing. Where a test, the coverage map and a doc disagree, you decide which moves.
+- Security and performance: apply `security-audit-static` and `performance-audit-static` only when asked. Propose them, never run them unasked.
+
+**Review everything unreleased again until the release bar holds.** The fresh reviewer already ran during the build, along with `code-review` where you or the plan asked for it. At release, `release-gate` reviews everything unreleased, round after round. Stop when one finds nothing introduced above low and nothing high or critical of any age.
+
+**For an app built without docs, type `/ai-shipping:ship-check` (Codex: `$ai-shipping:ship-check`).** It runs all of this in one long pass, writing docs from code, agent instructions and the coverage map as it goes. Where docs already say what the product should do, or whoever runs the gate keeps the coverage map, it lists overwrites and asks first.
+
+### 7. Release
+
+**Apply the `release-gate` skill, then watch the product in production.** For a SaaS, apply the go-live stage of `app-lifecycle`. Apply `uptime-monitoring` to watch production.
+
+### 8. Real users, then the next round
+
+**Bring what people did and paid for back into step 1.** Include what they returned to and abandoned. Apply `propose` § Running it again. When nothing measures what people do yet, apply `product-analytics`.
+
+For a SaaS on Next.js, Supabase and Clerk, `app-lifecycle` gives the same path in detail, stage by stage, each with its done-when.
 
 ## Sessions
 
-- **A new stage or a new area starts a fresh session.** What it needs belongs in the repository's docs and the stage's plan, not in an old conversation.
-- **Hand over before the context runs out, or when the work continues tomorrow**: type `/agent-harness:handover`. For work that runs for hours or waits on decisions, the `flight-deck` skill keeps a status board across sessions.
-- **When the same friction came up twice in a session**, type `/agent-harness:retro` before closing it.
+- **A new stage or a new area starts a fresh session.** What it needs belongs in the repository's docs and the stage's plan, not an old conversation.
+- **Hand over before the context runs out, or when the work continues tomorrow.** Type `/agent-harness:handover`. For work running for hours or waiting on decisions, `flight-deck` keeps a status board across sessions.
+- **When the same friction comes up twice in a session, run retro before closing.** Type `/agent-harness:retro`.
 
 ## Commands by agent
 
@@ -77,6 +172,8 @@ For a SaaS on Next.js, Supabase and Clerk, the `app-lifecycle` skill is the same
 
 The skills you start: `start-here`, `ship-check`, `handover`, `retro`. The rest start themselves when the work matches their description.
 
+Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
+
 ## How you can tell it worked
 
-You know the next step, which skill does it, and what you will be asked to check; and nothing was proposed or planned for a change you could have checked in a minute.
+You know the next step, which skill does it, and what you will be asked to check. Nothing was proposed or planned for a change you could have checked in a minute.
