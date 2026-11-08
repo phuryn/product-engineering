@@ -70,12 +70,14 @@ RUNS_FILE = re.compile(
     r"\b(?:python3?|py|node|bun|deno\s+run)\s+(?:-[\w-]+\s+)*([^\s;&|<>]+\.(?:py|mjs|cjs|js|ts))"
 )
 # Code passed inline: python -c "...", node -e '...'. Scanned with code_rules like a heredoc body.
-INLINE = re.compile(r"""\b(?:python3?|py|node|bun|deno)\b[^\n;&|]*?\s-[ce]\s+(?:"((?:[^"\\]|\\.)*)"|'([^']*)')""")
+# The interpreter must stand in command position (start of a segment), so a `--include=*.py` or a
+# `grep -e` elsewhere in the line is not read as code.
+INLINE = re.compile(r"""(?:^|[;&|(\n])\s*(?:[\w./\\-]*[/\\])?(?:python3?|py|node|bun)(?:\.exe)?(?:\s+-[\w-]+)*?\s+-[ce]\s+(?:"((?:[^"\\]|\\.)*)"|'([^']*)')""")
 # A leading `cd <dir> &&` moves where the scripts after it are found.
 CD = re.compile(r"\bcd\s+(['\"]?)([^\s;&|'\"]+)\1\s*&&")
 # The wiring canary. It always answers, whatever the config's rules, so a person can prove the
 # hook runs with `true guard-canary`: a command that does nothing when the hook is not wired.
-CANARY = re.compile(r"\bguard-canary\b")
+CANARY = re.compile(r"\btrue\s+guard-canary\b")
 # This guard's own test runner holds the code rules' samples; scanning it would ask on every test run.
 OWN_TESTS = os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_hooks.py"))
 
@@ -154,16 +156,20 @@ def main():
         path = win(path.strip("'\""))
         if any(re.search(p, path.replace("\\", "/")) for p in cfg["skip_scripts"]):
             continue
+        # Scan every place the path could resolve to: a same-named file in the cwd must not hide
+        # the one a `cd` makes run. Asking about a file that did not run is the safe mistake.
+        seen = set()
         for candidate in ([path] if os.path.isabs(path) else [os.path.join(b, path) for b in bases]):
-            if os.path.realpath(candidate) == OWN_TESTS:
-                break
+            real = os.path.realpath(candidate)
+            if real == OWN_TESTS or real in seen:
+                continue
+            seen.add(real)
             try:
                 with open(candidate, encoding="utf-8", errors="ignore") as fh:
                     src = fh.read()
             except OSError:
                 continue
             hits += [f"{w} [in {os.path.basename(path)}]" for w in scan(src, cfg["code_rules"])]
-            break
 
     if hits:
         reason = cfg["reason_prefix"] + "; ".join(dict.fromkeys(hits)) + cfg["reason_suffix"]

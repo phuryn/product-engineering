@@ -55,6 +55,8 @@ def main():
         fh.write("from client import Client\nClient().delete_post(42)\n")
     with open(os.path.join(tmp, "notes.py"), "w", encoding="utf-8") as fh:
         fh.write('"""Never run publish_cli.py delete from here."""\nprint("ok")\n')
+    with open(os.path.join(tmp, "purge.py"), "w", encoding="utf-8") as fh:
+        fh.write('print("a harmless purge.py where the session starts")\n')
     os.makedirs(os.path.join(tmp, "tools"))
     with open(os.path.join(tmp, "tools", "purge.py"), "w", encoding="utf-8") as fh:
         fh.write("from client import Client\nClient().delete_post(7)\n")
@@ -78,7 +80,11 @@ def main():
          'python -c "from client import Client; Client().delete_post(42)"', None, 0, "ask"),
         ("node -e calling the delete API asks", "node -e 'client.delete_post(42)'", None, 0, "ask"),
         ("python -c that only prints passes", 'python -c "print(1)"', None, 0, None),
-        ("a script run after cd asks", "cd tools && python purge.py", None, 0, "ask"),
+        ("a script run after cd asks, though a harmless same-named one sits in the cwd",
+         "cd tools && python purge.py", None, 0, "ask"),
+        ("a grep for the delete call in .py files passes",
+         "grep -rn --include=*.py -F -e '.delete_post(' .", None, 0, None),
+        ("a mention of the canary passes", "git log --grep guard-canary", None, 0, None),
         ("another project's test_hooks.py calling the delete API asks", "python webhooks/test_hooks.py", None, 0, "ask"),
         ("this guard's own test runner passes", f'python "{os.path.join(HERE, "test_hooks.py")}"', None, 0, None),
         ("deny mode denies", "gh gist delete 123", {"ONE_WAY_DOORS_MODE": "deny"}, 0, "deny"),
@@ -101,6 +107,7 @@ def main():
         ("commit --author after -C blocks", 'git -C "my repo" commit --author="X <wrong@example.com>" -F msg.txt', 2),
         ("grep for the address passes", "grep -rn wrong@example.com .", 0),
         ("the right identity passes", "git -c user.email=right@example.com commit -F msg.txt", 0),
+        ("the live check's `true user.email=` blocks", "true user.email=wrong@example.com", 2),
     ]
 
     failures = 0

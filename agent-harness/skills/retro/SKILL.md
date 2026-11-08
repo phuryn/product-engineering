@@ -55,7 +55,7 @@ $agent-harness:retro                             Codex, plugin installed
 
 **Re-read an area's file at the start of every task touching it.** The index must require this, not once a session. After compaction or a long session, the earlier read is gone. If the router doesn't yet say to re-read at every task, add that sentence. Each file stays within its word budget, and the rule carries its receipt and a review date (`agent-instructions`, budgets).
 
-**Make reversible repository fixes and verify each where it applies.** Run a hook on a sample that must trigger and one that must not. Open the route where the agent will read it; run the script. Report an unchecked fix as unchecked. Propose changes outside the repository with exact text; don't make them unless the owner says so. This includes the user's own settings and global instructions.
+**Make reversible repository fixes and verify each where it applies.** Pipe a sample payload that must trigger into a hook, and one that must not; never run a real one-way door to test it. Open the route where the agent will read it; run the script. Report an unchecked fix as unchecked. Propose changes outside the repository with exact text; don't make them unless the owner says so. This includes the user's own settings and global instructions.
 
 **Keep a skill's correction in the project's own agent instructions.** Put it where the agent reads it while that skill is in use. Use the router row for when the skill runs, or the entry file if it can fire in any task. An installed plugin copy sits outside the repository; a copied skill is overwritten by its next update, so edits to either are lost.
 
