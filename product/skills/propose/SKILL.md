@@ -5,36 +5,50 @@ description: "'I have an idea', 'is this worth building', 'what next': research 
 
 # Propose — research an idea, then propose what to build
 
-The owner has an idea, or a product in use needs its next step. The agent reads what the owner shared, looks for what is missing, sets the idea against that evidence and proposes something the owner reviews, **the interface first**. What comes out is **informed hypotheses**: until people use the product and pay for it, every claim is a hypothesis with a source, never a finding.
+**Research the idea and propose something the owner reviews, interface first.** Use this for a new idea or a product's next step, testing what the owner shared against the evidence you find.
 
-This is not an interview. Questions come last, and only the ones the evidence cannot decide. An interview sharpens what the owner already thinks; this brings in what the owner doesn't know yet.
+**Treat product claims as sourced hypotheses until people use and pay.** Bring in what the owner does not yet know, presenting informed hypotheses rather than findings. Questions come last, limited to what evidence cannot decide; interviewing alone sharpens what the owner already thinks.
 
-**Not for** an agreed change, a bug or a small UI change: those go straight to a plan or a build. **Not when** the owner has already decided and asks for the build.
+**Plan or build agreed changes, bugs and small UI changes directly.** Also go straight to the build when the owner has already decided and asks for it.
 
-**Who decides.** The owner owns the thesis, the segment, what gets built and when. The agent owns the evidence and the proposal artifact, and says plainly where the evidence and the owner's idea disagree.
+**Leave thesis, segment, build scope and timing with the owner.** You own the evidence and proposal artifact, and say plainly where evidence disagrees with the owner's idea.
 
 ## Steps
 
+**Follow the evidence through research, a reviewable proposal and recorded decisions.** The owner sees the interface before any plan.
+
 ### 1. Read what was shared, then what already exists
 
-Everything the owner gave: notes, research, data, links, screenshots, competitor names. Then the product's own record, if there is one: the brief, the decision log, an earlier proposal. **Use the repository's existing equivalent of a proposal** before creating one; a second document that restates the first is how decisions get lost between them. An existing Markdown proposal is rewritten once as the HTML page in the same place, and the Markdown file removed in that change (git keeps its history). On a re-run, start from the existing proposal (§ Running it again).
+**Read the owner's material and the product's existing record first.** Read all supplied notes, research, data, links, screenshots and competitor names, then any brief, decision log and earlier proposal.
 
-**When the product implements a published method, write its steps before the use cases**, with a source per step, in the brief above its use cases (the `app-lifecycle` skill's brief, or the product's equivalent). The owner names which source is the authority and which is a simplification. The use cases follow that order; check the first against the authoritative document as the first thing a new user does. (`2026-11-03`, an evals product's accepted proposal, brief and UX replan all began with production traces although the method starts earlier; the owner's article had been read only to check quotes, never compared with the plan.)
+**Use the repository's existing proposal equivalent before creating another.** Duplicated proposals lose decisions between them. Rewrite an existing Markdown proposal once as HTML in the same place, removing the Markdown in that change while git keeps its history. On a rerun, start from the existing proposal (§ Running it again).
+
+**Write a published method's sourced steps before the product's use cases.** When the product implements a method, place its steps in the brief above the use cases. Use the `app-lifecycle` skill's brief or the product's equivalent. Give each step a source, have the owner identify the authority and any simplification, then order the use cases accordingly. Check the first use case against the authoritative document as the first thing a new user does.
 
 ### 2. Research what is missing
 
-- **Alternatives:** up to five that the people in question actually use, including substitutes (the spreadsheet, the agency, the manual workaround) and **doing nothing**. Keep direct competitors distinct from substitutes. When the `competitor-analysis` skill is installed, hand it this narrower scope instead of its full report, and tell it to leave out any market size, share or funding figure it has no source for.
-- **The segment**, when it is still open: the `market-segments` and `beachhead-segment` skills. **The value proposition and the value curve** against the alternatives: the `value-proposition` and `value-curve` skills.
-- **What people say** in reviews, forums, Reddit and X, when the owner wants it: for the problems and the words people use, never for how common a problem is or what anyone would pay.
-  - **Each quote is verbatim, checked against the page as fetched**, with its link and the date it was read.
-  - **Leave out posts by a vendor, its staff or its affiliates**, and paid or promoted ones: astroturf reads as demand.
-  - **A quote read from a mirror or an archived copy**, because the site blocks fetching, is flagged as such.
-  - (`2026-11-01`, an evals product's market research: these rules made its quotes usable, and had to be written into the brief because no skill held them.)
-- **Every source gets its address and the date it was read.** A claim without one is the agent's own.
+**Research actual alternatives and fill the evidence gaps.** Match the research to the choices still open.
 
-**Market research asked for on its own** (competitors, segments, a value proposition, a value curve, what people say) is this step without the proposal, in this order: the alternatives (`competitor-analysis`), the segments (`market-segments`, then `beachhead-segment` while the first one is open), the value proposition for the chosen segment (`value-proposition`), and the value curve against the alternatives (`value-curve`), with what people say gathered alongside under the rules above. It ends with every claim marked by kind (step 3), not with a proposal. (`2026-11-01`, an evals product: such a request took four skills composed by hand, in an order none of them stated.)
+- **Research up to five alternatives people actually use, including doing nothing.** Include substitutes such as spreadsheets, agencies and manual workarounds, keeping them distinct from direct competitors. When installed, apply `competitor-analysis` with this narrower scope rather than its full report. Tell it to omit market-size, share and funding figures without sources.
+- **Research an open segment and compare the value offered.** Apply `market-segments` and `beachhead-segment` while the segment remains open. Apply `value-proposition` and `value-curve` for the proposition and curve against alternatives.
+- **Gather what people say when the owner wants it.** Use reviews, forums, Reddit and X for problems and people's words, without inferring prevalence or willingness to pay from those comments.
+  - **Check every quote verbatim against the fetched page.** Include its link and the date read.
+  - **Exclude vendor, staff, affiliate, paid and promoted posts.** Use independent accounts because astroturf can look like demand.
+  - **Flag quotes fetched through mirrors or archives.** Say when blocked fetching required that route.
+- **Give every source its address and date read.** A claim without a source is your own.
+
+**Handle standalone market research here without building a proposal.** For requests covering competitors, segments, a value proposition, a value curve or people's comments, follow this order without a proposal. Gather people's comments alongside under the same rules:
+
+1. **Apply `competitor-analysis` to the alternatives.**
+2. **Apply `market-segments`, then `beachhead-segment` while the segment is open.**
+3. **Apply `value-proposition` for the chosen segment.**
+4. **Apply `value-curve` against the alternatives.**
+
+Finish by marking every claim by kind (step 3); standalone research ends there.
 
 ### 3. Mark every claim by kind
+
+**Mark every claim's kind, source and your own inferences.** For new products, most evidence is other people's words interpreted by a fluent model. Without those marks, confident prose hides assumptions.
 
 | Kind | Example | Used as |
 |---|---|---|
@@ -43,39 +57,67 @@ Everything the owner gave: notes, research, data, links, screenshots, competitor
 | Agent inference | "educators will pay, because they already pay for a similar tool" | marked as the agent's, with the evidence it rests on |
 | Unsupported assumption | "teams will switch within a month" | named, and tested before anything rests on it |
 
-- **A competitor's marketing is evidence of how it positions itself**, not of what it does or what its customers get.
-- **The owner's preference is a decision; the owner's assertion is a hypothesis.** "I want this segment" is recorded as a choice. "This segment will pay" stays a hypothesis with no source but the owner, and the proposal says so.
-- For a new product most evidence is other people's words, read by a model that writes fluently. **If the proposal doesn't show each claim's source and mark the agent's own inferences, it is assumptions in a confident tone.**
+- **Use competitor marketing as evidence of positioning.** It does not establish capabilities or customer outcomes.
+- **Record owner preferences as decisions and assertions as hypotheses.** "I want this segment" records a choice. "This segment will pay" remains a hypothesis sourced only to the owner; say so in the proposal.
 
 ### 4. Check feasibility before drawing screens
 
-When the idea depends on something that may not exist or may not be allowed (an API, a platform rule, access to the data, a cost per user that eats the price), check it now and say what was checked. Screens of something that can't be built waste the owner's review.
+**Check uncertain dependencies before drawing screens of something you cannot build.** Screens of something unbuildable waste the owner's review. Verify uncertain APIs, platform permissions, data access and costs per user that could consume the price, and say what you checked.
 
 ### 5. Propose
 
-- **One direction when the evidence clearly favours it; two or three, with their trade-offs, when the choice is real.** Inventing alternatives to fill a template hides the recommendation.
-- For each: who it is for, the value proposition, what the first version does and deliberately doesn't do, and why this over the alternatives. **Weigh each part of the first version by what people will see against what it costs**: visible, cheap parts early (a landing, pricing on display, example data that fills every screen), hard logic once the product is worth it (`2026-11-03`, an evals product spent ten review rounds on hard logic before it had a landing; the owner: "Seeing app with all those elements that costs a little is wow. Debugging hard logic for hours isn't.").
-- **Name the weakest consequential assumption**: the one that, if wrong, changes the recommendation. Not the weakest assumption overall; a shaky detail that changes nothing can wait.
-- Recommend one, and say why.
+**Recommend the direction the evidence supports and explain why.** Show a real choice when one remains.
+
+- **Offer one clear direction or two or three real alternatives.** Use one when the evidence clearly favours it. For a real choice, give two or three with trade-offs, since invented alternatives hide the recommendation.
+- **Explain each direction's audience, value proposition, scope and advantage over alternatives.** State what its first version does and deliberately leaves out.
+- **Weigh each first-version part's visible value against its cost.** Put visible, cheap parts early: a landing, displayed pricing and example data filling every screen. Add hard logic once the product is worth it.
+- **Name the weakest assumption that could change the recommendation.** Identify the consequential assumption, since a shaky detail that changes nothing can wait even if it is the weakest overall.
+- **Recommend one direction and give the reason.** Make the choice explicit in the artifact.
 
 ### 6. Build what the owner reviews, interface first
 
-- **One self-contained HTML page**, opening from its file with no server or build. Order: research, alternatives, segment, value proposition and value curve, the recommendation (§ 5) with its impact-and-effort grid, jobs map, key screens, open decisions, hypotheses with the weakest consequential assumption and its experiment. Research marks every claim by kind and source (§ 3).
-- **The jobs map first:** each job numbered and in the user's words, the screen it happens on, the one question that screen answers and its primary action. Draw one high-fidelity screen per key job, each showing its job's number, with realistic sample data marked as such. When replacing a familiar tool, start from its structure and justify departures. (`2026-11-07`, a static discovery page: a cold reader valued the jobs map most; matching numbers connected its rows to screens.)
-- **Apply the `ui-design` skill**, reading its method before screens; it needs `app-stack` installed. Without it, use the jobs map above, `frontend-design` direction, token values and a checked screenshot. Embed and compose an existing kit's CSS inside the HTML file; for a new product, choose one subject-grounded direction and keep values in tokens. Check screenshots against the method, where present, before the owner sees them. (`2026-11-03`, an evals product's artifact imitated its kit and invented borderless buttons; the owner caught those and misaligned chips.)
-- **Static or clickable screens**, as the person and agent agree. The first working version takes hours and tests the full flow; build no separate app prototype.
-- **Charts:** in Claude Code, apply `dataviz` (built in, read `2026-11-07`); in any other agent, follow its rules: the form first (sometimes a number, not a chart), one axis, a legend for two or more series, colour follows the entity, status colours only for status, text in text colours, never a series colour, and look at the render. They draw the value curve, segment scores and the impact-and-effort grid: § 5's weighing of the first version's parts and the next builds, by what people will see against what it costs, with "do first" marked. (`2026-11-07`, a static discovery page: a scatter was unreadable; a labelled 3×3 grid with a legend read clearly.)
-- **Fresh eyes before the owner:** a fresh session receives only the page's screenshots (a tall page cut into ordered parts) and a reader's role, never the brief or the code. It answers what the page is, what it would decide from it and what is unclear; fix what it can't explain. This is the page's own read: no crawl of an app and no sign-in. (`2026-11-07`, a static discovery page: screenshots alone exposed a reversed label, a band contradicting its chart title and screens disconnected from jobs.)
-- **The owner's preview:** name the key screens and what to inspect on each, before any plan.
-- **The customer experiment:** its hypothesis ID, participants, task, observed behaviour and the result that would change the recommendation. Building the first version and putting it in front of paying users is often the experiment.
+**Build one self-contained HTML page with research, decisions and key screens.** The page opens from its file without a server or build, with its sections in this order:
+
+1. Research, marking every claim by kind and source (§ 3).
+2. Alternatives.
+3. Segment.
+4. Value proposition and value curve.
+5. Recommendation (§ 5), with its impact-and-effort grid.
+6. Jobs map.
+7. Key screens.
+8. Open decisions.
+9. Hypotheses, including the weakest consequential assumption and its experiment.
+
+- **Map jobs before drawing one high-fidelity screen per key job.** Number each job in the user's words, naming its screen, the question that screen answers and its primary action. Each screen shows its job's number and realistic sample data labelled as such. When replacing a familiar tool, start from its structure and justify departures.
+- **Apply `ui-design` before drawing screens and check screenshots against its method.** Read the method first, with `app-stack` installed, or use the jobs map, `frontend-design` direction, token values and a checked screenshot without it. Embed and compose an existing kit's CSS inside the HTML. For new products, choose one subject-grounded direction and keep values in tokens. Where the method is present, check screenshots against it before the owner sees them.
+- **Agree on static or clickable screens and build no separate prototype.** The person and agent choose together. The first working version takes hours and tests the full flow.
+- **Choose chart forms first and inspect their renders.** In Claude Code, apply built-in `dataviz` (read `2026-11-07`). In other agents, follow its rules:
+  - **Choose the form first, using a number when that fits.** Sometimes a number serves better than a chart.
+  - **Use one axis and legends for two or more series.**
+  - **Keep colour with the entity and status colours for status.**
+  - **Use text colours for text, never a series colour.**
+  - **Inspect the rendered chart.**
+
+  Draw the value curve, segment scores and impact-and-effort grid. The grid weighs § 5's first-version parts and next builds by what people will see against cost. Mark "do first".
+- **Give a fresh session only screenshots and a reader's role.** Cut tall pages into ordered parts, sharing neither brief nor code with the fresh reader. Ask what the page is, what the reader would decide from it and what is unclear, then fix what they cannot explain. This checks the page itself: no app crawl or sign-in.
+- **Name key screens and what to inspect before any plan.** Give the owner that preview.
+- **Define the customer experiment and what would change the recommendation.** Include hypothesis ID, participants, task, observed behaviour and the decisive result. Building the first version and putting it before paying users is often the experiment.
 
 ### 7. Ask only what the evidence can't decide
 
-Keep the few questions in the artifact's open decisions, each with options, a recommendation and its reason. They concern the owner's values, segment or scope. Where hosts save viewer picks, as claude.ai artifacts can (read `2026-11-07`), the person picks on the page. Read those picks back at the next iteration. For local files and other hosts without that capability, a button copies choices as text for chat; the person can also answer in chat. The same file supports both paths. Whichever way a pick arrives, write it into the HTML file and the decision log in the same turn, and republish: a pick held only in the host's page storage is lost to the next session and to other agents. These questions are asked here and nowhere else; the owner's page, when the work has one (the `flight-deck` skill), links to them. (The author's preference, as an example to replace with your own: "a person talking to Claude", `2026-11-07`.) The owner may share the page like any other; the decisions stay the owner's. (`2026-09`, a live Q&A product: the agent asked "what if there is a single user and no moderator?", and the answer, moderated by default with a switch to turn it off, went into the build prompt.)
+**Keep questions in the artifact and record every answer durably.** Ask only the few questions evidence cannot decide, about the owner's values, segment or scope. Put each in open decisions with options, a recommendation and its reason.
+
+**Support both saved page picks and choices copied into chat.** Where the host saves viewer picks, let the person pick on the page and read those picks next iteration. Claude.ai artifacts can save picks (read `2026-11-07`). For local files and other hosts without saved picks, provide a button copying choices as text for chat; direct chat answers also work. The same file supports both paths.
+
+**Write each pick into HTML and the decision log immediately.** Do this in the same turn whichever way it arrives, then republish. Host-only page storage loses choices to the next session and other agents.
+
+**Ask these questions only here and keep decisions with the owner.** If work has an owner's page, apply `flight-deck` and link from that page to the questions. (The author's preference, as an example to replace with your own: "a person talking to Claude", `2026-11-07`.) The owner may share the page like any other; the decisions remain theirs.
 
 ### 8. Write the record
 
-The HTML file is the one durable record, in the repository's existing place, else `docs/product/proposal.html`; `references/proposal.md` gives its sections. Where the host publishes pages, publish from this file and republish from it each iteration, keeping both aligned. In Claude, that is a claude.ai artifact (observed `2026-11-07`). Create no Markdown duplicate: a second document restating the first loses decisions. Key screens live inside the record.
+**Keep the HTML file as the one durable proposal record.** Use the repository's existing location, else `docs/product/proposal.html`, and read `references/proposal.md` for its sections, keeping key screens inside the record. Create no Markdown duplicate; restating the record elsewhere loses decisions.
+
+**Publish from the HTML file and republish it each iteration.** Where the host publishes pages, keep the published page aligned with this file; in Claude, publish a claude.ai artifact (observed `2026-11-07`).
 
 | Record | Holds |
 |---|---|
@@ -83,26 +125,28 @@ The HTML file is the one durable record, in the repository's existing place, els
 | The brief (or the product's refined idea) | the accepted intent and use cases |
 | The decision log, if there is one | the choices made, their reasons, what would reopen them |
 
-**After the owner accepts**, update the brief and decision log where needed and link the artifact as evidence. Write no second brief when the accepted proposal already does that job. For a SaaS, apply the `app-lifecycle` skill with the accepted artifact. For a complex change in any product, the next step is a plan that opens with its key assumptions (what the ask means in this product, where a number or a word the owner gave is wrong, what the owner must decide). When the change alters what people see or leaves choices open, that part goes on this page, or a new one in the same form: the key assumptions first, then the screens of the flows that change in high fidelity, then the choices still open, picked as § 7 says. The builders' part stays in the repository's plan: phases, the files each changes, how to test it (a test that would touch production, its users or its data runs only with the owner's go) and acceptance criteria.
+**After acceptance, reuse a proposal that already serves as the brief.** After owner acceptance, update the brief and decision log where needed, linking the artifact as evidence. When the accepted proposal already serves as the brief, keep it as that record. For SaaS, apply `app-lifecycle` with the accepted artifact.
+
+**Plan complex changes next, opening with assumptions the owner must review.** After acceptance, the next step for a complex change in any product is a plan. Explain what the ask means in this product, any wrong number or word the owner supplied, and what needs their decision.
+
+**Put visible changes and open choices on the review page.** Use this page or a new one in the same form, showing key assumptions, high-fidelity screens of changed flows, then choices picked as § 7 describes. Keep the builders' part in the repository's plan: phases, files each changes, tests and acceptance criteria. Name tests touching production, its users or its data; run them only with the owner's go.
 
 ## Running it again, once people have used it
 
-The proposal is run again after real people have tried the product, with what they **did**: what they used, returned to, abandoned and paid for, and where that came from (analytics, payments, support, interviews).
+**Rerun the proposal using what real users did and paid for.** Collect what they used, returned to and abandoned, and record its origin: analytics, payments, support or interviews.
 
-- **Update and republish the same HTML file.** Append evidence, update conclusions. Add each dated observation under the hypothesis it bears on, by ID. Then update each hypothesis's current status (supported, weakened, refuted, untested) and replace the recommendation. Never leave the old recommendation beside the new one: a proposal that only grows leaves the builder choosing between them.
-- **What people say they did counts; what they say they would do is a hypothesis again.**
+- **Update and republish the same HTML file with one current recommendation.** Append evidence, update conclusions, and place each dated observation under the hypothesis it bears on, by ID. Update each hypothesis's status: supported, weakened, refuted or untested. Replace the recommendation; keeping old and new together leaves the builder choosing between them.
+- **Count reported past behaviour as evidence and future intentions as hypotheses.** What people say they did counts, while what they say they would do needs testing again.
 
-## Receipt
-
-(`2026-10-16` to `2026-10-21`, a monitoring product.) Competitor and market research over three days led to a first-version spec the owner reviewed (`2026-10-18`), then a prototype of every screen on simulated data, then the build. A pre-order test was dropped for a narrower first version that works. No tickets anywhere: the reviewed artifact was the unit of work.
-
-(`2026-11-07`, the author dropped the separate prototype: "building an app like the first version that works is like what? A few hours." Screens "perhaps with some dynamic elements, perhaps clickable" in one artifact with the research and the decisions are enough, and the plan for a complex change grows the same page.)
+Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 
-The owner can say where each claim came from, saw the key screens before any plan, made the open decisions on the page or in the chat, and was asked only what they alone could answer; they know which hypothesis the first users will test and what result would change the plan.
+**Confirm the owner knows claim sources and the hypothesis first users test.** They saw key screens before planning, chose on the page or in chat, answered only questions they could decide, and know what result changes the plan.
 
 ## Files
+
+**Read the proposal sections when writing or updating the record.**
 
 | File | Holds | Read when |
 |---|---|---|

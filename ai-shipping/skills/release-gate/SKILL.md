@@ -5,24 +5,44 @@ description: "Before 'push it', 'ship it', a deploy, release or go-live, or call
 
 # Release gate — how a change ships
 
-A release is a decision: **the owner says go; the agent supplies the evidence.** This skill is what the evidence has to be at each moment of shipping, how a promotion is done, and how to prove afterwards that the build serving is the one that was reviewed.
+**Supply release evidence and get the owner's go.** This skill defines the evidence needed at each shipping step, the promotion procedure and how to prove the reviewed build serves.
 
-The rules come from two kinds of product, named here only by kind. **The web-app half** — the bars, the preview, the promotion checklist, go-live, the verify probes, Netlify's edge — was learned on Next.js (App Router) + Supabase + Clerk + Netlify, with Vitest and Playwright, by several products (a live Q&A product, a monitoring product with worker boxes and edge workers beside its web app, and others). **The client+backend half** — any release as one logged checklist, the backend before the client, artifacts and store listings, issues — was learned on a remote-control product: a relay service with a web client, and an editor extension with desktop installers that drives a CLI agent (`references/runbook.md`). Each rule states its principle first and the stack's mechanism second; on another stack, keep the principle and swap the mechanism. **The product's own instructions come first**: where its agent instructions or release doc name the branches, the gate, the backlog or the record files, follow them. What follows is the default where they say nothing.
+**Follow the product's instructions and adapt mechanisms to its stack.** Use its named branches, gate, backlog and record files, taking these rules as defaults where its instructions or release doc say nothing. Keep each principle when replacing a stack-specific mechanism.
 
 ## Two branches, named once
 
-- The **product branch** (`<product>`) is where stage work lands.
-- The **production branch** (`<product>-prod`) is what the host deploys to production. It moves only by fast-forward, after the local gate, the independent review and the owner's **go**.
+**Name the product and production branches in the release doc.** Write their real names there at the first push, and nowhere else.
 
-Write the real names into the product's release doc at the first push, and nowhere else. **Until the production branch exists, the host deploys the product branch itself, so every push to it is a deploy.** How branches map to environments is the `environments` skill.
+- **Land stage work on the product branch.** Its default name is `<product>`.
+- **Move the production branch only by fast-forward after release approval.** The host deploys this branch to production, with `<product>-prod` as its default name. Require the local gate, independent review and owner's go first.
 
-**A host that deploys by CLI upload deploys the working tree, not a commit.** With `railway up` and its like, the upload is the push: the review round closes before it, and the upload runs from a clean worktree of the reviewed commit, never a tree with edits in it. Name the target on the command (`railway up --ci -p <project> -e <environment> -s <service>`): a bare `railway up` in an unlinked folder offers to create a new project. (`2026-11-01`, an evals product's first deploy: this skill and `environments` both assumed a host that builds from a git branch.) **Stamp every upload with its commit** (`railway up --message <commit>`, recorded as the deployment's `meta.cliMessage`): an upload records no commit and gets its own snapshot id, so without the stamp nothing shows that the web app and a worker run the same tree. Scripts that read Railway's state must allow for two more things: a stopped deployment stays in `activeDeployments` with status `SUCCESS` and `deploymentStopped: true`, and reading `environmentStagedChanges` creates an empty staged record (`{ patch: {} }`), so a "nothing staged" check ignores an empty patch. (`2026-11-03`, an evals product's worker stop and start script: each found only by running it.)
+**Treat product-branch pushes as deploys until the production branch exists.** Before then, the host deploys the product branch itself; apply the `environments` skill for branch-to-environment mapping.
+
+**Review a CLI upload before sending its clean working tree.** Hosts using `railway up` and similar commands upload the tree rather than a commit. Treat the upload as the push: close the review round first and upload a clean worktree of the reviewed commit. Name the target: `railway up --ci -p <project> -e <environment> -s <service>`. Bare `railway up` in an unlinked folder offers to create a project.
+
+**Stamp every upload with its commit and check provider state carefully.** Use `railway up --message <commit>` so the deployment records its commit as `meta.cliMessage`. Railway uploads otherwise have a snapshot id without a commit, preventing comparison of web and worker trees (observed `2026-11-03`). State-reading scripts must account for these behaviours (Railway, observed `2026-11-03`):
+
+- **Exclude stopped deployments when checking what is running.** A stopped deployment remains in `activeDeployments` with status `SUCCESS` and `deploymentStopped: true`.
+- **Ignore empty patches when checking for staged changes.** Reading `environmentStagedChanges` creates an empty staged record, `{ patch: {} }`.
 
 ## The product's records
 
-Whatever your product calls them, this skill means: the **plan** (its stages, each with a done-when, and the one current status); the **backlog** (deferred work, each entry with its reason and the trigger that reopens it); the **coverage map** (what was verified, by which run — `test-harness`); the **integrations doc** (each provider's dashboard configuration, with screenshots); the **environments doc** (which deployment uses which database, identity instance and keys, and a dated log of environment events); the **release history** (one dated section per release). `gate`, `smoke -- <url>`, `visual` and `agents:live` are the script names this skill and `test-harness` suggest — call yours what you like.
+**Keep the release's evidence in the product's existing records.** Use the following meanings even when your product gives the records different names:
+
+| Record | Holds |
+|---|---|
+| Plan | Stages, each with a done-when, and the one current status |
+| Backlog | Deferred work, each with its reason and the trigger that reopens it |
+| Coverage map | What was verified, by which run (`test-harness`) |
+| Integrations doc | Each provider's dashboard configuration, with screenshots |
+| Environments doc | Which deployment uses which database, identity instance and keys, plus a dated environment-event log |
+| Release history | One dated section per release |
+
+The suggested script names are `gate`, `smoke -- <url>`, `visual` and `agents:live`, shared with `test-harness`. Use your product's names.
 
 ## Three moments, three bars
+
+**Apply the bar for the shipping moment you are at.** Stage completion, a deploying push and a production promotion owe different evidence.
 
 | Moment | What it owes |
 |---|---|
@@ -32,91 +52,124 @@ Whatever your product calls them, this skill means: the **plan** (its stages, ea
 
 ## What counts as evidence
 
-- **Read the exit code from the log, never the notification.** A background wrapper can report exit 0 while the command inside it failed; the wrapper's code is not the command's. (`2026-09-17`, a visual sweep's log ended `VISUAL_EXIT=1` under an exit-0 notification.)
-- **An inherited report is a claim, not evidence.** Re-run the gate yourself before repeating a count, and take the release subject from git, not prose. (`2026-09-16`, a verified-sounding handoff missed unapplied production migrations.)
-- **The coverage map is written by whoever ran the gate, and by nobody else.** A delegated builder whose sandbox cannot reach Postgres or a browser has no passing gate to report. Read every line a delegated stage adds and rewrite the evidence from your own run, not by editing its numbers. (`2026-09-16` and `2026-09-17`, blocked builder runs were reported in the coordinator's name with invented counts.) The map's format is in `test-harness`.
-- **A delegated diff is unreviewed code.** Read what comes back before believing it; the review applies to it like any other change. **What never delegates:** deciding what the product should do, accepting or rejecting a review finding, anything that touches a real system (development included: a deploy, a migration on any database, a worker and its secrets), and the judgement that a stage is actually done (`delegation`, `codex-agents`).
-- **What was left out is stated, not hidden.** A precondition the owner waives is recorded as waived, never ticked.
-- **A caveat is a claim about the world, and gets checked like one.** Before saying something has not happened, has not been tested or still needs doing, ask where the evidence would live if it had, and look. A caveat feels like humility, so it slips past the verify-before-you-state-it reflex — and the ones that ask the owner to do work cost the owner's time when they are wrong. (`2026-08-25`, twice in one session: "never fired on a schedule" with nineteen scheduled runs on disk, and "still needs a live connect" with the token already saved.)
-- **The gate is the exit code, not the printed counts** — a run can print every test passed and still exit 1 (`test-harness`).
+**Check evidence at its source before repeating a release claim.** Reports, counts and caveats all need verification.
+
+- **Read the command's exit code from its log.** A background wrapper can report exit 0 when its inner command failed, so read that command's code rather than the notification.
+- **Rerun inherited checks and take the release subject from git.** An inherited report is a claim, so run the gate yourself before repeating a count.
+- **Let only the gate runner write its coverage evidence.** A delegated sandbox without Postgres or browser access has no passing gate to report. Read every line the delegate adds and rewrite evidence from your own run, rather than editing its numbers. Apply `test-harness` for the map's format.
+- **Read delegated diffs and give them independent review.** They arrive as unreviewed code. Keep product decisions, review-finding acceptance and stage-completion judgement with you. Also keep every real-system action: deploys, migrations on any database, workers and secrets, including development. Apply `delegation` and `codex-agents` for these boundaries.
+- **Record waived preconditions as waived.** State what was left out; never tick a waived item as completed.
+- **Verify caveats before asking the owner to act on them.** Before saying something has not happened, was not tested or still needs doing, find where its evidence would live and look. Caveats can sound humble enough to escape verification, yet wrong ones still cost the owner's time.
+- **Use the gate's exit code to judge its result.** Printed passing counts can accompany exit 1 (`test-harness`).
 
 ## The independent review — mandatory at every release
 
-**Before every push to a branch that deploys, and again at promotion to production, however green the gate and however small the change.** The reviewer is a fresh session that never saw the build, chosen as the `independent-review` skill says: the one the product's agent instructions or release doc name, when it can run the way that skill requires (when it can't, use its recorded fallback if one can, otherwise the wrapper's reviewer, without asking; if no other family can run, a fresh session of the builder's family; the report names the actual reviewer and why); with none named, Grok when the Grok CLI is installed (its newest model, at its highest reasoning effort), otherwise a fresh headless Claude Code session (the wrapper's fallback), read-only, with no memory carried over, and with neither CLI a fresh read-only session of the agent you are using, by hand; never the building thread, resumed or forked. It reads the unreleased diff **plus the working tree**, un-steered: no checklist, no earlier findings, no argument for the design. The subject is computed from git — round 1 the whole unreleased range, later rounds only what changed since the last, with the rest as context. Fix, re-run the gate **yourself**, review again, until a round produces **no INTRODUCED finding above Low and no High or Critical of any age is open**. Pre-existing findings go to the backlog with a reason and a revisit trigger; High and Critical are fixed now regardless of age. **Only the tools are optional; the review never is.** Running, scoping and triaging a round — the wrapper, the brief, a round that came back too short, severity, the price of a fix, what a commit and a push mean for a round — is the `independent-review` skill. Read it before any round.
+**Review before every deploying push and again before production promotion.** Apply this however small the change and however green the gate. Before every round, read and apply `independent-review` for the wrapper, brief, scope, triage, short reports, severity, fix costs, and commit/push effects.
+
+**Select a fresh reviewer using the product's recorded choice first.** The session must never have seen the build; choose it in this order:
+
+1. **Use the product's named reviewer when it meets review requirements.** Take the choice from its agent instructions or release doc, checking that it can run as `independent-review` requires. If it cannot, use its recorded fallback when that can, otherwise the wrapper's reviewer without asking. If no other family can run, use a fresh session of the builder's family. The report names the actual reviewer and why.
+2. **Default to Grok when no reviewer is named.** Use the installed Grok CLI's newest model at its highest reasoning effort, otherwise fresh headless Claude Code, the wrapper's fallback.
+3. **Review manually in a fresh session when neither CLI exists.** Use a fresh read-only session of the agent you are using, since the tools are optional and review is mandatory.
+
+**Keep the review read-only, fresh and unsteered.** Start without carried-over memory, using a fresh session rather than resuming or forking the building thread. Supply the unreleased diff plus working tree, without a checklist, earlier findings or an argument for the design.
+
+**Compute review subjects from git and repeat until the bar holds.** Cover the whole unreleased range in round one, then only changes since the last round, with everything else as context. Fix findings, rerun the gate yourself, then review again. Stop only when the round has no INTRODUCED finding above Low and no High or Critical of any age remains open. Put pre-existing findings in the backlog with a reason and revisit trigger. Fix High and Critical now, regardless of age.
 
 ## Static audits — proposed, never run unasked
 
-At every release the agent **proposes** the `security-audit-static` and `performance-audit-static` skills on the release's changes, and a whole-repository pass only on the first release, after a large refactor, or when the owner asks. They are steered passes **beside** the independent review, never instead of it. Their reports go under a gitignored `reports/` (a security report does not belong in the repository's history); what they find is fixed or in the backlog, and a pass the owner declines is recorded as declined. The exact ranges are in `references/checklist.md`.
+**Propose static audits at each release and wait for the request.** Propose `security-audit-static` and `performance-audit-static` on the release's changes. Propose a whole-repository pass only for the first release, after a large refactor, or when the owner asks. Run these steered passes beside the independent review rather than using them to replace it. Keep reports under gitignored `reports/` so security reports stay out of repository history. Fix findings or backlog them, and record declined passes as declined. Exact ranges are in `references/checklist.md`.
 
-**In a product whose docs are written in the change and whose coverage map is written by whoever ran the gate**, the documentation skills of `ai-shipping` are used for three things only: their document definitions (`shipping-artifacts`), the two static audits, and the `check` modes of the `document-app` and `derive-tests` skills, which write nothing and list every place docs, coverage map and code disagree. **Never their writing modes**: `document-app` and `derive-tests` without `check` rewrite the docs and the coverage map from the code, and `ship-check` does both, rewrites the agent instructions and runs its own review. A recommendation from an audit to run one is declined. If the owner asks for one by name, say what it would overwrite and offer the release path here before running it.
+**Use documentation checks without overwriting records maintained during the change.** This restriction applies when docs are written with the change and coverage evidence belongs to whoever ran the gate. In that product, use `ai-shipping` documentation skills only for:
+
+- Document definitions from `shipping-artifacts`.
+- The two static audits above.
+- `check` modes of `document-app` and `derive-tests`: they write nothing and list every disagreement among docs, coverage and code.
+
+**For records maintained with changes, decline audit recommendations to rewrite them.** Without `check`, `document-app` and `derive-tests` rewrite docs and coverage from code. `ship-check` also rewrites agent instructions and runs its own review. Decline an audit's recommendation to run them. If the owner explicitly names one, explain what it would overwrite and offer this release path before running it.
 
 ## Migrations: never rely on a push to apply them, or not to
 
-Which case you are in is a setting, so the release doc names it, with the date it was read:
+**Read migration integration settings and record them with the read date.** The release doc must say which case applies:
 
-- **The push applies nothing to the database.** The host builds and ships code; the production database is untouched, and nothing warns you. Code that calls a function production does not have is a `500` on every affected page. (`2026-09-16`, three migrations were absent from production through a handoff that called the release verified.)
-- **The push also applies migrations**, when the database provider's git integration deploys on push to the production branch — on Supabase, its GitHub integration with *Deploy to production* on applies new migration files when that branch is pushed or merged (Supabase's docs, read 2026-10-25). The build and the migration run then start together with nothing ordering them, and the provider takes every file in the migrations directory.
+- **Apply migrations yourself when the push only ships code.** Production's database remains untouched without warning. Calling a missing database function produces a `500` on every affected page.
+- **Account for automatic migrations when the integration deploys on push.** Supabase's GitHub integration applies new files when its production branch is pushed or merged with *Deploy to production* enabled (read `2026-10-25`). The build and migrations start together without ordering, and the provider takes every file in the migrations directory.
 
-**How to tell:** read the integration's settings in the provider's dashboard (on Supabase: the GitHub integration under the project's integrations — its production branch and *Deploy to production*), and look at the production branch's commit checks for the provider's run. **Unread means on.** (`2026-10-24`, a monitoring product: every push to its production branch drew the provider's check against the production project, and whether that run applied migrations was a setting nobody had read.)
+**Treat unread migration settings as enabled and inspect them before promotion.** Read the provider dashboard's integration settings and the production branch's provider commit checks. On Supabase, check the project's GitHub integration, its production branch and *Deploy to production*.
 
-**Either way, one procedure:** before the go, read production's migration ledger and dry-run what is pending; after the go, apply it by CLI **before** the push, and read the ledger again, so the push finds nothing pending and nothing races the build. A file you do not intend to run never sits in the migrations directory. **Reach production through its connection string only** (`--db-url` on the Supabase CLI), and never link the CLI: development is reached by its own connection string too. (`2026-10-23`, a monitoring product: a review round observed `db push --linked --project-ref <production ref>` write to the linked project. On CLI 2.122.0, read 2026-10-25, a probe with dummy refs saw the typed ref used for the first request, so the precedence of that pair is not something to rely on across versions; a connection string names one database on every version.) The ledger mechanics are `supabase-production`; the window where deployed code meets a newly applied schema is `environments`.
+**Apply pending migrations by CLI before pushing after the owner's go.** Before the go, read production's ledger and dry-run pending migrations. After the go, apply them before the push and reread the ledger, leaving nothing pending to race the build. Keep files you do not intend to run out of the migrations directory.
+
+**Use each database's connection string and keep the CLI unlinked.** Reach production through `--db-url` on the Supabase CLI; use development's own connection string for development. Avoid `db push --linked --project-ref <production ref>`: precedence is not reliable across versions. A dummy-ref probe used the typed ref for its first request (Supabase CLI 2.122.0, read `2026-10-25`). A connection string names one database across versions. Apply `supabase-production` for the ledger and `environments` for the window where deployed code meets the new schema.
 
 ## The owner's preview
 
-When a stage, or any change a person would see, is ready — the gate green on your own run, the independent review clean or running, and new or changed screens past the `ui-design` skill's walkthrough, rendered pass and screenshot critique, and its scored audit where that skill calls for one — send the owner **a link and a short list of what to try**, including the look review. Ten minutes of the owner using the product finds what reading code does not; the owner's time is best spent there, not on code review. (`2026-10-22`, a monitoring product: through a tunnel to `next dev`, its owner found six problems no review had — placeholder examples naming the owner's own app, guessed defaults such as `/api/health` and `$.db.ok` prefilled as if they were real, both free-tier locations in Europe, an image size limit, an accent colour that did nothing visible, and a switch for a feature not built yet.)
+**Send a preview link and actions once the change is ready.** This applies to a stage or any change a person would see. First run a green gate yourself, with the independent review either clean or running. Apply `ui-design` to new or changed screens: walkthrough, rendered pass, screenshot critique and its scored audit where required. Include a look review in the actions, since the owner finds things by using the product that reading code misses.
 
-- **The list:** the key user flows the change touches, each an action and what should happen ("Upload a 6 MB photo as the logo: the page shows it sharp"), then anything known to be missing or not verified, and what isn't built yet with the stage that brings it, so the look is not spent on it. (`2026-11-03`, an evals product's owner, meeting a placeholder landing: "Did you create legal pages, landing page …?")
-- **The link:** the deployed development URL when hosting exists and the change is deployed there; otherwise, or to try something before it deploys, a Cloudflare quick tunnel to your `next dev`. The tunnel's address is public — development only, the link to the owner and nowhere else, tunnel and dev server stopped when the owner is done (`environments`, `references/environments-and-branches.md § Showing development to the owner`).
-- **What the owner finds is fixed within the same stage**, and the fix is reviewed like any other change. A stage that changes what people see is not done until the owner has looked. Where a stage's done-when already names an owner click-through, this preview is how it is asked for: one link and one list, not a second request.
-- It does **not** replace the exploratory pass at a promotion, which looks at every screen and state; the preview looks at what the stage changed.
-- **"Ready to test" means installed on every surface the owner holds, with nothing for the owner to do first.** Where a product has several surfaces — a site that serves the latest push, an extension or app that runs the last *installed* build, a phone that loads the last *pushed* bundle — they diverge silently. Before saying ready: the gate green on your own run, the change committed, every surface the owner uses rebuilt and reinstalled or pushed, and the message says which surfaces carry what and which need a reload or a restart. Finish the batch, or hand off what is genuinely there and name its edges. (`2026-08-19`, the remote-control product: the owner tested two fixes against the previous night's build and had to ask whether they had been reinstalled.) The delegation side of the same rule is in `delegation`.
+- **List changed flows as actions with their expected results.** For example: "Upload a 6 MB photo as the logo: the page shows it sharp." Then state missing or unverified work and unbuilt features, naming the stage that brings each. This keeps the owner's review focused on what exists.
+- **Link deployed development or use a temporary development tunnel.** Prefer the deployed development URL when hosting exists and contains the change. Otherwise, or before deployment, use a Cloudflare quick tunnel to `next dev`. Its address is public: use development only, share the link only with the owner, then stop tunnel and server when done. Apply `environments`, `references/environments-and-branches.md § Showing development to the owner`.
+- **Fix preview findings within the same stage and review the fixes.** A visible-change stage is not done until the owner has looked. If its done-when already requires owner click-through, this one link and list fulfil the request; do not ask twice.
+- **Run the full exploratory pass at promotion as well.** It examines every screen and state; the preview covers only the stage's changes.
+- **Install every owner-facing surface before calling the change ready to test.** Nothing should need doing first. Sites serve the latest push, installed apps or extensions their last installed build, and phones their last pushed bundle. These surfaces can diverge silently, so require your own green gate, a committed change, and every owner-used surface rebuilt and reinstalled or pushed. Say which surfaces carry which build and which need a reload or restart. Finish the batch, or hand off what exists with its edges stated. Apply `delegation` for the handoff side of this rule.
 
 ## Verify — the build serving is the one you reviewed
 
-The checks after a promotion, in principle; the commands and the record are in `references/checklist.md § 4`.
+**Verify the live build after promotion before tagging the release.** Commands and the record are in `references/checklist.md § 4`.
 
-- **First prove the new build is the one serving.** A failed build keeps the previous deploy live while the release looks landed, so every later check could pass against the old code. Read off the production response something this release both **adds** and **removes**: an addition alone can be served by a cache holding two builds; a removal cannot. Choose it from the diff, not from the landing page — content-hashed assets mean a page whose code the release did not touch serves identical bytes. Count with `grep -o … | wc -l`, never `grep -c`, which counts lines, and a production document is one line. A release that changes no served byte is **unprobeable by content**: write that down rather than quoting a generic `200`, and read the framework's build id instead, which every build replaces. (`2026-09-19` and `2026-09-21`, a live Q&A product: a chunk-hash probe that could never move, then a removal probe that could never reach zero.)
-- **Then prove code and schema agree.** The ledger was read *before* the promotion, so it cannot prove the deployed code met the deployed schema. One read through an unguessable id that cannot exist settles it: a public route answering **404** with the product's own not-found went to the database and back. Anything else has not proved it: the probe is recorded as failed, and its cause is found from the error code in the body, not the status, before any production write (checklist § 4). One request, no account, no write — on every entry point that reads through the same function.
-- **A push deploys one runtime; every other keeps its last bundle.** Workers, edge hosts and worker boxes that the host does not build on push run whatever they were last deployed with. After every push and every promotion, read each runtime's build identity against the tree and redeploy the ones behind. **Decide which are behind from each bundle's inputs** — a bundler's metafile against the diff since that runtime's last deploy — **never from which folders changed**: a bundle holds whatever its entry imports. **Deploy only from a clean checkout at the release branch's tip**, and make every deploy and status command refuse anything else: a promotion does not move an operator's checkout, and a "current" check compares only against the tree it runs from. (`2026-10-23` and `2026-10-24`, a monitoring product: its probes ran a build without a new check type for a day while every monitor of that type alerted; a release that changed a shared module but no probe folder left every box behind; and a deploy from a detached operator checkout shipped the previous release while its status read current.)
-- **Behind a CDN, prove on a path it never caches**: a cached path can be the CDN's copy of the old origin's answer. When a release moves an origin, deploy the new target and read it ready **before** repointing DNS. (`2026-10-24`, a monitoring product moving its status-page host behind Cloudflare: review rounds found its written procedure repointing DNS before the new host read ready, and calling the move done on a script the CDN could serve from cache.)
-- **A deploy can change behaviour nothing in your diff touched.** Re-verify the hardening controls after every deploy — the local gate has no edge. An unpinned host adapter is an untracked release input; when behaviour moves without a diff, ask about versions before changing code. **A transient control is worse than an absent one**, because the passing run is the one you quote. (`2026-09-17` and `2026-09-18`, identical edge configuration enforced, stopped enforcing, then enforced again.)
-- **The smoke runs last**, because tripping the edge limits refuses your own address for a minute.
-- **An unauthenticated smoke cannot see the authenticated mile.** After a deploy that touches sign-in, sessions, ownership or entitlements, run an authenticated canary with dedicated canary credentials. And when development runs a different identity instance from production, green on development says nothing about production's sign-in — say so.
-- **For an installed client, read the installation, not the rollout's summary**: the same removal probe, run on the installed bundle (`references/runbook.md § E`).
-- **Tag after the checks, never before.**
+- **First prove the new build is the one serving.** A failed build can leave the old deploy serving, letting checks pass against old code. Find something the diff adds and something it removes, then check both in production's response. A cache holding two builds can serve an addition, while a removal rules that out. Choose probes from the diff, since an untouched page's content-hashed assets can stay identical. Count occurrences with `grep -o … | wc -l`. Avoid `grep -c`: it counts lines, and a production document is one line. If no served byte changes, record "unprobeable by content" and read the framework's build id, replaced on every build. A generic `200` cannot establish build identity.
+- **Prove deployed code and schema agree through every affected entry point.** A ledger read before promotion cannot show that deployed code met deployed schema. Request an unguessable id that cannot exist through a public route. Require **404** with the product's own not-found to show a database round trip. Use one request, no account and no write, on every entry point reading through the same function. Record any other answer as a failed probe. Find its cause from the body's error code, rather than status, before any production write (checklist § 4).
+- **Check every runtime after every push and promotion.** A push deploys one runtime; workers, edge hosts and worker boxes retain their last deployed bundles. Compare each build identity with the tree and redeploy runtimes that are behind. Determine that from bundle inputs: compare a bundler's metafile with the diff since that runtime's last deploy. Folder changes cannot establish this; bundles include whatever their entries import.
+- **Deploy runtimes only from a clean checkout at the release tip.** Make every deploy and status command refuse any other tree. A promotion does not move an operator's checkout, and "current" compares only with the tree running the check.
+- **Verify CDN-backed releases on a path the CDN never caches.** Cached responses can come from the old origin. When moving an origin, deploy the new target and read it ready before repointing DNS.
+- **Reverify hardening controls after every deploy.** The local gate has no edge. An unpinned host adapter is an untracked release input. When behaviour changes without a diff, check versions before changing code. Intermittent enforcement is worse than an absent control because you may quote its passing run.
+- **Run smoke last, after checks that trip edge limits.** Edge limits can refuse your own address for a minute.
+- **Run an authenticated canary when sign-in or access behaviour changes.** Use dedicated canary credentials after deploys touching sign-in, sessions, ownership or entitlements, since unauthenticated smoke cannot cover those paths. When development uses a different identity instance, state that its green run establishes nothing about production sign-in.
+- **Verify installed clients on their installed bundles.** Run the same removal probe on the installation, rather than trusting rollout summaries (`references/runbook.md § E`).
+- **Tag only after the verification checks pass.** Record the results with the release.
 
 ## Any release, not only a web deploy
 
-When a release is packages, an extension, installers, store listings, or a client and the backend it talks to, run it as **one ordered list, each step with its command, its pass and its evidence, logged in the release's plan; a skip written down with its reason; the list fixed in the same pass when it proves wrong** (`references/runbook.md`). The rules that bind at the moment:
+**Run each release as one ordered, logged checklist.** This includes packages, extensions, installers, store listings, and clients with backends. Log each step's command, pass and evidence in the release plan (`references/runbook.md`). Record every skip with its reason; correct a faulty list in the same pass.
 
-- **If a script exists for a step, use the script**; a reinvented step is subtly wrong (a hand-rolled release once attached a staging build to the public release). On the first manual release, record the commands and evidence in the product's release doc; on the second, script them and route the command from the entry file (apply the `agent-instructions` skill). The script is run only after the owner's clear go, which authorizes that one release (`references/runbook.md`); the doc names the steps the owner keeps. **And the script refuses every option it does not read**, names no target by default, and never echoes a flag's value: an ignored `--dry-run` deploys for real.
-- **The backend ships first**: a client that relies on new backend behaviour is published only once that backend is in *production*; every backend release stays usable against the last published client.
-- **A release is finished only when every artifact is attached** — read the asset list.
-- **Publishing is not availability**: poll the store for the version, never infer from a timestamp, and never announce a listing as live.
-- **Nothing unreleased is described in the present tense**, and **an issue is done only once its fix is installable** from the store its reporter uses.
-- **A leak check runs on the outgoing ref**, never a bare diff, when a public repository must not carry something; then read what you push.
-- **A generated listing is never hand-edited**; a test holds it equal to its generator.
-- **A contributor's commits keep their authorship.**
-- **The branch a plugin or skill marketplace serves is production.** Where a pack's source names a folder and no ref, installs read that branch's head (Claude Code, observed `2026-11-07`), so a push to it is a release, whatever the tags say. Work for the next release lives on its own branch, and the served branch moves to the reviewed commit only at the go, so the tag names its head.
-
-(`2026-11-05`, a VS Code extension: one command checks the branch, runs every gate and checks the tag is free, then packages, pushes, waits for CI on the pushed commit, tags, publishes the release with its changelog section and installs it, with `--dry-run` and a skip per gate; the version bump, the changelog and the second store's publish stay the owner's. A live Q&A product's release doc lists its no-go checks with their commands, a go/no-go paragraph ("Silence is not go"), the promotion commands with the production refs spelled out, and how to prove the release serves. A skipped gate is a recorded waiver. `2026-11-07`, a skill collection: two commits pushed after a release's tag reached auto-updated installs within the hour, a skill rename among them, before their review had finished.)
+- **Use the existing release script for every step it encodes.** Reinventing a step can change what ships. On the first manual release, record commands and evidence in the release doc. On the second, script them and route the command from the entry file; apply `agent-instructions`. Run the script only after the owner's clear go, authorizing that one release (`references/runbook.md`). The doc names the steps the owner keeps.
+- **Make release scripts reject unread options and require an explicit target.** Never echo a flag's value. An ignored `--dry-run` deploys for real.
+- **Ship new backend behaviour to production before publishing dependent clients.** Keep every backend release usable with the last published client.
+- **Read the asset list before calling the release finished.** Check that every artifact is attached to the release before declaring it finished.
+- **Poll the store for the published version before announcing availability.** A publishing timestamp is insufficient, so describe a listing as live only once it serves the version.
+- **Describe unreleased work as future and close issues only when installable.** The fix must be installable from the reporter's store before its issue is done.
+- **Leak-check the outgoing ref and read what you push.** When public repositories must exclude content, check the whole ref rather than a bare diff.
+- **Generate listings and test their equality to their generator.** Make changes through the generator rather than hand-editing generated listings.
+- **Keep contributors' authorship on their commits.** Preserve it through the release.
+- **Treat the branch a marketplace serves as production.** When a pack source names a folder without a ref, installs read the branch's head (Claude Code, observed `2026-11-07`). Pushing there is a release regardless of tags. Keep next-release work on another branch. Move the served branch to the reviewed commit only at the go, with the tag naming its head.
 
 ## Never
 
-Force-push the production branch · promote with a skipped suite, a stale doc, or an unrun local gate · run any authenticated smoke with a real user's credentials · test against production data · apply a migration through an MCP server or the dashboard · link the database CLI to any project · deploy a runtime from a checkout that is not the release tip · hand-roll a step a release script encodes · infer a go from an ambiguous reply · announce a store listing as live before it serves the version.
+**Use the release procedure and resolve blockers before proceeding.** These guardrails also apply:
+
+- **Fast-forward production and keep its history intact.** Never force-push the production branch.
+- **Resolve skipped suites, stale docs and unrun gates before promotion.** Record waivers honestly; do not promote with a skipped suite, stale doc or unrun local gate.
+- **Use dedicated canary credentials and development test data.** Never run authenticated smoke with real-user credentials or test against production data.
+- **Apply migrations by CLI connection string with the CLI unlinked.** Never apply through an MCP server or dashboard, or link the database CLI to any project.
+- **Deploy from the release tip and use encoded release steps.** Keep the checkout clean and use the release script rather than hand-rolling its steps.
+- **Get an unambiguous go and confirm store availability.** Ask for clarity on an ambiguous reply. Announce a listing as live only when it serves the version.
 
 ## A promotion, in order
 
-1. The preconditions, every box, with evidence (`references/checklist.md § 1`).
-2. The go/no-go: the checklist, the evidence and one paragraph; the owner answers, in the chat. **Silence is not go** (`§ 2`).
-3. Apply pending migrations by CLI through production's connection string, re-read the ledger, then promote by fast-forward (`§ 3`).
-4. Verify — the build serving, code and schema, every other runtime current — then tag and record (`§ 4`).
+**Finish preconditions, get the go, migrate, promote, verify and record.** Follow the checklist's order:
+
+1. **Complete every precondition with evidence.** Use `references/checklist.md § 1`.
+2. **Post the go/no-go and get the owner's answer in chat.** Include the checklist, evidence and one paragraph (`§ 2`). Silence does not authorize promotion.
+3. **Migrate by production connection string before promoting by fast-forward.** Apply pending migrations through the CLI and reread the ledger (`§ 3`).
+4. **Verify the serving build, schema and runtimes before tagging and recording.** Check that every other runtime is current (`§ 4`).
+
+Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 
-The build serving production is the commit that was reviewed, checked on the live site rather than in the deploy log; the owner said go after the preview; and the checks after the promotion passed.
+**Confirm the reviewed commit serves and post-promotion checks passed.** The owner gave the go after the preview, and the live site confirms build identity beyond the deploy log.
 
 ## Files
+
+**Read the matching checklist or runbook before the release step.**
 
 | File | Holds | Read when |
 |---|---|---|
@@ -125,4 +178,14 @@ The build serving production is the commit that was reviewed, checked on the liv
 | `references/runbook.md` | any release as one logged checklist: the scripts it calls, the candidate (clean trees, live checks, the review, pins), docs and bookkeeping (staleness, the docs round, the backlog sweep), the backend first, the client release (leak check, the script, artifacts, stores), after the stores (deferred deletions, installations in the field, issues, contributors) | releasing a package, an extension, installers or a store listing; a client and its backend; any release with more than one artifact; writing an operator script |
 | `references/netlify.md` | build settings and the adapter; how Netlify's edge handles a request (firewall, WAF, rate limiting, functions); edge-refused Server Actions; the client IP; `after()`; redirects that keep the query; Cloudflare as DNS only | writing or changing an edge rule; reading a client IP; a deploy that behaves differently with no diff; any redirect on Netlify |
 
-Related skills: `independent-review` (the review loop) · `test-harness` (the gate, the harnesses, the coverage map, the script contract) · `environments` (branches, variables, the migrations window, the tunnel, incidents) · `supabase-production` (the migration ledger) · `clerk-production` (the production instance) · `agent-instructions` (the pass over the agent instructions at each release) · `app-lifecycle` (where publish and go-live sit on the path) · `ui-design` (what a screen may claim; what the exploratory pass looks at) · `shipping-artifacts` (the core docs).
+Related skills:
+
+- `independent-review` (the review loop)
+- `test-harness` (the gate, the harnesses, the coverage map, the script contract)
+- `environments` (branches, variables, the migrations window, the tunnel, incidents)
+- `supabase-production` (the migration ledger)
+- `clerk-production` (the production instance)
+- `agent-instructions` (the pass over the agent instructions at each release)
+- `app-lifecycle` (where publish and go-live sit on the path)
+- `ui-design` (what a screen may claim; what the exploratory pass looks at)
+- `shipping-artifacts` (the core docs)
