@@ -19,8 +19,11 @@ the human to click yes, which is worse than no guard. So:
   - command rules are matched against what the shell actually runs, with heredoc bodies
     cut out first (text written to a file is not a command);
   - code rules are matched inside heredoc bodies and inside local scripts the command
-    runs, and they name API calls, not CLI strings (a script that mentions a command in
-    a docstring is not running it).
+    runs by path (`python cleanup.py`), and they name API calls, not CLI strings (a script
+    that mentions a command in a docstring is not running it).
+  - not seen, among others: `python -c` / `node -e` code, a script run after `cd`,
+    `./script`, `python -m`, `uv run x.py`, piped code, a path with spaces. To hold
+    inline code too, also list a code rule's pattern under command_rules.
 
 Modes (CONFIG["mode"], or ONE_WAY_DOORS_MODE):
   ask    print permissionDecision "ask": Claude Code shows the human a prompt, even in
@@ -65,7 +68,7 @@ CONFIG = {
     "reason_suffix": ". Agent: never approve this on the owner's behalf.",
 }
 
-HEREDOC = re.compile(r"<<-?\s*['\"]?(\w+)['\"]?[^\n]*\n.*?\n\s*\1\s*(?:\n|$)", re.S)
+HEREDOC = re.compile(r"<<-?\s*['\"]?(\w+)['\"]?([^\n]*)\n.*?\n\s*\1\s*(?:\n|$)", re.S)
 RUNS_FILE = re.compile(
     r"\b(?:python3?|py|node|bun|deno\s+run)\s+(?:-[\w-]+\s+)*([^\s;&|<>]+\.(?:py|mjs|cjs|js|ts))"
 )
@@ -135,7 +138,8 @@ def main():
     cfg = load_config()
     cwd = payload.get("cwd") or os.getcwd()
     bodies = [m.group(0) for m in HEREDOC.finditer(command)]
-    shell_only = HEREDOC.sub("\n", command)
+    # Keep what follows the delimiter on the opener's line (`<<'EOF' && gh release delete …`): it runs.
+    shell_only = HEREDOC.sub(lambda m: m.group(2) + "\n", command)
 
     hits = [f"{w} [command]" for w in scan(shell_only, cfg["command_rules"])]
     for body in bodies:
@@ -147,9 +151,9 @@ def main():
             continue
         for base in ("", win(cwd), os.getcwd()):
             candidate = os.path.join(base, path) if base else path
-            if os.path.realpath(candidate) == OWN_TESTS:
-                break
             try:
+                if os.path.realpath(candidate) == OWN_TESTS:
+                    break
                 with open(candidate, encoding="utf-8", errors="ignore") as fh:
                     src = fh.read()
             except OSError:

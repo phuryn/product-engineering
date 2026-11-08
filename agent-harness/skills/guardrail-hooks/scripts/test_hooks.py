@@ -35,14 +35,15 @@ def pre_tool_use(command, cwd):
     }
 
 
-def run(script, payload, env=None):
+def run(script, payload, env=None, cwd=None):
     stdin = payload if isinstance(payload, str) else json.dumps(payload)
     full_env = dict(os.environ, **(env or {}))
     for key in ("ONE_WAY_DOORS_CONFIG", "ONE_WAY_DOORS_MODE", "BLOCKED_GIT_EMAILS", "GIT_IDENTITY_HINT"):
         if key not in (env or {}):
             full_env.pop(key, None)
+    # Run where a hook runs, the session's folder, so a project's own cleanup.py is never read.
     p = subprocess.run([sys.executable, script], input=stdin, capture_output=True,
-                       encoding="utf-8", errors="replace", env=full_env)
+                       encoding="utf-8", errors="replace", env=full_env, cwd=cwd or None)
     decision = None
     if p.stdout.strip():
         decision = json.loads(p.stdout)["hookSpecificOutput"]["permissionDecision"]
@@ -71,6 +72,8 @@ def main():
         ("local script calling the delete API asks", "python cleanup.py", None, 0, "ask"),
         ("local script whose docstring mentions a delete passes", "python notes.py", None, 0, None),
         ("the wiring canary asks", "true guard-canary", None, 0, "ask"),
+        ("a delete chained on a heredoc's opener line asks",
+         "cat <<'EOF' && gh release delete v1 --yes\nhello\nEOF", None, 0, "ask"),
         ("a mention of the canary passes", "git log --grep guard-canary", None, 0, None),
         ("another project's test_hooks.py calling the delete API asks", "python webhooks/test_hooks.py", None, 0, "ask"),
         ("this guard's own test runner passes", "python " + os.path.join(HERE, "test_hooks.py"), None, 0, None),
@@ -106,7 +109,7 @@ def main():
 
     for name, command, env, want_code, want_decision in guard_cases:
         payload = command if command.startswith("<<not") else pre_tool_use(command, tmp)
-        code, decision, out, err = run(GUARD, payload, env)
+        code, decision, out, err = run(GUARD, payload, env, tmp)
         check("guard: " + name, code == want_code and decision == want_decision,
               f"exit {code}, decision {decision}, stdout {out!r}, stderr {err!r}")
 

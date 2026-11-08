@@ -54,7 +54,7 @@ Each rule came from a receipt.
 Install for Claude Code:
 
 1. **Copy the scripts into the project or your machine's hooks directory.** Use `.claude/hooks/` for one project, committed, or `~/.claude/hooks/` for every project on your machine; cloud sessions don't read it.
-2. **Replace the example rules and look-alikes, then run the tests until passing.** Edit the copies to use your own one-way doors and expected look-alikes. Run `python .claude/hooks/test_hooks.py`, or `python ~/.claude/hooks/test_hooks.py` for a machine-wide install.
+2. **Replace the example rules and look-alikes, then run the tests until passing.** Edit the copies to use your own one-way doors and expected look-alikes. To hold `-c`/`-e` and echoed code too, also list a code rule's pattern under `command_rules`; it then asks when a command only names the call, such as a grep for it. Run `python .claude/hooks/test_hooks.py`, or `python ~/.claude/hooks/test_hooks.py` for a machine-wide install.
 3. **Wire the hooks in the settings file next to them.** Exec form (`args`) passes the path as one argument with no shell to mangle it:
 
 ```json
@@ -104,7 +104,7 @@ Each rule's origin, the case that taught it, is in `receipts.md` beside this fil
 
 ## How you can tell it worked
 
-The hook asks or blocks on a sample that must trigger and stays silent on look-alikes. The debug log shows it fired in a real session.
+The hook asks or blocks on a sample that must trigger and stays silent on look-alikes. The debug log shows it fired on the canaries in a real session.
 
 ## Files
 
