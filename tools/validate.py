@@ -199,6 +199,24 @@ def check_skill(skill_md):
     if not user_only and len(desc) > MAX_LISTED_EACH:
         errors.append(f"{rel}: an agent can load it, so its description is always in context: "
                       f"{len(desc)} characters (max {MAX_LISTED_EACH})")
+    receipts = skill_md.parent / "receipts.md"
+    if receipts.exists():
+        check_receipts(rel, text, receipts)
+
+
+def check_receipts(rel, text, receipts):
+    """AGENTS.md rule 2: a skill with a receipts.md keeps its incident stories there, each under a rule the
+    skill states in bold. Dates left in the skill are platform facts ("read", "observed", "measured") or a
+    labelled example of the author's taste (rule 6)."""
+    leads = {m.group(1).strip() for m in re.finditer(r"\*\*(.+?)\*\*", text)}
+    for heading in re.findall(r"(?m)^## (.+)$", receipts.read_text(encoding="utf-8")):
+        if heading.strip() not in leads:
+            errors.append(f"{receipts.relative_to(ROOT)}: heading {heading!r} is not a bold rule in SKILL.md "
+                          "(AGENTS.md, rule 2)")
+    for m in re.finditer(r"`20\d\d-\d\d-\d\d`", text):
+        if not re.search(r"\b(read|observed|measured|example)\b|preference", text[max(0, m.start() - 120):m.start()], re.I):
+            errors.append(f"{rel}: {text[max(0, m.start() - 50):m.end()]!r} reads as an incident story; it belongs "
+                          "in receipts.md (AGENTS.md, rule 2)")
 
 
 def check_listing():
