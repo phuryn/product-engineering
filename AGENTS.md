@@ -22,7 +22,7 @@ Agent skills for building and shipping apps with coding agents — Claude Code, 
     - **Then the reason, then the how.** One sentence of why, unless it is obvious. Sentences run about 20 words, none over 30 outside lists, tables and code.
     - **Show a judgement call** with a short example: a quoted good line, or a good and a bad one.
     - **Plain, not slogans.** At most one crafted line per skill; the `work-humanizer` skill lists the tells.
-    - **Bold marks rules only**, not list items or section summaries.
+    - **Bold marks rules only**, not list items or section summaries. A catalog of named patterns (a skill's tells, a review's lenses) is the exception: each pattern's name leads its entry, because the name is what readers recognize and quote. (`2026-11-08`: a rewrite turned `work-humanizer`'s named tells, "Pause-and-point" among them, into imperatives, and `code-review`'s two lenses lost their names.)
     - **A rewrite keeps every rule, scope and qualifier.** Compression is where meaning leaves: review it old against new, and test that agents still follow it. (`2026-11-08`, a pilot on three skills: sentences fell from 25 words on average to 17 and words by 23%, and a blind A/B on 15 tasks scored agents' rule-following 0.952 before and 0.951 after. The review round that followed still found six losses the A/B could not see, among them "the people in question" shortened to "people", and "before the owner" dropped from the check that must come before the owner.)
 
 ## Where each skill came from, and keeping up with it
