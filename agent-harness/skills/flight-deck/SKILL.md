@@ -5,120 +5,103 @@ description: "'What's the status', 'where were we', a progress report or status 
 
 # Flight Deck — surviving your own context window
 
-An agent's memory of *what it is doing* is the first casualty of a long session. Tool output scrolls
-away, context gets summarized, and what remains is a plausible narrative with the operational details
-sanded off. The work keeps running; the agent's model of it quietly goes stale. Then it re-runs a paid
-job it already ran, reports a number from memory, or forgets that something is blocked.
+**Write state down where it cannot be summarized.** In a long session, tool output scrolls away and context becomes a plausible narrative with operational details sanded off. The work keeps running while your model of it goes stale. Then you re-run a paid job, report a number from memory, or forget that something is blocked.
 
-The fix is not a better memory. It is writing state down where it cannot be summarized.
-
-**The flight deck is `STATUS.md`, `LOG.md` and the owner's page.** In any session where the Artifact
-tool exists, build the page in the first pass as an artifact with a database (`capabilities: {db: {}}`)
-from `assets/owner-page.html`, following `references/owner-page.md`; use `OWNER.md` only when the tool
-does not exist. A test run, or a run with nothing for the owner to decide yet, still builds the page: it
-carries the status too, and a test is where the page gets exercised. A scheduled pass with no chat never
-builds or publishes a page: it checks the one its prompt names.
+**The flight deck is `STATUS.md`, `LOG.md` and the owner's page.** When the Artifact tool exists, build the page in the first pass as an artifact with a database (`capabilities: {db: {}}`). Use `assets/owner-page.html`, following `references/owner-page.md`; use `OWNER.md` only when the tool does not exist. A test run, or one with nothing for the owner to decide yet, still builds the page. It carries status too, and a test exercises it. A scheduled pass with no chat never builds or publishes a page; it checks the one its prompt names.
 
 ## The two files (per area, not per repo)
 
-**`STATUS.md` — the instrument panel. Rewritten in place. Only ever describes NOW.**
+**Rewrite `STATUS.md` in place to describe only what is true now.** Never append to it, because a growing status file leaves the reader unsure which line is still true. Use these sections where they earn their place:
 
-Never append to it. A status file that grows is a log wearing a status file's name, and the reader
-cannot tell which line is still true. Sections that earn their place:
+- **Put RESUME first, with the work's location and how to resume.** Name the repository or folder and branch, then the last few sessions that touched it. Give each a date and one-line summary, dropping the oldest. Resume by opening the agent in that folder and having it read `STATUS.md` first. Reopening an old session is the fallback, because its memory is stale.
+- **List RUNNING NOW with process ids, log paths and each wait.** Say what each thing is waiting on.
+- **Keep QUEUED in order so the next task needs no judgement.**
+- **Name why each BLOCKED item is blocked and what unblocks it.**
+- **List HELD work deliberately not shipped and who owes the decision.** The work is finished.
+- **Put questions you cannot answer yourself under AWAITING <person>.**
+- **Keep DONE to one line each, enough to prevent redoing it.**
+- **Record EVIDENCE as measurements with their actual numbers.** See § Write down evidence, not just tasks.
+- **List STANDING RULES a fresh reader would otherwise violate.**
 
-- **RESUME**, first: where the work lives (repository or folder, and branch), the last few sessions
-  that touched it (date and a one-line summary each, the oldest dropping off), and how to resume:
-  open the agent in that folder and have it read `STATUS.md` first. Reopening an old session is the
-  fallback, because its memory is stale. (`2026-11-06`: with several areas in flight, an owner asked
-  for this because finding where a piece of work stood meant hunting through old sessions.)
-- **RUNNING NOW** — with process ids, log paths, and what each thing is waiting on
-- **QUEUED** — in order, so "what is next" is not a judgement call
-- **BLOCKED** — and *why*, and what would unblock it
-- **HELD** — finished work deliberately not shipped yet, and who owes the decision
-- **AWAITING <person>** — the questions you cannot answer yourself
-- **DONE** — one line each, enough to prevent redoing it
-- **EVIDENCE** — measurements with their actual numbers (see below)
-- **STANDING RULES** — the constraints a fresh reader would otherwise violate
+**Use the same sections for work that isn't code.** `references/other-work.md` says how they map.
 
-Work that isn't code uses the same sections; `references/other-work.md` says how they map.
+**Append decisions and their reasoning to `LOG.md`, never rewrite its history.** Include corrections and dead ends. Status answers "where are we"; the log answers "how did we get here, and what did we already rule out". Both are needed, in separate files.
 
-**`LOG.md` — the flight recorder. Append only. Explains WHY.**
-
-Decisions, corrections, dead ends, the reasoning behind a call. Status answers "where are we"; the log
-answers "how did we get here, and what did we already rule out". Both are needed and they are not the
-same file.
-
-Optionally, when the machinery is non-obvious, a committed **how-it-works doc**. Status and log are
-volatile; that one is durable and belongs in version control and in your routing file.
+**Optionally commit a how-it-works doc when the machinery is non-obvious.** Status and log are volatile; this durable doc belongs in version control and your routing file.
 
 ## The owner's page
 
-`STATUS.md` and `LOG.md` are for you. The owner's page is for the person who isn't watching the session (the owner), so they never read the transcript to find out where the work stands or what you need. It holds **only what needs them** (a decision, a go, a task only they can do) under a short status: they open it, answer, save, and you read the answers at your next check-in. It is `STATUS.md`'s AWAITING section made answerable. A proposal's or a plan's open decisions stay on the proposal's own page (the `propose` skill, § 7): the owner's page links to that page and doesn't ask them. Without the Artifact tool it is `OWNER.md`, with the same shape. **Before building it, open `references/owner-page.md` (the data, publishing, the loop) and `assets/owner-page.html` (the page you copy).** (`2026-10-27`: of two sessions that ran this skill the same day, one read only this file, called the page overkill for a test, and built it only when the owner asked for it as an artifact.) The rules below come from a monitoring product built 2026-10-21 to 25, where the owner ran the whole build from such a page.
+**Give the owner a short status and only asks that need them.** `STATUS.md` and `LOG.md` are for you. The page serves someone who isn't watching the session, so they never need the transcript to find the status or what you need. They open it, answer, save, and you read the answers at your next check-in. It makes `STATUS.md`'s AWAITING section answerable. Without the Artifact tool, use `OWNER.md` with the same shape.
 
-**A progress report starts here.** Asked for "where we are", a status report, "what's done and what's next" or a deck presenting the progress, update `STATUS.md` and the owner's page first and project the report from them; a deck is a view of the flight deck, never a separate account of the work. (`2026-11-01`, an evals product: asked for a deck of the progress and open decisions, an agent built slides from nothing, and the owner corrected it: the flight deck is the core way to present where the work stands.)
+**Keep a proposal's or plan's open decisions on the proposal's page.** The owner's page links there and doesn't ask them; apply the `propose` skill, § 7.
 
-**What is on it**
+**Before building it, open `references/owner-page.md` (the data, publishing, the loop) and `assets/owner-page.html` (the page you copy).**
 
-- **At the top, where we are, short:** the phase ("3 of 5") and its milestones with the current one marked, then at most three lines each of what was just built, what's in progress and what's next, and how many things wait on them. Project it from `STATUS.md`, not every detail; a status block nobody reads to the end is no status.
-- **Several areas share one page:** Overview and one tab per area, with a board of 5 to 10 key work items per area, separate from the owner's asks. See `references/owner-page.md` for the data and migration.
-- **Only what needs them:** a decision, a go on a one-way door, or a task only they can do. Never status, receipts, finished work, or anything you could do yourself. (`2026-10-24`: one item asked the owner to create database logins, which the agent then made itself. The owner's reply: "I'm not sure what you need… should I put it where exactly?")
-- **Each item says** what you need, where (the link, the file or the setting), why only they can, your recommendation (preselected), and what happens after they answer. **It carries everything it needs**, never a pointer to the chat: "the curl loop from my message of 1 Nov" was gone two days and a compaction later (`2026-11-03`).
-- **Check every step against the product before it goes on the page.** A checklist sent the owner to open an incident with a button the product doesn't have.
+**A progress report starts here.** Asked for "where we are", a status report, "what's done and what's next" or a progress deck, update `STATUS.md` and the owner's page first. Project the report from them; a deck is a view of the flight deck, never a separate account of the work.
+
+### What is on it
+
+**Project a short status from `STATUS.md`, rather than every detail.** A status block nobody reads to the end is no status.
+
+- **Put the phase and milestones first, marking the current milestone.** For example, "3 of 5". Follow with at most three lines each of what was just built, what's in progress and what's next. Include how many things wait on the owner.
+- **Several areas share one page with Overview and an area tab each.** Give each area a board of 5 to 10 key work items, separate from the owner's asks. See `references/owner-page.md` for the data and migration.
+- **Ask only for a decision, a go or an owner-only task.** A go is for a one-way door. Never put status, receipts, finished work, or anything you could do yourself among the asks.
+- **Each item carries everything needed to answer it.** Say what you need, where (the link, file or setting), why only they can, your preselected recommendation, and what happens after they answer. Never use a pointer to the chat.
+- **Check every step against the product before it goes on the page.**
 - **Never collect a secret.** Name the file or setting the key goes into.
-- **A go typed on the page doesn't clear your harness's permission check for a one-way door.** The page asks; the go is typed in the chat (`2026-10-24`, a production release).
+- **A go typed on the page doesn't clear your harness's permission check for a one-way door.** The page asks; the go is typed in the chat.
 
-**Once you have read an answer, the item and the answer are deleted**, except a gate, which stays until the go is typed in chat: a note on it deletes only the answer. No reply on the page, no "settled" list, nothing showing that their feedback was processed. (`2026-10-24`, the owner: "I don't need answers when something is done." Replies left on finished items had left him not knowing what to do with them.) Work in this order:
+### Reading and consuming answers
 
-1. Record the decision (the product's decision log, `STATUS.md` QUEUED for the work it creates, `LOG.md` for the why, with the answer's id and `at`). An answer whose id and `at` `LOG.md` already holds is not recorded or queued again.
-2. Delete the item and its answer in one write. For a gate, delete only the answer: the gate stays until the go is typed in chat.
-3. Act. On a gate, only once the go is in chat.
-4. Confirm in chat, in one line.
+**Delete the item and answer once you have read the answer.** A gate stays until the go is typed in chat; a note on it deletes only the answer. Leave no reply on the page, no "settled" list, and nothing showing their feedback was processed. Work in this order:
 
-Acting first leaves answered items on the page for as long as the work takes. **On a page with several areas, consume only the answers to your own area's items**; the others wait on the page for their own sessions. **A run with no chat** (a scheduled pass) does steps 1 and 2 only: it does none of the work, puts its confirmation in `STATUS.md` for the next session to repeat in chat, and never passes a gate.
+1. **Record the decision before deleting the item and its answer.** Use the product's decision log, `STATUS.md` QUEUED for work it creates, and `LOG.md` for the why, with the answer's id and `at`. An answer whose id and `at` `LOG.md` already holds is not recorded or queued again.
+2. **Delete the item and its answer in one write.** For a gate, delete only the answer; the gate stays until the go is typed in chat.
+3. **Act only after recording the answer and deleting what should go.** On a gate, act only once the go is in chat.
+4. **Confirm in chat, in one line.**
 
-**Check at fixed points, because nothing notifies you when they save:** each stage boundary, while a build or review runs, before ending a turn, after a compaction, and whenever they say they answered. Answers the owner never mentioned were caught only this way. **A session that goes idle with items waiting schedules its own check** (a cron or a loop, where the harness has one) rather than waiting for the next message; for the hours no session runs, a scheduled headless pass checks instead (`references/owner-page.md` § A scheduled check without a session). (`2026-11-03`: six answers saved at 17:35 were read nine hours later, when the owner asked whether the page was up to date.) **An answer given in chat closes its item too**, and a gate only when it is the go.
+**Consume answers before acting, so answered items don't remain during work.** Acting first leaves them on the page for as long as the work takes.
 
-**Make Save trustworthy.** The owner asked "Can you really read my answers?" (`2026-10-22`). The page says that Save is what you read and that nothing notifies you. On first use, quote one saved answer back. Put the link in every chat message that mentions the page ("What was the url of the artifact", `2026-10-23`).
+**On a page with several areas, consume only your own area's answers.** Other areas' answers wait on the page for their own sessions.
+
+**A run with no chat does steps 1 and 2 only.** This scheduled pass does none of the work and never passes a gate. Put its confirmation in `STATUS.md` for the next session to repeat in chat.
+
+**Check at fixed points, because nothing notifies you when they save.** Check at each stage boundary, while a build or review runs, before ending a turn, after a compaction, and whenever they say they answered.
+
+**An idle session with items waiting schedules its own check.** Use a cron or loop where the harness has one, rather than waiting for the next message. For hours when no session runs, a scheduled headless pass checks instead (`references/owner-page.md` § A scheduled check without a session).
+
+**An answer given in chat closes its item too.** A gate closes only when the answer is the go.
+
+**Make Save trustworthy.** The page says Save is what you read and that nothing notifies you. On first use, quote one saved answer back. Put the link in every chat message that mentions the page.
 
 ## The rule that makes it work
 
-**Update `STATUS.md` on every state change** — a job starts, finishes, fails, gets published, a
-decision lands, something becomes blocked. Not "at the end", not "when asked". The moment it changes.
-A status file that is 80% true is worse than none, because it is trusted.
+**Update `STATUS.md` on every state change.** Do it when a job starts, finishes, fails or gets published, a decision lands, or something becomes blocked. Not "at the end", not "when asked": the moment it changes. A status file that is 80% true is worse than none, because it is trusted.
 
-Keep it short enough to stay true. If maintaining it is a burden, it is too detailed.
+**Keep status short enough to stay true.** If maintaining it is a burden, it is too detailed.
 
 ## Write down evidence, not just tasks
 
-The highest-value lines are measurements: probe results, benchmark numbers, verdicts, costs, "we tested
-X and it does not work". Losing task state costs you a re-read. Losing *evidence* costs real money and
-credibility: you re-run a paid experiment, or worse, you restate a number from a summary and get it
-wrong. Record the numbers and the verdict, not the conclusion alone.
+**Record measurements with their numbers and verdict, not the conclusion alone.** The highest-value lines are probe results, benchmark numbers, verdicts, costs, and "we tested X and it does not work". Losing task state costs a re-read; losing evidence costs money and credibility. You might re-run a paid experiment or restate a number from a summary and get it wrong.
 
 ## Where to put them
 
-One pair per **area of work**, not per repository. A repo with three unrelated efforts wants three
-pairs; three repos serving one effort want one. The area is the unit someone would ask a status
-question about.
+**Keep one pair per area of work, not per repository.** A repository with three unrelated efforts wants three pairs; three repositories serving one effort want one. The area is the unit someone would ask a status question about.
 
-Put them where they survive but do not pollute: a scratch or working directory is right for volatile
-state. Then **cross-link them** — from the log to the status, from any long-lived doc to both — so a
-fresh reader lands on them by accident rather than by luck.
+**Put volatile state where it survives without polluting the work.** A scratch or working directory is right. Cross-link from the log to the status, and from any long-lived doc to both, so a fresh reader finds them.
 
 ## Reading them after a compaction
 
-`STATUS.md` first, then skim `LOG.md` for the last few decisions, then verify: check that a process
-listed as running is actually running. **Do not trust the file over reality** — reconcile, then fix the
-file. A stale status file caught early is a small problem; one trusted blindly is how you report that a
-job finished when it crashed an hour ago.
+**Read `STATUS.md` first, then skim the last few decisions in `LOG.md`.** Verify that a process listed as running is actually running.
+
+**Do not trust the file over reality.** Reconcile, then fix the file. A stale status caught early is a small problem. Trusting it blindly is how you report a job finished when it crashed an hour ago.
 
 ## When NOT to use this
 
-Short sessions, single-shot tasks, anything that fits comfortably in one context window. The overhead
-is real and pointless there. This pattern earns its keep exactly when a session will outlive its own
-memory — which you can usually tell at the start, from the presence of background jobs, queues, or a
-run measured in hours.
+**Skip this for short sessions, single-shot tasks and one-context-window work.** The overhead is real and pointless there. Use it when a session will outlive its own memory. You can usually tell at the start from background jobs, queues, or a run measured in hours.
+
+Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 
-After a compaction, one read of the status board says what is running, what is blocked and on whom, and every line of it still matches what is on disk and what is running.
+After a compaction, one read of the status board says what is running, what is blocked and on whom. Every line still matches what is on disk and what is running.

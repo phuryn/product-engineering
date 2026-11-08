@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # Retro — a session's learnings, built into your setup
 
-At the end of a session, before its context goes: what slowed it down or went wrong, why, and what change to the agent's setup stops it happening again. The output is fixes made and checked, not a list of lessons.
+**Build the session's learnings into the setup before its context goes.** At the end of a session, find what slowed it down or went wrong, why, and what setup change stops it happening again. The output is fixes made and checked, not a list of lessons.
 
 ## Invocation
 
@@ -22,7 +22,7 @@ $agent-harness:retro                             Codex, plugin installed
 
 ### 1. List what actually happened
 
-From this session only, each item with the moment it happened:
+**List only this session's friction, with the moment each item happened.**
 
 - the owner corrected the agent (quote the correction);
 - the agent missed a rule it had;
@@ -31,37 +31,43 @@ From this session only, each item with the moment it happened:
 - a tool, script or command failed, or needed a workaround;
 - the owner waited on something the agent could have done.
 
-Leave out what went fine and what is only a guess about the future. **Evidence, not new rules**: an item with no moment behind it is not one.
+**Leave out successes and guesses about the future.** These are evidence, not new rules; an item with no moment behind it is not one.
 
 ### 2. Find the cause of each
 
 | Cause | What it looks like | The fix goes in |
 |---|---|---|
-| **Missing** | nothing told the agent | the entry file when every session needs it; otherwise the file the agent reads at the moment the rule must change a decision, with a router row for that moment (§ 3) |
-| **Present but not met** | the rule existed and the agent didn't apply it when it mattered | the route to it (the instructions' index of what to read when), or code |
-| **A tool gap** | a script, check or wrapper was missing or wrong | the tool |
-| **A skill's advice** | a skill from a plugin or a collection said something wrong, or left a step out | the project's own agent instructions, naming the skill and what to do instead (§ 3) |
-| **A one-off** | it won't recur | nowhere: say so |
+| Missing | nothing told the agent | the entry file when every session needs it; otherwise the file the agent reads at the moment the rule must change a decision, with a router row for that moment (§ 3) |
+| Present but not met | the rule existed and the agent didn't apply it when it mattered | the route to it (the instructions' index of what to read when), or code |
+| A tool gap | a script, check or wrapper was missing or wrong | the tool |
+| A skill's advice | a skill from a plugin or a collection said something wrong, or left a step out | the project's own agent instructions, naming the skill and what to do instead (§ 3) |
+| A one-off | it won't recur | nowhere: say so |
 
 ### 3. Fix it, code first
 
-In order of preference:
+**Prefer code, then an improved instruction or route, then a new rule.** Use this order:
 
-1. **Code:** a script, a hook, a validation, a required argument, a test. If compliance depends on an agent remembering a sentence at the moment it matters, prose will lose. (`2026-06-15`, an agent-run repository: a two-line bug in a notification script was answered with a written convention; five weeks later the same bug killed a scheduled job for five days. Writing it down felt like fixing it.) Hooks and permission rules: the `guardrail-hooks` skill.
-2. **An existing instruction or route, improved:** reword the rule that was misread, or move it to where the agent will see it at the moment it applies. Replace or tighten before adding. Removing a rule's text is the owner's: the agent tightens a rule's wording without dropping a condition, an exception or its receipt, moves it to its fire point with a pointer left behind (a move, not a removal), or adds the test or hook that holds it, and proposes the removal. How instruction files are shaped: the `agent-instructions` skill.
+1. **Hold the fix in code wherever code can hold it.** Use a script, hook, validation, required argument or test. Prose loses when compliance depends on an agent remembering a sentence at the moment it matters. Apply the `guardrail-hooks` skill for hooks and permission rules.
+2. **Improve an existing instruction or route before adding another rule.** Reword the misread rule, or move it where the agent will see it when it applies. Replace or tighten before adding. Removing a rule's text is the owner's decision. Tighten wording without dropping a condition, exception or receipt, or move the rule to its fire point with a pointer left behind. A move is not a removal. You can also add the test or hook that holds it, and propose removal. Apply the `agent-instructions` skill for how instruction files are shaped.
+3. **Add a new rule only when this session gave it a receipt.** Include the date and what happened.
 
-   **Where a learning lands.** The entry file (`AGENTS.md`, or the project's own name for it) holds what every session needs. The rest goes in the file the agent reads when the rule must change a decision (its fire point, not its topic home), usually the file of the area that task touches, with a line in the entry file's index naming when to read it. That index has the agent re-read an area's file at the start of every task that touches the area, not once a session: after a compaction or a long session the earlier read is gone. If the router doesn't yet say to re-read at every task, add that sentence. Each file stays within its word budget, and the rule carries its receipt and a review date (`agent-instructions`, budgets).
-3. **A new rule**, only when the session gave it a receipt: the date and what happened.
+**Put each learning where it must change a decision.** The entry file (`AGENTS.md`, or the project's own name) holds what every session needs. Put the rest at its fire point, not its topic home, usually in the file for the area that task touches. Add an entry-file index line saying when to read it.
 
-Make each reversible fix in the repository and **verify it**: run the hook on a sample that must trigger and one that must not; open the route where the agent will read it; run the script. A fix that wasn't checked is reported as unchecked. A change outside the repository (the user's own settings or global instructions) is proposed with its exact text, not made, unless the owner says so.
+**Re-read an area's file at the start of every task touching it.** The index must require this, not once a session. After compaction or a long session, the earlier read is gone. If the router doesn't yet say to re-read at every task, add that sentence. Each file stays within its word budget, and the rule carries its receipt and a review date (`agent-instructions`, budgets).
 
-**When the friction came from a skill**, its fix goes in the project's own agent instructions, where the agent reads it when that skill is in use (the router row for the moment the skill runs, or the entry file when it can fire in any task): a plugin's installed copy sits outside the repository, and a skill copied into it is overwritten by its next update, so an edit to either is lost. Then draft the change for the skill's source repository, the one its plugin or copy came from: what the skill says, what happened (the receipt), and the replacement text, for the owner to file as an issue there. Write it the way that repository's skills are written: the product named by kind, and no names, ids, hostnames, paths, account names or values from the session, since the repository is usually public.
+**Make reversible repository fixes and verify each where it applies.** Run a hook on a sample that must trigger and one that must not. Open the route where the agent will read it; run the script. Report an unchecked fix as unchecked. Propose changes outside the repository with exact text; don't make them unless the owner says so. This includes the user's own settings and global instructions.
+
+**Keep a skill's correction in the project's own agent instructions.** Put it where the agent reads it while that skill is in use. Use the router row for when the skill runs, or the entry file if it can fire in any task. An installed plugin copy sits outside the repository; a copied skill is overwritten by its next update, so edits to either are lost.
+
+**Draft skill corrections for the source repository for the owner to file.** Use the repository its plugin or copy came from. Include what the skill says, what happened (the receipt), and replacement text, for the owner to file as an issue there. Follow that repository's skill style: name the product by kind. Include no session names, ids, hostnames, paths, account names or values, since the repository is usually public.
 
 ### 4. Report
 
-One line per item: what happened, the cause, the fix and how it was verified. When nothing deserves a change, **"no setup change warranted"** is a valid result, and better than a rule that will never fire.
+**Report each item's incident, cause, fix and verification in one line.** When nothing deserves a change, "no setup change warranted" is valid and better than a rule that will never fire.
 
-Don't gate what the owner wouldn't want to click for: a guard that asks too often trains a reflexive yes. (`2026-10-12`: a one-way-door hook that also gated routine commands fired on a heredoc that merely mentioned one, the owner said "I don't want those questions", and it was narrowed the same day.)
+**Don't gate what the owner wouldn't want to click for.** A guard that asks too often trains a reflexive yes.
+
+Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 

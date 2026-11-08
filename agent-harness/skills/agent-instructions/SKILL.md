@@ -5,15 +5,17 @@ description: "Writing or restructuring AGENTS.md or CLAUDE.md, adding a rule ('r
 
 # Agent instructions — rules met at the moment they apply
 
-The instruction file is the context an agent carries into every session: `AGENTS.md`, `CLAUDE.md`, or both. Below it is called **the entry file**, because it is where every session enters and what routes the rest. This skill is how to write one for an app repository and keep it working as the product grows. It was learned on SaaS repositories built with coding agents on Next.js + Supabase + Clerk + Netlify — a starter repository and the products built from it — and on a content repository run day to day by agents, whose instructions had grown to hundreds of thousands of words of doctrine. The method is stack-independent; the examples are from those repositories, named by kind.
+**Meet each rule at the moment it applies.** A rule written down is not yet a rule an agent follows. This skill writes and maintains an app repository's instruction file as the product grows.
 
-**A rule written down is not yet a rule an agent follows: it must be met at the moment it applies.** Everything below follows from that sentence:
+**Use the entry file to route every session's context.** The entry file is `AGENTS.md`, `CLAUDE.md`, or both. It is where every session enters and what routes the rest. The method is stack-independent; examples come from repositories named by kind.
 
 1. **The entry file routes; the depth lives where the moment sends you.** A rule the agent is not looking at when it acts does not exist for that act.
-2. **A rule whose compliance depends on the agent remembering it at the decisive moment becomes a code path** — a test, a script, a required argument — because prose loses that contest.
-3. **The file is maintained, not accumulated**: a pass at every release, and a fix at every mistake, with the receipt.
+2. **Make rules that depend on memory at decisive moments into code paths.** Use a test, script or required argument, because prose loses that contest.
+3. **Maintain the file at every release and fix every mistake with its receipt.** Maintain it rather than accumulating rules.
 
 ## The shape: a chain, not a manual
+
+**Root routes to entry points; entry points route to operative files; operative files link to evidence.** Each layer points down; none restates the layer below.
 
 ```
 entry file (loaded every session)   — routes; holds only what every session needs
@@ -22,43 +24,50 @@ entry file (loaded every session)   — routes; holds only what every session ne
          └─ evidence                — receipts, tables, postmortems, case studies
 ```
 
-- **Root routes to entry points; entry points route to operative files; operative files link to evidence.** Each layer points down; none restates the layer below.
-- **Route, don't summarize.** A summary of a doc in the entry file is a second copy that drifts. The entry file carries the one sentence that must be met at the moment — the rule that is easy to miss — and the pointer.
+- **Route, don't summarize.** A summary of a doc in the entry file is a second copy that drifts. Carry the sentence that must be met at the moment, the rule easy to miss, and its pointer.
 - **No workflow content duplicates upward.** When a procedure appears in two layers, the upper copy is wrong within a month.
-- **Every file in the chain is reachable** from the entry file, and a new file is routed the day it is created, not later. `scripts/check_reachable.py` holds this (below).
+- **Make every file reachable from the entry file the day it is created.** `scripts/check_reachable.py` holds this (§ Files).
 
 ## The entry file: two sections
 
-- **Section 1 — how we build any app.** The mechanics: ownership and authorization, the threat model, the stack and the choices made on it, testing and delivery, working rules, the router, how this file is maintained. Reuse the mechanics in the next product; replace its owner's choices and installed-pack inventory.
-- **Section 2 — this app.** What it is, its users, its shape, who can do what, scope, data constraints, three lines of status. Replaced per product (the `app-lifecycle` skill has its skeleton).
-- **When they conflict, Section 1 wins on mechanics and Section 2 wins on product. What neither says follows the skills' defaults; where those are silent too, it is the agent's call** — decide, and say so in the summary. **When a library's default conflicts with the file, the file wins**, and the file says so where a vendored skill or a quickstart would teach otherwise.
-- The preamble says all of this in a few lines, names where the longer material lives, and tells the agent to **find the moment it is in, in the router, before it starts.**
+**Separate reusable building mechanics from the choices for this app.** The preamble explains the two sections in a few lines and names where the longer material lives. It tells the agent to find its moment in the router before starting.
 
-**Record the owner's departures from skill defaults once, dated and in their words:** product choices in a short entry-file section beside testing and working rules; choices for every product in user-level instructions. Model, builder, reviewer with its fallback, review bar, what requires go, design taste and voice belong here. **Precedence: current session owner instruction > product entry file > user-level instructions > skill defaults.** Design detail can stay in the kit README, pointed to from the entry file: apply the `ui-design` skill. For reviewer choices, apply the `independent-review` skill: a reviewer always has a fallback, never "none"; the pass rewrites "a model never reviews its own family's work" as *prefer another family*, with a fresh session of the builder's family when no other can run (owner, `2026-11-06`). Memory in one agent does not reach another vendor's builder or reviewer; graduate a standing choice to the file immediately (`references/maintenance.md`).
+- **Put the mechanics of building any app in Section 1.** Include ownership and authorization, threat model, stack and its choices, testing and delivery, working rules, router and file maintenance. Reuse these mechanics in the next product; replace its owner's choices and installed-pack inventory.
+- **Put this app's identity and constraints in Section 2.** Include what it is, its users, its shape, who can do what, scope, data constraints and three lines of status. Replace this section per product; the `app-lifecycle` skill has its skeleton.
+- **Section 1 wins on mechanics; Section 2 wins on product.** What neither says follows skill defaults. Where those are silent too, decide and say so in the summary.
+- **When a library's default conflicts with the file, the file wins.** Say this in the file wherever a vendored skill or quickstart would teach otherwise.
 
-A starter file to copy: `references/agents-md-skeleton.md`.
+**Record the owner's departures from skill defaults once, dated and in their words.** Put product choices in a short entry-file section beside testing and working rules. Put choices for every product in user-level instructions. Record model, builder, reviewer and fallback, review bar, what requires go, design taste and voice.
 
-**After installing packs, wire them once:** record the owner's choices, a docs index and router rows for the installed skills. Route a product's screens, or a mock of one → apply `ui-design`. For existing code, read every installed skill that touches it against the code and add the missing tests the skills name. (`2026-11-06`, a live Q&A product built before a billing rule: reading the rule against the code found both reads it forbids while every unit test passed; its development instance then confirmed that every API-token and MCP call from a paid workspace had been getting the free plan's AI allowance.)
+**Precedence: current session owner instruction > product entry file > user-level instructions > skill defaults.** Design detail can stay in the kit README, with an entry-file pointer; apply the `ui-design` skill.
+
+**Give every reviewer a fallback, never “none”.** Apply the `independent-review` skill for reviewer choices. Rewrite “a model never reviews its own family's work” as “prefer another family”. Use a fresh session of the builder's family when no other can run.
+
+**Graduate standing choices to the file immediately.** Memory in one agent does not reach another vendor's builder or reviewer (`references/maintenance.md`). Copy `references/agents-md-skeleton.md` for a starter file.
+
+**After installing packs, record choices, a docs index and their router rows once.** Route a product's screens, or a mock of one, to applying `ui-design`. For existing code, read every installed skill that touches it against the code. Add the missing tests the skills name.
 
 ## Make sure it loads
 
-- **Claude Code reads `AGENTS.md` when no `CLAUDE.md` exists. A `CLAUDE.md` or `CLAUDE.local.md` that does not import `@AGENTS.md` silently stops `AGENTS.md` from loading** (verified on Claude Code 2.1.292, 2026-10-10). So keep no `CLAUDE.md`, or one whose first line is `@AGENTS.md`. Other agents (Codex, Cursor, Grok) read `AGENTS.md`. One master file, every agent reading it.
-- **Frameworks write into these files.** Next.js 16's `next dev` appends to `AGENTS.md` and writes a `CLAUDE.md` (`2026-08-27`); `agentRules: false` in `next.config.ts` stops it. A generated `CLAUDE.md` holding only `@AGENTS.md` is harmless; anything else in it is a second, unowned instruction file.
-- After changing either file, start a fresh session and ask it to quote a rule only the entry file holds. A file that did not load fails silently.
+**Keep one master instruction file and verify every agent reads it.** A file that did not load fails silently.
+
+- **Keep no `CLAUDE.md`, or make its first line `@AGENTS.md`.** Claude Code reads `AGENTS.md` when no `CLAUDE.md` exists (observed on Claude Code 2.1.292, `2026-10-10`). A `CLAUDE.md` or `CLAUDE.local.md` without `@AGENTS.md` silently stops it loading. Codex, Cursor and Grok read `AGENTS.md`.
+- **Frameworks write into these files.** Next.js 16's `next dev` appends to `AGENTS.md` and writes a `CLAUDE.md` (observed `2026-08-27`). Set `agentRules: false` in `next.config.ts` to stop it. A generated `CLAUDE.md` holding only `@AGENTS.md` is harmless; anything else is a second, unowned instruction file.
+- **After changing either file, ask a fresh session to quote its unique rule.** Choose a rule only the entry file holds.
 
 ## The router — what opens when
 
-A three-column table in Section 1: **When you are…** · **The rule that applies** · **Open**.
+**Key router rows by the task the agent is doing.** Put a three-column table in Section 1: “When you are…” · “The rule that applies” · “Open”. The agent matches its moment, not a table of contents.
 
-- **Rows are keyed by what the agent is doing, in the words a user would use** — "pushing a branch that deploys (*just push it* is this row)", "fixing a bug", "touching sign-in, roles or a permission" — never by topic. The agent matches its moment, not a table of contents.
-- **The rule column is the part that is easy to miss**, in one or two lines. The file holds the depth.
+- **Use the words a user would use, never a topic label.** For example: “pushing a branch that deploys (*just push it* is this row)”, “fixing a bug”, “touching sign-in, roles or a permission”.
+- **Put the rule that is easy to miss in the rule column.** Keep it to one or two lines; the file holds the depth.
 - **The open column names the file — and the section — to read before acting.** Several rows can hold at once; open every one that matches.
-- **Every new task opens its rows again.** At the start of each task, the agent finds its moment in the router and re-reads every file the matching rows open, even one it read earlier in the session: after a compaction or a long session, the earlier read is gone or stale. (The owner's call, `2026-10-29`; a content repository run by agents already reloaded its matching files after every compaction, and once a session was not enough.)
-- **Every rule placed in a doc gets a row**, unless it lives in the file the agent is already editing when it applies.
-- **File a rule at the fire point, not at its topic home.** A rule belongs in the chain of the task where it must *change a decision*; the topically natural file keeps the durable record and a pointer. Reachable in the wrong task is unreachable. (`2026-08-07`, a content repository: a rule governing a drafting-time decision was filed in the strategy file, loaded only in strategy sessions; the owner had to ask "when is strategy read?" before it moved.)
-- What has no moment — a worked example, the release history — is indexed in the docs' own index, not the router.
+- **Every new task opens its rows again.** Find the moment and reread every file its rows open, even one read earlier in the session. After compaction or a long session, that earlier read is gone or stale.
+- **Give every rule placed in a doc a row, with one exception.** It needs none if it lives in the file the agent is already editing when it applies.
+- **File a rule at the fire point, not at its topic home.** Put it in the task's chain where it must change a decision. The topically natural file keeps the durable record and a pointer. Reachable in the wrong task is unreachable.
+- **Index material with no moment in the docs' own index.** Worked examples and release history belong there, not in the router.
 
-The pattern in depth, and a starter router for an app repository: `references/router.md`.
+Read `references/router.md` for the pattern in depth and a starter router for an app repository.
 
 ## Where each thing goes
 
@@ -79,11 +88,11 @@ The pattern in depth, and a starter router for an app repository: `references/ro
 | what is true of one product only | that product's repository, never a shared skill |
 | a rule whose compliance depends on memory at the decisive moment | a test, a script or a required argument |
 
-**Script the repeated product work**, especially release, the review round and its brief, the owner's preview and extra checks; route each command from the entry file. A release script runs only after the owner's clear go, for the release that go authorizes; the release doc names the steps the owner keeps (the `release-gate` skill). (`2026-11-05`, a remote-control product: its production smoke, auth canary, update-feed and UI checks are scripts beside its tests, each with its command.)
+**Script repeated product work and route each command from the entry file.** Especially script releases, review rounds and briefs, the owner's preview and extra checks. A release script runs only after the owner's clear go, for that one authorized release. The release doc names the steps the owner keeps; apply the `release-gate` skill.
 
 ## Always-on rules: an admission test and a cap
 
-Most rules wait for their router row. A few must fire across every task — after the task has been classified, whatever it is ("before spawning any subagent, set its model explicitly"). They live in a short always-on list in the entry file, and **each entry passes an admission test**:
+**Admit only rules that must fire across every task after classification.** Most rules wait for their router row. A short always-on list in the entry file holds the exceptions, such as “before spawning any subagent, set its model explicitly”. Each entry passes every admission test:
 
 - it fires after task classification, so no router row would catch it;
 - missing it does material harm;
@@ -95,58 +104,63 @@ Most rules wait for their router row. A few must fire across every task — afte
 
 ## Budgets: every file short enough to read in full
 
-**Each instruction and area file has a word budget, held by a check that runs.** A file over budget is one no session reads in full, and a rule not read is not met. (`2026-10-25`, a content repository run by agents: its rules had grown to about 330,000 words that no session could read, rules competed for attention and almost none was ever removed. It was rebuilt with a word budget per file, a checker and a write-time hook.)
+**Each instruction and area file has a word budget, held by a check that runs.** An over-budget file is one no session reads in full, and a rule not read is not met.
 
-- **The budgets live in one place** (`budgets.json` at the repository root, a path or glob to a word count), and `scripts/check_budgets.py`, copied into the repository, fails when a file is over or a key matches no file. The test gate runs that copy. Start each budget at the file's current count, rounded up, when a session can read the file in full; when it can't, propose the cut and the budget it leads to, and the owner decides.
-- **One in, one out.** Every edit replaces or tightens before it adds. Removing a rule's text is the owner's: the agent tightens a rule's wording without dropping a condition, an exception or its receipt, moves it to its fire point with a pointer left behind (a move, not a removal), or adds the test or hook that holds it, and proposes the removal. At the budget, the owner picks the rule a new one replaces, or raises the budget.
-- **Every rule added carries its receipt and a review date**: the date and what happened, or the owner's words and the date, then `(review YYYY-MM)`. The checker lists every rule past its date, and the release pass puts each to the owner, who re-earns it or has it deleted; the agent deletes none on its own. A rule that guards an irreversible or outward-facing step (a promotion, a migration, a publish, a secret) is never retired for want of a new incident: it works by preventing one.
-- **A new file in an area folder gets a budget the day it is made**, or it is data (receipts, research, tables) that no session is told to read in full.
+- **Keep budgets in one root `budgets.json` and run their checker in the gate.** Map each path or glob to a word count. Copy `scripts/check_budgets.py` into the repository; it fails on an over-budget file or a key matching no file. Start at the current count, rounded up, when a session can read the file in full. Otherwise propose the cut and resulting budget; the owner decides.
+- **One in, one out.** Every edit replaces or tightens before adding. Only the owner removes a rule's text. Tighten wording without dropping a condition, exception or receipt. Or move the rule to its fire point, leaving a pointer, or add its test or hook and propose removal. A move is not a removal. At the budget, the owner picks the rule a new one replaces, or raises the budget.
+- **Give every added rule its receipt and a review date.** Record the date and what happened, or the owner's words and date, then `(review YYYY-MM)`. The checker lists rules past their date. At release, put each to the owner to re-earn or delete; delete none yourself. Never retire a rule guarding an irreversible or outward-facing step for want of a new incident. A promotion, migration, publish or secret rule works by preventing one.
+- **Budget every new area file the day it is made.** Except data such as receipts, research and tables that no session is told to read in full.
 
 ## Prose vs. code
 
-**Before encoding any rule, ask: does compliance depend on an agent holding this sentence in working memory at the decisive moment?** If yes, prose will lose, and the rule belongs in a code path: a required argument, a script, a validation, a test that runs. In one agent-run repository the evidence was one-sided — everything implemented as code worked, everything implemented as a prose obligation decayed — and its sharpest instance was a two-line code bug answered with a convention, which killed a scheduled job for five days five weeks later. **Writing it down feels like fixing it**, which is why the reflex is invisible from the inside. Prose stays for taste and judgement, kept short and routed to. The full evidence and the app-repository forms of a code path: `references/prose-vs-code.md`.
+**Ask whether compliance depends on memory at the decisive moment before encoding a rule.** If yes, prose will lose. Use a required argument, script, validation or test that runs. Writing it down feels like fixing it, which makes the reflex invisible from inside. Keep prose for taste and judgement, short and routed to. Read `references/prose-vs-code.md` for the full evidence and app-repository forms of a code path.
 
 ## The working rules every app's file carries
 
 Each has a receipt (`references/working-rules.md`):
 
 - **Read the instruction file before the first plan.**
-- **Apply skill defaults without asking.** Ask only when a builder or other non-reviewer model or CLI a default names is missing or out of usage and the product records no fallback that can run; reviewers always fall back as the `independent-review` skill requires. Get the owner's clear go each time before anything irreversible or outward-facing (production, publishing, spend, deleting anything public). Questions about what the product should do are still the owner's.
+- **Apply skill defaults without asking.** Ask only if a default's builder or other non-reviewer model or CLI is missing or out of usage, with no runnable product fallback. Reviewers always fall back as the `independent-review` skill requires. Get the owner's clear go each time before anything irreversible or outward-facing: production, publishing, spend or deleting anything public. Questions about what the product should do are still the owner's.
 - **No play-by-play.** Plan, build, summarize once.
-- **Commit messages go through a heredoc (`git commit -F -`), never `-m "…"`**: a backtick inside `-m` is command substitution, and the text vanishes silently.
+- **Commit messages go through a heredoc (`git commit -F -`), never `-m "…"`.** A backtick inside `-m` is command substitution, and the text vanishes silently.
 - **A fix that carries an exclusion says, in its comment, why the excluded case does not need it.**
-- **A comment stating an invariant about a value protects only the file it is in**: list every route that can receive the value and check each.
-- **When a flag's meaning widens, rename it to what it does**, not to one of its reasons.
-- **When the file is silent, the skills' defaults apply; when they are silent too, decide and say so in the summary.**
-- **A doc that disagrees with code you did not change is reported, and the owner picks which side moves.**
-- **Tests and doc lines are part of the change**, not a later step.
+- **A comment stating an invariant about a value protects only its file.** List every route that can receive the value and check each.
+- **When a flag's meaning widens, rename it to what it does.** Don't name it for one of its reasons.
+- **When the file is silent, apply skill defaults, then decide and report.** Decide only where the skills are silent too; say so in the summary.
+- **Report a doc's disagreement with code you did not change.** The owner picks which side moves.
+- **Include tests and doc lines in the change, never a later step.**
 
 ## The two passes
 
-The file is yours to manage: edit it without asking, except removing a rule's text, which you propose and the owner decides (budgets). Two moments call for a pass:
+**Manage the file without asking, except for removing a rule's text.** Propose that removal; the owner decides (§ Budgets). Two moments call for a pass:
 
-- **At every release**, read it top to bottom and ask of each part: is it obsolete now that the code exists? does it belong in a doc, with a pointer here? is it needed in *every* session, or only when touching one area — then the router is its home? what did this phase teach that the next session must know? Then move the status and the release narrative out (below), and run the reachability check.
-- **When a mistake happens**, if the cause was something the file should have said — or said badly — fix it here, in the moment, with the receipt (the date and what went wrong), so the rule carries its reason. Then ask whether the fix should be code.
+- **Read the file top to bottom at every release.** Ask of each part: is it obsolete now code exists? Does it belong in a doc with a pointer here? Is it needed every session, or only in one area whose router row should hold it? What did this phase teach the next session? Move status and release narrative out (below), then run the reachability check.
+- **Fix mistakes in the file immediately when its missing or poor wording caused them.** Include the receipt: date and what went wrong, so the rule carries its reason. Then ask whether the fix should be code.
 
-**Status lives in the plan; the entry file carries at most three lines of it** — the current stage, what is in production, what is waiting on whom — never the story. At each release the previous release's narrative moves to the release history, and only the rules it taught stay, in Section 1. (A live Q&A product's status section grew until it was most of the file every session reads, and had to be moved out at least four times in four days.)
+**Keep status in the plan and at most three entry-file lines.** Name the current stage, what is in production and what waits on whom, never the story. At each release, move the previous release's narrative to release history. Only the rules it taught stay in Section 1.
 
-**Within its budget, no size target.** Judge by what a fresh session needs to start well, not by length: some things earn a permanent place in the entry file, and some things that feel obvious today will be the missing context in a month. A smart reader with the right context is the goal.
+**Within its budget, no size target.** Judge by what a fresh session needs to start well, not by length. Some things earn permanent entry-file space; others that feel obvious today will be missing context in a month. A smart reader with the right context is the goal.
 
 ## Writing a rule
 
-- **Keep the receipt**: the date and what happened, the product named by kind. The receipt is why a later reader trusts the rule — and the reason is the sentence they can check and find false.
-- **Cite the violation before adding a rule.** A rule earns its place with evidence of a real failure; patterns from an outside style guide or linter are ideas, not rules.
+**Cite the violation before adding a rule.** A rule earns its place with evidence of a real failure. Patterns from an outside style guide or linter are ideas, not rules.
+
+- **Keep each receipt's date and what happened, naming the product by kind.** The receipt is why a later reader trusts the rule. The reason is the sentence they can check and find false.
 - **Prefer replacing or generalizing a rule to adding one.** If the same check keeps firing, fix the principle upstream instead of adding another check.
-- **Choose deliberately between a codifiable rule and a judgement principle.** Codify only when "is X present? yes/no" gives a useful answer; codifying judgement flattens it into checklist behaviour.
-- **Date what a platform did or required** ("verified on", "observed"), and correct the line when it changes — never leave the old one beside the new.
+- **Choose deliberately between a codifiable rule and a judgement principle.** Codify only when “is X present? yes/no” gives a useful answer; codifying judgement flattens it into checklist behaviour.
+- **Date what a platform did or required and correct its line when it changes.** Use “verified on” or “observed”; never leave the old line beside the new.
 
 ## When the repository writes its own skills
 
-A skill the repository keeps for itself (beside vendored ones) is general guidance and may be published. **A product appears in it only as an example, named by kind** ("a live Q&A product"). What is true of one product — its listings and their states, versions, verified clients, receipts, commits, release codes, ids, account names — goes in that product's own repository, never in the skill. **Date what a platform did or required, since it changes.** (Owner's rule, `2026-10-23`.)
+**Keep a repository's own skills general, with products as examples named by kind.** They sit beside vendored skills and may be published; “a live Q&A product” is an example. Product-only facts belong in that product's repository, never in the skill. This includes listings and their states, versions, verified clients, receipts, commits, release codes, ids and account names.
+
+**Date what a platform did or required, since it changes.**
+
+Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 
-A fresh session given only the instruction file meets each rule at the moment it applies, because the router sent it there, and every rule the file carries has its receipt.
+A fresh session given only the instruction file meets each rule at the moment it applies, because the router sent it there. Every rule the file carries has its receipt.
 
 ## Files
 

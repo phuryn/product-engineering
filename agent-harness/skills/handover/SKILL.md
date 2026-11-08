@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # Handover — what the next session starts from
 
-The session is ending, or its context is: the work continues tomorrow, in a fresh session, or with another agent. This writes the one note the next session reads first, so it starts from what is true rather than from what this session remembers.
+**Write the one note the next session reads first.** The session is ending, or its context is; work continues tomorrow, in a fresh session, or with another agent. Start that session from what is true rather than what this session remembers.
 
 ## Invocation
 
@@ -22,37 +22,41 @@ $agent-harness:handover                          Codex, plugin installed
 
 ### 1. Reconcile with reality first
 
-Before writing a word, check what this session believes against what is there:
+**Check what this session believes against reality before writing a word.**
 
-- **The disk:** `git status`, the branch, the commits made this session, the files the work touched. Uncommitted work is named as uncommitted.
-- **What is running:** background jobs, servers, watchers and builds this session started. Each is still running, finished (with its exit code, read from its log), or gone.
-- **The project's own state files:** its plan's status, a status board, a backlog, an earlier handover. A line there that the disk contradicts is corrected, not copied.
+- **Check the disk and name uncommitted work as uncommitted.** Read `git status`, the branch, commits made this session, and files the work touched.
+- **Check every background job, server, watcher and build this session started.** Each is still running, finished with its exit code read from its log, or gone.
+- **Correct project state files where the disk contradicts them.** Check the plan's status, status board, backlog and earlier handover; correct those lines rather than copying them.
 
-An inherited report is a claim, this session's own memory included. (`2026-09-16`: a handoff that read as verified had missed production migrations not yet applied.)
+**An inherited report is a claim, this session's own memory included.**
 
 ### 2. Write what the next session needs
 
 | Section | Holds |
 |---|---|
-| **Objective** | what the work is for, in a line, and who asked |
-| **Where it stands** | what is true now: built, committed, pushed, deployed, each said plainly |
-| **Evidence** | what was actually run and observed: the command, its exit code, the number, the verdict. Not what was intended. Anything unverified says so |
-| **Left to do** | in order, each small enough to start on |
-| **Open decisions** | each with its options, a recommendation, and whose decision it is |
-| **Where things are** | branches, worktrees, files, logs, URLs, processes still running and how to stop them |
-| **Next action** | one concrete first step: a command to run, a file to open. Never "continue" |
+| Objective | what the work is for, in a line, and who asked |
+| Where it stands | what is true now: built, committed, pushed, deployed, each said plainly |
+| Evidence | what was actually run and observed: the command, its exit code, the number, the verdict. Not what was intended. Anything unverified says so |
+| Left to do | in order, each small enough to start on |
+| Open decisions | each with its options, a recommendation, and whose decision it is |
+| Where things are | branches, worktrees, files, logs, URLs, processes still running and how to stop them |
+| Next action | one concrete first step: a command to run, a file to open. Never "continue" |
 
-Keep it short enough to stay true. The evidence is the part that costs most to lose: a re-run experiment costs money, and a number restated from memory is how a wrong one reaches the owner.
+**Keep it short enough to stay true, preserving the evidence.** Evidence costs most to lose. A re-run experiment costs money; restating a number from memory is how a wrong one reaches the owner.
 
 ### 3. Put it where the project keeps such things
 
-The project's own convention first: its status board, its plan's status lines, a handoff file it already has. With none, one `HANDOVER.md` at the repository root, rewritten in place each time (it says what is true now, not the history). For a short session, a few lines are enough; work that runs for hours, across several sessions or with jobs in the background wants the `flight-deck` skill's status board and log instead of a single note.
+**Use the project's own handover convention before creating a new file.** Use its status board, plan's status lines or existing handoff file. With none, keep one `HANDOVER.md` at the repository root, rewritten in place each time. It says what is true now, not the history.
 
-Nothing secret goes in it: no keys, tokens, passwords or connection strings, only where they are kept.
+**Use the `flight-deck` skill for hours, multiple sessions or background jobs.** That work wants its status board and log instead of a single note. A few lines are enough for a short session.
+
+**Name where secrets are kept without putting them in the handover.** No keys, tokens, passwords or connection strings.
 
 ### 4. Tell the owner how to start the next session
 
-End with the one line to give the next session, for example: *Read `HANDOVER.md` and start from its next action.* And list anything left running.
+**End with the next session's starting line and anything left running.** For example: *Read `HANDOVER.md` and start from its next action.*
+
+Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 
