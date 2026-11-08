@@ -30,7 +30,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-11-07`, a static discovery page: a scatter was unreadable; a labelled 3×3 grid with a legend read clearly.
 
-## Give a fresh session only screenshots and a reader's role.
+## Fresh eyes before the owner: a fresh session reads the page first.
 
 - `2026-11-07`, a static discovery page: screenshots alone exposed a reversed label, a band contradicting its chart title and screens disconnected from jobs.
 

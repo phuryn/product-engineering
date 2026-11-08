@@ -27,11 +27,11 @@ description: "'I have an idea', 'is this worth building', 'what next': research 
 
 ### 2. Research what is missing
 
-- **Research up to five alternatives people actually use, including doing nothing.** Include substitutes such as spreadsheets, agencies and manual workarounds, keeping them distinct from direct competitors. When installed, apply `competitor-analysis` with this narrower scope rather than its full report. Tell it to omit market-size, share and funding figures without sources.
+- **Research up to five alternatives the people in question actually use, including doing nothing.** Include substitutes such as spreadsheets, agencies and manual workarounds, keeping them distinct from direct competitors. When installed, apply `competitor-analysis` with this narrower scope rather than its full report. Tell it to omit market-size, share and funding figures without sources.
 - **Research an open segment and compare the value offered.** Apply `market-segments` and `beachhead-segment` while the segment remains open. Apply `value-proposition` and `value-curve` for the proposition and curve against alternatives.
 - **Gather what people say when the owner wants it.** Use reviews, forums, Reddit and X for problems and people's words, without inferring prevalence or willingness to pay from those comments.
   - **Each quote is verbatim, checked against the page as fetched.** Include its link and the date read.
-  - **Leave out posts by a vendor, its staff or its affiliates.** Also exclude paid or promoted posts. Use independent accounts because astroturf can look like demand.
+  - **Leave out posts by a vendor, its staff or its affiliates.** Also exclude paid or promoted posts. Keep only independent posts: astroturf reads as demand.
   - **Flag quotes fetched through mirrors or archives.** Say when blocked fetching required that route.
 - **Every source gets its address and the date it was read.** A claim without a source is your own.
 
@@ -60,7 +60,7 @@ Finish by marking every claim by kind (step 3); standalone research ends there.
 
 ### 4. Check feasibility before drawing screens
 
-**Check uncertain dependencies before drawing screens of something you cannot build.** Screens of something unbuildable waste the owner's review. Verify uncertain APIs, platform permissions, data access and costs per user that could consume the price, and say what you checked.
+**Check what may not exist or may not be allowed before drawing screens.** Screens of something that can't be built waste the owner's review. Check the API, the platform rule, access to the data, or a cost per user that eats the price, and say what you checked.
 
 ### 5. Propose
 
@@ -95,7 +95,7 @@ Finish by marking every claim by kind (step 3); standalone research ends there.
   - Look at the render.
 
   Draw the value curve, segment scores and impact-and-effort grid. The grid weighs § 5's first-version parts and next builds by what people will see against cost. Mark "do first".
-- **Give a fresh session only screenshots and a reader's role.** Cut tall pages into ordered parts, sharing neither brief nor code with the fresh reader. Ask what the page is, what the reader would decide from it and what is unclear, then fix what they cannot explain. This checks the page itself: no app crawl or sign-in.
+- **Fresh eyes before the owner: a fresh session reads the page first.** It gets only the page's screenshots (a tall page cut into ordered parts) and a reader's role, never the brief or the code. Ask what the page is, what the reader would decide from it and what is unclear, then fix what they cannot explain. This checks the page itself: no app crawl or sign-in.
 - **Name key screens and what to inspect before any plan.** Give the owner that preview.
 - **Define the customer experiment and what would change the recommendation.** Include hypothesis ID, participants, task, observed behaviour and the decisive result. Building the first version and putting it before paying users is often the experiment.
 

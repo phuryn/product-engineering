@@ -91,7 +91,7 @@ The session must never have seen the build; choose it in this order:
 **Read migration integration settings and record them with the read date.** The release doc must say which case applies:
 
 - **The push applies nothing to the database.** Production's database remains untouched without warning. Calling a missing database function produces a `500` on every affected page.
-- **The push also applies migrations.** Supabase's GitHub integration applies new files when its production branch is pushed or merged with *Deploy to production* enabled (read `2026-10-25`). The build and migrations start together without ordering, and the provider takes every file in the migrations directory.
+- **The push also applies migrations.** This happens when the database provider's git integration deploys on push to the production branch. On Supabase, its GitHub integration with *Deploy to production* on applies new migration files when that branch is pushed or merged (Supabase's docs, read `2026-10-25`). The build and the migration run then start together with nothing ordering them, and the provider takes every file in the migrations directory.
 
 **Unread means on.** Read the provider dashboard's integration settings and the production branch's provider commit checks. On Supabase, check the project's GitHub integration, its production branch and *Deploy to production*.
 
