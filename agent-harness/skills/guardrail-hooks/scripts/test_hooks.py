@@ -60,6 +60,8 @@ def main():
     os.makedirs(os.path.join(tmp, "tools"))
     with open(os.path.join(tmp, "tools", "purge.py"), "w", encoding="utf-8") as fh:
         fh.write("from client import Client\nClient().delete_post(7)\n")
+    with open(os.path.join(tmp, "tools", "purge.ts"), "w", encoding="utf-8") as fh:
+        fh.write("client.delete_post(3)\n")
     os.makedirs(os.path.join(tmp, "webhooks"))
     with open(os.path.join(tmp, "webhooks", "test_hooks.py"), "w", encoding="utf-8") as fh:
         fh.write("from client import Client\nClient().delete_post(9)\n")
@@ -91,6 +93,20 @@ def main():
         ("python -X utf8 before a script asks", "python -X utf8 cleanup.py", None, 0, "ask"),
         ("a script after `cd dir;` asks", "cd tools; python purge.py", None, 0, "ask"),
         ("a script on the line after `cd dir` asks", "cd tools\npython purge.py", None, 0, "ask"),
+        ("uv run --with x python script asks", "uv run --with httpx python cleanup.py", None, 0, "ask"),
+        ("uv run script asks", "uv run cleanup.py", None, 0, "ask"),
+        ("op run -- python script asks", "op run --env-file=prod.env -- python cleanup.py", None, 0, "ask"),
+        ("bash -c with a python script asks", 'bash -lc "python cleanup.py"', None, 0, "ask"),
+        ("if python script; then asks", "if python cleanup.py; then echo done; fi", None, 0, "ask"),
+        ("TOKEN=$(...) before python asks", "TOKEN=$(echo x) python cleanup.py", None, 0, "ask"),
+        ("$VIRTUAL_ENV/bin/python script asks", "$VIRTUAL_ENV/bin/python cleanup.py", None, 0, "ask"),
+        ("bun run a .ts script asks", "bun run tools/purge.ts", None, 0, "ask"),
+        ("npx tsx a .ts script asks", "npx tsx tools/purge.ts", None, 0, "ask"),
+        ("a python here-string asks", "python <<< 'client.delete_post(1)'", None, 0, "ask"),
+        ("a script after `cd dir || exit` asks", "cd tools || exit 1; python purge.py", None, 0, "ask"),
+        ("python -m py_compile on a script passes", "python -m py_compile cleanup.py", None, 0, None),
+        ("python -m pytest on a file passes", "python -m pytest cleanup.py", None, 0, None),
+        ("pip install python-dotenv passes", "pip install python-dotenv", None, 0, None),
         ("git add of two .py files passes", "git add notes.py cleanup.py", None, 0, None),
         ("rg -t py -e for the delete call passes", "rg -t py -e '.delete_post(' .", None, 0, None),
         ("a grep for the delete call in .py files passes",

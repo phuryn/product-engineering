@@ -66,18 +66,22 @@ CONFIG = {
 }
 
 HEREDOC = re.compile(r"<<-?\s*['\"]?(\w+)['\"]?[^\n]*\n.*?\n\s*\1\s*(?:\n|$)", re.S)
-# Where a command can start: the line's start, after a separator, or after a wrapper that runs
-# the rest (sudo, env, uv run ...), then any NAME=value assignments. An interpreter only counts
-# there, so `git add a.py b.py` or `grep --include=*.py -e ...` is not read as running code.
-START = (r"(?:^|[;&|(\n`]|\b(?:do|then|else|exec|sudo|env|time|nohup|xargs|timeout\s+\S+|uv\s+run|poetry\s+run|pipenv\s+run)\s)"
-         r"\s*(?:\w+=\S*\s+)*(?:[\w./\\:~-]*[/\\])?")
-INTERPRETER = r"(?:python[\d.]*|py|node|bun|deno\s+run)(?:\.exe)?"
-# A script the command runs by path, after the interpreter's own options (with or without a value).
-RUNS_FILE = re.compile(START + INTERPRETER + r"(?:\s+-\S+(?:\s+(?!-)\S+)??)*?\s+([^\s;&|<>]+\.(?:py|mjs|cjs|js|ts))\b")
+# An interpreter is a whole shell word wherever it stands: after the line's start, whitespace, a
+# separator, a quote, a backtick or a `/`. That covers wrappers (sudo -E, op run --, uv run --with x,
+# bash -c "...", if ...; then) and NAME=$(...) prefixes without listing them. Only `py`, which is also
+# a file extension and a `-t py` argument, must stand where a command starts.
+WORD = r"""(?:^|(?<=[\s;&|(){}'"`/=]))"""
+INTERPRETER = (r"(?:" + WORD + r"(?:bun\s+run|uv\s+run|deno\s+run|python[\d.]*|node|bun|tsx)"
+               r"|(?:^|(?<=[;&|(\n]))\s*py)(?:\.exe)?(?=\s)")
+# A script it runs by path, after its own options (with or without a value); `-m` and `-c` end the
+# options, since what follows them is a module or code, not a script path.
+RUNS_FILE = re.compile(INTERPRETER + r"(?:\s+(?!-[mc]\b)-\S+(?:\s+(?!-)\S+)??)*?\s+([^\s;&|<>'\"]+\.(?:py|mjs|cjs|js|ts))\b")
 # Code passed inline: python -c "...", node -e '...'. Scanned with code_rules like a heredoc body.
-INLINE = re.compile(START + INTERPRETER + r"""\b[^\n;&|]*?\s-[ce]\s+(?:"((?:[^"\\]|\\.)*)"|'([^']*)')""")
+INLINE = re.compile(INTERPRETER + r"""[^\n;&|]*?\s-[ce]\s+(?:"((?:[^"\\]|\\.)*)"|'([^']*)')""")
+# Code in a here-string: python <<< '...'.
+HERESTRING = re.compile(r"""<<<\s*(?:"((?:[^"\\]|\\.)*)"|'([^']*)')""")
 # A `cd <dir>` before them moves where the scripts after it are found.
-CD = re.compile(r"\bcd\s+(['\"]?)([^\s;&|'\"]+)\1\s*(?:&&|;|\n)")
+CD = re.compile(r"\bcd\s+(['\"]?)([^\s;&|'\"]+)\1\s*(?:&&|\|\||;|\n)")
 # The wiring canary. It always answers, whatever the config's rules, so a person can prove the
 # hook runs with `true guard-canary`: a command that does nothing when the hook is not wired.
 CANARY = re.compile(r"\btrue\s+guard-canary\b")
@@ -149,9 +153,10 @@ def main():
     hits = [f"{w} [command]" for w in scan(shell_only, cfg["command_rules"])]
     for body in bodies:
         hits += [f"{w} [inline script]" for w in scan(body, cfg["code_rules"])]
-    for m in INLINE.finditer(shell_only):
-        code = m.group(1) if m.group(1) is not None else m.group(2)
-        hits += [f"{w} [inline -c/-e]" for w in scan(code, cfg["code_rules"])]
+    for pattern, where in ((INLINE, "inline -c/-e"), (HERESTRING, "here-string")):
+        for m in pattern.finditer(shell_only):
+            code = m.group(1) if m.group(1) is not None else m.group(2)
+            hits += [f"{w} [{where}]" for w in scan(code, cfg["code_rules"])]
 
     # Where a script path is looked for: the payload's cwd first, then any `cd` target, then ours.
     bases = [win(cwd)] + [os.path.join(win(cwd), win(d)) for _, d in CD.findall(shell_only)] + [os.getcwd()]
