@@ -37,7 +37,7 @@ $product:start-here we have a bug in sign-in      Codex, plugin installed
 - **If it is the product's repository, work here with its records.** Use its instructions, history and remote. After the fetch and pull below run, record the answer in the product's agent instructions in the next commit. Date it and name this folder.
 - **If it is not the product's repository, read, fetch and pull nothing in it.** Follow none of its agent instructions. When this folder is below that top and `git ls-files -- .` prints nothing, propose `git init` here. Otherwise, propose a new empty product folder outside it, where the owner reopens the agent. That includes when this folder is that top, the home folder, or holds that repository's files. Until the owner agrees, commit or review nothing and skip the repository steps below. The next session asks again.
 
-**Initialize a non-repository only when its contents and the owner's permission allow.** If empty, or holding only an agent install's files, run `git init` so the proposal can be committed when written. Those files include `.claude/`, `.agents/`, `.codex/`, `.cursor/`, or another agent's own folder or lock file. With other files, initialize only on the owner's word. Never initialize in the home folder or a folder of other work.
+**Initialize a non-repository only when its contents allow it or the owner agrees.** If empty, or holding only an agent install's files, run `git init` so the proposal can be committed when written. Those files include `.claude/`, `.agents/`, `.codex/`, `.cursor/`, or another agent's own folder or lock file. With other files, initialize only on the owner's word. Never initialize in the home folder or a folder of other work.
 
 **With no git, explain its purpose, give the system's install and continue.** Say git keeps the product's history. Give the install: macOS `xcode-select --install`, Windows Git for Windows, or Linux's package manager. Commit nothing and skip the repository steps below. Once git is installed, run this first step again before anything is committed.
 
@@ -51,7 +51,7 @@ $product:start-here we have a bug in sign-in      Codex, plugin installed
 - With no upstream, including a local branch or detached checkout: `git log --oneline HEAD..origin/HEAD`.
 - When `origin/HEAD` is missing, `git remote set-head origin --auto` sets it.
 
-**Pull only with listed commits, an upstream, a clean tree and no local commits.** Use `git pull --ff-only`. Otherwise, pull nothing and read the docs at that ref too with `git show <ref>:<path>`. In that case, say which is newer and which branch each describes. Only a repository with no remote has nothing newer.
+**Pull only with listed commits, an upstream, a clean tree and no local commits.** Use `git pull --ff-only`. With listed commits but no pull, read the docs at that ref too with `git show <ref>:<path>`, and say which is newer and which branch each describes. Only a repository with no remote has nothing newer.
 
 ### Wire installed packs once
 
@@ -100,7 +100,7 @@ $product:start-here we have a bug in sign-in      Codex, plugin installed
 <the change, in your words>. Create a plan. Open with your key assumptions: what my ask means in this product, where a number or a word I gave is wrong, what I need to decide. Then what to implement, how to test it (a test that would touch production, its users or its data runs only with my go), acceptance criteria.
 ```
 
-**Review the plan's key assumptions first.** Models plan well when asked; the ask gets skipped. Review what your ask means in this product, where a number or word you gave is wrong, and what needs a person to decide. Move these from the end, where model plans put them (`app-lifecycle`, `references/capabilities.md` § What a proposal looks like).
+**Review the plan's key assumptions first.** Models plan well when asked; the ask gets skipped. Review what your ask means in this product, where a number or word you gave is wrong, and what needs a person to decide. The prompt moves them up from the end, where the model plan has them (`app-lifecycle`, `references/capabilities.md` § What a proposal looks like).
 
 **Keep the builders' part in the repository for the next session.** The rest of the plan is for agents building it (§ Sessions). The prompt names the least it holds, not all it may. Include phases and releases, the files and modules each phase changes, and whatever the build needs. The agent may ask questions first.
 
@@ -116,7 +116,7 @@ $product:start-here we have a bug in sign-in      Codex, plugin installed
 
 **Keep production's keys out of development and the agent's environment.** They come at go-live or later, only when the agent asks. Never put them where development runs read them, including the development checkout's `.env` files. Everything the agent starts inherits its environment.
 
-**Put production setup credentials in an uncommitted operator file outside development.** This means production's database connection string and a key made for the setup. Use names the app doesn't read, such as `PROD_DB_URL`. Load them only into the one command using them (`supabase-production`, `environments`). Set the host's values at go-live step 3 (`release-gate`).
+**Put production setup credentials in an uncommitted operator file outside the development checkout.** This means production's database connection string and a key made for the setup. Use names the app doesn't read, such as `PROD_DB_URL`. Load them only into the one command using them (`supabase-production`, `environments`). Set the host's values at go-live step 3 (`release-gate`).
 
 **The agent generates secrets nobody issues; dashboard-issued secrets come from their dashboard.** A cookie-signing secret is generated. A webhook's signing secret comes from its dashboard, like any other key.
 
@@ -124,7 +124,7 @@ Apply the `delegation`, `codex-agents`, `test-harness`, `code-review` and `indep
 
 ### 5. Click-through
 
-**Click through key user flows at every change that alters what a person sees.** First, require:
+**Click through key user flows yourself at every change that alters what a person sees.** First, require:
 
 - Independent review clean or running.
 - A fresh session new to the domain saying what each new screen is for and what to press next.
@@ -133,7 +133,7 @@ Apply the `delegation`, `codex-agents`, `test-harness`, `code-review` and `indep
 
 **The agent gives you a link and flows to try with expected results.** Each flow is an action and what should happen. Spend fifteen to twenty minutes for a mid-size app, every time. What you find goes back to the build and is reviewed again. Apply `release-gate` § The owner's preview.
 
-**Click first for taste, whether it's the right thing, or when you ask.** This does not apply when only code behind a screen changed. Agents taking screenshots miss what moves and what is visible only for a moment.
+**Click first for taste, whether it's the right thing, or when you ask.** Skip the click-through when only code behind a screen changed. Agents taking screenshots miss what moves and what is visible only for a moment.
 
 ### 6. Release review
 

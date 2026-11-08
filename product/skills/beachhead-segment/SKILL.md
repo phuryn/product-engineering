@@ -82,8 +82,8 @@ Use this analysis for:
 - Problem validation through surveys
 - Market research and analyst reports
 - Competitor positioning and customer reviews
-- Quantified cost/impact of the problem
-- Current workarounds and their limitations
+
+Quantify the problem's cost or impact, and identify current workarounds and their limitations.
 
 ### Step 3: Assess willingness to pay
 

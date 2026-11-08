@@ -25,7 +25,7 @@ Codex, Cursor and other agents: see the collection's root `README.md`.
 - **competitor-analysis** — The competitive landscape: five direct competitors, their strengths and weaknesses, and where to differentiate.
 - **market-segments** — Three to five customer segments, each with its jobs to be done, desired outcomes, pains and product fit.
 - **beachhead-segment** — The first segment to win, scored on burning pain, willingness to pay, winnable share and referral potential (Geoffrey Moore's *Crossing the Chasm*).
-- **value-curve** — Your product against competitors and substitutes, scored on the 5-7 needs one segment cares about most, plus relative price: where to be far ahead, where parity is enough, and what you deliberately don't compete on.
+- **value-curve** — Your product against competitors and substitutes, scored on the 5-7 needs one segment cares about most, price among them: where to be far ahead, where parity is enough, and what you deliberately don't compete on.
 - **value-proposition** — The 6-part value proposition (Who, Why, What before, How, What after, Alternatives) by Paweł Huryn and Aatir Abdul Rauf, ending in a statement ready for marketing, sales and onboarding.
 - **growth-loops** — Growth loops (flywheels) that compound: viral, usage, collaboration, user-generated and referral.
 

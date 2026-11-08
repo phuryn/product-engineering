@@ -10,6 +10,6 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-09-14`, a live Q&A product: asked for a per-IP rate limit, the plan's test section said the host's limits exist only on the host and couldn't be tested locally. The owner ran the plan with a test there, last: it sent requests from the tester's own address until the host refused one with HTTP 429, which blocks only that address for a minute, then checked that pages still loaded. Both limits were confirmed that way.
 
-## The agent gives you a link and flows to try with expected results.
+## Click through key user flows yourself at every change that alters what a person sees.
 
 - `2026-10-22`, a monitoring product: its review came back clean overnight; ten minutes of its owner using a preview that morning found six problems no review had, and each fix went back through review.
