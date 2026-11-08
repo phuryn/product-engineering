@@ -4,13 +4,16 @@ description: "'What should we test' or a coverage map: derive the coverage map a
 argument-hint: "[check] <repo path or area; defaults to the whole repository>"
 ---
 
+
 # Derive tests -- Turn Intent Into Tests
 
-The docs say what the system *should* do. An audit finds where the code *doesn't*. Tests are what stop that gap from reopening after the next AI edit. This skill reads the documented intent, turns each load-bearing rule into a concrete test case, sorts them into what to automate, what needs a guarded live run, and what stays manual — then recommends the gate that keeps `main` honest: the one the repo's own instructions define, or a green-before-merge CI gate where they define none.
+**Turn documented intent into test cases that keep gaps from reopening.** The docs say what the system should do; an audit finds where the code doesn't. Read that intent and turn each load-bearing rule into a concrete case. Sort cases into automated tests, guarded live runs, and manual checks. Recommend the repo's defined gate, or green-before-merge CI where it defines none.
 
-This produces a coverage map (`tests.md`) and concrete test cases, not a finished suite — you or the next agent implement the deterministic ones. If the repo already keeps a test-coverage file, under any name, that file is the map: update it rather than starting a second one (the **shipping-artifacts** skill's *Locations and names* rule).
+**Produce a coverage map and concrete cases, not a finished suite.** You or the next agent implement the deterministic cases. If the repo already keeps a test-coverage file, under any name, update that map instead of starting another. Apply the `shipping-artifacts` skill's Locations and names rule.
 
 ## Invocation
+
+**Use check-only mode for a leading check or a map-currency question.** A request starting with `check`, or asking only whether the map is current, checks the scope that follows instead of running the workflow.
 
 ```
 /ai-shipping:derive-tests                        Claude Code
@@ -20,88 +23,90 @@ $ai-shipping:derive-tests supabase/functions     Codex
 "what should we test here" · "is our coverage map current"   either agent, in plain words
 ```
 
-A request that starts with `check`, or asks only whether the map is current, runs **check-only mode** (below) on the scope that follows it, instead of the workflow.
-
 ## Prerequisite: documented intent
 
-Tests are derived from the docs, so the docs come first. If the system docs (in the repo's docs location, or `documentation/` by default) are missing or thin, apply the `document-app` skill first (this one reads `flows.md`, `permissions.md`, and `automation.md` most heavily). You cannot map coverage to rules you never wrote down — where intent is absent, say so rather than inventing rules to test.
+**Write down intent before deriving tests from it.** If system docs are missing or thin, apply the `document-app` skill first. Use the repo's docs location, or `documentation/` by default. This skill reads `flows.md`, `permissions.md`, and `automation.md` most heavily. Where intent is absent, say so rather than inventing rules to test.
 
 ## The workflow
 
 ### 1. Read the intent — and the tests that already exist
 
-Read the applicable system docs (architecture, flows, permissions, variables, and any of emails, cron, seo, automation that exist). Apply the **shipping-artifacts** skill for what each doc should contain, and the **intended-vs-implemented** skill for the discipline of treating docs as claims to verify, not proof.
+**Read the applicable system docs, treating their claims as unverified.** Read architecture, flows, permissions, variables, and any emails, cron, seo, and automation docs that exist. Apply the `shipping-artifacts` skill for each document's contents. Apply the `intended-vs-implemented` skill for the discipline of treating docs as claims to verify, not proof.
 
-Then inventory the **existing test suite** — the test files, what they actually assert, and what runs in CI today. The map you produce must distinguish coverage that exists *now* from coverage you're *proposing*; skipping this step yields a falsely-green map that claims rules are pinned when nothing checks them. If there are no tests, say so plainly — that is itself a finding.
+**Inventory existing assertions before claiming any rule is covered.** Read the test files, what they actually assert, and what runs in CI today. Distinguish coverage that exists now from coverage you propose; otherwise, the map can claim rules are pinned when nothing checks them. If there are no tests, say so plainly: that is itself a finding.
 
 ### 2. Extract the rules worth testing
 
-Pull out the load-bearing, deterministic rules — the ones whose violation crosses a trust, data, money, tenant, or privacy boundary:
+**Extract deterministic rules whose violation crosses a consequential boundary.** These are the load-bearing trust, data, money, tenant, or privacy rules:
 
-- authorization allow **and deny** cases (especially the boundary crossings in `flows.md` and the matrix in `permissions.md`),
-- input validation and output encoding at each sink,
-- idempotency of jobs and dedup keys,
-- fail-closed defaults (error / timeout / cache-miss / flag paths that must deny, not allow),
-- side-effect conditions (exactly when an email sends, a write commits, a paid action fires),
-- public-data-only constraints on public or bot routes,
-- the output-contract and tool-surface limits of any agent in `automation.md`.
+- authorization allow and deny cases, especially boundary crossings in `flows.md` and the matrix in `permissions.md`;
+- input validation and output encoding at each sink;
+- idempotency of jobs and dedup keys;
+- fail-closed defaults: error, timeout, cache-miss, and flag paths that must deny, not allow;
+- side-effect conditions: exactly when an email sends, a write commits, or a paid action fires;
+- public-data-only constraints on public or bot routes;
+- output-contract and tool-surface limits of any agent in `automation.md`.
 
-Skip cosmetic behavior. A rule earns a test when getting it wrong harms someone other than the actor.
+**Skip cosmetic behavior; test rules whose failure harms someone other than the actor.**
 
 ### 3. Build the coverage map
 
-One row per use case: **rule → expected behavior (incl. the negative case) → evidence source (doc + code) → test type → status (existing / proposed / none)**. The status column is what keeps the map honest — mark a rule *existing* only when a test in the repo actually asserts it today.
+**Mark coverage existing only when a repository test asserts the rule today.** Build one row per use case:
 
-Test types:
+rule → expected behavior (including the negative case) → evidence source (doc + code) → test type → status (existing / proposed / none).
 
-- **unit** — pure and deterministic, no external services.
-- **integration (deterministic)** — exercises real wiring against a dependency the product runs for its tests (a local or development database, a mocked provider) and passes or fails the same way every time.
-- **guarded live** — needs a real external service the product does not run for its tests: an email provider, an LLM, a third party. Runs behind an explicit flag.
-- **manual** — UI/visual or judgment calls. A reviewer checklist item, not an automated test.
+Use these test types:
 
-**What a test depends on and whether it gates are separate properties, and the repo's gate policy decides the second** (Step 5). A product whose gate runs against its development database and the identity provider's development instance, with real sessions in a browser (the `test-harness` skill), gates on those rows: they are deterministic there, because the product owns those environments. Where the repo states no gate, the gate requires the deterministic set — unit plus integration tests that pass or fail the same way on every run — and guarded-live and manual rows don't gate. Either way, prefer **unit** where the decision logic can be isolated, and reach for **integration** when the rule lives in the wiring (middleware, RLS, auth guards) and only a real dependency can exercise it.
+- unit — pure and deterministic, no external services;
+- integration (deterministic) — real wiring against a dependency the product runs for its tests, such as a local or development database or mocked provider; same pass/fail result every time;
+- guarded live — a real external service the product does not run for its tests, such as an email provider, LLM, or third party; behind an explicit flag;
+- manual — UI/visual or judgment calls; reviewer checklist items, not automated tests.
 
-When a rule can only be exercised live, you can extract its *decision* into a pure helper so the logic is unit-testable — but only as a **complement, not a replacement** for testing the real enforcement. The unit test proves the helper's logic; it does **not** prove the framework actually calls it. Wiring and policy enforcement (route middleware, DB row-level security, auth guards, provider config) still needs an integration or guarded-live check, or the helper becomes a policy shadow that passes while the real path is unprotected.
+**Separate a test's dependencies from whether the repo makes it gate.** The repo's gate policy decides the latter (Step 5). A product may gate against its development database and identity provider's development instance, with real browser sessions, as in the `test-harness` skill. Those rows are deterministic there because the product owns the environments.
+
+**Where no gate is stated, require the deterministic unit and integration set.** These tests pass or fail the same way on every run; guarded-live and manual rows don't gate. Either way, prefer unit tests where decision logic can be isolated. Use integration when the rule lives in middleware, RLS, or auth-guard wiring that only a real dependency can exercise.
+
+**A pure helper complements testing real enforcement; it never replaces it.** When a rule can only be exercised live, you can extract its decision into a pure, unit-testable helper. That proves the helper's logic, not that the framework calls it. Wiring and policy enforcement still need an integration or guarded-live check: route middleware, DB row-level security, auth guards, and provider config. Otherwise, the helper can pass while the real path is unprotected.
 
 ### 4. Propose the tests
 
-For each rule you can pin with a deterministic automated test (unit or integration), write the case: name, arrange/act/assert intent, and the negative case it must reject. Group cases by the doc or flow they defend. Prefer the smallest test that pins the rule — one clear assertion per boundary beats a sprawling integration test that fails for ten reasons.
+**Write a concrete case for every rule a deterministic test can pin.** For each unit or integration case, give its name, arrange/act/assert intent, and negative case it must reject. Group cases by the doc or flow they defend. Prefer the smallest test that pins the rule: one clear assertion per boundary, rather than an integration test that fails for ten reasons.
 
 ### 5. Recommend the gate
 
-Start from the repo's stated gate policy. Its agent instructions, contributing guide or release docs may already say what gates a merge or a release — a local command plus a human go, a hosted CI workflow, something else. Where they do, that policy is the gate: record it in the coverage map with its source, check that the deterministic set runs inside it, and don't recommend hosted CI or branch protection over it. If the deterministic set does not run inside that gate, say so as a finding for the owner rather than proposing a different gate.
+**Follow the repo's stated gate policy instead of proposing a replacement.** Start from its agent instructions, contributing guide, or release docs. They may define a local command plus human go, hosted CI, or another merge or release gate. Record that policy and its source in the coverage map, and check the deterministic set runs inside it. Don't recommend hosted CI or branch protection over the stated policy. If that gate omits the deterministic set, report a finding for the owner rather than proposing a different gate.
 
-Where the repo states no policy, recommend — don't silently install — a CI setup matched to the repo's stack and existing tooling:
+**Where no policy exists, suggest CI matched to the repo's tooling.** Recommend it; don't silently install it. Match the repo's stack and existing tooling:
 
-- run the **deterministic local set on every pull request** (unit + any integration test that runs without live services),
-- keep **guarded-live tests opt-in** (manual or scheduled, never blocking),
-- **gate merges to `main` on green** via a required status check + branch protection.
+- run the deterministic local set on every pull request: unit plus any integration test that runs without live services;
+- keep guarded-live tests opt-in, manual or scheduled, never blocking;
+- gate merges to `main` on green via a required status check plus branch protection.
 
-Output the workflow file and the branch-protection setting as a clearly-labeled suggestion for the user to approve, not an applied change.
+Output the workflow file and branch-protection setting as a clearly labeled suggestion for user approval, not an applied change.
 
 ### 6. Report coverage and gaps
 
-Write `tests.md` in three clearly separated sections:
+**Keep existing coverage, proposed tests, and unverified gaps in separate sections.** Write `tests.md` with:
 
-- **Existing coverage** — rules a test in the repo pins *today* (from the Step 1 inventory).
-- **Proposed tests** — the cases you're recommending but that don't exist yet, by type.
-- **Gaps** — documented rules with **no verification at all**, ranked by what crossing them exposes.
+- Existing coverage — rules a test in the repo pins today, from the Step 1 inventory.
+- Proposed tests — recommended cases that don't exist yet, by type.
+- Gaps — documented rules with no verification at all, ranked by what crossing them exposes.
 
-The gaps are the backlog, and they are exactly where the next AI edit can silently break a boundary. Be honest that proposed ≠ existing: a rule isn't covered until a test actually asserts it.
+The gaps are the backlog, where the next AI edit can silently break a boundary. Proposed coverage is not existing coverage: a rule isn't covered until a test actually asserts it.
 
 ## Check-only mode
 
-For a repo whose coverage map is kept by hand, or by whoever runs the gate, so a release can confirm the map is current without this skill rewriting it. **Write no file**: not the map, not a report. Read the tests; don't run them. Don't apply the `document-app` skill when the docs are thin; list them under *Not checked*.
+**Check the map without rewriting it or running the tests.** This lets a release check a map maintained by hand or by whoever runs the gate. Write no file: neither the map nor a report. Read the tests; don't run them. Don't apply the `document-app` skill when docs are thin; list them under Not checked.
 
-1. Find the coverage map the way the workflow does (the **shipping-artifacts** skill's *Locations and names* rule). If there is none, say so and stop.
-2. Compare it, row by row, against the system docs and the test suite. It is stale where:
+1. **Find the existing coverage map, and stop if there is none.** Follow the `shipping-artifacts` skill's Locations and names rule, as the workflow does. Say if none exists.
+2. **Compare every map row against the system docs and test suite.** It is stale where:
    - a documented rule has no row, or a row cites a rule the docs no longer state or now state differently;
    - a row marked existing names a test that is gone or doesn't assert the rule;
    - a test pins a rule the map marks proposed or none;
-   - a cited path, test name or gate command no longer matches the tree.
-3. Don't decide which side is wrong. The map may be behind, or a doc or test may have drifted from what the map records; that is the owner's call.
+   - a cited path, test name, or gate command no longer matches the tree.
+3. **Leave the choice of which side is wrong to the owner.** The map may be behind, or a doc or test may have drifted from what the map records.
 
-Output, printed in the conversation:
+Print the output in the conversation:
 
 ```
 Coverage check: [scope] — check-only, no files written
@@ -119,9 +124,14 @@ Coverage check: [scope] — check-only, no files written
 Coverage check, [date], commit [short SHA], scope [scope]: [N] map rows read, [N] stale entries, [N] not checked. Tests read, not run. No files written. Which side to fix is the owner's call.
 ```
 
-An empty *Stale entries* section says what was read to reach it. Then stop: don't offer to rewrite the map.
+**State what was read when the Stale entries section is empty.** Then stop: don't offer to rewrite the map.
 
 ## Output
+
+**Write the map and full report to the repo's existing locations.** Use the defaults below only where it has none, giving the user both paths and saying which are plugin defaults:
+
+- coverage map: `documentation/tests.md`;
+- full report: `reports/test_plan_{timestamp}.md`.
 
 ```
 Test Coverage: [scope]
@@ -143,15 +153,13 @@ Test Coverage: [scope]
 [rules with no test yet, ranked by what crossing them exposes]
 ```
 
-Write the coverage map to the repo's existing coverage file, or `documentation/tests.md` if it has none, and the full report to the repo's reports location, or `reports/test_plan_{timestamp}.md` if it has none. Give the user both paths, and say which are plugin defaults.
-
 ## Notes
 
-- This is the verification half of "documented == implemented": the audits find today's gap, these tests stop it from reopening tomorrow.
-- Don't fabricate rules to manufacture coverage. If the docs are silent, the gap is in the docs — fix them first (the `document-app` skill).
-- A guarded-live test joins the gate only where the repo's gate policy puts it there, and a flaky test of any type leaves the gate until it is fixed: a gate that flakes erodes until people start ignoring it.
-- Covers test derivation only. For the gap audit itself use the `security-audit-static` skill; for the full document → audit → test → packet sequence, the ship check (`/ai-shipping:ship-check`, or `$ai-shipping:ship-check` in Codex).
+- **Use derived tests to keep an audited gap from reopening.** This is the verification half of "documented == implemented": audits find today's gap, and tests stop tomorrow's edit reopening it.
+- **Never fabricate rules to manufacture coverage.** If docs are silent, the gap is in the docs; fix them first with the `document-app` skill.
+- **Let guarded-live tests gate only where the repo's policy puts them.** A flaky test of any type leaves the gate until fixed; otherwise, people start ignoring the gate.
+- **Use this skill for test derivation only.** Use the `security-audit-static` skill for the gap audit itself. For the full document → audit → test → packet sequence, use the ship check (`/ai-shipping:ship-check`, or `$ai-shipping:ship-check` in Codex).
 
 ## How you can tell it worked
 
-every documented rule has a row, every row marked *existing* names a test that asserts it today, and the gaps are ranked. In check mode, nothing on disk changed.
+Every documented rule has a row, every row marked existing names a test that asserts it today, and the gaps are ranked. In check mode, nothing on disk changed.

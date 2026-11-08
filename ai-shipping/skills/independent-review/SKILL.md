@@ -5,75 +5,41 @@ description: "Before 'ship it', a deploy or release, for 'an independent review'
 
 # Independent review — the gate before a change ships
 
-**The session that wrote the code never clears it.** A fresh reviewer that never saw the build
-reads the change and says what would block or break it. That separation is the whole mechanism,
-and it does not scale down with the size of a change: a one-line fix gets a short round, never no
-round.
+**The session that wrote the code never clears it.** A fresh reviewer that never saw the build reads the change for what would block or break it. That separation applies at every size: a one-line fix gets a short round, never no round.
 
-**The tool is optional; the review is not.** The wrapper in this skill's `scripts/` picks the
-reviewer by default (`python <skill dir>/scripts/review.py --check` says which): **Grok** when its CLI is
-installed (read-only tools; its memory, its managed MCP servers and its Claude, Cursor and Codex compatibility, session reading included, off for the run; what still
-loads, the wrapper reads from `grok inspect` and prints for the report: in a folder Grok trusts, that
-includes the project's own instruction files, a gitignored `CLAUDE.local.md` among them, which a review
-worktree of the snapshot doesn't hold), otherwise a **fresh headless Claude Code session** — read-only tools, no settings, hooks,
-plugins or MCP servers, no auto-memory, no saved session, so it starts from the repository and the
-brief alone. Never the building thread, resumed or forked, and never a subagent of it: the reviewer
-must not inherit what the builder believes. A same-model reviewer shares more of the builder's
-blind spots than a different model does; that cost is accepted, because a round that runs beats one
-that is skipped. Everything below holds whichever reviewer runs. These are defaults, not the method:
-Grok, Claude Code and Codex can each be run as the reviewer, and the skills that drive them from another
-agent (`grok-agents`, `claude-agents`, `codex-agents`) say how.
+**The tool is optional; the review is not.** The wrapper in this skill's `scripts/` picks the reviewer by default. Run `python <skill dir>/scripts/review.py --check` to see which. Its defaults are:
 
-**The repository's own instructions come first.** Its agent instructions or release docs may say
-which reviewer and fallback run, the review bar, when a review is required, which range a release
-covers, what the test gate is and where deferred findings go. Follow them; **a repository ranks
-its reviewers; it cannot rule out a review.** When none of the reviewers it names can run, use
-the wrapper's reviewer without asking; if no other family can run, a fresh session of the builder's
-own family reviews — never the building session, never no review. A line such as "a model never
-reviews its own family's work" means *prefer another family*, and the `agent-instructions` pass
-rewrites it to say so (owner, `2026-11-06`: "Of course the same family when there is no other").
-Apply the `agent-instructions` skill to record owner choices
-and their precedence. **One bar for every reviewer**, the wrapper's and one they name: a fresh session
-that never saw the build, never a resume, fork or subagent of it, with read-only tools only, no MCP servers
-or connectors, its memory off, at its highest effort, and the project's and the user's own instructions off
-where the CLI allows; what it can't switch off, the round's report names. A sandbox flag alone is not that: in Codex, `-s read-only` binds only
-the shell commands the model runs, and the user's config can add tools that act outside it (Codex CLI 0.159.0,
-`2026-10-29`) unless the run leaves that config out (`codex-agents` § Reviewer). When a named reviewer
-can't run that way, use the product's recorded fallback if it can, then the fallback above, without
-asking. The report names the actual reviewer and why it replaced the named one. Where they say
-nothing, the defaults below apply, and where a default would need a fact only the owner has (which
-branch is released, what the last release was), ask.
+- Grok when its CLI is installed, with read-only tools. Its memory, managed MCP servers, and Claude, Cursor and Codex compatibility, including session reading, are off for the run.
+- The wrapper reads whatever still loads from `grok inspect` and prints it for the report. In a trusted folder, that includes project instructions and a gitignored `CLAUDE.local.md`. A review worktree of the snapshot does not hold that file.
+- Otherwise, a fresh headless Claude Code session with read-only tools. It has no settings, hooks, plugins, MCP servers, auto-memory or saved session, starting from the repository and brief alone.
 
-The loop is: fix → re-run the project's test gate **yourself** → a **fresh** reviewer reviews the
-changed state → verify every finding against the code **yourself** → fix → repeat.
+Never use the building thread, resumed or forked, or a subagent of it. The reviewer must not inherit the builder's beliefs. A same-model reviewer shares more blind spots than another model. Accept that cost: a round that runs beats one skipped. Everything below holds whichever reviewer runs. These are defaults, not the method. Grok, Claude Code and Codex can each review; apply `grok-agents`, `claude-agents` or `codex-agents` for driving them from another agent.
 
-Findings are **claims, not results** — including their severity labels. Triage below is not
-optional politeness; it is the part that most often goes wrong.
+**The repository's own instructions come first.** Follow its agent instructions or release docs for reviewer, fallback, review bar, required moments and release range. They may also name the test gate and where deferred findings go.
+
+**a repository ranks its reviewers; it cannot rule out a review.** When none of its named reviewers can run, use the wrapper's reviewer without asking. If no other family can run, use a fresh session of the builder's family. Never use the building session or skip review. Interpret "a model never reviews its own family's work" as "prefer another family". Apply `agent-instructions` to rewrite it accordingly and record owner choices and their precedence.
+
+**Apply one bar to every reviewer, including a repository's named reviewer.** Require a fresh session that never saw the build, never a resume, fork or subagent of it. Use read-only tools only, no MCP servers or connectors, memory off, and the highest effort. Switch off project and user instructions where the CLI allows. Name everything that cannot be switched off in the round's report.
+
+A sandbox flag alone is insufficient. In Codex, `-s read-only` binds only shell commands; user configuration can add tools acting outside it (Codex CLI 0.159.0, observed `2026-10-29`). Leave that configuration out; apply `codex-agents` § Reviewer.
+
+When a named reviewer cannot meet that bar, use the product's recorded fallback if it can. Otherwise use the fallback above, without asking. Name the actual reviewer and why it replaced the named one in the report. Where repository instructions say nothing, use these defaults. Ask when a default needs an owner-only fact, such as the released branch or last release.
+
+**Verify findings yourself and rerun the project's gate yourself after every fix.** The loop is fix → rerun the project's test gate yourself → fresh review of the changed state → verify every finding against code yourself → fix → repeat.
+
+**Treat findings and their severity labels as claims, not results.** Triage below is mandatory; it is the part that most often goes wrong.
 
 ## When
 
-- **Before every release**, however green the tests are. A release without an independent pass is
-  not a release.
-- **Before every push to a branch that deploys.** When a push is what users receive, "just push
-  it" means a round first. The push closes the round (below). **The first push goes only where the
-  owner named**: every URL `git remote get-url --push --all origin | sed -E 's#//[^/@]*@#//#'` prints
-  (the `sed` drops a user name or token a URL can carry) must be that repository; where one isn't,
-  push nothing and ask.
-- **Again after fixing anything a round found** — the fix is itself unreviewed code, and fixes are
-  where the worst defects come from. Never report a change ready off a review that found
-  something, however small, however confidently fixed. (`2026-10-22` to `24`, a monitoring
-  product: in about 140 rounds, commit messages name at least seven chains in which a round's
-  finding was caused by the previous round's fix. In one, keeping an incident already open folded
-  a real outage into a seeded test incident, so uptime never dipped; the next round caught it.)
-- Optional and cheap at a stage boundary inside a long piece of work, so findings arrive while the
-  code is still warm instead of all at once at the end.
+- **Review before every release, however green the tests are.** A release without an independent pass is not a release.
+- **Review before every push to a branch that deploys.** When users receive the push, "just push it" requires a round first. The push closes the round (§ Running a round beside the next stage).
+- **The first push goes only where the owner named.** Every URL from `git remote get-url --push --all origin | sed -E 's#//[^/@]*@#//#'` must name that repository. The `sed` removes any username or token. If any URL differs, push nothing and ask.
+- **Review again after fixing anything a round found.** A fix is unreviewed code, and fixes produce the worst defects. Never report readiness from a round that found something, however small or confidently fixed.
+- **Consider an optional round at a stage boundary inside long work.** This cheap pass brings findings while the code is warm instead of all at the end.
 
 ## The subject: computed from git, and it narrows after round 1
 
-Describing the diff in prose is how an unapplied migration or an untracked file goes unreviewed.
-
-**Round 1** takes everything unreleased, committed or not: from the last release to `HEAD`, plus
-the working tree.
+**Compute the subject from git, including everything unreleased.** A prose description can leave an unapplied migration or untracked file unreviewed. Round 1 takes everything unreleased, committed or not: last release to `HEAD`, plus the working tree.
 
 ```bash
 git log --oneline $RELEASED..HEAD               # the unreleased commits
@@ -81,59 +47,26 @@ git diff $RELEASED...HEAD --stat                # its shape
 git status --porcelain -uall                    # and anything uncommitted, file by file
 ```
 
-**Read that status for what does not belong, too.** The wrapper inlines every untracked file under
-200 KB with its content, and the cap is per file, so a directory of small generated files — copied
-data, fixtures, scratch output, a build artefact with no ignore rule — goes in whole, and the turn
-cap rises to fit it. What is not part of the change goes into `.gitignore` or is deleted before the
-round. A subject far longer than the diff's `--stat` suggests usually means this happened; the
-wrapper warns when untracked files add more than 20,000 lines or most of a subject over 5,000, and
-never refuses. (`2026-10-11`, 364 data files left untracked swelled a round's subject to 89k lines;
-the round was stopped, the directory deleted and the round run again.)
+**Read that status for what does not belong, too.** The wrapper inlines every untracked file under 200 KB, including its content. The cap is per file. A directory of small generated files therefore goes in whole: copied data, fixtures, scratch output or build artefacts without ignore rules. The turn cap rises to fit it. Put anything outside the change into `.gitignore` or delete it before the round. A subject much longer than the diff's `--stat` suggests usually signals this. The wrapper warns when untracked files add more than 20,000 lines or most of a subject over 5,000, and never refuses.
 
-`$RELEASED` is what the repository says was last released — a production branch
-(`origin/<prod>`), a release tag, the deployed commit. If nothing has been released yet, round 1 is
-everything since the project started: `--subject HEAD`, for which the wrapper writes the log with each
-commit's author and message, every file HEAD holds, the first commit's included, and every line its
-history removed, since a push sends every commit (`<first commit>..HEAD` would leave that commit out). A product whose history began in another
-repository (a clone, or a fork) takes the same `--subject HEAD`; that repository's tags and branches are not the product's releases.
-Before any release nothing is live yet, so the brief says every finding is INTRODUCED, code that came with the
-history included. Round 1 includes what is already pushed: when a push is the deploy, pushed code is
-exactly what users are running. **Never narrow the range by hand to make it fit**: too narrow skips
-code. A range too large to read in one round is split, never shortened, in one of two ways:
+**Use the repository's last released state as `$RELEASED`.** It may be production branch `origin/<prod>`, a release tag or the deployed commit.
 
-- **By commits, when the history falls into stages.** Each round takes a contiguous slice as its
-  subject and the rest of the range as context, oldest slice first, so each later round reads the
-  earlier slices' code for interactions. This fits a range of a few build stages.
-- **By surface, when the history does not partition**: the first release, whose range is the
-  whole product, or a range whose commits each touch everything. Each round takes the whole range
-  and owns one area of the product, which it reads in full (the public surfaces; data, permissions
-  and money; the screens a member uses), with the other areas named as context; between them the
-  areas cover every changed file. Area rounds read one still snapshot, so they run in parallel,
-  each with its own brief and output file. (`2026-10-22`, a monitoring product's first whole-range
-  review, split by surface: the rounds on the public surfaces and on data and screens found a
-  paused component drawn green on the public page and an address that handed its password to
-  every visitor. Three area rounds started at once had all read the last brief written, which is
-  why the wrapper names its prompt and subject files per run.)
+**Before the first release, review the whole history with `--subject HEAD`.** The wrapper writes every commit's author and message, every file `HEAD` holds, and every line its history removed. Include the first commit: a push sends every commit, and `<first commit>..HEAD` would omit it. A clone or fork uses the same `--subject HEAD`. The source repository's tags and branches are not this product's releases. Before any release, nothing is live yet. The brief therefore marks every finding INTRODUCED, including code that came with the history.
 
-**Every later round** names only the commits since the previous round as the subject, and hands
-the rest of the unreleased range over as **context to read for interactions**. Naming which code
-is new is *scoping*, not steering, so the un-steered property survives. Re-reviewing cleared code
-drags a round out, buries the new findings under known ones, and tilts the round toward
-pre-existing noise — passes are what find bugs, so cheap rounds beat thorough ones.
+**Never narrow the range by hand to make it fit.** Round 1 includes already-pushed code: when pushes deploy, that code is exactly what users run. A range too large for one round is split, never shortened, in one of two ways:
 
-Both halves earn their keep: a whole-range pass sees composition that per-commit rounds cannot.
-Old code enters scope only where the change makes it **newly reachable or newly wrong**. Say that
-explicitly in the brief — interactions are where the serious findings live.
+- **Split by commits when the history falls into stages.** Give each round a contiguous slice and the rest of the range as context, oldest first. Each later round reads earlier slices for interactions. This fits a few build stages.
+- **Split by surface when the history does not partition.** This fits a first release covering the whole product, or commits that each touch everything. Each round takes the whole range and reads its assigned area in full, with other areas named as context. Examples are public surfaces; data, permissions and money; and member screens. Together, the areas cover every changed file. Area rounds read one still snapshot and run in parallel, each with its own brief and output file.
 
-**Scope the subject by what a reviewer must read, not by file count, and keep generated prose out
-of it.** Hand generated docs over as context for code questions, not as review subject: prose can
-exhaust a round that comfortably fits the code and tests. (`2026-09-17`, one commit reviewed as
-code completed; the same commit reviewed with its docs exhausted the round.)
+**Narrow every later round to commits since the previous round.** Give the remaining unreleased range as context to read for interactions. Naming new code is scoping, not steering. Re-reviewing cleared code adds time and pre-existing noise while burying new findings. Passes find bugs, so cheap rounds beat thorough ones.
+
+**Bring old code into scope only where the change makes it newly reachable or newly wrong.** Say this explicitly in the brief; interactions hold serious findings. Keep both kinds of pass: a whole-range review sees composition that per-commit rounds cannot.
+
+**Scope the subject by what a reviewer must read, not by file count, and keep generated prose out of it.** Give generated docs as context for code questions, not review subject; prose can exhaust a round that fits the code and tests.
 
 ## Running it
 
-The wrapper picks the reviewer, applies every flag a real round needs, and fails loudly on a round
-that came back too short to have run:
+**Use the wrapper to apply review flags and reject short failed rounds.** It picks the reviewer and fails loudly when output is too short to show a round ran:
 
 ```bash
 S="<a scratch directory>"
@@ -143,73 +76,32 @@ python <skill dir>/scripts/review.py \
 echo "exit=$?"   # 2: the round was too short, treat it as failed; 3: the reviewer is out of usage
 ```
 
-`--subject` takes the git range under review (`<sha>^!` for a single commit, `HEAD` before the first release). The wrapper refuses
-an empty `--subject`, a range with no start, and one with no commits and a clean tree. The reviewer has no shell, so the wrapper writes the
-range's log and diffs, then everything uncommitted (untracked files listed one by one, with their
-content), to a file inside the git directory (never committed), and tells the reviewer its length
-and to page through it: one file read returns at most 1,000 lines and may not say there are more.
-It raises the turn cap when the subject needs more turns than that to page through.
+`--subject` takes a git range: `<sha>^!` for one commit or `HEAD` before the first release. The wrapper refuses an empty subject, a range without a start, or one with no commits and a clean tree. The reviewer has no shell. The wrapper writes the range's log and diffs, then everything uncommitted, to a never-committed file inside the git directory. It lists untracked files individually, with their content. It gives the reviewer the length and paging instructions: one read returns at most 1,000 lines and may not say there are more. It raises the turn cap when paging the subject needs more turns.
 
-**A range that contains a merge also carries the range's cumulative diff**, because `git log -p`
-shows a merge commit without its diff: a conflict resolution, or an edit made inside the merge,
-would otherwise never reach the reviewer. The wrapper adds it for an `A..B` or `<sha>^!` range (a bare
-ref such as `HEAD` needs none: its subject is every file it holds and every line its history removed); it warns on any other shape. It repeats every commit's change once more, so it can nearly double the
-subject; size the round with it in mind.
+**A range that contains a merge also carries the range's cumulative diff.** `git log -p` shows merge commits without their diffs, omitting conflict resolutions or edits inside merges. The wrapper adds the cumulative diff for `A..B` and `<sha>^!`. A bare ref such as `HEAD` needs none: its subject includes every held file and every line removed in history. It warns on any other range shape. Each commit's change appears again, nearly doubling the subject; size the round accordingly.
 
-`--reviewer auto` is the default: Grok when installed, else `claude -p` with `--restricted`,
-`--tools Read,Grep,Glob`, `--strict-mcp-config`, `--no-session-persistence`, `--effort max` and
-`CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` (measured 2026-10-10: without that variable a headless session
-loads the project's memory index, which holds the builder's notes; with these flags no project
-instructions, personal notes, memory or skills list was in its context). `--reviewer claude`
-forces the fallback. **An installed Grok can still be out of usage** (`2026-10-31`: a signed-in
-Grok CLI answered `402 usage balance exhausted`): the wrapper then exits 3 and prints the same
-round with `--reviewer claude`. Run the repository's recorded fallback if it can, its model included;
-otherwise run the wrapper's fallback without asking, even when the repository names Grok. If no
-other family can run, use a fresh session of the builder's family; record the actual reviewer and
-why (§ The repository's own instructions come first). Neither CLI on PATH: `--subject-only` (with
-`--brief`, `--cwd` and `--subject` as above) writes the subject file and the prompt, the brief with
-the paging instructions added, into the git directory and prints their paths. Give the prompt to
-a fresh read-only session of your agent,
-run as a separate process you start in the checkout under review, never a subagent, fork or resumed session of
-this one: read-only tools, no MCP servers or connectors, the highest reasoning effort it offers, and its memory
-and project and personal instructions off where it allows that (in a review worktree the git directory sits
-outside the checkout, so give it read access there, never write). Where none can be started, stop and hand the owner the prompt's path: the round hasn't run
-until a fresh session answers. Treat a short clean answer as a failed round, and delete both files when the
-round ends.
+**Use the repository's runnable fallback when the default reviewer cannot run.** `--reviewer auto` defaults to installed Grok, otherwise `claude -p` with `--restricted`, `--tools Read,Grep,Glob`, `--strict-mcp-config`, `--no-session-persistence`, `--effort max` and `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`. Measured on 2026-10-10: without that variable, a headless session loads the project's memory index holding builder notes. With these flags, no project instructions, personal notes, memory or skills list was in its context. `--reviewer claude` forces that fallback.
 
-**Running a reviewer by hand.** The bare Grok call, and what each of the wrapper's Grok flags is for,
-is the `grok-agents` skill's; a Codex reviewer's command is the `codex-agents` skill's (§ Reviewer).
-Three facts hold whichever reviewer runs:
+**An installed Grok can still be out of usage.** The wrapper then exits 3 and prints the same round with `--reviewer claude`. Run the repository's recorded fallback if it can run, including its model. Otherwise run the wrapper's fallback without asking, even if the repository names Grok. If no other family can run, use a fresh session of the builder's family. Record the actual reviewer and reason (§ The repository's own instructions come first).
 
-- **A short clean round is a failed round.** A reviewer that couldn't use its tools (Grok without
-  `--always-approve`, say) exits 0 after a sentence of preamble, which reads exactly like "found
-  nothing" (`2026-09-08`: two such rounds were read as clean before a third, run properly, found a
-  real defect in the commit both had "cleared"). A round that is genuinely empty still argues its way
-  there over paragraphs, so require an empty round to say what it read, what it expected to find
-  and why it holds. The wrapper fails a round under 1,500 characters (exit 2); a round run without
-  it is measured by hand, the same way. **A round whose reviewer couldn't read is failed however
-  long it is**: reads refused ("blocked by policy") with none that succeeded, or an answer that says
-  it couldn't open the files, is a round that reviewed nothing. A refused write is not: that is a
-  read-only reviewer's sandbox doing its job.
-- **The prompt comes from a file, the working directory is the repository under review, and stdin
-  never waits on a terminal**: closed (`< /dev/null`) when the CLI takes its prompt from a file flag,
-  or the prompt file itself when the CLI reads its prompt from stdin (Codex). A long prompt inline
-  trips permission classifiers, and a CLI waiting on an open stdin hangs with no output.
+**With neither CLI, give the wrapper's prompt to a fresh separate process.** Use `--subject-only` with `--brief`, `--cwd` and `--subject` as above. It writes the subject and prompt into the git directory and prints their paths. The prompt contains the brief plus paging instructions. Give it to a fresh read-only session of your agent, started as a separate process in the checkout under review. Never use a subagent, fork or resumed session of this one. Require read-only tools, no MCP servers or connectors, the highest available reasoning effort, and memory off. Switch off project and personal instructions where allowed. In a review worktree, the git directory is outside the checkout; give read access there, never write.
+
+Where no fresh session can be started, stop and hand the owner the prompt path. The round has not run until a fresh session answers. A short clean answer fails the round. Delete both files when the round ends.
+
+**Apply the CLI's skill when running a reviewer by hand.** Apply `grok-agents` for the bare Grok call and each wrapper flag's purpose. Apply `codex-agents` § Reviewer for a Codex command. These facts hold whichever reviewer runs:
+
+- **A short clean round is a failed round.** A reviewer unable to use its tools, such as Grok without `--always-approve`, can exit 0 after a sentence of preamble. That reads like "found nothing". A genuinely empty round argues its way there over paragraphs. Require it to say what it read, what it expected to find and why it holds. The wrapper fails output under 1,500 characters with exit 2; measure a manual round the same way.
+- **A round whose reviewer couldn't read is failed however long it is.** Refused reads, such as "blocked by policy", without any successful reads mean nothing was reviewed. So does an answer saying it could not open the files. A refused write is different: the read-only sandbox is doing its job.
+- **The prompt comes from a file, the working directory is the repository under review, and stdin never waits on a terminal.** Close stdin with `< /dev/null` when the CLI takes the prompt through a file flag. When it reads stdin, as Codex does, pass the prompt file itself. Never leave stdin waiting on a terminal: that hangs without output. Long inline prompts trip permission classifiers.
 - **A round takes minutes at the highest effort.** Run it in the background.
 
-**A round can fail by running out of room, leaving the same short output.** Read the log: memory
-flushes distinguish exhausted context from a reviewer that never read anything. Size the subject to
-a build stage, not a span; keep and verify findings emitted before failure. (`2026-09-17`, a round
-exhausted context across 77 files and stopped after one real finding.)
+**A round can fail by running out of room, leaving the same short output.** Read its log. Memory flushes distinguish context exhaustion from a reviewer that read nothing. Size the subject to a build stage, not a span. Keep and verify findings emitted before failure.
 
 ## Running a round beside the next stage, not before it
 
-A round takes minutes and a build stage takes tens of minutes. Run them at the same time. What
-makes that safe is not the commit — it is the checkout.
+**Run the round beside the next stage in its own checkout.** A round takes minutes; a build stage takes tens of minutes. Their safe overlap depends on the checkout, not the commit.
 
-**Commit means "reviewed from here". Push means "this round is closed".** Local history is working
-state; the branch on the remote is what a round has already cleared. A push to production is still
-a release and still needs the owner's go.
+**Commit means "reviewed from here". Push means "this round is closed".** Local history is working state; the remote branch is what a round has cleared. A production push remains a release and requires the owner's go.
 
     # 1. tests green on your own run, then freeze the subject
     git add -A && git commit -F -          # the snapshot the round reviews
@@ -237,257 +129,104 @@ a release and still needs the owner's go.
     #    (if you linked node_modules into the worktree, delete that link first; see below)
     git worktree remove ../<repo>-review-<stage>
 
-**Never remove a worktree whose `node_modules` links to another checkout.** The reviewer only
-reads, so the review worktree needs no `node_modules`. But when one is linked in so a typecheck,
-the unit tests or a build can run there (a junction on Windows, a symlink elsewhere),
-`git worktree remove --force` deletes *through* the link and empties the main checkout's
-`node_modules`: a gate or dev server running there dies, and the next run fails with
-`'playwright' is not recognized`. Remove the link itself first — on Windows
-`cmd /c rmdir <worktree>\node_modules` removes a junction without touching its target, elsewhere
-`rm <worktree>/node_modules` with no `-r` — then the worktree. Or give the worktree its own
-`npm ci`, which `next build` needs anyway. (`2026-10-02`, a temporary worktree's junction; `npm ci`
-restored the main checkout.)
+**Never remove a worktree whose `node_modules` links to another checkout.** The reviewer only reads, so its worktree needs no `node_modules`. A linked one may support typechecks, unit tests or builds: a Windows junction or a symlink elsewhere. `git worktree remove --force` deletes through that link, emptying the main checkout's `node_modules`. A running gate or dev server dies; the next run fails with `'playwright' is not recognized`. Remove the link itself first. On Windows, `cmd /c rmdir <worktree>\node_modules` removes a junction without touching its target. Elsewhere, use `rm <worktree>/node_modules` without `-r`, then remove the worktree. Alternatively, give the worktree its own `npm ci`, which `next build` needs anyway.
 
-**Push the snapshot, not the branch.** Once a push deploys, a push of the branch tip would ship
-whatever the next stage committed while the round ran, unreviewed. Those commits are the next
-round's subject.
+**Push the snapshot, not the branch.** Once pushes deploy, the branch tip can ship unreviewed commits made by the next stage during review. Those commits belong to the next round's subject.
 
-**The worktree is the load-bearing part.** Committing alone does not isolate anything: the reviewer
-reads the working tree as well as the diff, on purpose, because a diff cannot show an interaction.
-Point it at the tree the builder is editing and it reports on half-written code — findings that are
-real about a file that no longer exists that way, which is the most expensive kind of noise there is.
+**The worktree is the load-bearing part.** Committing alone isolates nothing. The reviewer deliberately reads the working tree and diff because a diff cannot show interactions. Pointing it at the builder's tree produces findings about half-written code that no longer exists that way.
 
-**A push can have side effects beyond the deploy**, such as an integration that applies database
-migrations on push or a hook that publishes. Do what must happen first (apply and verify the
-migration by hand, for example) before the push, so the push finds nothing pending; a production migration also waits for the
-owner's go (`release-gate`). A file you do not intend to run must not sit where such an integration picks it up. (`2026-09-16`, a migration
-that could not have applied cleanly was moved out of the migrations directory for exactly this
-reason; `2026-10-22`, a review found a migration revoking two worker boxes' table grants sitting in
-the migrations directory while both still ran the build that needed them, so the routine push
-would have applied it early.)
+**A push can have side effects beyond the deploy.** An integration may apply migrations, or a hook may publish. Complete prerequisites before pushing, such as applying and verifying migrations by hand, so the push finds nothing pending. A production migration also waits for the owner's go; apply `release-gate`. Keep files you do not intend to run out of any integration's pickup location.
 
-**What parallelism costs.** Findings arrive against code that has moved, so a fix lands on a
-changed tree, and a finding that invalidates something structural can cost the newer work. That is
-a fair trade at a stage boundary where the foundation is settled. It is not a trade at the end:
-**the whole-range round before a release still runs against a still tree**, because that is the one
-that has to see everything at once.
+**the whole-range round before a release still runs against a still tree.** Parallel review finds issues against code that has moved; fixes land on a changed tree. A structural finding can cost the newer work. That trade is fair at a stage boundary with a settled foundation, never at the end. The whole-range round must see everything together.
 
 ## Writing the brief
 
-Five parts, in this order. Anything else is steering.
+**Write only these five parts, in this order, to avoid steering.**
 
-1. **Orientation.** What the product is in two sentences, which files are the binding spec (its
-   agent instructions, its architecture docs), and how the pieces fit — the trust boundaries, the
-   ownership model, where writes go. A diff alone cannot show an interaction.
-2. **The subject**, pasted from the git commands above, with the earlier range named as context.
-3. **The usage model**, so it can calibrate severity — who is on which surface, how many, at what
-   moment. Say what stays serious however exotic the trigger (for most products: another tenant's
-   data, private data on a public surface, a lost or duplicated write, anonymous access to a member
-   capability) and what does not block (cosmetic divergence the next refresh fixes). When the product
-   hides information from its own users, say who it hides it from and why, what an honest user could
-   expose accidentally, and what requires deliberately defeating their own measurement (§ Triage).
-4. **The job.** Find what would block or break this release. Label every finding **INTRODUCED** or
-   **PRE-EXISTING**. Require each one to state **the literal sequence that triggers it and who
-   performs it** — a finding that cannot name its trigger usually has none, and demanding it makes
-   over-claiming visible in the report instead of after a fix has been briefed.
-5. **The form.** A numbered list: claim, evidence as `file:line`, what to change. Terse, no praise,
-   ranked. End with the ones most likely to bite.
+1. Say what the product is in two sentences. Name its binding spec files, such as agent instructions and architecture docs. Explain how its pieces fit: trust boundaries, ownership and where writes go. A diff alone cannot show interactions.
+2. Paste the subject from the git commands above, naming the earlier range as context.
+3. Give the usage model: who uses which surface, how many and at what moment. State what stays serious however exotic the trigger. For most products: another tenant's data, private data on a public surface, lost or duplicated writes, anonymous access to a member capability. State what does not block, such as cosmetic divergence the next refresh fixes. When information is hidden from users, explain from whom, why, what honest users might expose accidentally, and what requires deliberately defeating their own measurement (§ Triage).
+4. Ask what would block or break this release. Label every finding INTRODUCED or PRE-EXISTING. Require the literal triggering sequence and who performs it. A finding unable to name its trigger usually has none; requiring it exposes over-claiming before a fix is briefed.
+5. Request a numbered list: claim, `file:line` evidence, what to change. Keep it terse, without praise, ranked. End with those most likely to bite.
 
-Do **not** include: what an earlier reviewer found, which files you suspect, your own argument for
-why the design is right, or a request for a verdict. A reviewer asked whether it approves will tell
-you it approves.
+Do not include earlier findings, suspected files, your argument for the design, or a request for approval. A reviewer asked whether it approves will tell you it approves.
 
 ## Triage — the part that goes wrong
 
-**Question zero, before any other: say in ONE SENTENCE what actually goes wrong for the person.**
-If the sentence does not sound bad read aloud, there is nothing to fix. *"You land on one of your
-own items that a filter was hiding"* dies unaided. A reviewer's severity label is part of its
-claim, and taking one at face value is how a clean release grows two invented P1s.
+**Question zero, before any other: say in ONE SENTENCE what actually goes wrong for the person.** If it does not sound bad read aloud, there is nothing to fix. "You land on one of your own items that a filter was hiding" dies unaided. The reviewer's severity label is part of its claim.
 
-The test that settles most of them: **does anything cross a line the person cares about?** Another
-tenant's data, private data on a public surface, another user's private content, a thing they made
-that disappears, a write that is lost, anonymous access to a member capability. If everything
-involved already belongs to them and stays visible, it is a surprise, and a surprise is polish.
-Distrust a real mechanism plus a scary label whose harm is speculative; ask whether the person can
-see where they are. Builder reports and reviewer priorities are both claims; neither model decides.
-(`2026-09-03`, a costly fix was reverted after the owner rejected its claimed High severity.)
+**does anything cross a line the person cares about?** Examples are another tenant's data, private data on a public surface, another user's private content, disappearing work, lost writes or anonymous member capabilities. If everything already belongs to the person and stays visible, it is a surprise; a surprise is polish. Distrust a real mechanism with a scary label and speculative harm. Ask whether the person can see where they are. Builder reports and reviewer priorities are both claims; neither model decides.
 
-Then three questions, and a finding that cannot answer them is not a finding:
+**Require literal steps, permitted execution and a person with a reason.** A finding that cannot answer these three questions is not a finding:
 
-1. **What exact sequence produces it?** Not "an attacker could" — the literal steps, in order.
-2. **Does this system permit that sequence?** Check the code that would have to allow it. This is
-   where most die.
-3. **Who does it, and why?** If it needs someone already holding the owner's session on the
-   owner's own screen, they had the screen.
+1. **What exact sequence produces it?** Not "an attacker could": literal steps in order.
+2. **Does this system permit that sequence?** Check the code that must allow it. This is where most die.
+3. **Who does it, and why?** Someone already holding the owner's session on the owner's own screen already had that screen.
 
-**A layout or performance claim is settled on the running build, not by re-reading the file — in
-either direction.** Arithmetic from a stylesheet can be right and the conclusion false (a flex
-item's automatic minimum is its content, so cells wider on paper than their container can shrink
-rather than overflow), and "obviously it shrinks" is as much a guess as "obviously it overflows":
-measure before accepting *or* rejecting. Measure the text a reader sees against its neighbours in
-the same column, not the container the finding names: matching box edges can be produced by the
-defect itself. A performance claim is measured on both builds, the baseline built from `HEAD` in
-its own worktree, and the numbers can retire the fix. (`2026-09-20`, a reported overflow measured
-16px clear at ten widths; `2026-09-21`, a full-bleed card's edges matched its neighbours' while its
-text started at x=14 and theirs at 30; `2026-09-25`, a proposed layout-shift fix addressed 0.002 of
-shift while the real source was a poll.)
+**A layout or performance claim is settled on the running build, not by re-reading the file — in either direction.** Stylesheet arithmetic may be right while the conclusion is false. A flex item's automatic minimum is its content; cells wider on paper than their container can shrink rather than overflow. "Obviously it shrinks" is as speculative as "obviously it overflows": measure before accepting or rejecting. Measure visible text against neighbours in the same column, not the named container. The defect itself can produce matching box edges. Measure performance on both builds, with the baseline built from `HEAD` in its own worktree. Let the numbers retire the fix.
 
-**When findings cluster, look for one false premise underneath before fixing any of them.** Three
-findings in one review came from a single wrong assumption about the product.
+**When findings cluster, look for one false premise underneath before fixing any of them.**
 
-**Rank by what it costs this product, not by where it sits in the list.** Read both user and
-business impact: ask who sees it, how many, at what moment. A widely seen instruction failing at a
-critical moment can cost more than its mechanism suggests; a recoverable flow one admin meets once
-can cost less than its label. For a rule that hides information from the person using the product,
-grade further probes by what goes wrong for an honest user. A probe usable only by someone deliberately
-defeating their own measurement, hiding information from themselves and then seeking it out, is Low.
-(`2026-11-04`, an evals product: rounds 27–29 each rated another way to distinguish held-out labels
-High; two cycles of patches opened the next probe before one simpler rule removed the surface.)
+**Rank by what it costs this product, not by where it sits in the list.** Read user and business impact: who sees it, how many and at what moment. A widely seen instruction failing at a critical moment can cost more than its mechanism suggests. A recoverable flow one admin meets once can cost less than its label. When a rule hides information from product users, grade further probes by harm to an honest user. A probe usable only by someone deliberately defeating their own measurement is Low. They hide information from themselves, then seek it out.
 
-**A fix has a price, and the price compounds.** This question gets skipped because a confirmed
-defect feels like a task rather than a decision. The tell that a loop has gone too far is **rounds
-that get narrower** — each trigger needing more actors or more precise interleaving than the last.
-That is the loop finding what the code permits rather than what users hit. So ask out loud: what
-does this fix cost to *understand*, next year, by someone who was not here? Is the residue
-acceptable — say the price in plain words, and if it is acceptable, **write that down and stop**.
-Does the fix *replace* a mechanism or *add* one? Replacing is usually right; a special case per
-round is the spiral. **Accepting a finding is a legitimate outcome**, and a rarely-wrong rule
-somebody can hold in their head beats an always-right one nobody can.
+**A fix has a price, and the price compounds.** A confirmed defect is still a decision. Watch for rounds getting narrower, each trigger needing more actors or more precise interleaving. That finds what code permits rather than what users hit. Ask aloud what the fix costs to understand next year, by someone who was not here. State the residue's price plainly. If acceptable, write that down and stop. Ask whether the fix replaces a mechanism or adds one. Replacement is usually right; a special case per round compounds the problem.
 
-**A fix that did not need to happen is itself a defect.** Its branches, permanent complexity and
-new review surface have a cost. Weigh that against the occasional harm the finding actually does.
-The cheapest way to find out is the fix's regression test run on the tree before the fix: if it
-passes there, the finding was false, so revert the fix and keep the assertion (the `test-harness`
-skill holds the rule).
+**Accepting a finding is a legitimate outcome.** A rarely-wrong rule somebody can hold in their head beats an always-right one nobody can.
 
-**Prefer removing the rare case to supporting it.** Constrain the input, refuse the state, drop the
-option or choose a default that cannot produce it. An unreachable case needs no code, test or
-comment and cannot interact with the next fix. Ask whether it must exist before writing its branch;
-only then weigh fixing against accepting the residue. (`2026-10-10`, four rounds each patched the
-last round's guard on a recorded marker; computing the value instead of recording it ended them.
-`2026-10-22`, four rounds each found another encoding in which a stored secret header slipped past
-a masker; sending that header only to the exact address it was saved for ended them.)
+**A fix that did not need to happen is itself a defect.** Weigh branches, permanent complexity and new review surface against the occasional actual harm. Run the fix's regression test on the tree before the fix. If it passes, the finding was false: revert the fix and keep the assertion. Apply `test-harness` for that rule.
 
-**Beware the fix that opens a door.** One round's guard enabled the next round's theft, and a later
-guard silently reinstated a defect two rounds older, because two conditions that were each right
-alone were wrong together. Nothing caught it — not the suite, not the next round. Which is exactly
-why the loop continues past the fix that felt final.
+**Prefer removing the rare case to supporting it.** Constrain input, refuse the state, drop the option or choose a default that cannot produce it. An unreachable case needs no code, test or comment and cannot interact with the next fix. Ask whether it must exist before writing its branch. Only then weigh fixing against accepting the residue.
 
-**Fix the class, not the instance.** When a finding rhymes with an earlier one, say so in the next
-brief and ask for the audit. **When a repair writes a field that says who decided, scope it by the
-subject** (this participant, this item), **never by the rows' current state**: a state filter skips
-exactly the rows another actor already decided. (`2026-09-20`, a live Q&A product, two rounds: a
-ban's repair re-stamped who hid questions but skipped those the AI moderator had already hidden,
-leaving the wrong actor.)
+**Beware the fix that opens a door.** Two conditions right alone can be wrong together. Continue the loop past the fix that felt final.
 
-**When the actor is an attacker, ask whether the finding adds a capability the attacker does not
-already have in that position.** A real mechanism that grants nothing new is a description, not a
-vulnerability, and question 2 above passes far too easily for it. The tell is a finding that
-reasons forward from one entry point without reading the neighbouring rows of the permission table.
-(`2026-09-04`, a remote-control product: a compromised relay could inject a credential into a
-desktop machine, which was true step by step; it was gated, the gate needed a fix of its own, and
-both were reverted once someone read the same table and saw that relay could already send prompts
-and approve the tool calls they produce. The injected credential granted strictly less.)
+**Fix the class, not the instance.** When a finding resembles an earlier one, say so in the next brief and ask for the audit.
 
-**Improve the average; the exception is the person's work.** Polish serves the case most people
-meet and lets the rest degrade honestly, with the geometry intact — a placeholder of the same size,
-so nothing jumps when the real thing arrives. Anything that loses or duplicates what a person made
-gets the full treatment however rare. (`2026-08-21`, a transcript cache grew four negotiating
-mechanisms over one question the host already answered.)
+**When a repair writes a field that says who decided, scope it by the subject** (this participant, this item), never by the rows' current state. A state filter skips exactly the rows another actor already decided.
 
-**Say it plainly when a round is empty after triage.** "Three findings, none survive the usage
-model" is a result, and the expected one on a well-built change. **Read a clean round's argument,
-not only its verdict.** The code it cites to prove a change safe can show the same defect one
-surface over. (`2026-09-21`, a live Q&A product: a clean round's citation exposed a neighbouring
-reopen that left the opened timestamp alone.)
+**When the actor is an attacker, ask whether the finding adds a capability the attacker does not already have in that position.** A mechanism granting nothing new is a description, not a vulnerability; question 2 above passes too easily here. Watch for reasoning from one entry point without reading neighbouring rows in the permission table.
 
-**When a round changes one user-facing sentence, read its neighbours and the assertions around its
-pin.** The repair can draw attention away from a nearby claim it just made false. (`2026-09-17`,
-three consecutive rounds each found another false sentence beside the previous fix.) **When a
-state every doc describes changes** (production now exists, a feature went live), search every
-doc for the phrases of the old state and fix them in one pass, instead of the one line the round
-named. (`2026-10-24`, a monitoring product: eight rounds in one day each found more lines still
-describing production as unbuilt; the first sweep by phrase came at the fifth, and later rounds
-still found stragglers.) The same holds when a rule is repealed: find the sentences that **argued
-for it** — comments, fixtures, doc paragraphs — and ask what each still holds up. (`2026-09-20`, a
-live Q&A product: a comment arguing for a repealed rule kept a dead fixture item alive, hiding an
-uncovered screen.)
+**Improve the average; the exception is the person's work.** Polish serves the case most people meet, letting the rest degrade honestly with geometry intact. Use a same-size placeholder so nothing jumps when the real thing arrives. Anything losing or duplicating what a person made gets full treatment, however rare.
 
-**Repair a drifted pair by copying the sentence that is right into the place that is wrong**,
-never by writing a third, and pin their agreement in the same change. (`2026-09-21`, a live Q&A
-product, two rounds: rewriting both documents' versions of one rule made it wrong in a new way.)
+**Say it plainly when a round is empty after triage.** "Three findings, none survive the usage model" is a result, expected on a well-built change.
 
-**When a repair delegates behaviour to the platform, enumerate what the old code decided.** A
-deleted handler takes its judgement with it; the diff shows only deletion. (`2026-09-17`, native
-dialog dismissal lost the guard against closing during an in-flight action.) The same holds when
-a rewrite replaces a control: read the old one's odd attributes (`aria-disabled` where `disabled`
-would do, a seemingly redundant handler), and grep the deleted lines for the comment that argued
-for them. (`2026-09-20`, a live Q&A product: replacing an `aria-disabled` control with a disabled
-one lost the native dialog's focus return.)
+**Read a clean round's argument, not only its verdict.** Code cited to prove safety can expose the same defect one surface over.
+
+**When a round changes one user-facing sentence, read its neighbours and the assertions around its pin.** A repair can distract from a nearby claim it just made false.
+
+**Search every doc when a state they all describe changes.** When production exists or a feature goes live, find old-state phrases and fix them in one pass. Do not stop at the line the round named. When a rule is repealed, find sentences that argued for it: comments, fixtures and doc paragraphs. Ask what each still holds up.
+
+**Repair a drifted pair by copying the sentence that is right into the place that is wrong.** Never write a third version; pin their agreement in the same change.
+
+**When a repair delegates behaviour to the platform, enumerate what the old code decided.** A deleted handler takes its judgement with it; the diff shows only deletion. When replacing a control, inspect its odd attributes: `aria-disabled` where `disabled` would do, or a seemingly redundant handler. Grep deleted lines for the comment arguing for them.
 
 ## The stopping rule
 
-Stop when a round produces **no INTRODUCED findings above Low** and no High or Critical of any age
-(those are fixed now, below). The loop does end, and it ends
-fastest when each release is small: a monitoring product's five production promotions on
-`2026-10-24` each closed on such a round, after 9, 5, 1, 2 and 1 rounds. The first, the whole
-product, took the most; each later one reviewed only its own commits.
+**Stop at no INTRODUCED finding above Low and no High or Critical of any age.** Fix High and Critical now, regardless of age. Small releases reach that bar fastest; later rounds review only their own commits.
 
-**When one mechanism draws findings two rounds running, stop patching it.** Machinery added in
-response to findings produced a new defect in nearly every later round, each fix creating its own
-inverse; four mechanisms were built and then deleted (`2026-07-31`, again `2026-08-17`). Rounds of
-inverses in one area mean the design is wrong, not the code. Before the next round, choose one, in
-writing:
+**When one mechanism draws findings two rounds running, stop patching it.** Repeated inverse defects in one area mean the design is wrong. Before the next round, choose one option in writing:
 
-- **Cut it:** revert to before the first fix, then ask **once** what signal the design is missing.
-- **Redesign it once**, written down before it is built. A redesign earns that attempt only if it
-  removes machinery — a liveness probe that deleted a timeout no value could make right
-  (`2026-08-20`) — and one more elaborate than what it replaces is the spiral again.
-- **Pause it:** when one surface keeps drawing new Highs while the rest of the change is clean,
-  propose to the owner, at the second such round, that it ships behind a switch that is off by
-  default, its open findings in the backlog with the trigger that reopens them, and the next round
-  scoped to what is reachable with it off.
+- Cut it: revert to before the first fix, then ask once what signal the design is missing.
+- **Redesign it once.** Write the redesign before building it. It earns that attempt only by removing machinery. A redesign more elaborate than what it replaces repeats the problem.
+- Pause it: when one surface keeps drawing new Highs while the rest of the change is clean, propose to the owner, at the second such round, that it ships behind a switch that is off by default, its open findings in the backlog with the trigger that reopens them, and the next round scoped to what is reachable with it off.
 
-(`2026-11-01`, an evals product: one fallback took six shapes over rounds 5 to 12, each round's
-Medium introduced by the fix before it; then five rounds in a row found new Highs in one surface,
-paid production sampling, while the rest was clean, and pausing it behind an off-by-default switch
-ended the loop three rounds after the pause was first due. `2026-10-29` and `30`, this collection's
-own release review: a landing page's analytics drew findings in eleven of 23 rounds, three of them
-running at the start, and the loop closed three rounds after the tag's address rewrite came out.)
-Scale this by whether the work was asked for: hardest on hardening nobody requested, lightest on a
-feature the owner asked for by name, which this rule once abandoned wrongly. **Budget for it** when
-planning: in ingest, queue and concurrency code, a fix commit tends to need a round of its own
-(`2026-11-01`, the same product: rounds 2 to 4 of its first slice each found a Medium the previous
-round's fix introduced: an index that no longer matched, a retry split the wrong way round, a cap
-that moved a trace's clock).
+Scale this by whether the work was requested. Apply it hardest to unrequested hardening, lightest to a feature the owner asked for by name.
 
-Pre-existing findings go where the repository keeps deferred work (its backlog file or issue
-tracker; ask if it names none) with the reason they were deferred **and a revisit trigger** —
-except High and Critical ones, which are fixed now regardless of age. The trigger is what gets it
-fixed: a Low deferred "until a paid-only location goes live" was closed the day that location
-went live (`2026-10-24`). Silently dropping a finding is the failure mode. The release summary says
-how many findings each round produced and what became of each, including the ones judged not worth
-fixing and why.
+**Budget for a fix commit's own round in ingest, queue and concurrency code.** When planning, allow for that tendency.
 
-**Number rounds in one sequence per repository**, and cite the number wherever a round's outcome
-lands: the fix's commit, the backlog row, the merge, the release record. (`2026-10-22`, three
-sequences ran on one day, so "round 3" named three different rounds; with one sequence from then
-on, over a hundred rounds stayed citable.)
+**Record pre-existing findings with their deferral reason and a revisit trigger.** Use the repository's backlog file or issue tracker; ask if it names none. High and Critical are the exception: fix them now, regardless of age. Never silently drop a finding. The release summary states each round's finding count and what happened to each, including those not worth fixing and why.
 
-Verify every finding against the code by hand before acting: a cited line number is a claim too.
-Re-run the project's tests on your own eyes after every fix — "it says it passes" is a claim, never
-a result. A finding that proves wrong is worth writing down as wrong next to the ones that were
-right, because that ledger is what makes the next round's hit rate legible.
+**Number rounds in one sequence per repository.** Cite the number wherever the outcome lands: fix commit, backlog row, merge and release record.
+
+**Verify every finding against code by hand before acting.** Cited line numbers are claims too. Rerun the project's tests yourself after every fix; "it says it passes" is a claim, never a result. Record disproved findings as wrong beside confirmed ones, making the next round's hit rate legible.
+
+Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 
-The last round came from a fresh reviewer given only the mechanical range and found no introduced finding above Low, no High or Critical of any age is open, and every earlier finding was checked against the code before it was fixed or dismissed.
+The last round came from a fresh reviewer given only the mechanical range and found no introduced finding above Low. No High or Critical of any age is open, and every earlier finding was checked against code before being fixed or dismissed.
 
 ## Not this skill
 
-Designing something, or arguing a decision through, is a peer's job: bring one in early (`codex-agents`,
-`claude-agents` or `grok-agents`). This skill reviews what was built.
+**Bring in a peer early for design or arguing a decision through.** Apply `codex-agents`, `claude-agents` or `grok-agents`; this skill reviews what was built.
 
-Driving Grok, Claude Code or Codex from another agent for any role, the reviewer's included, is those three
-skills; how to brief and verify any delegate is `delegation`; how a reviewer reads code for defects is
-`code-review`.
+**Use the related skills for CLI mechanics, delegation and reading defects.** Apply those three skills to drive Grok, Claude Code or Codex from another agent in any role, including reviewer. Apply `delegation` for briefing and verifying any delegate, and `code-review` for reading code for defects.
