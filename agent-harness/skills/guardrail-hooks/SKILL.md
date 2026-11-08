@@ -21,7 +21,7 @@ description: "An agent keeps breaking a rule ('it did it again', 'make this impo
 | what the agent must know when it starts | a SessionStart hook returning `additionalContext` | git state checked by code: a shallow clone deepened before any ancestry check; a warning when the session started on a machine-named branch |
 | a derived file that must track its source | a PostToolUse hook that runs the sync | a one-way mirror of the skills folder for agents that read another path, re-synced on every write; it always exits 0 so a sync hiccup never blocks a tool |
 
-**State what holds each instruction-file rule and where coverage ends.** For example: “Bash is held by a hook; MCP tools and browser clicks are not covered, so the rule still binds there”.
+**For instruction-file rules held by code, state enforcement and its limits.** For example: “Bash is held by a hook; MCP tools and browser clicks are not covered, so the rule still binds there”.
 
 ## Writing a guard that holds without becoming noise
 
@@ -31,7 +31,7 @@ Each rule came from a receipt.
 2. **Match what runs, not what is mentioned.** Cut heredoc bodies out before matching command rules: text written to a file is not a command. Inside code, match the API call (`.delete_post(`), never a CLI string a docstring might quote. `scripts/block_wrong_identity.py` matches per command segment and only on `commit` for `--author`. It allows `git log --author=<address>` and tests whose JSON merely contains the address.
 3. **Look inside what the command runs.** A command-text guard is blind to `python cleanup.py`. Open local scripts the command runs, and heredoc bodies fed to an interpreter, and scan them with the code rules. A delete can be callable from any inline script.
 4. **Choose the verdict on purpose.** `ask` forces a human prompt even in auto mode, and denies in non-interactive runs where nobody can answer. `deny` refuses and tells the agent why. Exit 2 refuses and is the one form Claude Code, Codex and Cursor all honor. Address the agent in the reason too: “Agent: never approve this on the owner's behalf”. A prompt it can talk the owner through is a formality.
-5. **The go for a one-way door is typed in the conversation, never on a side page.** Approval on a decisions page, doc or ticket arrives as a tool result, which the harness check does not read. Claude Code's auto-mode classifier sees user messages and agent tool calls, with tool results stripped so file or page content cannot steer it. A message clears a block only when it names the action and its specifics, such as the branch of a force push. The verb alone is insufficient (permission-modes docs, read `2026-10-25`). A prompt forced by an ask rule or hook needs the click whatever was said. If the owner answered on a side page, ask for the go in conversation, naming the action and target.
+5. **The go for a one-way door is typed in the conversation, never on a side page.** Approval on a decisions page, doc or ticket arrives as a tool result, which the harness check does not read. Claude Code's auto-mode classifier sees user messages and agent tool calls, with tool results stripped so file or page content cannot steer it (permission-modes docs, read `2026-10-25`). A message clears a block only when it names the action and its specifics, such as the branch of a force push (permission-modes docs, read `2026-10-25`). The verb alone is insufficient. A prompt forced by an ask rule or hook needs the click whatever was said. If the owner answered on a side page, ask for the go in conversation, naming the action and target.
 6. **Never block the way out.** A spend fuse exempts its own management commands, so disarming works when the session is over budget. A guard blocking the command that clears it has to be removed by hand.
 7. **Decide which way it fails.** By default, a hook that cannot start, crashes, exits 1 or times out lets the action through. For policy hooks, set `"onFailure": "block"` (Claude Code 2.1.295 or later) and use exit 2, never 1, to block. Watch the first run for a `hook error` notice. A mistyped settings path means the hook never runs and nothing else says so.
 8. **Keep stdout to one JSON object.** Anything else, such as a shell profile's greeting, makes the decision unreadable. An unreadable decision is a non-blocking error.
@@ -43,6 +43,8 @@ Each rule came from a receipt.
 
 **The scripts use standard-library Python and read and write UTF-8 explicitly.** On Windows, Python otherwise decodes the pipe with the ANSI code page. Configure them in a top-level `CONFIG` block, a JSON file or environment variables. They read `tool_input.command` for Claude Code and Codex, or top-level `command` for Cursor's `beforeShellExecution`.
 
+**Block an address that must never author a commit, and still allow searching for it.**
+
 | File | Does | Configure |
 |---|---|---|
 | `scripts/guard_one_way_doors.py` | asks (or denies, or exits 2) before an irreversible or public action: command rules on what the shell runs with heredocs cut out; code rules inside heredoc bodies and local scripts the command runs | `command_rules`, `code_rules`, `skip_scripts`, `mode` in `CONFIG`; or `--config <file>` / `ONE_WAY_DOORS_CONFIG` (keys replace CONFIG's); `ONE_WAY_DOORS_MODE=ask\|deny\|block` |
@@ -52,7 +54,7 @@ Each rule came from a receipt.
 Install for Claude Code:
 
 1. **Copy the scripts into the project or your machine's hooks directory.** Use `.claude/hooks/` for one project, committed, or `~/.claude/hooks/` for every project on your machine; cloud sessions don't read it.
-2. **Replace the example rules and look-alikes, then run the tests until passing.** Use your own one-way doors and expected look-alikes; run `python <skill dir>/scripts/test_hooks.py`.
+2. **Replace the example rules and look-alikes, then run the tests until passing.** Edit the copies to use your own one-way doors and expected look-alikes. Run `python .claude/hooks/test_hooks.py`, or `python ~/.claude/hooks/test_hooks.py` for a machine-wide install.
 3. **Wire the hooks in the settings file next to them.** Exec form (`args`) passes the path as one argument with no shell to mangle it:
 
 ```json
@@ -74,7 +76,7 @@ Install for Claude Code:
 ```
 
    In `~/.claude/settings.json`, give the absolute path with forward slashes; there is no project directory. Use `python3` where `python` is Python 2 or missing.
-4. **Check both hooks in `/hooks`, then trigger and decline the guard.** Ask the agent to run `echo gh repo delete test/test`: the guard matches the text and prompts. Decline it.
+4. **Check both hooks in `/hooks`, then trigger one of your own rules.** Confirm its expected ask or block, declining any prompt.
 
 **Use block mode and trust each Codex hook after every edit.** Wire the same scripts in `.codex/hooks.json` and set `mode` to `block`. Codex parses `ask` but doesn't support it yet: it marks the run failed and lets the call through (read `2026-10-24`). Trust each hook in `/hooks`, then again after every edit.
 

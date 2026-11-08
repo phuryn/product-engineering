@@ -31,7 +31,7 @@ $agent-harness:retro                             Codex, plugin installed
 - a tool, script or command failed, or needed a workaround;
 - the owner waited on something the agent could have done.
 
-**Leave out successes and guesses about the future.** These are evidence, not new rules; an item with no moment behind it is not one.
+**Leave out successes and guesses about the future.** List evidence, not new rules: an item with no moment behind it is not one.
 
 ### 2. Find the cause of each
 

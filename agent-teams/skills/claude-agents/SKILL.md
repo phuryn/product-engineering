@@ -17,7 +17,7 @@ description: "'Ask Claude', 'have Claude build or review this': drive Claude Cod
 4. **Iterate.** Continue the conversation after the first draft comes back. Three to eight turns is normal. Stopping at turn 1 treats a partner as a one-shot generator.
 5. **Converge before surfacing.** The human arbitrates intent and taste, not trade-offs two agents could argue through. Bring one result, or a disagreement stated cleanly.
 6. **A delegated diff is unreviewed code, and the session that wrote it never clears it.** Read it, check the disk and re-run the gate yourself. The independent review is a fresh session; apply `independent-review`.
-7. **Keep product decisions, real systems and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep anything touching a real system, development included: deploys, migrations applied to any database, server secrets and live settings. The builder makes each real-system step one command and names it; you run it.
+7. **Keep product decisions, real systems and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep anything touching a real system, development included, such as deploys, migrations applied to any database, server secrets and live settings. The builder makes each real-system step one command and names it; you run it.
 8. **Write the diff yourself when the brief would be nearly as long.** Judge delegation by size, not time.
 
 ## Peer, builder or reviewer
@@ -30,7 +30,7 @@ description: "'Ask Claude', 'have Claude build or review this': drive Claude Cod
 
 - **A review needs a fresh session.** Never resume or fork the building thread, or use its subagent. `--fork-session` copies the builder's beliefs with its transcript. `--mode review` always starts a fresh session and never saves it.
 - **Route reviews of commits through the `independent-review` skill's wrapper.** Review mode has no shell and cannot read a git range. The wrapper's `--reviewer claude` uses this same fresh headless session for a change before a push or a release. It writes the range's log and diffs to a file the reviewer pages through, and fails short rounds loudly. It loops until nothing introduced is above Low and no High or Critical of any age is open. Don't give review mode git commands instead: `Bash(git diff:*)` also allows `git diff --output=<file>` to write.
-- **When the caller is itself Claude, a headless Claude is the same model family.** A headless Claude consult buys fresh context and different reasoning, but shares blind spots with a Claude caller. Prefer Grok, the `independent-review` wrapper's default, as `grok-agents` describes. Without Grok, that wrapper's accepted fallback is this same fresh headless session.
+- **When the caller is itself Claude, a headless Claude is the same model family.** A consult still buys fresh context and different reasoning, but blind spots are shared. For an independent review, prefer another family: Grok, the `independent-review` wrapper's default, as `grok-agents` describes. Without Grok, that wrapper's accepted fallback is this same fresh headless session.
 - **In consult and build the delegate reads what you read.** It loads the repository's `CLAUDE.md`, or `AGENTS.md` when no `CLAUDE.md` exists, and the user's `~/.claude/CLAUDE.md`. The project's auto-memory, hooks and skills load too. This suits a builder but makes it dependent on those instructions, which review mode excludes.
 
 ## The opening brief
@@ -147,7 +147,7 @@ Measured 2026-10-24, a plain `claude -p` in a scratch folder loaded 145 tools an
 
 **`--bare` cannot use subscription login and skips the project's instructions.** It never reads OAuth or the keychain. The headless docs, read 2026-10-24, say it will become the default for `-p` in a future release. Re-check `claude --help` when wrapper runs start answering without the project's instructions.
 
-**Point consult and build only at repositories you trust.** Without `--bare` or `--restricted`, a `-p` run executes the project's hooks. Without `--strict-mcp-config`, it connects `.mcp.json` servers even in an untrusted folder, without a trust dialog (headless docs, read 2026-10-24). Consult and build keep the hooks.
+**Point consult and build only at repositories you trust.** Without `--bare` or `--restricted`, a `-p` run executes the project's hooks even in a folder never trusted, with no trust dialog (headless docs, read `2026-10-24`). Without `--strict-mcp-config`, it connects `.mcp.json` servers even in a folder never trusted, with no trust dialog (headless docs, read `2026-10-24`). Consult and build keep the hooks.
 
 ### Permission modes, and why nothing may wait on a prompt
 

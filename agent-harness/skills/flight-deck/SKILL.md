@@ -46,7 +46,7 @@ description: "'What's the status', 'where were we', a progress report or status 
 - **Put the phase and milestones first, marking the current milestone.** For example, "3 of 5". Follow with at most three lines each of what was just built, what's in progress and what's next. Include how many things wait on the owner.
 - **Several areas share one page with Overview and an area tab each.** Give each area a board of 5 to 10 key work items, separate from the owner's asks. See `references/owner-page.md` for the data and migration.
 - **Ask only for a decision, a go or an owner-only task.** A go is for a one-way door. Never put status, receipts, finished work, or anything you could do yourself among the asks.
-- **Each item carries everything needed to answer it.** Say what you need, where (the link, file or setting), why only they can, your preselected recommendation, and what happens after they answer. Never use a pointer to the chat.
+- **Each item carries everything needed to answer it.** Say what you need, where (the link, file or setting), why only they can, your preselected recommendation, and what happens after they answer. Never use a pointer to the chat, since it may be gone after a compaction.
 - **Check every step against the product before it goes on the page.**
 - **Never collect a secret.** Name the file or setting the key goes into.
 - **A go typed on the page doesn't clear your harness's permission check for a one-way door.** The page asks; the go is typed in the chat.

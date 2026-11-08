@@ -18,7 +18,7 @@ Everything here was read from `grok --help` and run on Grok CLI 1.0.70, 2026-11-
 3. **Bring the partner in at framing and keep iterating.** The cheapest wins are at framing; three to eight turns is normal.
 4. **Converge before surfacing.** Bring the human one result, or a disagreement stated cleanly.
 5. **A delegated diff is unreviewed code, and the session that wrote it never clears it.** Read it, check the disk and re-run the gate yourself. The independent review is a fresh session; apply `independent-review`.
-6. **Keep product decisions, real systems and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep anything touching a real system, development included: deploys, migrations applied to any database, server secrets and live settings.
+6. **Keep product decisions, real systems and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep anything touching a real system, development included, such as deploys, migrations applied to any database, server secrets and live settings.
 
 ## Three modes
 
@@ -27,6 +27,8 @@ Everything here was read from `grok --help` and run on Grok CLI 1.0.70, 2026-11-
 | Peer | a decision argued through, a draft pushed on, a framing checked | read-only: `--tools read_file,grep,list_dir`, no shell, no edits | continued with `--resume <id>` |
 | Builder | a stage with a goal, its binding decisions and how to prove it | every tool, approved: `--always-approve`, in a worktree of its own | continued within the stage |
 | Reviewer | fresh eyes on a change | read-only, isolated from memory and other tools' settings (§ Reviewer) | always new |
+
+Every mode shares four rules, each from a run that went wrong:
 
 - **Put the prompt in a file through `--prompt-file <brief>`.** Never use inline `-p "…"`. A long inline prompt trips the calling agent's permission classifier and the call is refused.
 - **Pass `--cwd <repo>` and close stdin on every call.** This selects the repository you mean. Use `< /dev/null`, because open stdin waits for input forever. Bare `grok` without a prompt flag opens the interactive screen and hangs without output.
@@ -67,7 +69,7 @@ grok --prompt-file "$S/stage-brief.md" --cwd <worktree> --session-id "$SID" \
 - **`--always-approve` approves every tool call, the shell included.** Use a git worktree of its own, never the tree you edit. The brief excludes every real system: no pushes, deploys, migrations or secrets (§ The partner discipline, 6). `--deny MCPTool` blocks the machine's connected MCP servers, including a database's.
 - **Check the disk before believing a run happened.** Read `git status` and the named files. A run unable to write returns a reasoned report that reads exactly like one that did.
 - **Do not treat `--sandbox <profile>` as a write boundary.** It enforces only on supporting platforms; on Windows a sandboxed run still created a file (observed 2026-10-10).
-- **Run a small build first and read the disk.** This mode's command comes from `grok --help` 1.0.70. It had not been run end to end when written on 2026-11-02.
+- **Run a small build first and read the disk.** This mode's command comes from `grok --help` 1.0.70. It had not been run end to end when written on 2026-11-02, because the calling agent's classifier refused a fully approved Grok session.
 
 ## Reviewer
 
@@ -83,6 +85,8 @@ grok --prompt-file "$S/review-NNN-brief.md" --cwd <repo> \
      --always-approve \
      --output-format plain < /dev/null > "$S/review-NNN.md" 2>&1
 ```
+
+Every part is load-bearing:
 
 - **Disable memory and compatibility sources for this review process.** The environment variables disable Grok memory, managed MCP servers and gateway tools, and reading of Codex sessions. They also disable every Claude and Cursor compatibility cell: instructions, rules, skills, hooks, MCP servers and sessions. Environment wins over Grok's config (measured with `grok inspect --json`, 1.0.70, 2026-10-30: all 13 cells off).
 - **Name any instruction files that still load in the report.** Run `grok inspect --json` with the same variables to list them. In a trusted folder, this includes the project's instruction files and even a gitignored `CLAUDE.local.md`.

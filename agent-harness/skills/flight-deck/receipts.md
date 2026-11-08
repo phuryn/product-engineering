@@ -2,9 +2,9 @@
 
 Each heading is a rule from `SKILL.md`, with the case that taught it.
 
-## The flight deck is `STATUS.md`, `LOG.md` and the owner's page.
+## Give the owner a short status and only asks that need them.
 
-- `2026-10-21` to `25`, a monitoring product: the owner ran the whole build from such a page.
+- `2026-10-21` to `25`: The owner's-page rules come from a monitoring product built in this period, where the owner ran the whole build from such a page.
 
 ## Put RESUME first, with the work's location and how to resume.
 

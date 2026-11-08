@@ -24,7 +24,7 @@ entry file (loaded every session)   — routes; holds only what every session ne
          └─ evidence                — receipts, tables, postmortems, case studies
 ```
 
-- **Route, don't summarize.** A summary of a doc in the entry file is a second copy that drifts. Carry the sentence that must be met at the moment, the rule easy to miss, and its pointer.
+- **Route, don't summarize.** A summary of a doc in the entry file is a second copy that drifts. Carry the one sentence that must be met at the moment (the rule that is easy to miss) and its pointer.
 - **No workflow content duplicates upward.** When a procedure appears in two layers, the upper copy is wrong within a month.
 - **Make every file reachable from the entry file the day it is created.** `scripts/check_reachable.py` holds this (§ Files).
 
@@ -51,7 +51,7 @@ entry file (loaded every session)   — routes; holds only what every session ne
 
 **Keep one master instruction file and verify every agent reads it.** A file that did not load fails silently.
 
-- **Keep no `CLAUDE.md`, or make its first line `@AGENTS.md`.** Claude Code reads `AGENTS.md` when no `CLAUDE.md` exists (observed on Claude Code 2.1.292, `2026-10-10`). A `CLAUDE.md` or `CLAUDE.local.md` without `@AGENTS.md` silently stops it loading. Codex, Cursor and Grok read `AGENTS.md`.
+- **Keep no `CLAUDE.md`, or make its first line `@AGENTS.md`.** Claude Code reads `AGENTS.md` when no `CLAUDE.md` exists; a `CLAUDE.md` or `CLAUDE.local.md` without `@AGENTS.md` silently stops `AGENTS.md` loading (observed on Claude Code 2.1.292, `2026-10-10`). Codex, Cursor and Grok read `AGENTS.md`.
 - **Frameworks write into these files.** Next.js 16's `next dev` appends to `AGENTS.md` and writes a `CLAUDE.md` (observed `2026-08-27`). Set `agentRules: false` in `next.config.ts` to stop it. A generated `CLAUDE.md` holding only `@AGENTS.md` is harmless; anything else is a second, unowned instruction file.
 - **After changing either file, ask a fresh session to quote its unique rule.** Choose a rule only the entry file holds.
 
@@ -120,7 +120,7 @@ Read `references/router.md` for the pattern in depth and a starter router for an
 Each has a receipt (`references/working-rules.md`):
 
 - **Read the instruction file before the first plan.**
-- **Apply skill defaults without asking.** Ask only if a default's builder or other non-reviewer model or CLI is missing or out of usage, with no runnable product fallback. Reviewers always fall back as the `independent-review` skill requires. Get the owner's clear go each time before anything irreversible or outward-facing: production, publishing, spend or deleting anything public. Questions about what the product should do are still the owner's.
+- **Apply skill defaults without asking.** Ask only if a default's builder or other non-reviewer model or CLI is missing or out of usage, with no runnable product fallback. Reviewers always fall back as the `independent-review` skill requires. Get the owner's clear go each time before anything irreversible or outward-facing, such as production, publishing, spend or deleting anything public. Questions about what the product should do are still the owner's.
 - **No play-by-play.** Plan, build, summarize once.
 - **Commit messages go through a heredoc (`git commit -F -`), never `-m "…"`.** A backtick inside `-m` is command substitution, and the text vanishes silently.
 - **A fix that carries an exclusion says, in its comment, why the excluded case does not need it.**

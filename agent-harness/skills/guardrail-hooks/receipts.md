@@ -33,7 +33,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-06-22`: `continue: false` from a `Stop` hook stops the agent and takes precedence over event-specific "continue" decisions, which is how the spend fuse beats `/goal`, itself a Stop hook. The precedence confirmed in the docs on `2026-10-24`.
 
-## The scripts use standard-library Python and read and write UTF-8 explicitly.
+## Block an address that must never author a commit, and still allow searching for it.
 
 - `2026-09-07`, `2026-10-02`, `2026-10-05`: an agent harness showed the owner's sign-in address as "the user's email"; on the code host it belonged to another account, and commits authored with it were credited there in three repositories.
 

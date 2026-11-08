@@ -11,7 +11,7 @@ description: "A coding agent on Windows: Git Bash path rewriting, PowerShell quo
 
 ## First, know which shell runs the command
 
-- **Claude Code's Bash tool on Windows uses Git Bash when installed.** Git Bash is MSYS2. Without Git for Windows it uses PowerShell instead (2.1.120). With the PowerShell tool enabled, PowerShell becomes primary (2.1.126; changelog, read `2026-10-24`).
+- **Claude Code's Bash tool on Windows uses Git Bash when installed.** Git Bash is MSYS2. Without Git for Windows it uses PowerShell instead (2.1.120), and with the PowerShell tool enabled PowerShell becomes primary (2.1.126; changelog, read `2026-10-24`).
 - **Shell-form hooks use Git Bash, or PowerShell when Git Bash is missing.** Cursor runs hook commands through PowerShell; Codex takes a separate `commandWindows`. Apply the `guardrail-hooks` skill for the hook side.
 - **PowerShell 7 is a separate install and is often absent.** Windows PowerShell 5.1 (`powershell.exe`) ships with Windows; PowerShell 7 uses `pwsh`. A script or instruction saying `pwsh` fails where it is absent.
 - **Measure the same arguments in the same shell, rather than reasoning.** Run `python <skill dir>/scripts/probe_argv.py <the same arguments>`. It prints exactly what the program receives and which encodings its pipes use.
@@ -19,7 +19,7 @@ description: "A coding agent on Windows: Git Bash path rewriting, PowerShell quo
 ## Paths
 
 1. **Forward slashes, always, in anything a bash shell will read.** Bash treats `\` as an escape. Write `C:/Python313/python.exe`; Windows accepts it. Backslashes also fed Claude Code's Windows command analyser and caused permission prompts (observed `2026-08-16`).
-2. **Uppercase the drive letter for any tool that takes its root from the working directory.** Use `C:/work/app` rather than `c:/work/app` with `npm --prefix`. Keep the command shape constant when comparing runs: changed shapes can look like a worker-count cliff or a broken suite.
+2. **Uppercase the drive letter for any tool that takes its root from the working directory.** Use `C:/work/app` rather than `c:/work/app` with `npm --prefix`. On Vitest, a lowercase drive can give `No test suite found`, zero tests and exit 1 (observed `2026-08-22`). Keep the command shape constant when comparing runs: changed shapes can look like a worker-count cliff or a broken suite.
 3. **Prevent Git Bash from rewriting leading-slash arguments passed to native programs.** It rewrites any argument starting with `/` into a Windows path before the program sees it. `gh api /repos/owner/name` fails with `invalid API endpoint: "C:/Program Files/Git/repos/owner/name"`. `--flag=/etc/x` arrives as `--flag=C:/Program Files/Git/etc/x` (verified and observed `2026-10-24`, Git 2.49.0, gh 2.100.0). Drop the leading slash (`gh api repos/owner/name`) or set `MSYS_NO_PATHCONV=1` for that command.
 4. **Convert Git Bash's `/c/x` paths before Windows programs open them.** Git Bash spells `C:/x` as `/c/x`, which Windows programs can't open. Convert paths read from commands (`/c/x` → `C:/x`). Claude Code hook-input file paths arrive with backslashes even under Git Bash (docs, read `2026-10-24`); normalize before comparing.
 5. **A generated file written with the host's separators must not be tracked.** Untrack it, don't commit one OS's copy. A sync-generated package manifest can use native separators that the other platform's compiler rejects as invalid escapes. The trap is tracking the generated file at all.
@@ -31,7 +31,7 @@ description: "A coding agent on Windows: Git Bash path rewriting, PowerShell quo
 2. **PowerShell splits a bare `-c.foo=bar` token in two.** Windows PowerShell 5.1 does this too (reproduced and observed `2026-10-24`, 5.1.26100): `["-c", ".a.b=c"]` bare, `["-c.a.b=c"]` quoted. Quote it, and pin the quoted spelling with a test. A matrix can half-break and look finished: check the assets, not the run. A flag that has never been passed before has never been tested.
 3. **Judge native PowerShell calls by `$LASTEXITCODE`, with stderr non-fatal around them.** Under `$ErrorActionPreference = "Stop"`, Windows PowerShell 5.1 turns redirected native stderr into a terminating error. Reproduced `2026-10-24` (5.1.26100): an exit-0 program writing one warning, called with `2>&1`, ended the script with `NativeCommandError`.
 4. **In PowerShell, an environment variable set to an empty string is deleted.** `$env:DATABASE_URL = ""` removes it, so a loader such as dotenv fills it back in from `.env`; a supposedly database-free run reaches the configured database. Bash's `DATABASE_URL= cmd` passes an empty value instead (reproduced and observed `2026-10-25`, 5.1.26100). Set a single space when the code trims values to absent, or pass an explicit flag. When an attempt may have touched a real system, say so in the handoff.
-5. **Long PowerShell scripts: launch them from the Bash tool.** Claude Code's PowerShell tool capped a call at 10 minutes (observed `2026-09-25`). Use `powershell.exe -NoProfile -ExecutionPolicy Bypass -File <script>` from the Bash tool with a long timeout. This has carried 16-minute runs without interruption.
+5. **Long PowerShell scripts: launch them from the Bash tool.** Claude Code's PowerShell tool capped a call at 10 minutes (observed `2026-09-25`), which can kill a release between the tag and the installers. Use `powershell.exe -NoProfile -ExecutionPolicy Bypass -File <script>` from the Bash tool with a long timeout. This has carried 16-minute runs without interruption.
 
 ## Encoding and line endings
 
@@ -40,7 +40,7 @@ description: "A coding agent on Windows: Git Bash path rewriting, PowerShell quo
    - **Detect encoding damage and line endings with `check_text.py`.** Run `python <skill dir>/scripts/check_text.py <files>` to flag mojibake, BOM, CRLF and invalid UTF-8.
    - **Restore the last good version and redo the edit.** Use `git checkout <good-ref> -- <file>`. Don't reverse double encoding: CP1252's 0x80–0x9F range doesn't round-trip, so reversal loses characters.
 2. **Configure Python's piped text as UTF-8 explicitly on Windows.** Python otherwise reads and writes pipes in locale-dependent `cp1250` or `cp1252`. `PYTHONUTF8=1` uses `utf-8` (observed `2026-10-24`, Python 3.13.1). In piped scripts, reconfigure stdout and stderr to UTF-8 and decode stdin as UTF-8 bytes, or set `PYTHONUTF8=1`.
-3. **A tool or a delegate can rewrite line endings behind a clean diff.** `core.autocrlf` can normalize CRLF on commit while leaving the working tree wrong despite `.gitattributes` specifying `eol=lf`.
+3. **A tool or a delegate can rewrite line endings behind a clean diff.** `core.autocrlf` can normalize CRLF on commit while leaving the working tree wrong despite `.gitattributes` specifying `eol=lf`. Source-anchored tests can fail in a file the batch never touched, misleading a delegate into blaming the checkout.
    - **Check tracked working copies with `git ls-files --eol | grep w/crlf`.** It lists endings differing from the index. Use `check_text.py` for untracked files; `grep -c $'\r'` is not reliable under Git Bash.
    - **Fix CRLF with `check_text.py --fix-crlf <files>`, which changes nothing else.**
 
@@ -50,7 +50,7 @@ description: "A coding agent on Windows: Git Bash path rewriting, PowerShell quo
 
 Auto mode became native Windows' default in 2.1.233; 2.1.232 added a Windows-only static analyser for Git Bash commands. From observed `2026-08-14`, ordinary read-only commands stopped for a manual click. The analyser ran after permission decisions and downgraded allow to ask; neither `permissions.allow` nor an `autoMode` entry could clear it.
 
-Two upstream issues were closed as fixed in 2.1.233 (read `2026-08-20`). Its changelog says `cd <dir> && <command> > file` no longer stops. The 2.1.232 changes for Cygwin-style symlinks and `< file` were reverted. Measured on 2.1.233, `2026-08-16`, chains without a redirect still prompted. This cheat sheet was measured on 2.1.232/2.1.233, `2026-08-16`:
+Two upstream issues were closed on `2026-08-20` as fixed in 2.1.233. Its changelog says `cd <dir> && <command> > file` no longer stops. The 2.1.232 changes for Cygwin-style symlinks and `< file` were reverted. Measured on 2.1.233, `2026-08-16`, chains without a redirect still prompted. This cheat sheet was measured on 2.1.232/2.1.233, `2026-08-16`:
 
 | Don't | Do instead |
 |---|---|
@@ -75,7 +75,7 @@ Run `cd <dir> && sed -n '1,5p' <file>` in auto mode on your version. If clean, d
 
 **Read auto-mode settings and denial reasons from their effective sources.** These facts are not Windows-specific (observed `2026-08-16`):
 
-- **Put `autoMode` in user settings, never project `.claude/settings*.json`.** Since 2.1.207, a checked-in repository cannot grant itself rules.
+- **`autoMode` is read only from user settings, never project `.claude/settings*.json`.** Since 2.1.207, a checked-in repository cannot grant itself rules.
 - **Include literal `"$defaults"` when extending an `autoMode` array.** Without it, the array replaces the built-in list. For `soft_deny`, that silently drops force-push and production-deploy protection. `claude auto-mode config` shows the result.
 - **Read `/permissions` → Recently denied for a classifier block's real reason.** Since 2.1.208, the agent sees only `Blocked by classifier`.
 
