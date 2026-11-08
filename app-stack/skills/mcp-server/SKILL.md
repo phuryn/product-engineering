@@ -5,54 +5,58 @@ description: "Before adding a remote MCP server or tool to a web product, adding
 
 # MCP server
 
-How to put a remote MCP server in front of outside agents and get it listed, written so the next product does not relearn it. The lessons come from products built on the same stack (Next.js + Supabase + Clerk + Netlify): a live Q&A product with an authenticated server, a stdio package and an anonymous ChatGPT plugin, and a monitoring product that decided against any unauthenticated surface. They appear here only as examples.
+**Build the remote MCP server and prove it before listing it.** This skill covers serving outside agents and getting listed without relearning the same lessons. Its examples use Next.js, Supabase, Clerk and Netlify.
 
-What is true of one product alone lives in that product's repository, in records this skill names by what they hold:
+**Keep product-specific facts in that product's own records.** This skill names those records by what they hold:
 
-- **the API contract**: every REST route and MCP tool, what it accepts, returns and refuses;
-- **the distribution record**: one row per listing (directory, registry, package), with its state, its date and how it is updated, and each client verified, with the date and what was called;
-- **the decision log**: dated decisions that had real options, each with its reopen trigger;
-- **the backlog**: deferred work, each item with the trigger that reopens it.
+- The API contract: every REST route and MCP tool, what it accepts, returns and refuses;
+- The distribution record: one row per listing (directory, registry, package), with its state, its date and how it is updated, and each client verified, with the date and what was called;
+- The decision log: dated decisions that had real options, each with its reopen trigger;
+- The backlog: deferred work, each item with the trigger that reopens it.
 
-Clerk's settings for OAuth are **not** here. They are in `clerk-production` § MCP OAuth, with the four behaviours the route must allow for: a discovery list that is not the token's shape, a `503` for a verifier outage, an unknown `kid` refused before Clerk sees it, and revocation unseen until expiry. Read that section before writing the route; this skill does not repeat it.
+**Read `clerk-production` § MCP OAuth before writing the route.** Clerk's settings are there, not here; this skill does not repeat them. Allow for four behaviours: discovery lists differ from token shape, verifier outages return `503`, unknown `kid` values are refused before Clerk, and revocation remains unseen until expiry.
 
 ## What binds, in order
 
-1. **`saas-authorization`.** A tool is a route: its caller is resolved by the three functions, deterministic code decides what it may do, and everything it returns that a person wrote is untrusted text.
-2. **`clerk-production` § MCP OAuth** for every Clerk setting, applied and re-read per instance.
-3. **This skill** for the server, its tools, the directories, the clients and the package.
-4. **The directories' own current pages.** They change without notice: read them again before every submission, and record the date you read them. Where this skill and a directory's page disagree, the page wins and this skill gets a dated correction.
+1. **Apply `saas-authorization` first because a tool is a route.** Its caller is resolved by the three functions, deterministic code decides what it may do, and everything it returns that a person wrote is untrusted text.
+2. **Apply and reread every Clerk OAuth setting per instance.** Apply `clerk-production` § MCP OAuth.
+3. **Apply this skill to the server and its distribution.** It covers tools, directories, clients and the package.
+4. **Let each directory's current page override this skill.** They change without notice: read them again before every submission, and record the date you read them. Where this skill and a directory's page disagree, the page wins and this skill gets a dated correction.
 
 ## Decide these first, in the product's decision log
 
+**Record these decisions before building the server or its tools.** Use the product's decision log.
+
 | Decision | The default | The other choice, and what it costs | Where |
 |---|---|---|---|
-| Does anything answer without sign-in? | **No: every call is authenticated, `initialize` included**, by Clerk OAuth or a workspace API token | An anonymous surface buys users who have no account, such as a ChatGPT plugin that makes a room with no sign-up. It costs a new kind of caller, an identity only the platform can vouch for, limits and a lifetime of its own, a disclosure burden, and in OpenAI's directory a package that declares it before the first upload. A monitoring product declined it: "we do not do MCP without authentication" | `references/server.md § Who may call it` · the `chatgpt-plugin` skill |
-| Who may connect? | An admitted OAuth caller gets the full grant a new API token carries, so admit by **the permission that mints such a token**, checked through the three functions on every call | A role compared by name, or a neighbouring permission the same role happens to hold today, hands write to whichever role is given that permission later. A caller without the permission gets a clear `403`, never a narrower connection | `references/server.md § Who may call it` |
+| Does anything answer without sign-in? | **Authenticate every call, including `initialize`, by default.** Use Clerk OAuth or a workspace API token | An anonymous surface buys users who have no account, such as a ChatGPT plugin that makes a room with no sign-up. It costs a new kind of caller, an identity only the platform can vouch for, limits and a lifetime of its own, a disclosure burden, and in OpenAI's directory a package that declares it before the first upload. | `references/server.md § Who may call it` · the `chatgpt-plugin` skill |
+| Who may connect? | An admitted OAuth caller gets the full grant a new API token carries, so admit by the permission that mints such a token, checked through the three functions on every call | A role compared by name, or a neighbouring permission the same role happens to hold today, hands write to whichever role is given that permission later. A caller without the permission gets a clear `403`, never a narrower connection | `references/server.md § Who may call it` |
 | What must an agent never do? | A written list, held in code, and said in the instructions and the README | Examples: an audience product's agents cannot ask, vote or delete; a monitoring product's cannot delete, change billing, manage tokens or publish an incident note | `references/tools.md § Choosing the tools` |
 | Must a sign-up that starts in an agent work? | Yes, for a product whose first user may arrive through an agent | Refusing the first call until the dashboard has been opened sends that user out of the agent; a Clerk setting and a workspace made on the first authenticated call close the gap | `references/server.md § The first call` |
 | The path | `/api/mcp` or `/mcp`, chosen once | The OAuth audience and both protected-resource documents (the path's own and the root alias) name that exact URL, and the `401` challenge points at the path's own document; the authorization-server document stays Clerk's, relayed | `references/server.md § The route` |
 
 ## The rules every change meets
 
-- **Descriptions, titles and the server's instructions are product copy, and each sentence is a claim.** Directories score them and show them; agents choose tools from them alone. Review them like code: one server's first independent round over rewritten descriptions found eight sentences the code did not keep, and they took five rounds to come back clean. `references/tools.md`.
-- **Every argument has a description and every tool an `outputSchema`, and a test holds both against the real handlers.** Smithery scores each out of 10, and a server without them scored 0 on both (October 2026). `references/tools.md § The tests`.
-- **Every tool carries a `title` and the hints a directory requires.** Claude's directory flags a tool without a title and without `readOnlyHint` or `destructiveHint`; OpenAI's listing check flagged a tool that closed something while declaring itself not destructive. `references/tools.md § Annotations`.
-- **`tools/list` has a size budget**, because every client loads it into the model's context. Pin it in a test: per-field output descriptions once took one server from 12 KB to 49 KB.
+- **Descriptions, titles and the server's instructions are product copy, and each sentence is a claim.** Directories score them and show them; agents choose tools from them alone. Review them like code, since a sentence can promise behaviour the handlers do not keep. `references/tools.md`.
+- **Every argument has a description and every tool an `outputSchema`, and a test holds both against the real handlers.** Smithery scores each out of 10 (observed `2026-10`). `references/tools.md § The tests`.
+- **Every tool carries a `title` and the hints a directory requires.** Claude's directory flags tools lacking a title and `readOnlyHint` or `destructiveHint`. OpenAI's listing check requires a tool that closes something to declare itself destructive. `references/tools.md § Annotations`.
+- **`tools/list` has a size budget.** Pin it in a test. Every client loads it into the model's context, so per-field descriptions can expand it.
 - **Log every call, refused ones included, before the server is listed anywhere.** It is the only way to learn which clients and directories actually call you. `references/server.md § The per-call log`.
-- **A client is supported only once a happy path with it is recorded**, by this product, against this product, with the date, the client and what was called. A client another product verified, or someone reports working, is unverified for you. `references/clients.md`.
-- **A change to the tool surface owes the package and the directories, after promotion**, and a change to a description or a schema is a change to the surface: output schemas added to one hosted server never reached its package, which then offered a different surface from the one directories scored. `references/companion-repo.md § After a product release`.
+- **A client is supported only once a happy path with it is recorded.** Record the date, the client and what was called, by this product and against this product. A client another product verified, or someone reports working, is unverified for you. `references/clients.md`.
+- **Update the package and directories after promoting a tool-surface change.** A description or schema change is a surface change. Otherwise the package can differ from the hosted surface directories scored. `references/companion-repo.md § After a product release`.
 - **Everything is published from the owner's account.** The registry namespace comes from the GitHub login that publishes, and a listing's maintainer is whoever claimed it; check which account the CLI is logged in as before any listing (`gh api user --jq .login`).
 
 ## The stage, in order
 
 1. **REST functions first.** MCP and REST call the same module, so the two can never disagree about what a call does. REST stays token-only; OAuth is for MCP clients.
-2. **The route**: stateless Streamable HTTP, the challenge, the three layers of error, the limits, the log (`references/server.md`).
-3. **The tools** and their two tests (`references/tools.md`).
-4. **OAuth** per `clerk-production` § MCP OAuth, then an automated real grant and a real client (`references/server.md § Proving it`).
-5. **The docs**: the API contract, a public page for developers pinned to the code by a test, and the distribution record.
-6. **The release** with its review rounds (the `independent-review` skill); descriptions and instructions are in the subject, not context.
-7. **Listings** (`references/directories.md`; a ChatGPT plugin, the `chatgpt-plugin` skill) and **the package** (`references/companion-repo.md`), after promotion, from what production serves.
+2. **Build a stateless Streamable HTTP route with the required controls.** Include stateless Streamable HTTP, the challenge, the three layers of error, the limits, the log (`references/server.md`).
+3. **Build the tools with both required tests.** Read `references/tools.md`.
+4. **Configure OAuth, then prove a real grant and client.** Apply `clerk-production` § MCP OAuth, then `references/server.md § Proving it` for the automated real grant and real client.
+5. **Write the API contract, public developer page and distribution record.** Include the API contract, a public page for developers pinned to the code by a test, and the distribution record.
+6. **Release with independent review of descriptions and instructions.** Apply `independent-review`; descriptions and instructions are in the subject, not context.
+7. **Publish listings and the package from production after promotion.** Read `references/directories.md` and `references/companion-repo.md`; apply `chatgpt-plugin` for a ChatGPT plugin.
+
+Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 
@@ -71,11 +75,11 @@ A real client connects to the deployed server, signs in, lists the tools and cal
 ## When something is learned
 
 - **This skill is general and will be published.** Write the rule and why it holds. A product appears only as an example, named by kind ("a live Q&A product"), never by its commits, release codes, file paths, listing or plugin ids, pull-request numbers or account names.
-- **Date what a platform or directory did or required** ("read on", "observed in"), because they change without notice. When one changes, correct the line; do not leave the old one beside the new.
-- **What is true of one product goes in that product's repository**: its listings and their states, versions, verified clients, open reviews and receipts, in its distribution record, API contract or backlog.
-- **A rule a test can hold gets the test**, and the skill says what the test asserts, not where one product keeps it.
+- **Date what a platform or directory did or required.** Use "read on" or "observed in", because they change without notice. When one changes, correct the line; do not leave the old one beside the new.
+- **What is true of one product goes in that product's repository.** This includes its listings and their states, versions, verified clients, open reviews and receipts, in its distribution record, API contract or backlog.
+- **A rule a test can hold gets the test.** Say what the test asserts, not where one product keeps it.
 
 ## Where the skill lives
 
-- **In the installed `app-stack` pack, in every agent that builds the server**, and the product keeps no copy of it: a copy freezes the skill at the version it was taken from, and Claude Code loads it a second time beside the pack. A product that still carries one (`.claude/skills/mcp-server/`, `.agents/skills/mcp-server/`) moves what it says that the pack doesn't into its own repository (above) or into a change for this collection, then deletes it.
+- **Install the `app-stack` pack in every agent that builds the server.** Keep no product copy: it freezes at its copied version, and Claude Code loads it twice beside the pack. For an existing copy (`.claude/skills/mcp-server/`, `.agents/skills/mcp-server/`), move additions into the product's repository (above) or a change for this collection. Then delete the copy.
 - **A builder that is not Claude Code has the pack installed in it too.** A Codex brief for the MCP server names the skill as `$app-stack:mcp-server`.

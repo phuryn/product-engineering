@@ -5,19 +5,17 @@ description: "Privacy policy, terms, a cookie banner, consent at sign-up, a publ
 
 # Legal pages: drafted from the code, held to it
 
-A privacy policy is the one document where a confident guess is a legal problem: a page that promises a deletion the code does not do is the one a customer's counsel reads. So the pages are built like the rest of the product, while it is built: the agent drafts them from what the code collects, stores and sends, a test fails when the code and the pages part, and the owner supplies the facts only they have and approves the text. This is a method for keeping legal text true, not legal advice; the owner, or their counsel, decides what the pages say.
-
-It was learned on a monitoring product and a live Q&A product, named here only by kind.
+**Draft legal pages from what the code collects, stores and sends.** A confident guess can promise a deletion the code does not perform. Build the pages alongside the product, with a test that fails when they diverge. The owner supplies facts only they have and approves the text. This method keeps legal text true; it is not legal advice. The owner, or their counsel, decides what the pages say.
 
 ## When it applies
 
-- **During the build, before the first stranger is asked for anything**: a sign-up, an email address, a payment. The pages land with the public front door, and until then the deploy's URL is shared with nobody (for a SaaS, stage 8 of `app-lifecycle`). Before that, a placeholder behind each legal link says the text comes before launch and holds no sentence of policy, so it promises nothing the code must match.
-- **In the change that alters what a page describes**: a new provider, an analytics tag, a cookie, a retention job, a model provider that reads what people type. The page changes in the same change, never before it and never after.
-- **At go-live**, the `release-gate` skill confirms they match the code; at a review, the `intended-vs-implemented` skill reads them as documented intent. Neither is where they are written.
+- **Write the pages before the first stranger is asked for anything.** During the build, this includes a sign-up, an email address or a payment. The pages land with the public front door, and until then the deploy's URL is shared with nobody (for a SaaS, stage 8 of `app-lifecycle`). Before that, a placeholder behind each legal link says the text comes before launch and holds no sentence of policy, so it promises nothing the code must match.
+- **Change the page in the change that alters what it describes.** This includes providers, analytics tags, cookies, retention jobs and model providers reading what people type. The page changes in the same change, never before it and never after.
+- **Check pages against code at go-live and as intent at review.** Apply `release-gate` for the go-live check and `intended-vs-implemented` to read them as documented intent at review. Neither is where they are written.
 
 ## What binds
 
-1. **Every sentence matches what the code does today.** Each claim traces to a table, a cookie, a script or a provider call, and nothing describes a tag, a job or a feature still to come. The policy names an analytics tool only in the change that adds its tag. (The live Q&A product's original ask requested the analytics sentence before the tag existed: exactly the overclaim this rule forbids.)
+1. **Every sentence matches what the code does today.** Each claim traces to a table, a cookie, a script or a provider call, and nothing describes a tag, a job or a feature still to come. The policy names an analytics tool only in the change that adds its tag.
 2. **Draft from an inventory of the code, not from a template.** List what is collected and from whom, where it is stored and for how long, and every provider it reaches, from:
    - the environment schema's providers and the server's outbound calls;
    - the Content-Security-Policy's origins, which name every third party a browser page may reach;
@@ -27,27 +25,37 @@ It was learned on a monitoring product and a live Q&A product, named here only b
    - what people type to an embedded agent, which reaches the model provider under its own retention terms.
 3. **When another product by the same company already has legal pages, start from them.** Keep the company's boilerplate (controller, rights, supervisory authority, governing law, accounts, acceptable use, payment, liability) and rewrite everything about processing from this product's inventory.
 4. **A unit test pins the pages to the code.** The policy's list of providers lives in code beside the pages, and the test fails when the code reaches a provider the list does not name, or when an area the pages call unbuilt ships.
-5. **Sell only what runs.** The plan table, the terms, the policy and the footer read one launch list of what is built, and a test fails when a sold or promised line names something the list marks unbuilt; that line says *Coming soon* instead. (`2026-10-23`, a monitoring product's paid plan was found selling four capabilities that were not built.) The go-live side of the same check is `release-gate`.
+5. **Sell only what runs.** The plan table, the terms, the policy and the footer read one launch list of what is built, and a test fails when a sold or promised line names something the list marks unbuilt; that line says *Coming soon* instead. The go-live side of the same check is `release-gate`.
 6. **No page promises a deletion no job performs.** A retention period on the page needs the job that enforces it, idempotent and with no public endpoint; until it exists, the gap is logged in the backlog and the page promises nothing.
-7. **Essential cookies only.** Sign-in, a theme and security cookies are essential; analytics, advertising and most chat widgets are not. Any cookie that is not essential brings the consent banner with it: nothing non-essential loads before the visitor accepts, refusing is as easy as accepting, and the policy names the cookie, its purpose and its lifetime. Analytics runs without cookies by default (the `product-analytics` skill), which removes the cookie; whether it also removes the banner where the product is offered is the owner's decision, with their counsel.
-8. **Express consent at sign-up.** A new account accepts the terms and the policy before it exists, through the identity provider's own setting where it has one (on Clerk, *Require express consent to legal documents*, switched on by the owner; `clerk-production`). Each page carries its last-updated date.
-9. **A contact address only once the mailbox exists**, because an address that bounces is worse than none. Where the operator is established in the EU or the UK, the e-Commerce rules require an email address that allows rapid contact (Directive 2000/31/EC, Art. 5(1)(c); UK SI 2002/2013, reg. 6(1)(c)), and where it sells to consumers in the EU, the Consumer Rights Directive asks for the geographical address where the operator is established, a telephone number and an email address, given before the consumer is bound, wherever the operator is established (2011/83/EU, Art. 6(1)(c), as amended by 2019/2161, which also covers a service paid for with personal data). Then the mailbox exists, and the number answers, before the front door is shared with anyone; elsewhere, ask counsel before showing the postal address alone (`environments`, optional feature switches).
+7. **Use only essential cookies unless the visitor accepts the others.** Sign-in, a theme and security cookies are essential; analytics, advertising and most chat widgets are not. Any non-essential cookie brings a consent banner. Nothing non-essential loads before acceptance, refusal is as easy as acceptance, and the policy names each cookie, its purpose and lifetime. Analytics runs without cookies by default (the `product-analytics` skill), which removes the cookie; whether it also removes the banner where the product is offered is the owner's decision, with their counsel.
+8. **Require express consent to the terms and policy at sign-up.** A new account accepts the terms and the policy before it exists, through the identity provider's own setting where it has one (on Clerk, *Require express consent to legal documents*, switched on by the owner; `clerk-production`). Each page carries its last-updated date.
+9. **Publish a contact address only once the mailbox exists.** An address that bounces is worse than none. Where established in the EU or UK, the operator must provide an email address allowing rapid contact. The e-Commerce rules require it (Directive 2000/31/EC, Art. 5(1)(c); UK SI 2002/2013, reg. 6(1)(c)). Where selling to EU consumers, provide the geographical establishment address, a telephone number and email address before the consumer is bound. This applies wherever the operator is established (2011/83/EU, Art. 6(1)(c), amended by 2019/2161, also covering services paid for with personal data). Then the mailbox exists, and the number answers, before the front door is shared with anyone; elsewhere, ask counsel before showing the postal address alone (`environments`, optional feature switches).
 10. **The pages are public and read no session.** They render the same for everyone, signed in or not, and every page links to them in its footer, the sign-up included.
 
 ## What the owner does by hand
 
-The agent drafts, inventories, writes the test and wires the links. These are the owner's, and the agent asks for each by name rather than guessing:
+**Ask the owner for each fact and approval by name.** The agent drafts, inventories, writes the test and wires the links. These remain the owner's:
 
-1. **The controller**: the legal entity's full name, its registered address and the address it operates from where that differs, and, where one exists, its company number.
-2. **The contact**: an email address that receives mail, required in most cases, and a telephone number where the product sells to consumers in the EU, or is offered to them for personal data used beyond running it (rule 9).
-3. **The provider details**: for each provider the inventory found, confirm the account it runs under, the region its data is stored in, and that its data processing agreement is accepted (usually a click in its dashboard). A provider that acts as its own controller, as Microsoft says Clarity does, has no such agreement: the policy names it as a recipient acting as a controller, and counsel decides how the product's own role is described (`product-analytics`).
-4. **Where the product is offered**, the governing law and the supervisory authority.
-5. **Retention**: how long each kind of data is kept. The agent then builds the job the period needs (rule 6).
-6. **The identity provider's consent setting**, switched on in its dashboard (rule 8).
-7. **Approve the text**, read in full. No URL a stranger is given serves the text before that approval.
+1. **Ask for the controller's full legal identity and addresses.** Get the legal entity's full name, its registered address and the address it operates from where that differs, and, where one exists, its company number.
+2. **Ask for a working email and any required telephone number.** Get an email address that receives mail, required in most cases, and a telephone number where the product sells to consumers in the EU, or is offered to them for personal data used beyond running it (rule 9).
+3. **Confirm each provider's account, storage region and processing agreement.** For each provider the inventory found, confirm the account it runs under, the region its data is stored in, and that its data processing agreement is accepted (usually a click in its dashboard). A provider that acts as its own controller, as Microsoft says Clarity does, has no such agreement: the policy names it as a recipient acting as a controller, and counsel decides how the product's own role is described (`product-analytics`).
+4. **Ask where the product is offered and which law governs.** Ask for the supervisory authority too.
+5. **Ask how long each kind of data is kept.** The agent then builds the job the period needs (rule 6).
+6. **Have the owner enable consent in the identity provider's dashboard.** Use its consent setting (rule 8).
+7. **Have the owner read and approve the full text.** No URL a stranger is given serves the text before that approval.
+
+Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 
-The test fails when a scratch change calls a provider the policy does not name, a visit to every public page leaves only essential cookies, and no stored id, in the browser, a stranger signing up on a phone must accept the terms and the policy first, and the owner approved the text with their own facts in it.
+The test fails for an unnamed provider; every public-page visit leaves only essential cookies and no stored browser id. Phone sign-up requires accepting the terms and policy first, and the owner approved the text with their own facts.
 
-Related skills: `product-analytics` (cookieless analytics, and what changes when a cookie comes in) · `app-lifecycle` (where the front door sits on the path) · `release-gate` (the go-live check that the pages match the code) · `intended-vs-implemented` (the pages read as documented intent at a review) · `environments` (what is held about people, data that expires) · `clerk-production` (the consent setting, the CSP) · `ui-design` (what a screen may claim).
+Related skills:
+
+- `product-analytics` (cookieless analytics, and what changes when a cookie comes in)
+- `app-lifecycle` (where the front door sits on the path)
+- `release-gate` (the go-live check that the pages match the code)
+- `intended-vs-implemented` (the pages read as documented intent at a review)
+- `environments` (what is held about people, data that expires)
+- `clerk-production` (the consent setting, the CSP)
+- `ui-design` (what a screen may claim).
