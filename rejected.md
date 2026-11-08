@@ -117,3 +117,19 @@ Each entry: the date, the request, **rejected** or **deferred**, the reason, the
 - **Reason:** `ui-design`'s "Sell only what runs" already requires every selling page to read one launch list in code. A workaround teaches the wrong solution; add the list instead.
 - **Evidence:** `2026-09-20`, a live Q&A product without the list changed a plan, corrected three surfaces and left its plan summary promising a footer logo that was absent; no gate failed on the marketing strings.
 - **Decided by:** the maintaining session, as the proposing session offered to decline it in favour of the launch list.
+
+## An incident-response skill, with the collection's default monitor
+
+- **2026-11-08 · deferred.**
+- **Request:** from the owner's initiative to teach his products through skills: a skill for the moment production breaks (acknowledge, tell users on the status page, recover, write the postmortem), with the default monitoring service's incident tools as its default.
+- **Reason:** no receipt yet. Detection is `uptime-monitoring`, the first look and the panic buttons are `environments` (`references/data-and-incidents.md`), and rollback is `release-gate`; what a new skill would add is the response itself, and none of the products these skills come from has had a production incident to learn it from. The monitoring service's agent tools for incidents only read them and save a draft a person publishes, and that draft tool has not yet run through any client. A skill written now would be the collection's guess, which rule 2 exists to prevent.
+- **Reopen when:** a product records a production incident whose response (who was told, when, through what, and what the postmortem changed) a stranger could reuse, or the monitoring service's incident tools are proven through a client.
+- **Decided by:** the maintaining agent, on the owner's "if you think we need more skills there, build them too" (`2026-11-08`).
+
+## A remote-agents skill: approving long agent runs from the phone
+
+- **2026-11-08 · deferred.**
+- **Request:** from the same initiative: a skill for running coding agents while away (approvals and notifications on the phone, a spending cap, what never to auto-approve), with the author's remote-control product as the default.
+- **Reason:** that product has no MCP server or API an agent can drive, so the skill would tell a person what to install rather than teach an agent a method, and the rules worth keeping (never approve a push that deploys unseen, cap the spend) already live in `release-gate`, `delegation` and the agent-teams skills. A skill without a step an agent takes is a product page.
+- **Reopen when:** the product exposes something an agent can call, or a receipt shows agents doing harm on long unattended runs that the existing skills don't cover.
+- **Decided by:** the maintaining agent, on the owner's word above (`2026-11-08`).
