@@ -10,11 +10,11 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-10-23` and `24`, a monitoring product: every stage brief listed these under "What stays with me". Delegated builds made 28 commits the day before the first release and none on the day of five production promotions, which was review fixes and real systems throughout.
 
-## Write the diff when its brief would be nearly as long.
+## If the brief would be nearly as long as the diff, write the diff.
 
 - `2026-08-21`: having already found the exact lines, an agent wrote a 60-line brief and waited twenty minutes for a change it could have made in two.
 
-## Stop a small delegated build that has made no writes.
+## A build round that has made no writes on a small change is stopped.
 
 - `2026-09-22`, a builder sat twelve minutes on a fifteen-line change with a clean tree.
 
@@ -26,23 +26,23 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-10-22` and `23`, a monitoring product: briefs that said so got "written, not run" back. The invented counts under `SKILL.md` § When it comes back are what happens when a brief doesn't.
 
-## Exercise every existing page and function the stage touches.
+## Ask it to exercise every existing page and function the stage touches, not only its own.
 
 - `2026-11-01`, an evals product: a builder's integration tests found a bug in the session agent's own code, an embed across a relationship that doesn't exist, on a page no earlier test had opened.
 
-## Put every consequential claim in the brief for verification.
+## The brief is the delegate's entire reality.
 
 - `2026-10-23`: the owner changed the identity provider's organization settings mid-build.
 
-## Measure real input before briefing a feature that guesses.
+## A feature that guesses from real-world input starts from evidence.
 
 - `2026-10-23` and `24`, a monitoring product: a brief for suggested health checks was built on a scan of 495 real apps. A live run on 30 sites reversed one binding decision, because a browser-like `Accept` header turned checks into page loads: one framework's health route answered HTML, and an identity provider's development instance redirected every check to its sign-in. The same run found four more defects.
 
-## Use ranges in reusable briefs and check them against git.
+## Name ranges, not commits, in a brief you will reuse.
 
 - `2026-08-22`, twice in one session: A second round run from a brief that pins a SHA re-reviews the commit already reviewed and confidently re-reports what was fixed one commit later.
 
-## Use a fresh reviewer who did not build the code.
+## The session that wrote the code never clears it.
 
 - `2026-11-06`, owner: The reviewer is a fresh session, ideally another model family, or the builder's family when no other can run, never the building thread resumed or forked and never a subagent of it.
 
@@ -50,38 +50,38 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-07-03`: a full day of mining agents, evidence filers and a benchmark babysitter ran silently at top-tier rates; the babysitter alone was about twenty rounds of purely mechanical work a mid-tier model does identically.
 
-## Use top-tier calls to challenge your framing.
+## Use the top tier adversarially.
 
 - `2026-07-24`: The highest-value top-tier call of one day was "refute this audit", which overturned the parent's framing and trimmed two over-read magnitudes.
 
-## Have children pull and reduce data; keep interpretation with the parent.
+## Pull down, decide up.
 
 - `2026-08-12`: a whole search-data scan ran in a top-tier parent — paginating an API, reducing 39K rows — when the only step that needed it was deciding that one 219K-impression row was worth zero.
 
-## Measure file overlap before deciding which changes can run together.
+## Parallelise on evidence, not impatience.
 
 - `2026-08-20`: of eight commits, six touched one protocol file and five one host file, so almost nothing in the batch was parallel-safe; the two that touched neither were exactly the two that should have run alongside.
 
-## Give concurrent writers separate worktrees.
+## Never two writers in one tree.
 
 - `2026-08-19`: A fix written while a delegate built in the same checkout vanished silently when the delegate wrote its files back; `git status` showed the file identical to `HEAD`.
 
-## Merge parallel stages through an integration branch after clean reviews.
+## Parallel stages merge through an integration branch.
 
 - `Undated`: Two branches that pass alone can fail together (a test fixture from one predated a field the other made required).
 
 - `2026-10-22` and `23`, a monitoring product: 39 merges into the integration branch, 16 with conflicts; 25 of the 37 conflicted files were shared docs. Two branches' migrations collided once, and the unapplied one was renumbered after the other, already applied with a later timestamp.
 
-## Check new migration timestamps against the database ledger at every merge.
+## Every merge checks the new migrations' timestamps against the ledger.
 
 - `2026-11-01`, an evals product: a builder's timestamp matched, to the second, one applied on the main branch while it built.
 
-## Give concurrent sessions separate accounts or run them sequentially.
+## Parallel sessions share more than a tree.
 
 - `2026-10-22`, a monitoring product: a design-review session created records in the gate's test account mid-run and turned the gate red, and development's workers picked up the suites' test records, about 90 checks a gate run racing their assertions.
 - `2026-10-24`, a signed-in browser step failed two runs of three under a parallel review's load.
 
-## Undo only your probe edit when a file has uncommitted work.
+## Never `git checkout -- <file>` (or `git restore`) on a tree carrying uncommitted work.
 
 - `2026-08-15`, twice in one day; one implementation was recovered only from a source map that still embedded the original TypeScript.
 
@@ -89,30 +89,30 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-09-16`: A round that ran without write access returns a reasoned report that changed nothing and reads exactly like one that worked.
 
-## Rerun the gate yourself and replace evidence from your own run.
+## Re-run the gate yourself, and rewrite any evidence it wrote from your own run.
 
 - `2026-09-16`, `2026-09-17`: A delegated builder whose sandbox could not reach the database or a browser had no passing gate to report; twice its runs were written up with invented counts.
 
-## Do every handoff command you can before escalating to the owner.
+## Before passing a delegate's "commands for the owner" up, do every one you can.
 
 - `2026-10-23`, a monitoring product: a handoff listed the identity provider's OAuth settings as owner settings; they were applied through its backend API with the instance's secret key and re-read, and the migrations and edge rollout in two other handoffs' owner commands were run by the coordinator.
 
-## Send a builder's product-decision objection to the owner separately.
+## A builder's objection that is a product decision goes to the owner.
 
 - `2026-11-01`, an evals product: a builder found that the brief's sample above a spending cap contradicted the brief's own overshoot bound; it was right, and which to keep was the owner's call.
 
-## Add your dated status and changes without rewriting the delegate's handoff.
+## When you take a handoff over, put a dated status line at its top.
 
 - `2026-10-24`: a handoff still opened "incomplete" and "uncommitted" after the coordinator had committed, reviewed and pushed it, and it claimed a deploy the environment log never recorded; review rounds found both.
 
-## Record audit state twice and recheck findings against current HEAD.
+## Audits record `HEAD` and `git status --short` at the start and again before delivering.
 
 - `Undated`: An audit once reported a file "in limbo" whose deletion had been committed earlier the same session.
 
-## Get a distinguishing observation after the second fix that fails.
+## Repeated correct fixes that don't work mean the model of the problem is wrong.
 
 - `2026-08-21`: four rounds, each correct and green, none fixing the symptom.
 
-## Call work ready to test only when nothing needs doing first.
+## "Ready to test" means testable with nothing to do first.
 
 - `2026-08-19`: the owner tested a fix twice against last night's build.

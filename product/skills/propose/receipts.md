@@ -2,7 +2,7 @@
 
 Each heading is a rule from `SKILL.md`, with the case that taught it.
 
-## Write a published method's sourced steps before the product's use cases.
+## When the product implements a published method, write its steps before the use cases.
 
 - `2026-11-03`, an evals product's accepted proposal, brief and UX replan all began with production traces although the method starts earlier; the owner's article had been read only to check quotes, never compared with the plan.
 
@@ -14,7 +14,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-11-01`, an evals product: such a request took four skills composed by hand, in an order none of them stated.
 
-## Weigh each first-version part's visible value against its cost.
+## Weigh each part of the first version by what people will see against what it costs.
 
 - `2026-11-03`, an evals product spent ten review rounds on hard logic before it had a landing; the owner: "Seeing app with all those elements that costs a little is wow. Debugging hard logic for hours isn't."
 
@@ -22,7 +22,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-11-07`, a static discovery page: a cold reader valued the jobs map most; matching numbers connected its rows to screens.
 
-## Apply `ui-design` before drawing screens and check screenshots against its method.
+## Apply the `ui-design` skill.
 
 - `2026-11-03`, an evals product's artifact imitated its kit and invented borderless buttons; the owner caught those and misaligned chips.
 

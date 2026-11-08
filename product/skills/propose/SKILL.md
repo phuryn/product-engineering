@@ -15,27 +15,23 @@ description: "'I have an idea', 'is this worth building', 'what next': research 
 
 ## Steps
 
-**Follow the evidence through research, a reviewable proposal and recorded decisions.** The owner sees the interface before any plan.
-
 ### 1. Read what was shared, then what already exists
 
 **Read the owner's material and the product's existing record first.** Read all supplied notes, research, data, links, screenshots and competitor names, then any brief, decision log and earlier proposal.
 
-**Use the repository's existing proposal equivalent before creating another.** Duplicated proposals lose decisions between them. Rewrite an existing Markdown proposal once as HTML in the same place, removing the Markdown in that change while git keeps its history. On a rerun, start from the existing proposal (§ Running it again).
+**Use the repository's existing equivalent of a proposal.** Duplicated proposals lose decisions between them. Rewrite an existing Markdown proposal once as HTML in the same place, removing the Markdown in that change while git keeps its history. On a rerun, start from the existing proposal (§ Running it again).
 
-**Write a published method's sourced steps before the product's use cases.** When the product implements a method, place its steps in the brief above the use cases. Use the `app-lifecycle` skill's brief or the product's equivalent. Give each step a source, have the owner identify the authority and any simplification, then order the use cases accordingly. Check the first use case against the authoritative document as the first thing a new user does.
+**When the product implements a published method, write its steps before the use cases.** Put those steps in the brief, above its use cases. Use the `app-lifecycle` skill's brief or the product's equivalent. Give each step a source, have the owner identify the authority and any simplification, then order the use cases accordingly. Check the first use case against the authoritative document as the first thing a new user does.
 
 ### 2. Research what is missing
-
-**Research actual alternatives and fill the evidence gaps.** Match the research to the choices still open.
 
 - **Research up to five alternatives people actually use, including doing nothing.** Include substitutes such as spreadsheets, agencies and manual workarounds, keeping them distinct from direct competitors. When installed, apply `competitor-analysis` with this narrower scope rather than its full report. Tell it to omit market-size, share and funding figures without sources.
 - **Research an open segment and compare the value offered.** Apply `market-segments` and `beachhead-segment` while the segment remains open. Apply `value-proposition` and `value-curve` for the proposition and curve against alternatives.
 - **Gather what people say when the owner wants it.** Use reviews, forums, Reddit and X for problems and people's words, without inferring prevalence or willingness to pay from those comments.
-  - **Check every quote verbatim against the fetched page.** Include its link and the date read.
-  - **Exclude vendor, staff, affiliate, paid and promoted posts.** Use independent accounts because astroturf can look like demand.
+  - **Each quote is verbatim, checked against the page as fetched.** Include its link and the date read.
+  - **Leave out posts by a vendor, its staff or its affiliates.** Also exclude paid or promoted posts. Use independent accounts because astroturf can look like demand.
   - **Flag quotes fetched through mirrors or archives.** Say when blocked fetching required that route.
-- **Give every source its address and date read.** A claim without a source is your own.
+- **Every source gets its address and the date it was read.** A claim without a source is your own.
 
 **Handle standalone market research here without building a proposal.** For requests covering competitors, segments, a value proposition, a value curve or people's comments, follow this order without a proposal. Gather people's comments alongside under the same rules:
 
@@ -48,7 +44,7 @@ Finish by marking every claim by kind (step 3); standalone research ends there.
 
 ### 3. Mark every claim by kind
 
-**Mark every claim's kind, source and your own inferences.** For new products, most evidence is other people's words interpreted by a fluent model. Without those marks, confident prose hides assumptions.
+**If the proposal doesn't show each claim's source and mark the agent's own inferences, it is assumptions in a confident tone.** For new products, most evidence is other people's words interpreted by a fluent model.
 
 | Kind | Example | Used as |
 |---|---|---|
@@ -57,8 +53,8 @@ Finish by marking every claim by kind (step 3); standalone research ends there.
 | Agent inference | "educators will pay, because they already pay for a similar tool" | marked as the agent's, with the evidence it rests on |
 | Unsupported assumption | "teams will switch within a month" | named, and tested before anything rests on it |
 
-- **Use competitor marketing as evidence of positioning.** It does not establish capabilities or customer outcomes.
-- **Record owner preferences as decisions and assertions as hypotheses.** "I want this segment" records a choice. "This segment will pay" remains a hypothesis sourced only to the owner; say so in the proposal.
+- **A competitor's marketing is evidence of how it positions itself.** It does not establish capabilities or customer outcomes.
+- **The owner's preference is a decision; the owner's assertion is a hypothesis.** "I want this segment" records a choice. "This segment will pay" remains a hypothesis sourced only to the owner; say so in the proposal.
 
 ### 4. Check feasibility before drawing screens
 
@@ -66,12 +62,10 @@ Finish by marking every claim by kind (step 3); standalone research ends there.
 
 ### 5. Propose
 
-**Recommend the direction the evidence supports and explain why.** Show a real choice when one remains.
-
-- **Offer one clear direction or two or three real alternatives.** Use one when the evidence clearly favours it. For a real choice, give two or three with trade-offs, since invented alternatives hide the recommendation.
+- **One direction when the evidence clearly favours it; two or three, with their trade-offs, when the choice is real.** Inventing alternatives hides the recommendation.
 - **Explain each direction's audience, value proposition, scope and advantage over alternatives.** State what its first version does and deliberately leaves out.
-- **Weigh each first-version part's visible value against its cost.** Put visible, cheap parts early: a landing, displayed pricing and example data filling every screen. Add hard logic once the product is worth it.
-- **Name the weakest assumption that could change the recommendation.** Identify the consequential assumption, since a shaky detail that changes nothing can wait even if it is the weakest overall.
+- **Weigh each part of the first version by what people will see against what it costs.** Put visible, cheap parts early: a landing, displayed pricing and example data filling every screen. Add hard logic once the product is worth it.
+- **Name the weakest consequential assumption.** Choose the one that, if wrong, changes the recommendation. A shaky detail that changes nothing can wait, even if it is the weakest overall.
 - **Recommend one direction and give the reason.** Make the choice explicit in the artifact.
 
 ### 6. Build what the owner reviews, interface first
@@ -89,7 +83,7 @@ Finish by marking every claim by kind (step 3); standalone research ends there.
 9. Hypotheses, including the weakest consequential assumption and its experiment.
 
 - **Map jobs before drawing one high-fidelity screen per key job.** Number each job in the user's words, naming its screen, the question that screen answers and its primary action. Each screen shows its job's number and realistic sample data labelled as such. When replacing a familiar tool, start from its structure and justify departures.
-- **Apply `ui-design` before drawing screens and check screenshots against its method.** Read the method first, with `app-stack` installed, or use the jobs map, `frontend-design` direction, token values and a checked screenshot without it. Embed and compose an existing kit's CSS inside the HTML. For new products, choose one subject-grounded direction and keep values in tokens. Where the method is present, check screenshots against it before the owner sees them.
+- **Apply the `ui-design` skill.** Read the method first, with `app-stack` installed, or use the jobs map, `frontend-design` direction, token values and a checked screenshot without it. Embed and compose an existing kit's CSS inside the HTML. For new products, choose one subject-grounded direction and keep values in tokens. Where the method is present, check screenshots against it before the owner sees them.
 - **Agree on static or clickable screens and build no separate prototype.** The person and agent choose together. The first working version takes hours and tests the full flow.
 - **Choose chart forms first and inspect their renders.** In Claude Code, apply built-in `dataviz` (read `2026-11-07`). In other agents, follow its rules:
   - **Choose the form first, using a number when that fits.** Sometimes a number serves better than a chart.
@@ -135,18 +129,16 @@ Finish by marking every claim by kind (step 3); standalone research ends there.
 
 **Rerun the proposal using what real users did and paid for.** Collect what they used, returned to and abandoned, and record its origin: analytics, payments, support or interviews.
 
-- **Update and republish the same HTML file with one current recommendation.** Append evidence, update conclusions, and place each dated observation under the hypothesis it bears on, by ID. Update each hypothesis's status: supported, weakened, refuted or untested. Replace the recommendation; keeping old and new together leaves the builder choosing between them.
-- **Count reported past behaviour as evidence and future intentions as hypotheses.** What people say they did counts, while what they say they would do needs testing again.
+- **Update and republish the same HTML file.** Append evidence, update conclusions, and place each dated observation under the hypothesis it bears on, by ID. Update each hypothesis's status: supported, weakened, refuted or untested. Replace the recommendation; keeping old and new together leaves the builder choosing between them.
+- **What people say they did counts; what they say they would do is a hypothesis again.** Test what people say they would do.
 
 Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 
-**Confirm the owner knows claim sources and the hypothesis first users test.** They saw key screens before planning, chose on the page or in chat, answered only questions they could decide, and know what result changes the plan.
+The owner can trace every claim, saw key screens before planning, made decisions on the page or in chat, and answered only questions requiring their judgement. They know which hypothesis the first users will test and what result changes the plan.
 
 ## Files
-
-**Read the proposal sections when writing or updating the record.**
 
 | File | Holds | Read when |
 |---|---|---|
