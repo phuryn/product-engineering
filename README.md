@@ -4,7 +4,7 @@
 
 # Product Engineering
 
-Agent skills for shipping real products with coding agents, from the first idea to paying users. No coding.
+44 agent skills from shipping three live products: decide what to build, build it with Claude Code or Codex, have a second model review it, release it.
 
 **Lost at any point?** Type `/product:start-here` (Codex: `$product:start-here`) and say what you have. It tells you where the work stands and what's next. [Install](#install) first.
 
@@ -12,7 +12,7 @@ The skills work in Claude Code, Codex, Cursor, Gemini CLI, OpenCode, GitHub Copi
 
 ## Who it's for
 
-- **Product managers, founders and designers who ship with coding agents.** You make the decisions and check the product, not every line of the code.
+- **Product managers, founders and designers who ship with coding agents.** No coding needed: you make the decisions and check the product, not every line of the code.
 - **Engineers who build a product, not only the code.** That means deciding what to build, and running it in production with real users and real payments.
 - **Anyone working with more than one agent**, where one session coordinates, another builds and a third reviews.
 
