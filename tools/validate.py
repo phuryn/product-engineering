@@ -16,6 +16,8 @@
   each at most MAX_LISTED_EACH: those are always in context, and both agents cut them to a budget.
 - Every "the `x` skill" names a skill in the collection, and none names a user-invoked one: an
   agent cannot load those, so other skills name their command instead.
+- A count of the skills stated in README.md or the marketplace's description is the count: the
+  description opens with it, and nothing else moves it when a skill is added.
 - No generated clutter (__pycache__, .pyc) in the tree.
 - Every script a skill carries parses as Python 3.9, and one that writes `X | Y` in an annotation
   imports `annotations` from __future__: macOS ships Python 3.9 as python3.
@@ -249,6 +251,18 @@ def check_listing():
     return listed
 
 
+def check_counts():
+    """The public description states how many skills there are; a new skill must move the number."""
+    total, own = len(skills), sum(s["listed"] for s in skills.values())
+    stated = re.compile(r"\b(\d+) agent skills\b|\bof the (\d+) skills\b( that start themselves)?")
+    for rel in ("README.md", ".claude-plugin/marketplace.json"):
+        for n, line in enumerate((ROOT / rel).read_text(encoding="utf-8").splitlines(), 1):
+            for m in stated.finditer(line):
+                want, kind = (own, " that load on their own") if m.group(3) else (total, "")
+                if int(m.group(1) or m.group(2)) != want:
+                    errors.append(f"{rel}:{n}: says {m.group(1) or m.group(2)} skills; the collection has {want}{kind}")
+
+
 def check_tree():
     for p in ROOT.rglob("*"):
         if ".git" in p.parts:
@@ -337,6 +351,7 @@ def main():
             errors.append("PyYAML not installed; frontmatter would be read by the flat fallback, not as agents read it")
     check_plugins()
     listed = check_listing()
+    check_counts()
     check_tree()
     check_copies()
     check_python_floor()
