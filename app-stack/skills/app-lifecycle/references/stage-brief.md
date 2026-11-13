@@ -15,7 +15,7 @@
 - **The brief and stage plan budget the tests the sandbox cannot run**, including one integration-fix pass by the session agent: apply the `test-harness` skill's round-trip budget (§ Tests and docs are part of the change).
 - **A stage that adds or changes screens names the `ui-design` skill** (`$app-stack:ui-design` for Codex) and carries its rows of the jobs map. A builder that reads no skill trigger never opens a method it isn't pointed at, and it loads one only from a pack installed in it. (`2026-11-03`, an evals product's builder, Codex with no pack installed, built its screens without the method.)
 - **Without a builder**, the session agent builds the stage itself and the plan's line for the stage is its brief; no separate file is needed.
-- **What a builder reports is a claim.** A delegated diff is unreviewed code: read it before believing it, re-run the gate yourself, and rewrite the coverage evidence from your own run. The independent review still applies.
+- **What a builder reports is a claim.** A delegated diff is unreviewed code. Read it before believing it, re-run the tests the handoff touches yourself, and rewrite the coverage evidence from your own run. Run the full gate yourself when the handoff completes the stage. Its independent review is the stage's series, not a round per handoff.
 - **When the stage is done, the brief moves unchanged to an archive folder** (`docs/history/briefs/<stage>.md`, say), and the stage's line in the plan points there. **A folder holding no brief means no stage is in flight.**
 
 ## Skeleton — copy from here

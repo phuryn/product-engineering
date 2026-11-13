@@ -85,11 +85,15 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-08-15`, twice in one day; one implementation was recovered only from a source map that still embedded the original TypeScript.
 
+## When a build runs late, measure where the time went before changing the model.
+
+- `2026-11-13`, a coding-agent client: the model worked about 35% of roughly 22 hours, with the rest in gate runs, review rounds and waiting. One stage's estimate rose from 6 hours to 12.5. The elapsed time alone did not show where the build was slow.
+
 ## Check the disk before believing a round happened.
 
 - `2026-09-16`: A round that ran without write access returns a reasoned report that changed nothing and reads exactly like one that worked.
 
-## Re-run the gate yourself, and rewrite any evidence it wrote from your own run.
+## Re-run its tests yourself, and rewrite any evidence it wrote from your own run.
 
 - `2026-09-16`, `2026-09-17`: A delegated builder whose sandbox could not reach the database or a browser had no passing gate to report; twice its runs were written up with invented counts.
 

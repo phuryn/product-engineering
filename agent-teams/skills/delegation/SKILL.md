@@ -90,12 +90,13 @@ Three things, and the first is the one most often skipped:
 - **Don't edit a tree a delegate is building in.** Wait or use another worktree.
 - **Never `git checkout -- <file>` (or `git restore`) on a tree carrying uncommitted work.** Either destroys everything uncommitted in the file, a delegate's whole build included. Undo a probe by re-editing the exact change back, or use `git stash push -- <file>` around it. Commit a build before deliberately breaking it to verify a test.
 - **Long runs go detached, with a completion marker.** Watch the marker for completion. Shell-tool timeouts kill their process trees. Keep state in files that survive your context window; apply `flight-deck`.
+- **When a build runs late, measure where the time went before changing the model.** Split elapsed time into model time, gate runs, review rounds and waiting on a person. Read logs and timestamps rather than trusting an impression.
 
 ## When it comes back
 
-- **A delegated diff is unreviewed code.** Read it before believing it, and give it independent review.
+- **A delegated diff is unreviewed code.** Read it before believing it. Its independent review comes before anything ships; in staged work it is the stage's series (`independent-review` § When).
 - **Check the disk before believing a round happened.** Inspect `git status` and file times, since a run without write access can return a convincing report with no changes.
-- **Re-run the gate yourself, and rewrite any evidence it wrote from your own run.** A sandbox without database or browser access cannot supply a passing gate. Read every line the delegate adds to a coverage map or status file; replace its evidence rather than inventing counts.
+- **Re-run its tests yourself, and rewrite any evidence it wrote from your own run.** A piece inside a stage reruns the tests it touches; the full gate runs when the stage is complete (`test-harness` § The gate). A sandbox without database or browser access cannot supply a passing gate. Read every line the delegate adds to a coverage map or status file; replace its evidence rather than inventing counts.
 - **Before passing a delegate's "commands for the owner" up, do every one you can.** Use an API, CLI or key you hold and reread the result. Escalate only what needs a person: a dashboard-only click, money or taste.
 - **A builder's objection that is a product decision goes to the owner.** Give it its own handoff section, keeping it separate from corrections you can accept yourself.
 - **When you take a handoff over, put a dated status line at its top.** Say whether it is merged, which rounds reviewed it, where it is deployed, and what still waits. Keep your changes in their own section, leaving the delegate's text as written. Check claimed deploys against your environment log.
@@ -108,7 +109,7 @@ Each rule's origin, the case that taught it, is in `receipts.md` beside this fil
 
 ## How you can tell it worked
 
-You can verify the delegate's report without asking it anything, and you have rerun whatever it claimed to run.
+You can verify the delegate's report without asking it anything, and you repeat no result of its that you have not run yourself.
 
 ## Files
 

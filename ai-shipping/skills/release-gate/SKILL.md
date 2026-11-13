@@ -55,7 +55,7 @@ The suggested script names are `gate`, `smoke -- <url>`, `visual` and `agents:li
 - **Read the exit code from the log, never the notification.** A background wrapper can report exit 0 when its inner command failed, so read that command's code rather than the notification.
 - **An inherited report is a claim, not evidence.** Run the gate yourself before repeating a count, and take the release subject from git.
 - **The coverage map is written by whoever ran the gate, and by nobody else.** A delegated sandbox without Postgres or browser access has no passing gate to report. Read every line the delegate adds and rewrite evidence from your own run, rather than editing its numbers. Apply `test-harness` for the map's format.
-- **A delegated diff is unreviewed code.** Read what comes back before believing it, and give it independent review. Keep product decisions, review-finding acceptance and stage-completion judgement with you. Also keep every real-system action: deploys, migrations on any database, workers and secrets, including development. Apply `delegation` and `codex-agents` for these boundaries.
+- **A delegated diff is unreviewed code.** Read what comes back before believing it; nothing delegated ships without independent review. Keep product decisions, review-finding acceptance and stage-completion judgement with you. Also keep every real-system action: deploys, migrations on any database, workers and secrets, including development. Apply `delegation` and `codex-agents` for these boundaries.
 - **What was left out is stated, not hidden.** Record preconditions the owner waives as waived, never ticked as completed.
 - **A caveat is a claim about the world, and gets checked like one.** Before saying something has not happened, was not tested or still needs doing, find where its evidence would live and look. Caveats can sound humble enough to escape verification, yet wrong ones still cost the owner's time.
 - **The gate is the exit code, not the printed counts.** Printed passing counts can accompany exit 1 (`test-harness`).
@@ -72,7 +72,7 @@ The session must never have seen the build; choose it in this order:
 
 **Keep the review read-only, fresh and unsteered.** Start without carried-over memory, using a fresh session rather than resuming or forking the building thread. Supply the unreleased diff plus working tree, without a checklist, earlier findings or an argument for the design.
 
-**Compute review subjects from git and repeat until the bar holds.** Cover the whole unreleased range in round one, then only changes since the last round, with everything else as context. Fix findings, rerun the gate yourself, then review again. Stop only when the round has no INTRODUCED finding above Low and no High or Critical of any age remains open. Put pre-existing findings in the backlog with a reason and revisit trigger. Fix High and Critical now, regardless of age.
+**Compute review subjects from git and repeat until the bar holds.** Cover the whole unreleased range in round one, then only changes since the last round, with everything else as context. Fix what the bar names, rerun the tests each fix touches yourself, then review again. Apply `independent-review` for full gate timing and recording accepted Lows. Stop only when the round has no INTRODUCED finding above Low and no High or Critical of any age remains open. Put pre-existing findings in the backlog with a reason and revisit trigger. Fix High and Critical now, regardless of age.
 
 ## Static audits — proposed, never run unasked
 

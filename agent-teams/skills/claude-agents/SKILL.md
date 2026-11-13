@@ -16,7 +16,7 @@ description: "'Ask Claude', 'have Claude build or review this': drive Claude Cod
 3. **Bring the partner in early, while the framing is open.** The cheapest wins concern the angle, the load-bearing claim and what to cut. A late sign-off is the least valuable use.
 4. **Iterate.** Continue the conversation after the first draft comes back. Three to eight turns is normal. Stopping at turn 1 treats a partner as a one-shot generator.
 5. **Converge before surfacing.** The human arbitrates intent and taste, not trade-offs two agents could argue through. Bring one result, or a disagreement stated cleanly.
-6. **A delegated diff is unreviewed code, and the session that wrote it never clears it.** Read it, check the disk and re-run the gate yourself. The independent review is a fresh session; apply `independent-review`.
+6. **A delegated diff is unreviewed code, and the session that wrote it never clears it.** Read it, check the disk and re-run its tests yourself. The full gate and fresh independent review come at the stage's end and before anything ships; apply `test-harness` § The gate and `independent-review` § When.
 7. **Keep product decisions, real systems and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep anything touching a real system, development included, such as deploys, migrations applied to any database, server secrets and live settings. The builder makes each real-system step one command and names it; you run it.
 8. **Write the diff yourself when the brief would be nearly as long.** Judge delegation by size, not time.
 

@@ -6,6 +6,10 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `Undated`: The rules come from two kinds of product, named here only by kind. Most were learned on web apps built on Next.js (App Router), Supabase Postgres and Clerk, tested with Vitest and Playwright (a live Q&A product, a monitoring product and others). The two-halves harnesses and several rules from bugs — marked *the remote-control product* where they appear — were learned on a relay service with a web client and an editor extension with desktop installers that drives a CLI agent.
 
+## Inside a stage, a piece runs the tests it touches; the full gate runs at the stage's end.
+
+- `2026-11-13`, a coding-agent client: one full gate was estimated at 25 to 42 minutes and ran 3 to 4 times per delegated piece. Gate runs, review rounds and waiting took the time outside the model's roughly 35% of a 22-hour build day.
+
 ## Budget integration tests in round trips to the real database.
 
 - `2026-11-04`, an evals product: a sandboxed builder wrote tests it could not run; 9 of 193 failed on test-side mistakes on the session agent's machine, then several timed out at 30 seconds against a remote database taking 130ms per round trip.

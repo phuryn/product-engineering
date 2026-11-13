@@ -35,6 +35,8 @@ Every row in full, including its target and run placement, is in `references/har
 
 **Run the local gate in order before every promotion.** `gate` runs `typecheck`, `test` (unit + integration), `e2e`, then `e2e:auth`, locally and mandatorily before any promotion. `visual`, the live agent suite, and `smoke -- <url>` run outside it on purpose. There is no hosted CI unless wired as its own change (`release-gate`). If wired, it runs the gate minus the authenticated mile. The local gate covers that gap; never silently skip it.
 
+**Inside a stage, a piece runs the tests it touches; the full gate runs at the stage's end.** Run the full gate once on the finished stage, before its review series. Run it again on the state the series cleared when a fix followed the last full run. Time one full run and write the figure in the plan, so the stage's estimate counts its runs. A gate of a couple of minutes can run on every piece.
+
 ## Tests and docs are part of the change, not a later step
 
 - **Budget integration tests in round trips to the real database.** Include fixture setup and cleanup at the target's measured latency. A test needing more than 30 seconds states why and sets its own limit; don't raise the whole suite's timeout. When the builder cannot reach the database or launch the browser, budget one integration-fix pass by the session agent after its first real run. Put that budget in both the brief and stage plan.
@@ -97,7 +99,7 @@ Each rule's origin, the case that taught it, is in `receipts.md` beside this fil
 
 ## How you can tell it worked
 
-You ran the gate and read its exit code; each new test sits in the harness whose Runs column says where it runs. The coverage map was updated from that run.
+Your own run covered the tests the piece touches, or the full gate at the stage's end, and you read its exit code. Each new test sits in the harness whose Runs column says where it runs. The coverage map was updated from the full gate's run.
 
 ## Files
 

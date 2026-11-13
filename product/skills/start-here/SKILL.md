@@ -110,7 +110,7 @@ $product:start-here we have a bug in sign-in      Codex, plugin installed
 
 ### 4. Build
 
-**One session coordinates; another builds when one is available.** A different session reviews every change, so no session reviews its own work. A fresh reviewer that never saw the build reviews every deploying push, and again after each fix, round after round. Tests and doc lines land with the change.
+**One session coordinates; another builds when one is available.** No session reviews its own work. A fresh reviewer that never saw the build reviews each completed stage and every deploying push. It reviews again after each fix to what a round found, until the bar holds (`independent-review` § The stopping rule). Tests and doc lines land with the change.
 
 **Let the agent walk you through accounts, keys and domains when needed.** Keys copied from a dashboard go where it asks, put there by you, never into chat. Rotate a key that touched chat.
 

@@ -5,7 +5,7 @@ description: "Before 'ship it', a deploy or release, for 'an independent review'
 
 # Independent review — the gate before a change ships
 
-**The session that wrote the code never clears it.** A fresh reviewer that never saw the build reads the change for what would block or break it. That separation applies at every size: a one-line fix gets a short round, never no round.
+**The session that wrote the code never clears it.** A fresh reviewer that never saw the build reads the change for what would block or break it. That separation applies at every size: a one-line fix that ships gets a short round, never no round. Inside a stage, it joins the stage's series (§ When).
 
 **The tool is optional; the review is not.** The wrapper in this skill's `scripts/` picks the reviewer by default. Run `python <skill dir>/scripts/review.py --check` to see which. Its defaults are:
 
@@ -25,7 +25,7 @@ A sandbox flag alone is insufficient. In Codex, `-s read-only` binds only shell 
 
 When a named reviewer cannot meet that bar, use the product's recorded fallback if it can, without asking. Otherwise use the fallback above, without asking. Name the actual reviewer and why it replaced the named one in the report. Where repository instructions say nothing, use these defaults. Ask when a default needs an owner-only fact, such as the released branch or last release.
 
-**Verify findings yourself and rerun the project's gate yourself after every fix.** The loop is fix → rerun the project's test gate yourself → fresh review of the changed state → verify every finding against code yourself → fix → repeat.
+**Verify findings yourself, and after every fix rerun the tests it touches yourself.** Run the full gate on the finished stage or change, then get a fresh review. Verify every finding against the code yourself, then fix what the bar names. Rerun each fix's regression test and the tests it touches yourself, then get a fresh review of the changed state. Repeat until the bar holds. Rerun the full gate on the cleared state when a fix followed its last full run. If that gate fails, its fix is new code and gets a round. A gate that takes a couple of minutes can simply run after every fix.
 
 **Treat findings and their severity labels as claims, not results.** Triage below is mandatory; it is the part that most often goes wrong.
 
@@ -34,12 +34,12 @@ When a named reviewer cannot meet that bar, use the product's recorded fallback 
 - **Review before every release, however green the tests are.** A release without an independent pass is not a release.
 - **Review before every push to a branch that deploys.** When users receive the push, "just push it" requires a round first. The push closes the round (§ Running a round beside the next stage).
 - **The first push goes only where the owner named.** Every URL from `git remote get-url --push --all origin | sed -E 's#//[^/@]*@#//#'` must name that repository. The `sed` removes any username or token. If any URL differs, push nothing and ask.
-- **Review again after fixing anything a round found.** A fix is unreviewed code, and fixes produce the worst defects. Never report readiness from a round that found something, however small or confidently fixed.
-- **Consider an optional round at a stage boundary inside long work.** This cheap pass brings findings while the code is warm instead of all at the end.
+- **Review again after fixing anything a round found.** A fix is unreviewed code, and fixes produce the worst defects. Never report readiness from a round you fixed anything after, however small or confident the fix.
+- **In staged work that does not deploy yet, review once per stage.** Run one series at the stage's end, on its whole diff computed from git, until the bar holds. A series repeats fresh rounds until that bar holds; a stage is a line of the plan with its own done-when. A delegated piece, fix or iteration inside a stage is not a stage and gets no round of its own. A fix to what a round found still needs another round. Once pushes deploy, the round a push needs is the stage's series; push the stage when complete, not piece by piece. State the cadence in the plan so the owner reads it before the build. Repository instructions, the plan or the owner may set another cadence; the `app-lifecycle` skill reviews its first stages together. The cost is that findings land later and on a larger diff. When a stage's diff is too much for one round, § The subject says how to split it.
 
 ## The subject: computed from git, and it narrows after round 1
 
-**Compute the subject from git, including everything unreleased.** A prose description can leave an unapplied migration or untracked file unreviewed. Round 1 takes everything unreleased, committed or not: last release to `HEAD`, plus the working tree.
+**Compute the subject from git, covering the whole stage or unreleased range.** A prose description can leave an unapplied migration or untracked file unreviewed. A stage's first round takes its whole diff from the stage's starting commit, plus the working tree. Before a release, round 1 takes everything unreleased, committed or not: last release to `HEAD`, plus the working tree.
 
 ```bash
 git log --oneline $RELEASED..HEAD               # the unreleased commits
@@ -51,9 +51,9 @@ git status --porcelain -uall                    # and anything uncommitted, file
 
 **Use the repository's last released state as `$RELEASED`.** It may be production branch `origin/<prod>`, a release tag or the deployed commit.
 
-**Before the first release, review the whole history with `--subject HEAD`.** The wrapper writes every commit's author and message, every file `HEAD` holds, and every line its history removed. Include the first commit: a push sends every commit, and `<first commit>..HEAD` would omit it. A clone or fork whose history began in another repository uses the same `--subject HEAD`. The source repository's tags and branches are not this product's releases. Before any release, nothing is live yet. The brief therefore marks every finding INTRODUCED, including code that came with the history.
+**Before the first release, review the whole history with `--subject HEAD`.** Earlier stage series cover their stages; they do not replace this whole-product review. The wrapper writes every commit's author and message, every file `HEAD` holds, and every line its history removed. Include the first commit: a push sends every commit, and `<first commit>..HEAD` would omit it. A clone or fork whose history began in another repository uses the same `--subject HEAD`. The source repository's tags and branches are not this product's releases. Before any release, nothing is live yet. The brief therefore marks every finding INTRODUCED, including code that came with the history.
 
-**Never narrow the range by hand to make it fit.** Round 1 includes already-pushed code: when pushes deploy, that code is exactly what users run. A range too large for one round is split, never shortened, in one of two ways:
+**Never narrow the range by hand to make it fit.** A release's first round includes already-pushed code: when pushes deploy, that code is exactly what users run. A range too large for one round is split, never shortened, in one of two ways:
 
 - **Split by commits when the history falls into stages.** Give each round a contiguous slice and the rest of the range as context, oldest first. Each later round reads earlier slices for interactions. This fits a few build stages.
 - **Split by surface when the history does not partition.** This fits a first release covering the whole product, or commits that each touch everything. Each round takes the whole range and reads its assigned area in full, with other areas named as context. Examples are public surfaces; data, permissions and money; and member screens. Together, the areas cover every changed file. Area rounds read one still snapshot and run in parallel, each with its own brief and output file so concurrent rounds do not all read the last brief written.
@@ -118,8 +118,8 @@ Where no fresh session can be started, stop and hand the owner the prompt path. 
          --brief "$S/review-NNN-brief.md" --cwd ../<repo>-review-<stage> --subject "<range>" ...
 
     # 4. when a round closes with no INTRODUCED finding above Low and no High or Critical
-    #    of any age, push the snapshot THAT round reviewed — never the branch tip, which may hold the next stage's commits. A
-    #    round that found something is fixed, re-tested, re-snapshotted and reviewed again;
+    #    of any age, push the snapshot THAT round reviewed — never the branch tip, which may hold the next stage's commits.
+    #    A round that found anything the bar names is fixed, re-tested, re-snapshotted and reviewed again;
     #    SNAP is read from that round's worktree, whose HEAD is the snapshot it reviewed
     #    (a new shell has lost it, and the main tree's HEAD may hold the next stage); `:?`
     #    refuses an empty one, which would turn the push into a delete. The first push goes
@@ -203,6 +203,8 @@ Do not include earlier findings, suspected files, your argument for the design, 
 
 **Stop at no INTRODUCED finding above Low and no High or Critical of any age.** Fix High and Critical now, regardless of age. Small releases reach that bar fastest; later releases review only their own commits.
 
+**A Low goes to the owner's list, not into the loop.** An introduced Low needs no fix and opens no round. Record it with its round number where pre-existing findings are recorded, and name it in the summary to the owner. Fix one only in a batch that already needs another round, or when the owner asks. Any fix is new code and gets a round.
+
 **When one mechanism draws findings two rounds running, stop patching it.** Repeated inverse defects in one area mean the design is wrong. Before the next round, choose one option in writing:
 
 - Cut it: revert to before the first fix, then ask once what signal the design is missing.
@@ -217,13 +219,13 @@ Scale this by whether the work was requested. Apply it hardest to unrequested ha
 
 **Number rounds in one sequence per repository.** Cite the number wherever the outcome lands: fix commit, backlog row, merge and release record.
 
-**Verify every finding against code by hand before acting.** Cited line numbers are claims too. Rerun the project's tests yourself after every fix; "it says it passes" is a claim, never a result. Record disproved findings as wrong beside confirmed ones, making the next round's hit rate legible.
+**Verify every finding against code by hand before acting.** Cited line numbers are claims too. Rerun the tests the fix touches yourself after every fix; "it says it passes" is a claim, never a result. Record disproved findings as wrong beside confirmed ones, making the next round's hit rate legible.
 
 Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 
-The last round came from a fresh reviewer given only the mechanical range and found no introduced finding above Low. No High or Critical of any age is open, and every earlier finding was checked against code before being fixed or dismissed.
+The last round came from a fresh reviewer given only the mechanical range and found no introduced finding above Low, with nothing fixed after it. No High or Critical of any age is open; every earlier finding was checked against code before being fixed or dismissed, and accepted Lows are recorded.
 
 ## Not this skill
 

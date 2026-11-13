@@ -10,6 +10,11 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-10-22` to `24`, a monitoring product: in about 140 rounds, commit messages name at least seven chains in which a round's finding was caused by the previous round's fix. In one, keeping an incident already open folded a real outage into a seeded test incident, so uptime never dipped; the next round caught it.
 
+## In staged work that does not deploy yet, review once per stage.
+
+- `2026-11-13`, a coding-agent client with an editor extension, desktop app and phone view built on a local branch in seven stages. Its coordinator ran the full gate 3 to 4 times per delegated piece and a fresh review round per piece. The model worked about 35% of roughly 22 hours: 429 minutes building and 31 reviewing. The rest went to gate runs, review rounds and waiting. One full gate was estimated at 25 to 42 minutes; one stage's estimate rose from 6 hours to 12.5. Four per-piece rounds found 16 real defects, all confirmed and fixed. The reviews were useful; per-stage review costs later findings on a larger diff. Owner: "Checks and review once per stage - YES." "6 stages should be 6 review series. We review till nothing > Low. Low is acceptable."
+- `2026-10-11`, owner: "No need to run review every tiny iteration."
+
 ## Read that status for what does not belong, too.
 
 - `2026-10-11`, 364 data files left untracked swelled a round's subject to 89k lines; the round was stopped, the directory deleted and the round run again.
@@ -107,6 +112,10 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Stop at no INTRODUCED finding above Low and no High or Critical of any age.
 
 - `2026-10-24`: a monitoring product's five production promotions each closed on such a round, after 9, 5, 1, 2 and 1 rounds. The first, the whole product, took the most; each later one reviewed only its own commits.
+
+## A Low goes to the owner's list, not into the loop.
+
+- `2026-11-13`, owner: "We review till nothing > Low. Low is acceptable."
 
 ## When one mechanism draws findings two rounds running, stop patching it.
 
