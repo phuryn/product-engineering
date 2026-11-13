@@ -94,7 +94,7 @@ Three things, and the first is the one most often skipped:
 
 ## When it comes back
 
-- **A delegated diff is unreviewed code.** Read it before believing it. Its independent review comes before anything ships; in staged work it is the stage's series (`independent-review` § When).
+- **A delegated diff is unreviewed code.** Read it before believing it. Its independent review comes before anything ships or deploys; in staged work it is the stage's series (`independent-review` § When).
 - **Check the disk before believing a round happened.** Inspect `git status` and file times, since a run without write access can return a convincing report with no changes.
 - **Re-run its tests yourself, and rewrite any evidence it wrote from your own run.** A piece inside a stage reruns the tests it touches; the full gate runs when the stage is complete (`test-harness` § The gate). A sandbox without database or browser access cannot supply a passing gate. Read every line the delegate adds to a coverage map or status file; replace its evidence rather than inventing counts.
 - **Before passing a delegate's "commands for the owner" up, do every one you can.** Use an API, CLI or key you hold and reread the result. Escalate only what needs a person: a dashboard-only click, money or taste.

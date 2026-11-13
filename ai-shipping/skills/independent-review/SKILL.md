@@ -25,7 +25,7 @@ A sandbox flag alone is insufficient. In Codex, `-s read-only` binds only shell 
 
 When a named reviewer cannot meet that bar, use the product's recorded fallback if it can, without asking. Otherwise use the fallback above, without asking. Name the actual reviewer and why it replaced the named one in the report. Where repository instructions say nothing, use these defaults. Ask when a default needs an owner-only fact, such as the released branch or last release.
 
-**Verify findings yourself, and after every fix rerun the tests it touches yourself.** Run the full gate on the finished stage or change, then get a fresh review. Verify every finding against the code yourself, then fix what the bar names. Rerun each fix's regression test and the tests it touches yourself, then get a fresh review of the changed state. Repeat until the bar holds. Rerun the full gate on the cleared state when a fix followed its last full run. If that gate fails, its fix is new code and gets a round. A gate that takes a couple of minutes can simply run after every fix.
+**Verify findings yourself, and after every fix rerun the tests it touches yourself.** Run the full gate on the finished stage or change, then get a fresh review. Verify every finding against the code yourself, then fix what the bar names. Rerun each fix's regression test and the tests it touches yourself, then get a fresh review of the changed state. Repeat until the bar holds. Rerun the full gate on the cleared state when a fix followed its last full run, before that state is pushed or called done. If that gate fails, its fix is new code and gets a round. A gate that takes a couple of minutes can simply run after every fix.
 
 **Treat findings and their severity labels as claims, not results.** Triage below is mandatory; it is the part that most often goes wrong.
 
@@ -35,11 +35,11 @@ When a named reviewer cannot meet that bar, use the product's recorded fallback 
 - **Review before every push to a branch that deploys.** When users receive the push, "just push it" requires a round first. The push closes the round (§ Running a round beside the next stage).
 - **The first push goes only where the owner named.** Every URL from `git remote get-url --push --all origin | sed -E 's#//[^/@]*@#//#'` must name that repository. The `sed` removes any username or token. If any URL differs, push nothing and ask.
 - **Review again after fixing anything a round found.** A fix is unreviewed code, and fixes produce the worst defects. Never report readiness from a round you fixed anything after, however small or confident the fix.
-- **In staged work that does not deploy yet, review once per stage.** Run one series at the stage's end, on its whole diff computed from git, until the bar holds. A series repeats fresh rounds until that bar holds; a stage is a line of the plan with its own done-when. A delegated piece, fix or iteration inside a stage is not a stage and gets no round of its own. A fix to what a round found still needs another round. Once pushes deploy, the round a push needs is the stage's series; push the stage when complete, not piece by piece. State the cadence in the plan so the owner reads it before the build. Repository instructions, the plan or the owner may set another cadence; the `app-lifecycle` skill reviews its first stages together. The cost is that findings land later and on a larger diff. When a stage's diff is too much for one round, § The subject says how to split it.
+- **In staged work that does not deploy yet, review once per stage.** Run one series at the stage's end, on its whole diff computed from git, until the bar holds. A series repeats fresh rounds until that bar holds; a stage is a line of the plan with its own done-when. A delegated piece, fix or iteration inside a stage is not a stage and gets no round of its own. A fix to what a round found still needs another round. Once pushes deploy, the round a push needs is the stage's series; push the stage when complete, not piece by piece. State the cadence in the plan so the owner reads it before the build. Repository instructions or the owner may set another cadence, and the plan records it; the `app-lifecycle` skill reviews its first stages together. The cost is that findings land later and on a larger diff. When a stage's diff is too much for one round, § The subject says how to split it.
 
 ## The subject: computed from git, and it narrows after round 1
 
-**Compute the subject from git, covering the whole stage or unreleased range.** A prose description can leave an unapplied migration or untracked file unreviewed. A stage's first round takes its whole diff from the stage's starting commit, plus the working tree. Before a release, round 1 takes everything unreleased, committed or not: last release to `HEAD`, plus the working tree.
+**Compute the subject from git, covering the whole stage or unreleased range.** A prose description can leave an unapplied migration or untracked file unreviewed. A stage's first round starts at the last commit a round cleared, or at the staged work's first commit when no round has. It takes everything from there, plus the working tree. Before a release, round 1 takes everything unreleased, committed or not: last release to `HEAD`, plus the working tree.
 
 ```bash
 git log --oneline $RELEASED..HEAD               # the unreleased commits
@@ -119,6 +119,8 @@ Where no fresh session can be started, stop and hand the owner the prompt path. 
 
     # 4. when a round closes with no INTRODUCED finding above Low and no High or Critical
     #    of any age, push the snapshot THAT round reviewed — never the branch tip, which may hold the next stage's commits.
+    #    If a fix followed the last full gate run, the full gate passes on that snapshot first, in a
+    #    checkout of it when the main tree has moved on.
     #    A round that found anything the bar names is fixed, re-tested, re-snapshotted and reviewed again;
     #    SNAP is read from that round's worktree, whose HEAD is the snapshot it reviewed
     #    (a new shell has lost it, and the main tree's HEAD may hold the next stage); `:?`

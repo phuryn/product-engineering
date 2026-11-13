@@ -35,7 +35,7 @@ Every row in full, including its target and run placement, is in `references/har
 
 **Run the local gate in order before every promotion.** `gate` runs `typecheck`, `test` (unit + integration), `e2e`, then `e2e:auth`, locally and mandatorily before any promotion. `visual`, the live agent suite, and `smoke -- <url>` run outside it on purpose. There is no hosted CI unless wired as its own change (`release-gate`). If wired, it runs the gate minus the authenticated mile. The local gate covers that gap; never silently skip it.
 
-**Inside a stage, a piece runs the tests it touches; the full gate runs at the stage's end.** Run the full gate once on the finished stage, before its review series. Run it again on the state the series cleared when a fix followed the last full run. Time one full run and write the figure in the plan, so the stage's estimate counts its runs. A gate of a couple of minutes can run on every piece.
+**Inside a stage, a piece runs the tests it touches; the full gate runs at the stage's end.** Run the full gate once on the finished stage, before its review series. Run it again on the state the series cleared when a fix followed the last full run, before that state is pushed or called done. Time one full run and write the figure in the plan, so the stage's estimate counts its runs. A gate of a couple of minutes can run on every piece.
 
 ## Tests and docs are part of the change, not a later step
 
