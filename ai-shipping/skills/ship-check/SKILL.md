@@ -97,7 +97,7 @@ Record the actual reviewer in the packet's Independent Review section. Say why i
 python <skill dir>/scripts/review.py --brief <scratch>/brief.md --cwd <repo> --subject <range> --out <scratch>/round-N.md < /dev/null
 ```
 
-Keep both files outside the repository; one left in the checkout enters the next round's subject. When the wrapper warns about untracked files, keep every file that belongs to the change, step 2's edits included, and step 1's docs as context. For the rest, delete only what this session generated; otherwise gitignore it or ask the owner. Exit 2 means a round came back too short: a failed round. The wrapper runs Grok when its CLI is installed, giving another model family. Otherwise it uses fresh headless Claude Code with nothing carried over, the builder's own family when Claude built the code.
+Keep both files outside the repository; one left in the checkout enters the next round's subject. When the wrapper warns about untracked files, keep every file that belongs to the change, step 2's edits included, and step 1's docs as context. For the rest, delete only what this session generated; otherwise gitignore it or ask the owner. Exit 2 means a round came back too short: a failed round. The wrapper runs Grok when its CLI is installed, giving another model family. Without Grok it runs a fresh Codex session, and without Codex fresh headless Claude Code, each with nothing carried over. Either may be the builder's own family; a fresh session is still independent, because it never saw the build. Apply `independent-review` for what each run switches off and what still loads.
 
 #### Compute the subject from releases and the working tree
 
@@ -124,7 +124,7 @@ Name the docs step 1 wrote, for reading as claims about code, not as the change.
 
 When reviewing released code, say it is already live: findings in it are PRE-EXISTING. Findings in step 2's agent-instruction edits are INTRODUCED and block like any other. Before any release, say nothing is live yet, so every code finding is INTRODUCED.
 
-**Use `--subject-only` when neither CLI is available.** The wrapper still writes the subject file and prompt and prints their paths. Give the prompt, and nothing else, to a fresh read-only session of your agent. Run it as a separate process in the checkout under review, never a subagent, fork or resumed session of this one. Require read-only tools, no MCP servers or connectors and its highest available reasoning effort. Turn off memory and project and personal instructions where it allows.
+**Use `--subject-only` when none of the three CLIs is available.** The wrapper still writes the subject file and prompt and prints their paths. Give the prompt, and nothing else, to a fresh read-only session of your agent. Run it as a separate process in the checkout under review, never a subagent, fork or resumed session of this one. Require read-only tools, no MCP servers or connectors and its highest available reasoning effort. Turn off memory and project and personal instructions where it allows.
 
 If no fresh session can start, stop and hand the owner the prompt. The packet waits until the round has run. Treat a short clean answer as a failed round, and delete both files when the round ends.
 

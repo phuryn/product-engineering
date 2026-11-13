@@ -6,12 +6,11 @@ round is scoped to, the stopping rule, author != reviewer, how to triage what
 comes back) lives in ../SKILL.md: the independent-review skill's, or, for the copy ship-check carries,
 its Step 6. Read it before invoking this.
 
-The reviewer is the Grok CLI when it is installed. Without it the round still
-runs: --reviewer auto (the default) falls back to a fresh, headless Claude Code
-session with read-only tools, no MCP servers, no auto-memory and no saved
-session, so it starts from the repository and the brief alone. `--check`
-says which reviewer a round would use. The thread that
-built the code is never the reviewer.
+--reviewer auto (the default) uses installed Grok, otherwise a fresh Codex
+session, otherwise fresh headless Claude Code. All run read-only, with user
+MCP configuration and session memory excluded where the CLI allows. Codex's
+instruction files may still load; --check names the isolation and flags of
+the selected reviewer. The thread that built the code is never the reviewer.
 
 THE REASON THIS EXISTS, and it is one specific failure (2026-09-08):
 
@@ -41,8 +40,9 @@ Usage:
   PROD is whatever the repository says was last released (a branch, a tag).
     python review.py --check          # which reviewer, and its flags; run nothing
     python review.py --brief BRIEF.md --cwd REPO --subject HEAD --subject-only
-                                           # neither CLI: write the subject and prompt, print their paths
-    python review.py --reviewer claude ...   # force the fallback reviewer
+                                           # none of the three CLIs: write subject and prompt, print paths
+    python review.py --reviewer codex ...    # force a fresh Codex reviewer
+    python review.py --reviewer claude ...   # force a fresh Claude Code reviewer
 
 There is deliberately NO way to pass a prompt inline. The brief goes in a file
 (a command over ~10k chars is downgraded by the permission analyser, and a
@@ -54,14 +54,16 @@ Grok binary lookup, in order:
     1. $GROK_BIN
     2. ~/.grok/bin/grok[.exe]
     3. `grok` on PATH (via shutil.which)
-The fallback reviewer is $CLAUDE_BIN, or `claude` on PATH.
+Codex binary lookup: $CODEX_BIN, then `codex` on PATH (the native binary behind
+an npm shim when available), then the OpenAI ChatGPT VS Code extension bundle.
+Claude Code is $CLAUDE_BIN, or `claude` on PATH.
 
 Exit codes:
     0  round completed and looks like a real round
     1  usage / environment problem (no binary, bad path, missing flag)
     2  round is suspiciously short — treat as FAILED, not clean
     3  the reviewer answered that its account is out of usage: the round did
-       not run; the message gives the rerun with the other reviewer
+       not run; the message gives the next installed reviewer or --subject-only
     N  the reviewer's own non-zero exit, passed through
 """
 
@@ -85,6 +87,7 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 GROK_BIN_NAME = "grok.exe" if platform.system() == "Windows" else "grok"
+CODEX_BIN_NAME = "codex.exe" if platform.system() == "Windows" else "codex"
 
 # A real round argues its way to its conclusion over paragraphs. Measured on
 # 2026-09-16, a genuine round over a two-commit range came back at 15,292
@@ -99,7 +102,8 @@ DEFAULT_MIN_CHARS = 1500
 # taken for one.
 OUT_OF_USAGE = re.compile(
     r"usage balance (?:is )?exhausted|insufficient (?:credits?|balance|funds)|credit balance is too low"
-    r"|exceeded your (?:current )?quota|\b402\b[^\n]{0,40}(?:payment required|balance|credits?|quota)",
+    r"|exceeded your (?:current )?quota|\b402\b[^\n]{0,40}(?:payment required|balance|credits?|quota)"
+    r"|you['’]ve hit your (?:usage )?limit\b",
     re.IGNORECASE,
 )
 
@@ -134,7 +138,7 @@ REVIEW_FLAGS = [
     "--disable-web-search",
 ]
 
-# The fallback reviewer: a fresh headless Claude Code session. --restricted
+# A fresh headless Claude Code reviewer. --restricted
 # removes every code-running tool and ignores the user, project and local
 # settings files, so no hook, plugin or personal setting rides along; --tools is
 # the allowlist on top (read-only tools only; no shell, so the subject goes on
@@ -152,6 +156,17 @@ CLAUDE_REVIEW_FLAGS = [
     "-p", "--restricted", "--tools", CLAUDE_READ_ONLY_TOOLS, "--strict-mcp-config",
     "--no-session-persistence", "--output-format", "text",
 ]
+
+# The command in codex-agents § Reviewer: no persisted session, user config
+# (including its MCP tools) or execpolicy rules. Instruction files were not
+# shown to be disabled (Codex CLI 0.159.0, observed 2026-10-29; Windows sandbox
+# reads/writes rechecked on 0.166.0, 2026-11-02). Do not claim they are off.
+CODEX_REVIEW_FLAGS = ["exec", "--ephemeral", "--ignore-user-config", "--ignore-rules", "-s", "read-only"]
+CODEX_ISOLATION = (
+    "fresh ephemeral session; user config (including its MCP tools), execpolicy rules and session "
+    "persistence off; read-only shell; repository and CODEX_HOME AGENTS.md may still load: "
+    "name loaded instruction files and any other remaining context in the report"
+)
 
 # A file read returns at most this many lines per call (Grok's read_file does not
 # say there are more), so the prompt states the subject's length and how to page.
@@ -193,33 +208,68 @@ def find_claude_bin() -> str | None:
     return shutil.which("claude")
 
 
+def native_of_npm_shim(shim: str) -> str | None:
+    """The native binary behind an npm shim, copied from codex-agents for standalone use."""
+    res = Path(shim).resolve()
+    roots = [res.parent / "node_modules" / "@openai" / "codex"]
+    roots += [p for p in res.parents if p.name == "codex" and p.parent.name == "@openai"]
+    for root in roots:
+        for p in sorted(root.glob(f"node_modules/@openai/codex-*/vendor/*/bin/{CODEX_BIN_NAME}"), reverse=True):
+            if p.is_file():
+                return str(p)
+    return None
+
+
+def find_codex_bin() -> str | None:
+    """Env override > installed CLI (native npm binary preferred) > extension bundle."""
+    env_override = os.environ.get("CODEX_BIN")
+    if env_override:
+        if Path(env_override).exists():
+            return env_override
+        sys.exit(f"[review.py] $CODEX_BIN is set but does not exist: {env_override}")
+    path_hit = shutil.which("codex")
+    if path_hit:
+        native = native_of_npm_shim(path_hit)
+        if native:
+            return native
+        if not (platform.system() == "Windows" and Path(path_hit).suffix.lower() in (".cmd", ".bat", ".ps1")):
+            return path_hit
+    ext_root = Path.home() / ".vscode" / "extensions"
+    if ext_root.exists():
+        for ext in sorted(ext_root.glob("openai.chatgpt-*"), reverse=True):
+            for bin_path in ext.glob(f"bin/*/{CODEX_BIN_NAME}"):
+                if bin_path.is_file():
+                    return str(bin_path)
+    return path_hit
+
+
 def pick_reviewer(choice: str) -> tuple[str, str]:
-    """(reviewer, binary). auto: Grok when installed, else a fresh Claude Code session."""
-    grok = find_grok_bin() if choice in ("auto", "grok") else None
-    if grok:
-        return "grok", grok
-    if choice == "grok":
-        sys.exit("[review.py] could not locate the grok binary. Install the Grok CLI, "
-                 "set $GROK_BIN, or run with --reviewer claude.")
-    claude = find_claude_bin()
-    if claude:
-        return "claude", claude
-    sys.exit("[review.py] neither the Grok CLI nor `claude` is on PATH. The review is "
+    """(reviewer, binary). auto: installed Grok, then Codex, then Claude Code."""
+    for reviewer, finder in (("grok", find_grok_bin), ("codex", find_codex_bin), ("claude", find_claude_bin)):
+        if choice in ("auto", reviewer):
+            binary = finder()
+            if binary:
+                return reviewer, binary
+            if choice == reviewer:
+                sys.exit(f"[review.py] could not locate {reviewer}. Install its CLI, set "
+                         f"${reviewer.upper()}_BIN, or choose another --reviewer (auto, grok, codex, claude).")
+    sys.exit("[review.py] none of the Grok, Codex or Claude Code CLIs was found. The review is "
              "still mandatory: run with --subject-only to write the subject and prompt files, then give "
              "the prompt to a fresh read-only session of your agent, started as a separate process in the "
              "checkout, never a subagent, fork or resumed session of this one (the independent-review skill, "
              "'Running it'; ship-check, Step 6).")
 
 
-def supported_flags(binary: str) -> set[str]:
+def supported_flags(binary: str, reviewer: str) -> set[str]:
     """Flags the installed CLI actually advertises.
 
     The discipline this wrapper encodes says to verify a flag is accepted
     before relying on it rather than trusting prose that may predate the
-    binary. `grok --help` costs a second and no API call."""
+    binary. CLI help costs a second and no API call; Codex's flags live under exec."""
+    cmd = [binary, *(["exec"] if reviewer == "codex" else []), "--help"]
     try:
         proc = subprocess.run(
-            [binary, "--help"],
+            cmd,
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -228,19 +278,21 @@ def supported_flags(binary: str) -> set[str]:
             timeout=60,
         )
     except (OSError, subprocess.SubprocessError) as err:
-        sys.exit(f"[review.py] could not run `{binary} --help`: {err}")
+        sys.exit(f"[review.py] could not run `{shlex.join(cmd)}`: {err}")
+    if proc.returncode != 0:
+        sys.exit(f"[review.py] `{shlex.join(cmd)}` exited {proc.returncode}: {proc.stderr.strip()}")
     text = proc.stdout + proc.stderr
     return {tok.split("=")[0] for tok in text.split() if tok.startswith("--")}
 
 
-def require_flags(binary: str, wanted: list[str]) -> None:
-    have = supported_flags(binary)
+def require_flags(binary: str, wanted: list[str], reviewer: str) -> None:
+    have = supported_flags(binary, reviewer)
     missing = [f for f in wanted if f not in have]
     if missing:
         sys.exit(
             f"[review.py] this {Path(binary).stem} build does not advertise: "
             + ", ".join(missing)
-            + "\n  The review spelling depends on them. Check its `--help` and "
+            + "\n  The review spelling depends on them. Check its help (Codex: `exec --help`) and "
             "update this wrapper rather than dropping the flag — dropping "
             "--always-approve is exactly the silent-failure this exists to stop."
         )
@@ -282,7 +334,7 @@ def range_ends(rng: str) -> tuple[str, str] | None:
 
 
 def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
-    """The reviewer has no shell, so the subject is written where it can read it:
+    """Not every reviewer has a shell, so the subject is written where all can read it:
     inside the git directory, which is never committed. The range's log with
     patches, plus the range's cumulative diff when it contains a merge (for a bare
     ref such as HEAD, its log with each commit's author and message, every file it
@@ -493,14 +545,16 @@ def compose_prompt(cwd: Path, brief: Path, subject: Path | None, lines: int = 0)
                    f"HEAD, its log, every file it holds and every line its history removed, as "
                    f"its first line says), then "
                    f"the uncommitted working tree, untracked files with their content. It has "
-                   f"{lines} lines. A file read returns at most {READ_FILE_LINES} lines per call "
-                   f"and may not say there are more, so read it with limit {READ_FILE_LINES} "
+                   f"{lines} lines. Some file tools return at most {READ_FILE_LINES} lines per call "
+                   f"and may not say there are more, so page with limit {READ_FILE_LINES} "
                    f"and offset 1, {READ_FILE_LINES + 1}, {2 * READ_FILE_LINES + 1}, and so on "
-                   f"until you pass line {lines}. A single read is not the subject. ")
+                   f"until you pass line {lines}, or use equivalent shell line ranges. "
+                   f"A single read is not the subject. ")
     else:
         reading = "No subject file was prepared, so read the working tree as it stands. "
-    note = ("\n\n## Reading the subject\n\nYou have read-only tools and no shell. " + reading
-            + f"Everything else you need is in the repository's files, at `{cwd}`.\n")
+    note = ("\n\n## Reading the subject\n\nYou have read-only tools. " + reading
+            + f"Everything else you need is in the repository's files, at `{cwd}`. "
+            + "Name any instruction files or other context still loaded in the report.\n")
     path = git_dir(cwd) / f"review-prompt-{RUN_ID}.md"
     path.write_text(brief.read_text(encoding="utf-8", errors="replace") + note, encoding="utf-8")
     return path
@@ -514,6 +568,66 @@ def build_claude_command(claude_bin: str, args: argparse.Namespace, brief: Path)
     if args.model:
         cmd += ["--model", args.model]
     return cmd
+
+
+def windows_sandbox_mode() -> str:
+    """Read only [windows].sandbox; never silently drop it with the rest of user config.
+
+    This narrow parser also works on Python 3.9 without a TOML dependency. It
+    accepts the section and quoted mode the reviewer recipe documents; any
+    missing, ambiguous or unsupported spelling stops with an actionable message.
+    """
+    config = Path(os.environ.get("CODEX_HOME") or (Path.home() / ".codex")) / "config.toml"
+    hint = (f"[review.py] Windows Codex review requires a [windows] section with sandbox = \"elevated\" "
+            f"or \"unelevated\" in {config}. Set that mode with Codex's Windows sandbox setup "
+            "before rerunning; --ignore-user-config otherwise drops it and reads can be refused.")
+    try:
+        text = config.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as err:
+        sys.exit(f"{hint}\n  Could not read the setting: {err}")
+    # An example inside a multiline instruction string is not a config section.
+    # Match comments and ordinary strings too, so quotes inside them cannot open one.
+    text = re.sub(
+        r'''\#[^\n]*|"""(?:\\.|(?!""").)*"""|\'\'\'.*?\'\'\'|"(?:\\.|[^"\\\n])*"|'[^'\n]*' ''',
+        lambda m: "" if m.group().startswith(('"""', "'''")) else m.group(),
+        text, flags=re.DOTALL | re.VERBOSE,
+    )
+    modes, in_windows, sections = [], False, 0
+    for line in text.splitlines():
+        if re.match(r"^\s*\[", line):
+            in_windows = bool(re.fullmatch(r"\s*\[windows\]\s*(?:#.*)?", line))
+            sections += int(in_windows)
+        elif in_windows and re.match(r"^\s*sandbox\s*=", line):
+            match = re.fullmatch(r"\s*sandbox\s*=\s*(['\"])(elevated|unelevated)\1\s*(?:#.*)?", line)
+            if not match:
+                sys.exit(hint)
+            modes.append(match.group(2))
+    if sections != 1 or len(modes) != 1:
+        sys.exit(hint)
+    return modes[0]
+
+
+def build_codex_command(codex_bin: str, args: argparse.Namespace) -> list[str]:
+    cmd = [codex_bin, *CODEX_REVIEW_FLAGS]
+    if platform.system() == "Windows":
+        cmd += ["-c", f'windows.sandbox="{windows_sandbox_mode()}"']
+    if args.model:
+        cmd += ["-m", args.model]
+    return cmd + ["-c", f"model_reasoning_effort={args.effort}", "-C", str(args.cwd_resolved), "-"]
+
+
+def warn_codex_refusals(stderr: str) -> None:
+    refused = [line for line in stderr.splitlines() if "blocked by policy" in line.lower()]
+    if not refused:
+        return
+    sys.stderr.write(f"[review.py] warning: Codex logged {len(refused)} 'blocked by policy' lines "
+                     "(showing at most 20, each capped at 500 characters):\n")
+    for line in refused[:20]:
+        sys.stderr.write(f"  {line[:500]}\n")
+    sys.stderr.write("  Refused reads with no successful reads fail the round, however long the report. "
+                     "Opening, listing and searching files are reads. A refused write is the read-only "
+                     "sandbox doing its job. Check the commands and report; this warning alone does not "
+                     "fail the round.\n")
 
 
 # Grok's own isolation, per process: its memory, its managed MCP configs and gateway tools, every Claude and
@@ -583,18 +697,37 @@ def out_of_usage(reviewer: str, *texts: str) -> None:
             skip = False
             continue
         key = a.split("=", 1)[0]
-        # argparse takes --rev for --reviewer; a model name belongs to one CLI, so it doesn't carry over
-        if (len(key) > 4 and "--reviewer".startswith(key)) or (len(key) > 3 and "--model".startswith(key)):
+        # Drop argparse's unambiguous abbreviations too; model names do not carry between CLIs.
+        if len(key) > 2 and ("--reviewer".startswith(key) or "--model".startswith(key)):
             skip = "=" not in a
             continue
         rest.append(a)
-    other = "claude" if reviewer == "grok" else "grok"
-    who = "a fresh read-only Claude Code session" if other == "claude" else "Grok, where it is installed"
+    candidates = {"grok": ("codex", "claude"), "codex": ("claude",), "claude": ("grok", "codex")}
+    finders = {"grok": find_grok_bin, "codex": find_codex_bin, "claude": find_claude_bin}
+    other = None
+    for candidate in candidates[reviewer]:
+        try:
+            binary = finders[candidate]()
+        except SystemExit as err:
+            sys.stderr.write(f"  Cannot use {candidate}: {err}\n")
+            continue
+        if binary:
+            other = candidate
+            break
+    rerun = ["python", sys.argv[0], *rest]
+    if other:
+        rerun += ["--reviewer", other]
+        next_step = f"Rerun the round with the next installed reviewer, {other}, in a fresh read-only session:"
+    else:
+        rerun += ["--subject-only"]
+        next_step = ("No next reviewer CLI is installed. Write the prompt with --subject-only "
+                     "(requires --brief, --cwd and --subject), then start a fresh read-only process:")
     sys.stderr.write(
-        f"  Rerun the round with the other reviewer, {who}:\n"
-        f"    {shlex.join(['python', sys.argv[0], *rest, '--reviewer', other])} < /dev/null\n"
+        f"  {next_step}\n"
+        f"    {shlex.join(rerun)} < /dev/null\n"
         "  Add --model when the repository's instructions name the fallback's model. Run their recorded "
-        "fallback if it can, otherwise the wrapper's fallback, without asking. A repository ranks its "
+        "fallback if it can, otherwise the next available reviewer or the manual route above, without asking. "
+        "A repository ranks its "
         "reviewers; it cannot rule out a review. If no other family can run, use a fresh session of the "
         "builder's own family, never the building session and never no review. Record the actual "
         "reviewer and why in the round's report.\n"
@@ -604,7 +737,7 @@ def out_of_usage(reviewer: str, *texts: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Runs one unsteered independent review round: Grok, or a fresh Claude Code session.",
+        description="Runs one unsteered independent review round: Grok, fresh Codex, or fresh Claude Code.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__.split("Usage:", 1)[1] if __doc__ else "",
     )
@@ -615,24 +748,26 @@ def main() -> None:
         metavar="LEVEL",
         choices=["low", "medium", "high", "xhigh"],
         default="xhigh",
-        help="Reasoning effort (default: xhigh, the highest the CLI offers)",
+        help="Grok/Codex reasoning effort (default: xhigh); Claude Code always uses max",
     )
-    parser.add_argument("--max-turns", type=int, default=60, metavar="N", help="Turn cap (default: 60)")
+    parser.add_argument("--max-turns", type=int, default=60, metavar="N",
+                        help="Grok turn cap (default: 60); Codex has no turn cap, so this does not apply")
     parser.add_argument(
         "--model",
         metavar="MODEL",
-        help="Override the model (default: the CLI's). Reviews want the newest Grok "
-        "model the CLI offers; `grok models` lists them.",
+        help="Override the model (default: the CLI's). Codex passes this as -m; user config, "
+        "including its model choice, is ignored. Pick the newest model your CLI offers; "
+        "`grok models` lists Grok's.",
     )
     parser.add_argument(
         "--subject",
         metavar="RANGE",
         help="Git range under review (e.g. origin/PROD..HEAD, or abc123^! for one commit). "
-        "Written to a file the reviewer can read, since it has no shell.",
+        "Written to a file every reviewer can read, including those without a shell.",
     )
     parser.add_argument("--sandbox", metavar="PROFILE",
-                        help="Sandbox profile, passed through. Not the write boundary: "
-                        "the tool allowlist is (it does not enforce on every platform).")
+                        help="Grok sandbox profile passthrough; its tool allowlist is the write boundary "
+                        "(sandbox enforcement varies by platform). Codex always uses read-only.")
     parser.add_argument("--out", metavar="FILE", help="Also write the round's output to FILE")
     parser.add_argument(
         "--min-chars",
@@ -656,16 +791,16 @@ def main() -> None:
     )
     parser.add_argument(
         "--reviewer",
-        choices=["auto", "grok", "claude"],
+        choices=["auto", "grok", "codex", "claude"],
         default="auto",
-        help="auto (default): Grok when its CLI is installed, else a fresh read-only Claude Code session",
+        help="auto (default): installed Grok, then fresh read-only Codex, then fresh read-only Claude Code",
     )
     parser.add_argument("--check", action="store_true",
                         help="Say which reviewer a round would use and verify its flags; run nothing")
     parser.add_argument("--dry-run", action="store_true", help="Print the command, run nothing")
     parser.add_argument("--subject-only", action="store_true",
                         help="Write the subject and the prompt, print their paths and run nothing, "
-                        "for a round run by hand when neither CLI is installed")
+                        "for a round run by hand when none of the three CLIs is installed")
     args = parser.parse_args()
     if args.subject is not None and (not args.subject.strip() or args.subject.startswith("..")):
         sys.exit(f"[review.py] --subject {args.subject!r} is empty, or has no start (which git "
@@ -682,20 +817,29 @@ def main() -> None:
                   "--deny", "--disable-web-search", "--max-turns"]
     claude_flags = ["--restricted", "--tools", "--strict-mcp-config", "--no-session-persistence", "--add-dir",
                     "--effort", "--output-format"]
+    # Check long spellings advertised by `codex exec --help`, including -s/-m/-c/-C.
+    codex_flags = ["--ephemeral", "--ignore-user-config", "--ignore-rules", "--sandbox", "--model", "--config", "--cd"]
+    required = {"grok": grok_flags, "codex": codex_flags, "claude": claude_flags}
 
     if args.check:
-        have = supported_flags(binary)
         print(f"reviewer: {reviewer} ({binary})")
-        if reviewer == "claude" and args.reviewer == "auto":
-            print("  no Grok CLI: a fresh Claude Code session reviews, read-only, with no settings, "
+        have = supported_flags(binary, reviewer)
+        if reviewer == "claude":
+            print("  a fresh Claude Code session reviews, read-only, with no settings, "
                   "hooks, plugins, MCP servers, auto-memory or saved session")
+        if reviewer == "codex":
+            print("  " + CODEX_ISOLATION)
+            if platform.system() == "Windows":
+                print(f"  Windows sandbox mode restored from user config: {windows_sandbox_mode()}")
         if reviewer == "grok":
             print("  memory, managed MCP servers, and Claude, Cursor and Codex compatibility off for the run; "
                   + grok_still_on(binary, args.cwd or os.getcwd()))
-        wanted = grok_flags + ["--reasoning-effort", "--sandbox", "--model"] if reviewer == "grok" \
-            else claude_flags + ["--model"]
+        wanted = (grok_flags + ["--reasoning-effort", "--sandbox", "--model"] if reviewer == "grok"
+                  else claude_flags + ["--model"] if reviewer == "claude" else codex_flags)
         for flag in wanted:
             print(f"  {flag:<24} {'ok' if flag in have else 'MISSING'}")
+        if any(flag not in have for flag in wanted):
+            sys.exit(1)
         return
 
     if not args.brief:
@@ -727,11 +871,11 @@ def main() -> None:
         )
 
     if not args.subject_only:
-        require_flags(binary, grok_flags if reviewer == "grok" else claude_flags)
+        require_flags(binary, required[reviewer], reviewer)
 
     if not args.subject:
-        sys.stderr.write("[review.py] warning: no --subject. The reviewer has no shell, "
-                         "so it cannot run git; it will see only the working tree.\n")
+        sys.stderr.write("[review.py] warning: no --subject. No git range was prepared; "
+                         "the prompt asks the reviewer to read only the working tree.\n")
     subject, lines = write_subject(args.cwd_resolved, args.subject) if args.subject else (None, 0)
     prompt = compose_prompt(args.cwd_resolved, brief, subject, lines)
     if args.subject_only:
@@ -740,7 +884,7 @@ def main() -> None:
     # Paging the subject costs a turn per READ_FILE_LINES lines; leave room on top
     # to read the repository and write the review, so a large range can't run out
     # of turns before the review starts.
-    if subject:
+    if subject and reviewer == "grok":
         needed = lines // READ_FILE_LINES + 1 + 40
         if args.max_turns < needed:
             sys.stderr.write(f"[review.py] --max-turns raised to {needed} for a "
@@ -749,6 +893,9 @@ def main() -> None:
     if reviewer == "grok":
         cmd = build_command(binary, args, prompt)
         stdin, env = "", {**os.environ, **GROK_ISOLATION}
+    elif reviewer == "codex":
+        cmd = build_codex_command(binary, args)
+        stdin, env = prompt.read_text(encoding="utf-8"), os.environ.copy()
     else:
         cmd = build_claude_command(binary, args, prompt)
         stdin = prompt.read_text(encoding="utf-8")
@@ -765,6 +912,8 @@ def main() -> None:
     sys.stderr.write(f"[review.py] {brief.name} -> {args.cwd_resolved} ({reviewer})\n")
     if reviewer == "grok":
         sys.stderr.write(f"[review.py] {grok_still_on(binary, str(args.cwd_resolved))}\n")
+    elif reviewer == "codex":
+        sys.stderr.write(f"[review.py] {CODEX_ISOLATION}\n")
     started = time.time()
     try:
         proc = subprocess.run(
@@ -778,8 +927,13 @@ def main() -> None:
             env=env,
             timeout=args.timeout,
         )
-    except subprocess.TimeoutExpired:
+    except subprocess.TimeoutExpired as err:
+        if reviewer == "codex" and err.stderr:
+            stderr = err.stderr.decode("utf-8", "replace") if isinstance(err.stderr, bytes) else err.stderr
+            warn_codex_refusals(stderr)
         sys.exit(f"[review.py] round exceeded --timeout {args.timeout}s. Nothing to read.")
+    except OSError as err:
+        sys.exit(f"[review.py] could not start {reviewer}: {err}. The round did not run.")
 
     elapsed = time.time() - started
     out = proc.stdout or ""
@@ -788,12 +942,24 @@ def main() -> None:
     if args.out:
         Path(args.out).expanduser().write_text(out, encoding="utf-8")
 
+    stderr = proc.stderr or ""
+    # Codex's stderr is the session log: the prompt and every command's output. Only its
+    # end can be the CLI's own last word, so a file that discusses a usage limit is not one.
+    usage_text = "\n".join(stderr.splitlines()[-20:]) if reviewer == "codex" else stderr
+    if reviewer == "codex":
+        warn_codex_refusals(stderr)
+        # The warning above caps refused-command logs even when the run fails;
+        # retain other stderr diagnostics, including sign-in and usage errors.
+        stderr = "\n".join(line for line in stderr.splitlines() if "blocked by policy" not in line.lower())
+        if stderr:
+            stderr += "\n"
+
     if proc.returncode != 0:
         sys.stderr.write(f"[review.py] {reviewer} exited {proc.returncode} after {elapsed:.0f}s\n")
-        if proc.stderr:
-            sys.stderr.write(proc.stderr)
+        if stderr:
+            sys.stderr.write(stderr)
         sys.stdout.write(out)
-        out_of_usage(reviewer, out, proc.stderr or "")
+        out_of_usage(reviewer, out, usage_text)
         sys.exit(proc.returncode)
 
     sys.stdout.write(out)
@@ -804,9 +970,13 @@ def main() -> None:
     if args.out:
         summary += f", written to {args.out}"
 
+    if len(body) < args.min_chars:
+        out_of_usage(reviewer, out, usage_text)
+
     if len(body) < args.min_chars and not args.allow_short:
         sys.stderr.write(summary + "\n")
-        out_of_usage(reviewer, out, proc.stderr or "")
+        if stderr:
+            sys.stderr.write(stderr)
         sys.stderr.write(
             f"[review.py] FAILED ROUND — {len(body)} chars is below "
             f"--min-chars {args.min_chars}.\n"
@@ -819,6 +989,9 @@ def main() -> None:
         )
         sys.exit(2)
 
+    if len(body) < args.min_chars:
+        sys.stderr.write("[review.py] warning: short round accepted by --allow-short; "
+                         "confirm it reasoned its way to a conclusion and could read the files.\n")
     sys.stderr.write(summary + "\n")
 
 

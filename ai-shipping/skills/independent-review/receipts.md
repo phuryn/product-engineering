@@ -2,6 +2,10 @@
 
 Each heading is a rule from `SKILL.md`, with the case that taught it.
 
+## A fresh session of the builder's own model is independent: it never saw the build.
+
+- `2026-11-14`, owner, on why a fresh Codex session reviews when Grok cannot: "if Grok is not available, also GPT 6.1 Sol [at xhigh] for code reviews. So independent sessions from the same lab and the same model. That's fine." Until then the wrapper went from Grok straight to a fresh Claude Code session. The model is the owner's pick; the reader chooses their own.
+
 ## a repository ranks its reviewers; it cannot rule out a review.
 
 - `2026-11-06`, owner: "Of course the same family when there is no other".
@@ -27,7 +31,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-09-17`, one commit reviewed as code completed; the same commit reviewed with its docs exhausted the round.
 
-## An installed Grok can still be out of usage.
+## An installed reviewer can still be out of usage.
 
 - `2026-10-31`: a signed-in Grok CLI answered `402 usage balance exhausted`.
 

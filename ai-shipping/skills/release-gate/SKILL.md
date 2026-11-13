@@ -67,8 +67,8 @@ The suggested script names are `gate`, `smoke -- <url>`, `visual` and `agents:li
 The session must never have seen the build; choose it in this order:
 
 1. **Use the product's named reviewer when it meets review requirements.** Take the choice from its agent instructions or release doc, checking that it can run as `independent-review` requires. If it cannot, use its recorded fallback when that can, otherwise the wrapper's reviewer without asking. If no other family can run, use a fresh session of the builder's family. The report names the actual reviewer and why.
-2. **Default to Grok when no reviewer is named.** Use the installed Grok CLI's newest model at its highest reasoning effort, otherwise fresh headless Claude Code, the wrapper's fallback.
-3. **Only the tools are optional; the review never is.** With neither CLI available, review manually in a fresh read-only session of the agent you are using.
+2. **Default to Grok when no reviewer is named.** Use the installed Grok CLI's newest model at its highest reasoning effort. Without Grok, the wrapper falls back to a fresh Codex session, then to fresh headless Claude Code.
+3. **Only the tools are optional; the review never is.** With none of the three CLIs available, review manually in a fresh read-only session of the agent you are using.
 
 **Keep the review read-only, fresh and unsteered.** Start without carried-over memory, using a fresh session rather than resuming or forking the building thread. Supply the unreleased diff plus working tree, without a checklist, earlier findings or an argument for the design.
 

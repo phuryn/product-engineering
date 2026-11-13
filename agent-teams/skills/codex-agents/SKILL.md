@@ -7,6 +7,8 @@ description: "'Ask Codex', 'check with Codex', handing Codex a build or review, 
 
 **Treat Codex as a peer with the same standing as Claude.** Not a formatter, not a gate, not an authority. Run it on the newest model the Codex CLI offers, at its highest reasoning effort: `xhigh`, the wrapper's default on every turn.
 
+Author's example (chosen `2026-11-14`): GPT-6.1 Sol at `xhigh`, for builds, and for reviews when Grok cannot run. Choose your own model.
+
 **It can build, and what it builds is reviewed by someone else.** Hand it a build stage with the goal, binding decisions and files it will touch. Read its diff before believing it; a delegated diff is unreviewed code. The session that wrote code never clears it. An independent review does, through `independent-review` or whatever the project uses. Codex can review code it didn't write (§ Reviewer).
 
 **Keep product decisions, real systems and stage-completion judgement with the session agent.** This includes accepting or rejecting review findings and anything touching a real system, development included. Any database, even one only you use, a server and a setting count. Say so in the brief, asking for each real-system step as one command the session agent runs. Without the Codex CLI, or while it is out of usage (§ Resume or start fresh), the session agent builds the stage itself.
@@ -121,7 +123,7 @@ The wrapper auto-resumes the session it last ran in this directory. Loop until c
 
 ## Reviewer
 
-**Apply `independent-review` for round scope, brief, triage and stopping.** Its wrapper defaults to Grok or a fresh Claude Code session. Codex reviews when repository instructions name it or the owner asks. Get that skill's prompt with its wrapper's `--subject-only`, which writes subject and prompt into the git directory and prints their paths. Use a new session meeting the review bar, never this wrapper and never a resume of the building thread:
+**Apply `independent-review` for round scope, brief, triage and stopping.** Its wrapper runs the command below with `--reviewer codex`, or `auto` when Grok is absent. It passes `--effort` (`xhigh` by default); use `--model` to choose a model, since user config is ignored. Repository instructions rank reviewers first. When running by hand, get the prompt with `--subject-only`, which writes subject and prompt into the git directory and prints their paths. Use a new session meeting the review bar, never this skill's wrapper and never a resume of the building thread:
 
 ```bash
 # macOS and Linux
@@ -132,7 +134,7 @@ codex exec --ephemeral --ignore-user-config --ignore-rules -s read-only -c 'wind
      -m <the newest model> -c model_reasoning_effort=xhigh -C <repo> - < "<prompt file>" > "$S/review-NNN.md" 2> "$S/review-NNN.err"
 ```
 
-**Check report length and successful reads before accepting a review round.** No wrapper ran, so check it as the wrapper would:
+**Check report length and successful reads before accepting a review round.** For a manual run, check it as the review wrapper does:
 
 ```bash
 python -c "import sys; print(len(open(sys.argv[1], encoding='utf-8').read().strip()))" "$S/review-NNN.md"
@@ -142,9 +144,9 @@ grep -i "blocked by policy" "$S/review-NNN.err"
 A report under 1,500 is a failed round. Refused reads with none successful also fail, however long the answer. Opening, listing and searching files are reads; a refused write is the read-only sandbox doing its job. Codex logs every refused command to stderr, where the `grep` command lists them.
 
 - **Read the prompt from the file the wrapper wrote through stdin.** Use `- < "<prompt file>"`, never `< /dev/null`: stdin here is the prompt. An empty or missing prompt file means the round never started.
-- **Use the manual check as the round's gate.** No wrapper measures this run; the `independent-review` bar fails a short round or one unable to read.
+- **Use the manual check as the round's gate.** For a manual run, no wrapper measures it; the `independent-review` bar fails a short round or one unable to read.
 - **Start with `--ephemeral` so the review saves no session.** A new `codex exec` starts from the prompt alone.
-- **Exclude user config and execpolicy rules from the review session.** `--ignore-user-config` omits `~/.codex/config.toml`, including its MCP servers and tools. The sandbox covers only shell commands the model runs; `-s read-only` does not bind those added tools (Codex CLI 0.159.0, observed 2026-10-29). It also omits the model and, on Windows, the sandbox mode without which every read is refused. Put both back on the command line. Observed on Codex CLI 0.166.0, Windows 11, 2026-11-02: with model and mode specified, a session read a file and was refused a write. Without the mode, both were refused as "blocked by policy", yet the session still answered in full sentences. `--ignore-rules` skips execpolicy rule files.
+- **Exclude user config and execpolicy rules from the review session.** `--ignore-user-config` omits `~/.codex/config.toml`, including its MCP servers and tools. The sandbox covers only shell commands the model runs; `-s read-only` does not bind those added tools (Codex CLI 0.159.0, observed 2026-10-29). It also omits the model and, on Windows, the sandbox mode without which every read is refused. Put both back on the command line. The review wrapper takes `--model`, and restores the Windows mode itself or stops when it cannot read it. Observed on Codex CLI 0.166.0, Windows 11, 2026-11-02: with model and mode specified, a session read a file and was refused a write. Without the mode, both were refused as "blocked by policy", yet the session still answered in full sentences. `--ignore-rules` skips execpolicy rule files.
 - **Name the instruction files still loaded in the round's report.** These flags were not shown to disable Codex's instruction files: the repository's `AGENTS.md` and the one in `CODEX_HOME`.
 - **Treat a short answer as failed and delete the temporary review files.** It is never a clean round. Delete subject and prompt files when the round ends, as `independent-review` requires.
 

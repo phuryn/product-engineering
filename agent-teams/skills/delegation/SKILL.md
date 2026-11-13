@@ -11,7 +11,7 @@ description: "Before spawning a subagent or dispatching a build, review or resea
 
 **Manage a delegate the way a good owner manages you.** Give it the goal and context, then trust its judgement on the means instead of prescribing steps. Push back where you disagree; its view doesn't bind you.
 
-**Apply the delegate's own skill for its mechanics.** Apply `codex-agents`, `grok-agents` or `claude-agents` for a headless CLI peer, builder or reviewer. Apply `independent-review` for the unsteered review loop, normally through Grok or a fresh headless Claude session. This skill covers their shared discipline.
+**Apply the delegate's own skill for its mechanics.** Apply `codex-agents`, `grok-agents` or `claude-agents` for a headless CLI peer, builder or reviewer. Apply `independent-review` for the unsteered review loop, normally through Grok, or without it a fresh Codex or headless Claude Code session. This skill covers their shared discipline.
 
 ## What never delegates
 
