@@ -18,7 +18,10 @@
       "ref": "07b34f6",
       "paths": [
         "pm-ai-shipping/skills/code-review"
-      ]
+      ],
+      "skipped": {
+        "53f3494": "upstream replaced the skill with a pointer to this repository (2026-10-29); this repository is its only master now, so nothing upstream is ported back"
+      }
     },
     {
       "skill": "ai-shipping/skills/intended-vs-implemented",
@@ -27,7 +30,10 @@
       "ref": "07b34f6",
       "paths": [
         "pm-ai-shipping/skills/intended-vs-implemented"
-      ]
+      ],
+      "skipped": {
+        "53f3494": "upstream replaced the skill with a pointer to this repository (2026-10-29); this repository is its only master now, so nothing upstream is ported back"
+      }
     },
     {
       "skill": "ai-shipping/skills/shipping-artifacts",
@@ -36,7 +42,10 @@
       "ref": "07b34f6",
       "paths": [
         "pm-ai-shipping/skills/shipping-artifacts"
-      ]
+      ],
+      "skipped": {
+        "53f3494": "upstream replaced the skill with a pointer to this repository (2026-10-29); this repository is its only master now, so nothing upstream is ported back"
+      }
     },
     {
       "skill": "ai-shipping/skills/ship-check",
@@ -46,7 +55,10 @@
       "paths": [
         "pm-ai-shipping/commands/ship-check.md"
       ],
-      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:"
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:",
+      "skipped": {
+        "53f3494": "upstream replaced the skill with a pointer to this repository (2026-10-29); this repository is its only master now, so nothing upstream is ported back"
+      }
     },
     {
       "skill": "ai-shipping/skills/document-app",
@@ -56,7 +68,10 @@
       "paths": [
         "pm-ai-shipping/commands/document-app.md"
       ],
-      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:"
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:",
+      "skipped": {
+        "53f3494": "upstream replaced the skill with a pointer to this repository (2026-10-29); this repository is its only master now, so nothing upstream is ported back"
+      }
     },
     {
       "skill": "ai-shipping/skills/derive-tests",
@@ -66,7 +81,10 @@
       "paths": [
         "pm-ai-shipping/commands/derive-tests.md"
       ],
-      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:"
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:",
+      "skipped": {
+        "53f3494": "upstream replaced the skill with a pointer to this repository (2026-10-29); this repository is its only master now, so nothing upstream is ported back"
+      }
     },
     {
       "skill": "ai-shipping/skills/security-audit-static",
@@ -76,7 +94,10 @@
       "paths": [
         "pm-ai-shipping/commands/security-audit-static.md"
       ],
-      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:"
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:",
+      "skipped": {
+        "53f3494": "upstream replaced the skill with a pointer to this repository (2026-10-29); this repository is its only master now, so nothing upstream is ported back"
+      }
     },
     {
       "skill": "ai-shipping/skills/performance-audit-static",
@@ -86,7 +107,10 @@
       "paths": [
         "pm-ai-shipping/commands/performance-audit-static.md"
       ],
-      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:"
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:",
+      "skipped": {
+        "53f3494": "upstream replaced the skill with a pointer to this repository (2026-10-29); this repository is its only master now, so nothing upstream is ported back"
+      }
     },
     {
       "skill": "agent-teams/skills/claude-agents",
