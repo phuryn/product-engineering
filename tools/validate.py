@@ -201,28 +201,35 @@ def check_skill(skill_md):
     if not user_only and len(desc) > MAX_LISTED_EACH:
         errors.append(f"{rel}: an agent can load it, so its description is always in context: "
                       f"{len(desc)} characters (max {MAX_LISTED_EACH})")
-    receipts = skill_md.parent / "receipts.md"
-    if receipts.exists():
-        check_receipts(rel, text, receipts)
+    check_receipts(rel, text, skill_md.parent / "receipts.md")
 
 
 STORY = re.compile(r"\((?:(?:the )?owner,\s*)?`?20\d\d-\d\d(?:-\d\d)?\b", re.I)
+WORKED = "\n## How you can tell it worked\n"
 
 
 def check_receipts(rel, text, receipts):
-    """AGENTS.md rule 2, for a SKILL.md that has a receipts.md beside it: every heading there is a rule the
-    skill states in bold, and no story stays in the skill. A story opens its parenthetical with its date
-    ("(`2026-09-16`, a review round found ...)", "(owner, `2026-11-05`: ...)"); a platform fact kept under
-    rule 3 names its verb first ("observed `2026-11-07`", "`grok-4.7` on `2026-11-02`") and passes."""
+    """AGENTS.md rule 2. No story stays in a SKILL.md, whether or not a receipts.md sits beside it: a story
+    opens its parenthetical with its date ("(`2026-09-16`, a review round found ...)", "(owner,
+    `2026-11-05`: ...)"); a platform fact kept under rule 3 names its verb first ("observed `2026-11-07`",
+    "`grok-4.7` on `2026-11-02`") and passes. Where a receipts.md exists, every heading there is a rule the
+    skill states in bold, and the last line before '## How you can tell it worked' names the file."""
+    for m in STORY.finditer(text):
+        line = text.count("\n", 0, m.start()) + 1
+        errors.append(f"{rel}:{line}: {text[m.start():m.start() + 60]!r} opens with its date, the form a story "
+                      "takes; it belongs in receipts.md (AGENTS.md, rule 2)")
+    if not receipts.exists():
+        return
     leads = {m.group(1).strip() for m in re.finditer(r"\*\*(.+?)\*\*", text)}
     for heading in re.findall(r"(?m)^## (.+)$", receipts.read_text(encoding="utf-8")):
         if heading.strip() not in leads:
             errors.append(f"{receipts.relative_to(ROOT)}: heading {heading!r} is not a bold rule in SKILL.md "
                           "(AGENTS.md, rule 2)")
-    for m in STORY.finditer(text):
-        line = text.count("\n", 0, m.start()) + 1
-        errors.append(f"{rel}:{line}: {text[m.start():m.start() + 60]!r} opens with its date, the form a story "
-                      "takes; it belongs in receipts.md (AGENTS.md, rule 2)")
+    if WORKED in text:
+        before = [l for l in text.split(WORKED, 1)[0].splitlines() if l.strip()]
+        if not before or "`receipts.md`" not in before[-1]:
+            errors.append(f"{rel}: the line before '## How you can tell it worked' does not point to "
+                          "`receipts.md` (AGENTS.md, rule 2)")
 
 
 def check_listing():
