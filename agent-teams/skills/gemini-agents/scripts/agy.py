@@ -46,7 +46,7 @@ DENY = {
 STANDING = {
     "consult": "Consult only: do not run commands, write files, delegate, or use URL/MCP tools; web search remains available and is counted. Read only within the workdir and named added folders; a refused read can end the turn.",
     "build": "Build without network or sandbox bypass. Observed on macOS: the sandbox shell can write the workdir, system temp, ~/Library/Caches and added folders, and it cannot stage or commit. Leave your changes in the working tree for the caller.",
-    "review": "Review this disposable snapshot without delegation, network, or sandbox bypass. Observed on macOS: the shell can write the snapshot, system temp, ~/Library/Caches and the added handoff folder, and Git metadata writes are refused. Report every change you make. Read snapshot files or explicit attachments with the file tool; the wrapper counts those reads and Git history commands, not other shell output.",
+    "review": "Review this disposable snapshot without delegation, network, or sandbox bypass. Observed on macOS: the shell can write the snapshot, system temp, ~/Library/Caches and the added handoff folder, and Git metadata writes are refused. Report every change you make. Read snapshot files or explicit attachments with the file tool; the wrapper counts only those as subject reads; shell output, Git included, does not count.",
 }
 WRITES = {"write_file", "edit_file", "write_to_file", "replace_file_content", "multi_replace_file_content", "notebook_edit"}
 SUBAGENTS = {"invoke_subagent", "define_subagent", "manage_subagents", "browser_subagent"}
@@ -355,11 +355,6 @@ def successful_read(step, brief=None, excluded=()):
     return False
 
 
-REVIEW_GIT_COMMANDS = {"blame", "cat-file", "diff", "grep", "log", "ls-files", "ls-tree", "show"}
-REVIEW_GIT_FLAGS = {"--no-pager", "--paginate", "--bare", "--no-optional-locks", "--no-replace-objects",
-                    "--literal-pathspecs", "--glob-pathspecs", "--noglob-pathspecs", "--icase-pathspecs"}
-
-
 def lexical_path(path, directory):
     """Replay-safe placement: normalize spelling without touching the filesystem."""
     if not isinstance(path, str) or "\0" in path:
@@ -374,135 +369,20 @@ def lexical_inside(path, root):
         return False
 
 
-def review_directory(value, directory, root):
-    # These may expand in a shell or select multiple paths. Quoting alone does
-    # not establish the value, and the evidence recognizer never evaluates it.
-    if not isinstance(value, str) or any(c in value for c in "$`*?[]{}!%") or value.startswith("~"):
-        return None
-    path = lexical_path(value, directory)
-    return path if lexical_inside(path, root) else None
-
-
-def review_git_command(words, directory, root):
-    """Recognize approved Git commands, not a shell or Git config interpreter."""
-    index, effective, locations = 1, directory, []
-    while index < len(words):
-        word = words[index]
-        index += 1
-        if word in REVIEW_GIT_COMMANDS:
-            # Relative location options are also checked at final -C placement;
-            # Git can defer interpreting them until after changing directory.
-            return "--no-index" not in words[index:] and all(
-                review_directory(value, effective, root) is not None for value in locations)
-        if word in REVIEW_GIT_FLAGS:
-            continue
-        value = None
-        if word in ("-C", "-c", "--git-dir", "--work-tree"):
-            if index == len(words):
-                return False
-            value = words[index]
-            index += 1
-        elif word.startswith(("--git-dir=", "--work-tree=")):
-            word, value = word.split("=", 1)
-        elif word.startswith(("-C", "-c")) and len(word) > 2:
-            word, value = word[:2], word[2:]
-        else:
-            return False
-        if word == "-C":
-            effective = review_directory(value, effective, root)
-            if effective is None:
-                return False
-        elif word == "-c":
-            key, separator, setting = value.partition("=")
-            if not separator or not key or any(c.isspace() for c in key):
-                return False
-            # Ordinary -c k=v is accepted. A separately loaded config is not
-            # placeable from command text, so its effects are not guessed.
-            if key.casefold() == "include.path" or key.casefold().startswith("includeif."):
-                return False
-            if key.casefold() == "core.worktree":
-                if review_directory(setting, effective, root) is None:
-                    return False
-                locations.append(setting)
-        else:
-            if not value or review_directory(value, effective, root) is None:
-                return False
-            locations.append(value)
-    return False
-
-
-def review_git_history(text, root):
-    """A small positive grammar: static cd/pushd/popd and approved Git commands.
-
-    Only && and ; chains are recognized. Pipelines, redirections, substitutions,
-    environment wrappers, unknown commands and unknown Git globals fail closed.
-    """
-    if not isinstance(text, str) or any(c in text for c in "\n\r\0$`"):
-        return False
-    try:
-        lexer = shlex.shlex(text, posix=True, punctuation_chars=";&|()<>")
-        lexer.whitespace_split = True
-        lexer.commenters = ""
-        tokens = list(lexer)
-    except ValueError:
-        return False
-    segments, segment = [], []
-    for token in tokens:
-        if token in ("&&", ";"):
-            if not segment:
-                return False
-            segments.append(segment)
-            segment = []
-        elif token and all(c in ";&|()<>" for c in token):
-            return False
-        elif token.startswith("#"):
-            return False
-        else:
-            segment.append(token)
-    if not segment:
-        return False
-    segments.append(segment)
-    directory, stack, found = root, [], False
-    for words in segments:
-        if words[0] in ("cd", "pushd"):
-            args = words[1:]
-            if args[:1] == ["--"]:
-                args = args[1:]
-            if len(args) != 1 or args[0].startswith("-"):
-                return False
-            target = review_directory(args[0], directory, root)
-            if target is None:
-                return False
-            if words[0] == "pushd":
-                stack.append(directory)
-            directory = target
-        elif words == ["popd"]:
-            if not stack:
-                return False
-            directory = stack.pop()
-        elif words[0] == "git" and review_git_command(words, directory, root):
-            found = True
-        else:
-            return False
-    return found
-
-
 def review_subject_read(step, run):
+    if tool_name(step) != "read_file":
+        return False
     root = run.subject_root
     if not isinstance(root, str) or not os.path.isabs(root) or "\0" in root:
         return False
     root = lexical_path(root, root)
     if not successful_read(step):
         return False
-    if tool_name(step) == "read_file":
-        path = lexical_path(path_of(step), root)
-        if path is None or (run.brief and path == lexical_path(run.brief, root)):
-            return False
-        attachments = {lexical_path(value, root) for value in run.subject_paths if isinstance(value, str)}
-        return lexical_inside(path, root) or path in attachments
-    if tool_name(step) == "run_command":
-        return review_git_history(parameters(step).get("CommandLine"), root)
-    return False
+    path = lexical_path(path_of(step), root)
+    if path is None or (run.brief and path == lexical_path(run.brief, root)):
+        return False
+    attachments = {lexical_path(value, root) for value in run.subject_paths if isinstance(value, str)}
+    return lexical_inside(path, root) or path in attachments
 
 
 def quota_failure(run):
@@ -663,7 +543,7 @@ def judge(run, mode, expected_session=None, git_changed=False, git_observable=Tr
     if mode == "review":
         read_subject = any(successful_read(s, run.brief, run.non_subject_paths) for s in tools) if legacy_review else any(review_subject_read(s, run) for s in tools)
         if not read_subject:
-            problems.append("review read nothing in the snapshot or its attachments; only file-tool reads there and Git history commands count")
+            problems.append("review read nothing in the snapshot or its attachments; only file-tool reads there count")
     if mode == "build" and not any(successful_read(s) for s in tools):
         problems.append("build read nothing successfully")
     append_cli_diagnostics(problems, warnings, run, bool(problems))

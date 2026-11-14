@@ -100,8 +100,11 @@ class VerdictTests(unittest.TestCase):
         run = stream(tool(1, "run_command", "ACTIVE", {"CommandLine": "git show HEAD"}),
                      tool(1, "run_command", "ACTIVE", output={"exit_code": 0, "stdout": "subject"}))
         run.feed(json.dumps({"event": "step_update", "step_update": {"step_index": 1, "state": "DONE"}}))
-        self.assertEqual(self.code(run, "review"), 0)
+        self.assertEqual(self.code(run, "review"), 2)
         self.assertEqual(len(run.tools()), 1)
+        info = run.tools()[0]["tool_info"]
+        self.assertEqual(info["parameters"], {"CommandLine": "git show HEAD"})
+        self.assertEqual(info["output"], {"exit_code": 0, "stdout": "subject"})
 
     def test_failures_precede_boundary_and_name_every_denied_action(self):
         run = stream(read(), tool(2, "edit_file"), result={"status": "SUCCESS", "response": "A plausible answer",
@@ -150,9 +153,11 @@ class VerdictTests(unittest.TestCase):
         self.assertEqual(self.code(run, "consult"), 0)
         self.assertEqual(self.code(stream(command(1, text="touch empty.txt")), "review"), 2)
         run = stream(command(1, "git log -1"))
-        self.assertEqual(self.code(run, "review"), 0)
+        self.assertEqual(self.code(run, "review"), 2)
+        self.assertEqual(agy.judge(run, "review")[3]["reads"], 1)
         run.tools()[0]["tool_info"]["output"] += "\nfatal: cannot read repository"
         self.assertEqual(self.code(run, "review"), 2)
+        self.assertEqual(agy.judge(run, "review")[3]["reads"], 0)
 
     def test_quota_uses_error_context_only_and_timeout_wins(self):
         for error in ("RESOURCE_EXHAUSTED: capacity", "HTTP 429 quota exhausted"):
@@ -1284,43 +1289,22 @@ class ReviewSubjectTests(unittest.TestCase):
                           attachments=[self.ROOT + "/brief.txt"])
         self.assertEqual(self.code(run), 2)
 
-    def test_unrelated_shell_output_does_not_establish_review_reading(self):
-        rejected = ["cat ../handoff/turn-x/brief.txt", "cd /synthetic/handoff/turn-x && cat brief.txt",
-                    "git --version", "cat README.md", "sed -n '1,20p' README.md", "grep word README.md",
-                    "ls", "find .", "python3 -c 'open(\"README.md\").read()'", "git -C ../handoff log",
-                    "cd /elsewhere && git log", "git diff --no-index a b", 'git -C "$HOME/x" log',
-                    "git log | head", "env git log", "git --config-env=core.worktree=TARGET log"]
-        for text in rejected:
+    def test_shell_output_cannot_replace_file_tool_review_reads(self):
+        explanation = "review read nothing in the snapshot or its attachments; only file-tool reads there count"
+        commands = ["git diff A..B", "git -C " + self.ROOT + " log -1", "git --no-pager show HEAD",
+                    "git diff /etc/hosts /etc/hosts", "cat README.md"]
+        for text in commands:
             with self.subTest(command=text):
-                self.assertEqual(self.code(self.review(command(1, text))), 2)
+                run = self.review(read(1,self.BRIEF),command(2,text))
+                verdict = agy.judge(run,"review")
+                self.assertEqual(verdict[0],2)
+                self.assertIn(explanation,verdict[1])
 
-    def test_approved_git_commands_and_static_chains_establish_reading(self):
-        accepted = ["git blame README.md", "git cat-file -p HEAD:README.md", "git grep needle",
-                    "git log -1", "git ls-files", "git ls-tree HEAD", "git show HEAD"] + [
-            "git diff A..B", "git -C " + self.ROOT + " log -1", "git --no-pager show HEAD",
-            "cd nested && git log -1", "pushd nested && git show HEAD && popd && git diff A..B",
-            "cd nested; cd deeper; git ls-tree HEAD", "git -C nested -C deeper -C .. log",
-            "git -c core.pager=cat --no-pager log", "git -ccolor.ui=never -Cnested show HEAD",
-            "git --git-dir=" + self.ROOT + "/.git log", "git --git-dir .git --work-tree . diff A..B",
-            "git -C nested --git-dir ../.git --work-tree .. show HEAD",
-            "git --git-dir .git -C nested log", "git -C '' show HEAD"]
-        for text in accepted:
-            with self.subTest(command=text):
-                self.assertEqual(self.code(self.review(command(1, text))), 0)
-
-    def test_location_globals_and_directory_changes_never_leave_snapshot(self):
-        rejected = ["cd /elsewhere && cd " + self.ROOT + " && git log",
-                    "pushd ../handoff && pushd " + self.ROOT + " && git show HEAD",
-                    "git -C ../handoff -C " + self.ROOT + " log", "git -C ~ log",
-                    "git -C `pwd` log", "git -C $(pwd) log", "git -C 'nested*' log",
-                    "git --git-dir=/elsewhere/.git log", "git --work-tree /elsewhere diff",
-                    "git -C nested --git-dir=../.git -C .. log",
-                    "git -c core.worktree=/elsewhere diff", "git -c include.path=/elsewhere/config log",
-                    "git -c includeIf.gitdir:x.path=config log", "git -Q show HEAD",
-                    "git --git-dir", "git -C", "git log &&", "git log > output.txt"]
-        for text in rejected:
-            with self.subTest(command=text):
-                self.assertEqual(self.code(self.review(command(1, text))), 2)
+    def test_git_output_with_snapshot_file_tool_read_can_pass_review(self):
+        run = self.review(command(1,"git show HEAD"),read(2,self.ROOT + "/README.md"))
+        verdict = agy.judge(run,"review")
+        self.assertEqual(verdict[0],0)
+        self.assertEqual(verdict[3]["reads"],2)
 
     def test_tool_completion_and_shell_failure_checks_still_apply(self):
         for state in ("ACTIVE", "ERROR"):
@@ -1329,8 +1313,10 @@ class ReviewSubjectTests(unittest.TestCase):
         self.assertEqual(self.code(run), 2)
         self.assertEqual(self.code(self.review(command(1,"git log",128))), 2)
         run = self.review(command(1,"git show HEAD"))
+        self.assertEqual(agy.judge(run,"review")[3]["reads"],1)
         run.tools()[0]["tool_info"]["output"] += "\nPermission denied"
         self.assertEqual(self.code(run), 2)
+        self.assertEqual(agy.judge(run,"review")[3]["reads"],0)
 
     def test_legacy_replay_fallback_is_explicit_and_never_used_live(self):
         run = stream(command(1,"cat legacy-subject.txt"), subject_root=None)

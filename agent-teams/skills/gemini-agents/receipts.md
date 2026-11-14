@@ -83,8 +83,9 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 ## Require successful subject reads even when the partner answers confidently.
 
-- `2026-11-14`: a review round found that reading only its brief, named by a relative path, let a review return 0. `git --version` counted as a read too. The gate needs a placed file-tool read or a qualifying Git history command. Recorded subject roots and attachment paths keep that evidence checkable after the snapshot is deleted.
+- `2026-11-14`: a review round found that reading only its brief, named by a relative path, let a review return 0. `git --version` counted as a read too. The gate needs a file-tool read placed inside the snapshot or at a current attachment copy. Recorded subject roots and attachment paths keep that evidence checkable after the snapshot is deleted.
 - `2026-11-14`, CLI 1.5.8, macOS: a reviewer ran a 29-second test command, then used `manage_task` with `Action: status` to retrieve its status and log. The wrapper rejected the sound 17-minute review as an unknown-tool run and withheld its answer. Command-status retrieval needs the command boundary; a failed subagent or workflow attempt does not prove the deny rules held.
+- `2026-11-14`: the next review round found that the Git exception misjudged subject reading twice. `git diff` of two outside files passed without a subject read. No recorded step established a command's working directory, so the gate could accept another repository or reject a snapshot subdirectory. The exception was removed rather than patched; only placed file-tool reads count for review recordings with subject metadata.
 
 ## A repository's hooks and plugins run outside the sandbox and the deny rules.
 
