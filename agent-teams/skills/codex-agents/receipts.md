@@ -2,6 +2,14 @@
 
 Each heading is a rule from `SKILL.md`, with the case that taught it.
 
+## Keep product decisions, operational changes and stage-completion judgement with the session agent.
+
+- `2026-11-14`, the owner allowed builders to run development tests and fix failures before handoff. Applied migrations still go through the session agent before dependent tests; deploys, pushes, provider settings, secrets, production credentials and final stage judgement remain with it.
+
+## Keep resumable briefs in a persistent file and use `--read`.
+
+- `2026-11-14`, an evals product's restarted session lost every scratchpad script and cited evidence file. Resumable build briefs need the same persistence as the status and evidence described by the `flight-deck` skill.
+
 ## Delegate only what is worth the hand-off; the test is size, not time.
 
 - `2026-09-22`, a builder sat twelve minutes on a fifteen-line change with zero writes and a clean tree.
@@ -10,9 +18,13 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-09-16`: a round meant to fix twelve failing tests resumed as a new session, ran read-only, and reported a decision with no diff behind it.
 
-## Leave sandboxed builds uncommitted and ask for a commit-message handoff.
+## Leave builds uncommitted when the session agent owns the commit.
 
 - `2026-10-23`, a monitoring product: four worktree builds came back uncommitted, three of them quoting the `index.lock` error; other platforms not tested here.
+
+## A test-running build runs without a sandbox, bounded by its instructions.
+
+- `2026-11-14`, the owner chose builder-run tests with instructions as the boundary, rather than an enforced sandbox. Observed on macOS, Codex CLI 0.166.0 and Playwright 1.64.1: `workspace-write` denied Chromium's `mach-register` and DNS failed; `danger-full-access` started the browser and the network answered. Earlier sandboxed builders had handed test failures back to the session agent instead of fixing their own tests.
 
 ## Name `$app-stack:ui-design` in a build that adds or changes screens.
 

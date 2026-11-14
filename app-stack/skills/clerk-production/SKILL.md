@@ -5,6 +5,8 @@ description: "Setting up or changing Clerk sign-in, organizations, roles or bill
 
 # Clerk in production: the choices its own skills cannot make
 
+This skill covers Clerk from the first setup on its development instance through production.
+
 **Decide the product's access model before following Clerk's API guidance.** Clerk's own agent skills know the API. They cannot decide:
 
 - where a session is verified, and what may read it;

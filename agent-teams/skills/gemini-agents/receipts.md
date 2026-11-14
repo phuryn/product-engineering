@@ -2,6 +2,10 @@
 
 Each heading is a rule from `SKILL.md`, with the case that taught it.
 
+## Keep product decisions, operational changes and final judgement with you.
+
+- `2026-11-14`, the owner allowed builder-run development suites while retaining operational changes and final verification. This does not establish that this CLI can run every suite; a tool or platform blocker still names the check handed back to the session agent.
+
 ## Google does not support another agent driving `agy` on a consumer plan.
 
 - `2026-10-07`: a developer-forum answer said another agent could use a consumer-signed-in Antigravity CLI.

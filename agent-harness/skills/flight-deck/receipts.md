@@ -50,3 +50,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-10-22`: The owner asked "Can you really read my answers?"
 - `2026-10-23`: "What was the url of the artifact".
+
+## Keep files needed after a restart outside scratchpads and system temp.
+
+- `2026-11-11`, an evals product's owner asked to verify key flows when built without repeating costly screenshot reviews. The session kept one-off scripts in its scratchpad. A `2026-11-14` restart deleted them, every evidence file the status cited, and a kept development token. The durable response is a committed flow test rerun by the gate, with status and evidence stored where a restart cannot delete them.

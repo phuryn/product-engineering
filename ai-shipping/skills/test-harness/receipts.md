@@ -10,6 +10,22 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-11-13`, a coding-agent client: one full gate was estimated at 25 to 42 minutes and ran 3 to 4 times per delegated piece. Gate runs, review rounds and waiting took the time outside the model's roughly 35% of a 22-hour build day.
 
+## Run the full local gate at stage end and before deploying pushes.
+
+- `2026-11-14`, an evals product: from 31 October to 13 November, it built stages 0–5 and six later stages, ran 77 review rounds and deployed to development nine times. No browser test drove the running app. Its gate ran lint, typecheck, unit, integration, budgets and build, with neither `e2e` nor `e2e:auth`. Requiring those suites only before promotion left development uncovered; diff reviews could not find an unwritten suite.
+
+## Each stage lands end-to-end tests of journeys it adds or changes.
+
+- `2026-11-11`, an evals product: the owner asked to verify key flows when built without repeating costly screenshot reviews. The session read that as "once, by script" and kept scripts in its scratchpad. A `2026-11-14` restart deleted all of them. Every member-action test mocked the session module, so none tested the identity provider's sign-in. The owner's correction was to write each journey's test once and keep rerunning it through the gate.
+
+## The builder runs its tests and fixes failures before the handoff.
+
+- `2026-11-14`, the owner chose builder-run development tests, with operational changes and final verification kept by the session agent. Earlier sandboxed builds could not launch Chromium or resolve DNS; the `codex-agents` skill records the dated probe and test-running default.
+
+## Every preview and go message names each suite that did not run.
+
+- `2026-11-14`, an evals product: its coverage map said signed-in browser flows were uncovered at every run. The owner's go messages listed only counts, including 1,563 unit and 329 integration tests, with clean reviews. Those counts hid that no running-app or real-sign-in browser suite had run.
+
 ## Budget integration tests in round trips to the real database.
 
 - `2026-11-04`, an evals product: a sandboxed builder wrote tests it could not run; 9 of 193 failed on test-side mistakes on the session agent's machine, then several timed out at 30 seconds against a remote database taking 130ms per round trip.

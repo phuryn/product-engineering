@@ -34,7 +34,7 @@ The CLI recipes were run on `2026-11-14`, Antigravity CLI 1.5.8, macOS, on a pai
 3. **Bring the partner in at framing and keep iterating.** The cheapest wins are at framing; three to eight turns is normal.
 4. **Converge before surfacing.** Bring the human one result, or a disagreement stated cleanly.
 5. **A delegated diff is unreviewed code, and the session that wrote it never clears it.** Read it, check the disk and re-run its tests yourself. The full gate and fresh independent review come at the stage's end and before anything ships or deploys; apply `test-harness` § The gate and `independent-review` § When.
-6. **Keep product decisions, real systems and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep anything touching a real system, development included, such as deploys, migrations applied to any database, server secrets and live settings.
+6. **Keep product decisions, operational changes and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep operational changes, including development deploys, applied migrations, pushes, provider settings and secrets, plus production credentials. Development suite runs are delegated within the brief's boundaries; apply `delegation`.
 
 ## Command customizations
 
@@ -125,7 +125,7 @@ python3 <skill dir>/scripts/agy.py --cwd <repo> --reset
 
 ## Builder
 
-**Give the builder its own clone or worktree and exclude real systems.** Keep deploys, applied migrations, server secrets and live settings with the session agent, including development systems. Read the diff and run its tests yourself.
+**Give the builder its own clone or worktree and exclude operational changes.** Keep deploys, applied migrations, pushes, provider settings, secrets and production credentials with the session agent, including development operational changes. Permit development suites within the `delegation` boundaries. Read the diff and run its tests yourself.
 
 ```bash
 python3 <skill dir>/scripts/agy.py --new --mode build --cwd <clone> --read <stage-brief> --out <scratch>/build.md

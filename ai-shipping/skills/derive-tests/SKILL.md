@@ -59,18 +59,21 @@ Use these test types:
 
 - unit — pure and deterministic, no external services;
 - integration (deterministic) — real wiring against a dependency the product runs for its tests, such as a local or development database or mocked provider; same pass/fail result every time;
+- end-to-end — the running app driven as its user meets it, with a real session for signed-in steps;
 - guarded live — a real external service the product does not run for its tests, such as an email provider, LLM, or third party; behind an explicit flag;
 - manual — UI/visual or judgment calls; reviewer checklist items, not automated tests.
 
 **Separate a test's dependencies from whether the repo makes it gate.** The repo's gate policy decides the latter (Step 5). A product may gate against its development database and identity provider's development instance, with real browser sessions, as in the `test-harness` skill. Those rows are deterministic there because the product owns the environments.
 
-**Where no gate is stated, require the deterministic unit and integration set.** These tests pass or fail the same way on every run; guarded-live and manual rows don't gate. Either way, prefer unit tests where decision logic can be isolated. Use integration when the rule lives in middleware, RLS, or auth-guard wiring that only a real dependency can exercise.
+**Map each flows-doc journey to the end-to-end spec that exercises it.** Read the spec's assertions and identity setup; a filename alone proves no coverage. Flag a journey whose only tests fake identity or the browser, even when those tests prove its data rules. Record missing specs and any paid or real-inbox steps left to live or operator suites; the gate covers surrounding steps.
+
+**Default to deterministic unit, integration and applicable end-to-end suites without a stated gate.** These tests pass or fail the same way on every run; guarded-live and manual rows don't gate. The owner decides a smaller set, recorded where the repo keeps its decisions, with its reason and revisit trigger. Prefer unit tests where decision logic can be isolated. Use integration when the rule lives in middleware, RLS, or auth-guard wiring that only a real dependency can exercise, and end-to-end tests for user journeys.
 
 **A pure helper complements testing real enforcement; it never replaces it.** When a rule can only be exercised live, you can extract its decision into a pure, unit-testable helper. That proves the helper's logic, not that the framework calls it. Wiring and policy enforcement still need an integration or guarded-live check: route middleware, DB row-level security, auth guards, and provider config. Otherwise, the helper can pass while the real path is unprotected.
 
 ### 4. Propose the tests
 
-**Write a concrete case for every rule a deterministic test can pin.** For each unit or integration case, give its name, arrange/act/assert intent, and negative case it must reject. Group cases by the doc or flow they defend. Prefer the smallest test that pins the rule: one clear assertion per boundary, rather than an integration test that fails for ten reasons.
+**Write a concrete case for every rule a deterministic test can pin.** For each unit, integration or end-to-end case, give its name, arrange/act/assert intent, and negative case it must reject. Group cases by the doc or flow they defend. Prefer the smallest test that pins the rule: one clear assertion per boundary, rather than an integration test that fails for ten reasons.
 
 ### 5. Recommend the gate
 
@@ -78,7 +81,7 @@ Use these test types:
 
 **Where no policy exists, suggest CI matched to the repo's tooling.** Recommend it; don't silently install it. Match the repo's stack and existing tooling:
 
-- run the deterministic local set on every pull request: unit plus any integration test that runs without live services;
+- run deterministic unit, integration and end-to-end suites on every pull request where their dependencies and development credentials are available; record any local-only remainder;
 - keep guarded-live tests opt-in, manual or scheduled, never blocking;
 - gate merges to `main` on green via a required status check plus branch protection.
 
@@ -91,6 +94,7 @@ Output the workflow file and branch-protection setting as a clearly labeled sugg
 - Existing coverage — rules a test in the repo pins today, from the Step 1 inventory.
 - Proposed tests — recommended cases that don't exist yet, by type.
 - Gaps — documented rules with no verification at all, ranked by what crossing them exposes.
+- Journeys — each flows-doc journey, its end-to-end spec and case, real-session coverage, and any missing or live/operator steps.
 
 The gaps are the backlog, where the next AI edit can silently break a boundary. Proposed coverage is not existing coverage: a rule isn't covered until a test actually asserts it.
 
@@ -98,12 +102,13 @@ The gaps are the backlog, where the next AI edit can silently break a boundary. 
 
 **Check the map without rewriting it or running the tests.** This lets a release check a map maintained by hand or by whoever runs the gate. Write no file: neither the map nor a report. Read the tests; don't run them. Don't apply the `document-app` skill when docs are thin; list them under Not checked.
 
-1. **Find the existing coverage map, and stop if there is none.** Follow the `shipping-artifacts` skill's Locations and names rule, as the workflow does. Say if none exists.
+1. **Find the existing coverage map before comparing its rows.** Follow the `shipping-artifacts` skill's Locations and names rule, as the workflow does. If absent, put map comparisons under Not checked; still list flows-doc journeys missing end-to-end specs.
 2. **Compare every map row against the system docs and test suite.** It is stale where:
    - a documented rule has no row, or a row cites a rule the docs no longer state or now state differently;
    - a row marked existing names a test that is gone or doesn't assert the rule;
    - a test pins a rule the map marks proposed or none;
    - a cited path, test name, or gate command no longer matches the tree.
+   - a flows-doc journey has no end-to-end spec, or its only coverage fakes identity or the browser.
 3. **Leave the choice of which side is wrong to the owner.** The map may be behind, or a doc or test may have drifted from what the map records.
 
 Print the output in the conversation:
@@ -119,6 +124,9 @@ Coverage check: [scope] — check-only, no files written
 
 ### Not checked
 - [thin or absent docs, tests whose assertion couldn't be read, areas out of scope]
+
+### Journeys without end-to-end coverage
+- [flows-doc journey and line → missing spec or identity/browser fakes; any live/operator step]
 
 ### Summary
 Coverage check, [date], commit [short SHA], scope [scope]: [N] map rows read, [N] stale entries, [N] not checked. Tests read, not run. No files written. Which side to fix is the owner's call.
@@ -146,6 +154,9 @@ Test Coverage: [scope]
 ### Proposed tests
 [grouped by flow/doc — name · assert · negative case · type]
 
+### Journeys
+[flows-doc journey → end-to-end spec and case → real-session coverage → missing or live/operator steps]
+
 ### Gate
 [the repo's stated gate policy, with its source, and whether the deterministic set runs inside it — or, where it states none, a workflow snippet for the detected stack + "green-before-merge" branch-protection note]
 
@@ -160,6 +171,8 @@ Test Coverage: [scope]
 - **Let guarded-live tests gate only where the repo's policy puts them.** A flaky test of any type leaves the gate until fixed; otherwise, people start ignoring the gate.
 - **Use this skill for test derivation only.** Use the `security-audit-static` skill for the gap audit itself. For the full document → audit → test → packet sequence, use the ship check (`/ai-shipping:ship-check`, or `$ai-shipping:ship-check` in Codex).
 
+Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
+
 ## How you can tell it worked
 
-Every documented rule has a row, every row marked existing names a test that asserts it today, and the gaps are ranked. In check mode, nothing on disk changed.
+Every documented rule has a row, every row marked existing names a test that asserts it today, and the gaps are ranked. Every journey names its end-to-end spec or gap; in check mode, nothing on disk changed.

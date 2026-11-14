@@ -18,7 +18,7 @@ Everything here was read from `grok --help` and run on Grok CLI 1.0.70, 2026-11-
 3. **Bring the partner in at framing and keep iterating.** The cheapest wins are at framing; three to eight turns is normal.
 4. **Converge before surfacing.** Bring the human one result, or a disagreement stated cleanly.
 5. **A delegated diff is unreviewed code, and the session that wrote it never clears it.** Read it, check the disk and re-run its tests yourself. The full gate and fresh independent review come at the stage's end and before anything ships or deploys; apply `test-harness` § The gate and `independent-review` § When.
-6. **Keep product decisions, real systems and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep anything touching a real system, development included, such as deploys, migrations applied to any database, server secrets and live settings.
+6. **Keep product decisions, operational changes and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep operational changes, including development deploys, applied migrations, pushes, provider settings and secrets, plus production credentials. Development suite runs are delegated within the brief's boundaries; apply `delegation`.
 
 ## Three modes
 
@@ -58,7 +58,7 @@ grok --resume "$SID" --prompt-file "$S/turn-2.md" --cwd <repo> \
 
 ## Builder
 
-**Give a builder its own worktree and keep real systems out.**
+**Give a builder its own worktree and exclude operational changes.** Permit development suites within the `delegation` boundaries; keep production credentials with the session agent.
 
 ```bash
 grok --prompt-file "$S/stage-brief.md" --cwd <worktree> --session-id "$SID" \
@@ -66,7 +66,7 @@ grok --prompt-file "$S/stage-brief.md" --cwd <worktree> --session-id "$SID" \
      --reasoning-effort xhigh --output-format json < /dev/null > "$S/build-1.json"
 ```
 
-- **`--always-approve` approves every tool call, the shell included.** Use a git worktree of its own, never the tree you edit. The brief excludes every real system: no pushes, deploys, migrations or secrets (§ The partner discipline, 6). `--deny MCPTool` blocks the machine's connected MCP servers, including a database's.
+- **`--always-approve` approves every tool call, the shell included.** Use a git worktree of its own, never the tree you edit. The brief excludes operational changes: no pushes, deploys, applied migrations, provider-setting or secret changes, or production-credential reads (§ The partner discipline, 6). Development suites run within the brief's boundaries. `--deny MCPTool` blocks the machine's connected MCP servers, including a database's.
 - **Check the disk before believing a run happened.** Read `git status` and the named files. A run unable to write returns a reasoned report that reads exactly like one that did.
 - **Do not treat `--sandbox <profile>` as a write boundary.** It enforces only on supporting platforms; on Windows a sandboxed run still created a file (observed 2026-10-10).
 - **Run a small build first and read the disk.** This mode's command comes from `grok --help` 1.0.70. It had not been run end to end when written on 2026-11-02, because the calling agent's classifier refused a fully approved Grok session.

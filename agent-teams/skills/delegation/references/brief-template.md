@@ -38,16 +38,29 @@ Copy, fill, delete what doesn't apply. Order matters: the goal comes first becau
 <Any claim your conclusion will rest on. Ask the delegate to confirm or refute
  it against a primary source, not to assume it.>
 
+## Builder boundaries
+You never deploy, apply migrations, push, change a provider setting or secret,
+or read production credentials. Only one agent runs suites on shared
+development data at a time; coordinate the window with the session agent.
+Hand new migrations to the session agent to apply to development before
+running the tests that need them. Run tests on development with dedicated
+test accounts, fixing failures before handoff.
+<For a Codex build running tests: --sandbox danger-full-access runs without
+ a sandbox; these instructions are its boundary. The owner may choose
+ another boundary; record any checks handed back and their concrete blocker.>
+
 ## What stays with me
-<Everything that touches a real system, development included: deploys,
- migrations applied to any database, servers and their secrets, live
- settings, drills. "Build so I can do each with one command, and name the
- commands.">
+<Deploys, promotions, pushes, applied migrations, persistent servers, workers,
+ provider settings, secrets, drills and production credentials, including
+ development operational changes. Suite runs and their test servers and
+ fixtures are delegated within the boundaries above. Make each operational
+ step one command and name it.>
 
 ## How it's proved — done, for this hand-off
-<What the delegate can finish where it runs: the code, its tests, its doc lines,
- the handoff. What its sandbox cannot reach (database, browser, Docker,
- network) and who runs those checks: "write them; I run them". Exercise every
+<What the delegate can finish where it runs: the code, its tests run and fixed,
+ current doc lines, the handoff. Name each changed journey and its committed
+ end-to-end spec. Where the tool/platform cannot run a suite, name the
+ concrete blocker and who runs it: "write it; I run it". Exercise every
  existing page and function the stage touches, not only the new ones. The
  stage's own done-when, when it needs real systems, stays with me.>
 
@@ -69,7 +82,8 @@ Ask for it by name in the brief, as a file beside the brief. Each part is there 
 <Status line, added by you when you take it over: dated — merged, reviewed in
  which rounds, deployed where, what still waits.>
 
-Branch and base. Which real systems it touched (normally: none). "This is a
+Branch and base. Which development suites it ran and which systems they
+touched; no operational changes. "This is a
 code handoff, not the stage done."
 
 ## Built
@@ -87,7 +101,7 @@ code handoff, not the stage done."
                                             log, counts; what was written but
                                             not run; any attempt that may have
                                             reached a real system>
-## Commands for you                        <each real-system step as one command>
+## Commands for you                        <each operational step as one command>
 ## Integration notes                       <for stages built in parallel: what
                                             to merge or apply first>
 ## Release follow-through                  <what must be redeployed after the

@@ -88,7 +88,7 @@ description: "'What's the status', 'where were we', a progress report or status 
 
 **Keep one pair per area of work, not per repository.** A repository with three unrelated efforts wants three pairs; three repositories serving one effort want one. The area is the unit someone would ask a status question about.
 
-**Put volatile state where it survives without polluting the work.** A scratch or working directory is right. Cross-link from the log to the status, and from any long-lived doc to both, so a fresh reader finds them.
+**Keep files needed after a restart outside scratchpads and system temp.** Status, logs, scripts, tools and cited evidence belong in the repository or another persistent working folder. Keep sensitive operator files uncommitted and protected there. Cross-link from the log to the status, and from long-lived docs to both, so a fresh reader can resume.
 
 ## Reading them after a compaction
 

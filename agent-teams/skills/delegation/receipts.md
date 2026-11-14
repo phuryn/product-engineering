@@ -6,9 +6,10 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-08-21`, a remote-control product. A brief with the goal in it comes back with judgement: "the force at replay end is redundant, here is why", "a 30px overlay would cover the last line, which is worse than the jump" — each of which changed what shipped.
 
-## Run every step that touches a real system yourself.
+## Keep operational changes and production credentials with the session agent.
 
 - `2026-10-23` and `24`, a monitoring product: every stage brief listed these under "What stays with me". Delegated builds made 28 commits the day before the first release and none on the day of five production promotions, which was review fixes and real systems throughout.
+- `2026-11-14`, the owner distinguished development suite runs from operational changes. Builders run and fix their tests; the session agent still applies migrations before dependent tests, serializes shared-data runs and independently verifies the full gate.
 
 ## If the brief would be nearly as long as the diff, write the diff.
 

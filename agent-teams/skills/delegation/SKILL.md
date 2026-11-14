@@ -17,7 +17,7 @@ description: "Before spawning a subagent or dispatching a build, review or resea
 
 - **Decide what the product should do yourself.** Keep the thesis, scope, taste and interpretation of the owner's wishes with you.
 - **Accept or reject review findings yourself.** Treat the finding and its severity as claims (`independent-review` § Triage).
-- **Run every step that touches a real system yourself.** Keep deploys, promotions, applied migrations, servers, workers, secrets, live configuration and drills with you, including development and databases only you use. Ask the delegate to make each step one command and name those commands; you run them.
+- **Keep operational changes and production credentials with the session agent.** Keep deploys, promotions, pushes, applied migrations, persistent servers, workers, provider settings, secrets and drills with you, including development. Ask the delegate to make each step one command and name those commands; you run them. Development suite runs, including their test server and fixtures, are builder work within the brief's boundary.
 - **Perform final verification yourself.** Run the tests, typecheck, gate and smoke, inspecting their results to check the delegate's passing claim.
 - **Judge whether a stage is done yourself.** A delegate's handoff supplies evidence for that judgement.
 
@@ -42,7 +42,7 @@ Three things, and the first is the one most often skipped:
 
 1. **Explain what you are trying to achieve and why.** Name the decision this handoff feeds. In the owner's terms, "we are choosing between A and B" lets a delegate suggest a third option or challenge the question. A delegate told "research A and B" cannot.
 2. **State the constraints that bind, including the do-nots.** Explain traps that would make a plausible local fix wrong in the larger system. For example: "Keep this out of the argument builder; the same string feeds another spawn path."
-3. **Define proof for this handoff, including checks you must run.** Name the tests, gate and handoff's done-when, keeping that narrower than the stage's whenever completion needs real systems. Say what the sandbox cannot reach, such as a database, browser, Docker or network, and assign those checks: "Write them; I run them." Ask for a code handoff with checks marked "written, not run", rather than invented counts or a stage marked done.
+3. **Define proof for this handoff, including checks you must run.** The builder runs its tests and fixes failures before handoff; name its development test access and serialize suites on shared data. The session agent applies new migrations to development before the builder runs dependent tests. Keep the handoff's done-when narrower than the stage's; final verification and stage judgement stay with you. If a tool or platform blocks a check, name the concrete limit and who runs it: "Write it; I run it." Report those checks as "written, not run", rather than inventing counts or marking the stage done.
 
 **Ask it to exercise every existing page and function the stage touches, not only its own.** Ask for this explicitly in the brief, including code the delegate did not write.
 
@@ -97,7 +97,7 @@ Three things, and the first is the one most often skipped:
 
 - **A delegated diff is unreviewed code.** Read it before believing it. Its independent review comes before anything ships or deploys; in staged work it is the stage's series (`independent-review` § When).
 - **Check the disk before believing a round happened.** Inspect `git status` and file times, since a run without write access can return a convincing report with no changes.
-- **Re-run its tests yourself, and rewrite any evidence it wrote from your own run.** A piece inside a stage reruns the tests it touches; the full gate runs when the stage is complete (`test-harness` § The gate). A sandbox without database or browser access cannot supply a passing gate. Read every line the delegate adds to a coverage map or status file; replace its evidence rather than inventing counts.
+- **Re-run its tests yourself, and rewrite any evidence it wrote from your own run.** A piece inside a stage reruns the tests it touches; the full gate runs at stage end and before deploying pushes (`test-harness` § The gate). A builder's passing report remains a claim, even when it can reach development. Read every line it adds to a coverage map or status file; replace stage-completion evidence from your own run rather than inventing counts.
 - **Before passing a delegate's "commands for the owner" up, do every one you can.** Use an API, CLI or key you hold and reread the result. Escalate only what needs a person: a dashboard-only click, money or taste.
 - **A builder's objection that is a product decision goes to the owner.** Give it its own handoff section, keeping it separate from corrections you can accept yourself.
 - **When you take a handoff over, put a dated status line at its top.** Say whether it is merged, which rounds reviewed it, where it is deployed, and what still waits. Keep your changes in their own section, leaving the delegate's text as written. Check claimed deploys against your environment log.

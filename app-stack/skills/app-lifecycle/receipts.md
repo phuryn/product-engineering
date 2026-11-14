@@ -6,6 +6,22 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `Undated`: The path was learned building SaaS products with coding agents on Next.js (App Router) + Supabase Postgres + Clerk + Netlify, tested with Vitest and Playwright. A live Q&A product walked every stage first; a monitoring product and several others followed.
 
+## Follow the product's plan; only the owner skips or defers a stage.
+
+- `2026-11-14`, an evals product: browser proof stayed "not started" through stages 0–5 and six later stages, item four of seven behind product work. No owner decision deferred it; a broad "create everything and go with full implementation" was treated as a waiver. On `2026-11-03`, an agent's recorded call had similarly moved past design without bringing it back; that story remains in `references/stages.md`.
+
+## Tests and docs land with the change.
+
+- `2026-11-14`, an evals product: 77 reviews and nine development deploys ran without a browser test of the running app. The owner required implemented end-to-end tests at every phase's end; exploratory screen checks alone did not meet that need.
+
+## Core docs arrive with the first real slice by default.
+
+- `2026-11-14`, an evals product: architecture, flows and assumptions were first written two weeks into the build, after its original session was lost. Five agents had to read code to reconstruct the system. Feature docs had become dated build notes with current truth in the last paragraph. Plan statuses stayed "click-through pending" for weeks, with no stage closed against its done-when. The owner moved core docs to stage 5 and added check-only docs and plan-status checks at each stage end.
+
+## Keep product decisions, operational changes and stage-completion judgement with the session agent.
+
+- `2026-11-14`, the owner allowed builders to run and fix development suites, with one runner on shared data. Deploys, applied migrations, pushes, provider settings, secrets, production credentials and final stage judgement remained with the session agent.
+
 ## Order every stage and phase by visible value against cost.
 
 - `2026-11-03`, an evals product: its plan followed the proposal's build order, so after three phases and 22 review rounds, ten of them on the hard logic of paid sampling, it had no landing, legal pages or pricing. The owner: "Seeing app with all those elements that costs a little is wow. Debugging hard logic for hours isn't."
@@ -13,6 +29,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## A stage is done when its done-when holds and its own gate passes on the agent's own run.
 
 - `2026-10-22`, a monitoring product: ten minutes of its owner using a preview found six problems no review had.
+- `2026-11-14`, an evals product: a green product-defined gate omitted both browser suites through nine development deploys. The session agent now compares the gate with the applicable suite contract rather than trusting its name.
 
 ## Example prompts are one way to drive it.
 

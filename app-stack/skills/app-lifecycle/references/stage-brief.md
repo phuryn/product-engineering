@@ -1,17 +1,18 @@
 # The stage brief
 
-**What it is for:** what the session agent hands a builder for one stage — the stage's goal, the decisions that bind it, and the files it will touch — what the builder can finish in its own sandbox, and **what the stage is judged against when it comes back.** One file per active stage.
+**What it is for:** what the session agent hands a builder for one stage — the stage's goal, the decisions that bind it, the files it will touch and the builder's boundaries — what the builder finishes and runs itself, and **what the stage is judged against when it comes back.** One file per active stage.
 
 **Rules**
 
 - **A brief, not a keystroke script.** State the goal once, hand over the binding decisions and the context, and let the builder pick the means. Numbered micro-instructions are recipe-writing dressed up as a brief. (How to brief a builder well, and when not to: the `delegation` and `codex-agents` skills.)
 - **If the brief would be nearly as long as the diff, write the diff yourself.** The test is size, not time. (`2026-09-22`, a live Q&A product: a builder sat twelve minutes on a fifteen-line change with zero writes.)
 - **Two done-whens, kept apart.**
-  - **The stage's done-when is the plan's, copied**, so the stage is judged against what the owner agreed to, not against what came back. It usually needs real systems the builder cannot reach: a deployed build, the development database, a signed-in browser, the owner's preview.
-  - **"Done, for this hand-off" is what the builder can finish in its own sandbox**: the code, its tests written, its doc lines, a short note, and the commands the session agent will run. Say what the sandbox cannot reach (a database, a browser, Docker, the network) and who runs those checks: "write them; I run them."
+  - **The stage's done-when is the plan's, copied**, so the stage is judged against what the owner agreed to, not against what came back. The session agent owns deployment, the owner's preview and the final full gate; the builder can run tests against development.
+  - **"Done, for this hand-off" is what the builder finishes and runs itself**: the code, its tests written, run and their failures fixed, its doc lines, a short note, and the commands the session agent will run. Where its tool or platform cannot run a suite, name the blocker and who runs it: "Browser launch is blocked here; write it, I run it." Apply `codex-agents` for Codex's test-running mode.
+  - **A test changed to make it pass is named in the hand-off, with why.** A loosened assertion or an added fallback can turn a real failure green; the session agent reads each one in the diff (`test-harness`, a fallback in a test is a bug in disguise).
   - **Every handoff then says plainly that it is a code handoff, not the stage done**, and lists what it wrote but could not run. The session agent marks the stage done only from its own run against the stage's done-when.
   - (`2026-10-23`, a monitoring product: once its briefs split the two, every handoff opened "This is a code handoff, not a claim that the stage's live done-when passed" and reported database tests as written but not run. Earlier, on another product, builders whose sandbox reached no database had twice reported gate counts nobody ran, `2026-09-16` and `2026-09-17`.)
-- **What stays with the session agent: anything that touches a real system, development included** — a deploy, a migration applied to the development database, a worker's secrets, a drill. The builder makes each one a single command and names it in the handoff.
+- **Development test access excludes operational changes and production credentials.** It never deploys, applies migrations, pushes, changes a provider setting or secret, or reads production credentials. Only one agent runs suites on shared development data at a time. A new migration goes to the session agent to apply to development before dependent tests run. Deploys, migrations, workers' secrets, settings and drills stay with the session agent; the builder names each as one command. (`2026-11-14`, the owner enabled builder-run tests after a sandboxed build could not launch Chromium or resolve DNS.)
 - **The brief and stage plan budget the tests the sandbox cannot run**, including one integration-fix pass by the session agent: apply the `test-harness` skill's round-trip budget (§ Tests and docs are part of the change).
 - **A stage that adds or changes screens names the `ui-design` skill** (`$app-stack:ui-design` for Codex) and carries its rows of the jobs map. A builder that reads no skill trigger never opens a method it isn't pointed at, and it loads one only from a pack installed in it. (`2026-11-03`, an evals product's builder, Codex with no pack installed, built its screens without the method.)
 - **Without a builder**, the session agent builds the stage itself and the plan's line for the stage is its brief; no separate file is needed.
@@ -33,11 +34,18 @@
 
 ## Done, for this hand-off
 
-<What the builder finishes in its sandbox: the code, its tests and its doc lines, committed on <branch>. What the sandbox cannot reach (<a database, a browser, the network>): write those tests; the session agent runs them. Then the handoff: what was built, the choices where this brief is silent, corrections to the spec, what was run and what was not, and the commands the session agent runs (its full shape: the `delegation` skill's brief template). It opens by saying it is a code handoff, not the stage done.>
+<Code, durable tests committed with the change where permitted, and current doc lines. Run the tests you write and fix failures before handoff. Name any tool/platform blocker, each suite not run and who runs it, and every test you changed to make it pass, with why. If you run without a sandbox, these instructions are your boundary. Leave changes uncommitted when the session agent owns the commit. Then report what was built, choices where this brief was silent, spec corrections, runs and commands for the session agent (the delegation skill's brief template). Open with: this is a code handoff, not the stage done.>
+
+## Builder boundaries
+
+You never deploy, apply migrations, push, change a provider setting or secret, or read production credentials.
+Only one agent runs suites on shared development data at a time; coordinate the test window with the session agent.
+Hand new migrations to the session agent to apply to development before running tests that need them.
+Run tests against development with dedicated test accounts. The session agent independently runs the full gate before marking the stage done.
 
 ## What stays with the session agent
 
-<Anything that touches a real system, development included: deploys, migrations applied, secrets set, drills. Each one a single command, named in the note.>
+<Deploys, promotions, pushes, applied migrations, provider settings, secrets, drills and production credentials, including development operational changes. Development test runs are delegated within the boundaries above. Name each operational step as one command in the note.>
 
 ## Decisions that bind it
 
@@ -59,7 +67,7 @@
 
 ## Tests and docs that land with it
 
-- <The tests the change owes, and in which harness they run; the doc lines to correct.>
+- <Each journey added or changed → its committed end-to-end spec; its harness and gate command; live/operator steps kept outside the gate. Core docs with the first real slice, then current doc lines and the document-app check-mode result.>
 - <Every existing page and function the stage touches, exercised, not only the new ones.>
 - <The real database's measured round-trip latency and integration-test budgets; one session-agent integration-fix pass when the sandbox cannot run them (the `test-harness` skill).>
 

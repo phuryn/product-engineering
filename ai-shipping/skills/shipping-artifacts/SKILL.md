@@ -38,6 +38,7 @@ Throughout this plugin, a name such as `architecture.md` or `tests.md` means tha
 **Derive the coverage map from intent and existing tests.** The `derive-tests` skill produces `tests.md`; it is a verification map, not a subsystem description. The `document-app` skill reverse-engineers the other docs from code.
 
 **Describe the current state honestly, without being paranoid.** The job is an accurate map, not a clean bill of health. Keep each doc short, table-and-bullet heavy, and free of generic theory.
+Docs say what is built now; stage changes belong in the log or release history, rather than dated paragraphs superseding one another.
 
 ## Core documents
 
@@ -96,7 +97,7 @@ Reviewers use it for the secrets/PII-leak surface and the incident-response rota
 **Distinguish rules checked today, proposed tests, and rules checked by nothing.** Keep three clearly separated sections so the map cannot read falsely green:
 
 - Existing coverage — tests in the repo today, each tied to the rule it pins; reality, not a wish-list.
-- Proposed tests — recommended cases not yet written, marked by test type: automated unit/integration · guarded live · manual review.
+- Proposed tests — recommended cases not yet written, marked by test type: automated unit/integration/end-to-end · guarded live · manual review.
 - Gaps — documented rules with no verification at all, ranked by what crossing them exposes.
 
 **Give every coverage row its rule, expected result, evidence, and status.** Each row carries:
@@ -158,6 +159,8 @@ Reviewers use it to catch public-data-only violations and metadata injection on 
 - controls: approval gates, audit/timeline logging, rate limits, retries, kill switch.
 
 This exposes hidden automation paths and separates what an agent proposes from what the app enforces. It is the highest-risk surface in modern AI-built apps.
+
+Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 

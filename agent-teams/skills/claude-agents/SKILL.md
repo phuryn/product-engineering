@@ -17,7 +17,7 @@ description: "'Ask Claude', 'have Claude build or review this': drive Claude Cod
 4. **Iterate.** Continue the conversation after the first draft comes back. Three to eight turns is normal. Stopping at turn 1 treats a partner as a one-shot generator.
 5. **Converge before surfacing.** The human arbitrates intent and taste, not trade-offs two agents could argue through. Bring one result, or a disagreement stated cleanly.
 6. **A delegated diff is unreviewed code, and the session that wrote it never clears it.** Read it, check the disk and re-run its tests yourself. The full gate and fresh independent review come at the stage's end and before anything ships or deploys; apply `test-harness` § The gate and `independent-review` § When.
-7. **Keep product decisions, real systems and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep anything touching a real system, development included, such as deploys, migrations applied to any database, server secrets and live settings. The builder makes each real-system step one command and names it; you run it.
+7. **Keep product decisions, operational changes and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep operational changes, including development deploys, applied migrations, pushes, provider settings and secrets, plus production credentials. Development suite runs are delegated within the brief's boundaries; apply `delegation`. The builder makes each operational step one command and names it; you run it.
 8. **Write the diff yourself when the brief would be nearly as long.** Judge delegation by size, not time.
 
 ## Peer, builder or reviewer
@@ -155,7 +155,7 @@ Measured 2026-10-24, a plain `claude -p` in a scratch folder loaded 145 tools an
 
 Observed 2026-10-24: consult had no Write tool; `echo x > f` and a `python -c` file write were denied (two `permission_denials`). `git status` ran, and the disk was unchanged. Review had only Read, Grep and Glob and attempted no write. Build, in auto mode on Haiku 5.5, edited a file, ran it and ran `git status`.
 
-**Keep every real system out of an auto-mode build brief.** Auto mode is a safety net, not a boundary. It needs a supported model and an organization that hasn't disabled it; otherwise the session starts in Manual (permission-modes docs, read 2026-10-24). Supported Anthropic API models are Opus 4.6+, Sonnet 4.6+, Haiku 5.5 and Fable; cloud providers support fewer. The wrapper's stderr line shows the mode that actually ran. Production and every other real system stay out.
+**Keep operational changes and production credentials out of auto-mode builds.** Auto mode is a safety net, not a boundary. It needs a supported model and an organization that hasn't disabled it; otherwise the session starts in Manual (permission-modes docs, read 2026-10-24). Supported Anthropic API models are Opus 4.6+, Sonnet 4.6+, Haiku 5.5 and Fable; cloud providers support fewer. The wrapper's stderr line shows the mode that actually ran. Permit development suite runs only within the brief's `delegation` boundaries; production access and operational changes stay out.
 
 ### Calling it from inside a sandbox
 

@@ -54,7 +54,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 **Doing it well**
 
 - **Start from the jobs map**, the proposal's when there is one: the artboards draw the screens it names, and a screen with no job is cut. When the product replaces a tool the owner knows, start from that tool's structure.
-- **A plan may move this stage, never drop it.** A plan that runs setup first keeps a design step, with its artboards, before any app screen is built. (`2026-11-03`, an evals product: design was skipped by a recorded decision, "setup before design and screens", and nothing brought it back: no artboards, and its builder, Codex with no pack installed, never read the method, and the owner's click-through found five layout bugs.)
+- **Only the owner can approve skipping or deferring the design stage.** By default, a plan that runs setup first keeps design and its artboards before any app screen. Record any exception and its return trigger in the plan. (`2026-11-03`, an evals product: design was skipped by a recorded decision, "setup before design and screens", and nothing brought it back: no artboards, and its builder, Codex with no pack installed, never read the method, and the owner's click-through found five layout bugs.)
 - **Design the first two screens with their empty states:** the member's main screen (desktop) and the public's, if the product has one (phone). For a live Q&A product those were the host's list of rooms and a participant's room page.
 - **Two genuinely different directions**, shown as specimens on one page (the proposal's artifact when there is one), each with what it optimizes for and the trade-off. Stop; the owner picks — a single letter is enough. A direction the artifact already settled stands.
 - **Decide theming with the direction:** one palette or two token sets. Either way the browser harness pins one colour scheme, and contrast floors are tested for every set that exists.
@@ -91,13 +91,14 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 
 ## 4 — Setup
 
-**Produces:** the identity provider's application (development instance; organizations on, in the organization shape), a **development database project** of its own (production's comes at go-live; a development branch of production instead is the owner's choice, `supabase-production`), the CLI reaching development by its connection string, and the keys in `.env`.
+**Produces:** the identity provider's application (development instance; organizations on, in the organization shape; test mode on, with the owner's own verification code and a first test account), a **development database project** of its own (production's comes at go-live; a development branch of production instead is the owner's choice, `supabase-production`), the CLI reaching development by its connection string, and the keys in `.env`.
 
-**Done when:** `.env` is filled with no placeholder left, the database's agent connection and the CLI both name the development target, the development database is still empty, and the app boots on the development keys.
+**Done when:** `.env` is filled with no placeholder left, the database's agent connection and the CLI both name the development target, the development database is still empty, the app boots on the development keys, and test mode, the owner's verification code and the first test account are ready for stage 5's signed-in suite.
 
 **The owner's part** — dashboard clicks the agent cannot make:
 
 - **The identity provider's application**, on its development instance, with the sign-in options the owner wants. Skip any "add authentication" prompt the dashboard offers to paste: in a repository it does not recognise, it scaffolds an app of its own in a subfolder (Clerk, observed 2026-08-27). The page you want is its API keys.
+- **Test mode, a verification code of your own and a first test account**, while you are in the development dashboard. Turn test mode on and **change the default verification code to one of your own**: it is the password to every test account on the instance. Create one test user with a test subaddress (`you+clerk_test@…` on Clerk, which never mails it and always accepts the test code; observed `2026-08-31`). The suite can create the user itself, but creating it by hand the first time is the fastest way to see that test mode is really on. Keep the code out of the chat and the repository.
 - **In the organization shape, turn organizations on and require membership** (Clerk calls it *Membership required*; the switch reads "Force organization selection"). What it buys: one kind of workspace, one set of roles, one billing tab, and plans built in the right tab the first time. What it costs: every new member meets the provider's choose-organization screen before the app, and until they finish it their session is *pending*, which the provider treats as signed out, so a protected page sends them back to sign-in. A person continues through it in seconds; a headless browser cannot, which is why the browser harness creates each test account's organization and lands it past the screen — known and handled, not avoided. (`2026-08-31`, `2026-09-03`.) **In the individual shape, leave organizations off.**
 - **The development database project and its connection string**, which the owner saves outside the chat in a development operator file that is never committed; the CLI reaches development by it and is never linked (`supabase-production`, setup steps 2 and 3). An access token only if the agent gets a database connection for looking (below): scoped to that project alone, read-only, in `SUPABASE_ACCESS_TOKEN` in the environment the agent starts in, set outside the chat and off the command line (`environments`, `references/domain-and-provider-access.md`; as a branch of production, time-boxed as `supabase-production`'s setup step 1 says). Development is what `.env`, the CLI and the agent's database connection point at from here on, and the two environments are never confused because every command names its target.
 - **The keys go into `.env` and nowhere else — never into the chat.** A key that touched the chat is rotated in its dashboard.
@@ -113,7 +114,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 
 ## 5 — The first real slice
 
-**Produces:** sign-in that lands on the member home, which sends a signed-out visitor to sign-in and back; workspaces; the first migration; the member's own resources; and the public surface, if there is one — from the screen down to the table. It is the long stage.
+**Produces:** sign-in that lands on the member home, which sends a signed-out visitor to sign-in and back; workspaces; the first migration; the member's own resources; the public surface, if there is one — from the screen down to the table; the signed-in browser suite, with each journey of the slice as a test; and the core docs. It is the long stage.
 
 **Done when** a person can:
 
@@ -122,7 +123,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 - take the product's **once-only action and be refused it a second time** (for a live Q&A product: join a room, ask, upvote, and be refused a second upvote);
 - submit `<script>alert(1)</script>` and **see it as text**;
 
-— and the stage's tests and doc lines landed with the code, and the gate is green on the agent's own run. Nothing is deployed yet, so the release checklist is not owed.
+— and each journey of the slice has a committed end-to-end spec, whose signed-in steps sign in through the provider's own component on its development instance, with an account per role. The signed-in suite **passes twice in a row**, as two separate invocations with their setup and teardown (a suite that only passes on a clean database is not a suite), and the public suite still passes without any identity variable. The architecture, flows, permissions and variables docs and the coverage map describe the slice (`shipping-artifacts`), and `document-app` in check mode leaves no mismatch open. The full gate is green on the agent's own run, and the plan's line records completion against this done-when. Nothing is deployed yet, so the release checklist is not owed.
 
 **Doing it well**
 
@@ -131,6 +132,8 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 - **Plan in one page and stop.** The plan names the workspace table (keyed to the organization, or in the individual shape to the user), the authorization functions and the first migration.
 - The first migration is applied by the CLI with the target spelled out, named after the version the migration ledger records.
 - **The screens keep their shape;** what changes is where their data comes from and how people authenticate. Use the identity provider's own components, dressed to the design, never rebuilt.
+- **Implement each slice journey once, then keep rerunning it through the gate.** Include multiple simultaneous actors where the product has them, such as a desktop member and anonymous phone users sharing a resource. Mocking the session does not test sign-in; paid or real-inbox steps stay in live or operator suites, with surrounding steps gated. Apply `test-harness` for setup, resets and separate browser configs. (`2026-11-14`, an evals product: stages 0–5 and six later stages passed 77 reviews and nine development deploys with no running-app browser test.)
+- **In the organization shape**, the harness's global setup creates an organization per test account and lands it past the choose-organization screen, and gives each further role its membership in the first account's organization, so the journeys run as real members with different powers. **A sign-in that succeeds and a wait for the member URL that times out anyway is the symptom of a harness that did not.** In the individual shape there is no such screen and no second role: each test account is its own workspace.
 - End with one summary: what exists, what the tests cover, what was left out, and how the owner checks it by hand.
 - **Checking by hand without inboxes:** a Clerk development instance accepts any address shaped like `you+clerk_test@example.com` with the test code (observed 2026-08-31), so one person can be two members. "Phone" means the browser's device mode until there is a deploy.
 - The example prompt for this stage also asked for a pass over the agent instructions at its end (the `agent-instructions` skill): it is the stage where the instructions first meet real code.
@@ -142,16 +145,12 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 
 ## 6 — Browser proof
 
-**Produces:** the authenticated browser suite — a real sign-in, a real session, the member's own screens driven by a headless browser — and the permission matrix: who may do what, and what is not built yet. Everything before this stage could be tested without an identity; this is the stage that buys one.
+**Produces:** the permission matrix proven in the browser, by extending stage 5's suite: who may do what, what is refused, and what is not built yet.
 
-**Done when:** the authenticated suite **passes twice in a row** (a suite that only passes on a clean database is not a suite), the public suite still passes without any of the new variables, the test docs and the coverage map describe what now exists, and the permissions document holds a matrix the owner can read and a "not implemented yet" section the owner believes.
-
-**The owner's part:** in the identity provider's development instance, turn on test mode and **change the default verification code to one of your own** — it is the password to every test account on the instance; create a test user with a test subaddress (`you+clerk_test@…` on Clerk, which never mails it and always accepts the test code). The suite can create the user itself, but creating it by hand the first time is the fastest way to see that test mode is really on.
+**Done when:** every row of the matrix is exercised by a real member of its role; every page renders, refuses or sends to sign-in as its row says, for each role, a member of another workspace and a signed-out visitor; the full gate is green on the agent's own run; the test docs and the coverage map describe the proof; and the permissions document holds a matrix the owner has read and a "not implemented yet" section the owner believes. Its dashboard part moved to stage 4.
 
 **Doing it well**
 
-- **In the organization shape**, the harness's global setup creates an organization per test account and lands it past the choose-organization screen, and gives each further role its membership in the first account's organization, so the matrix is exercised by real members with different powers. **A sign-in that succeeds and a wait for the member URL that times out anyway is the symptom of a harness that did not.** In the individual shape there is no such screen and no second role: each test account is its own workspace.
-- **One sequence a real person performs, end to end, with more than one actor in it at the same time**, wherever the product has more than one. A member on a desktop and the anonymous public on phones, in the same room, is a very different test from either half alone — and it is the half no unit test can reach.
 - **Read the permission document against intent** — the part to slow down for. The matrix is the base for every future test and every automated code review; without it the agent cannot tell a bug from a feature. Two questions per row: *is this what I wanted?* and *does the code actually do this, or does the document only say so?* A permission that exists in the model and is held by nobody belongs in "not implemented yet", not in the matrix as though it worked. A wrong row is fixed by a sentence ("a moderator should not be able to X"), and the agent changes the code and the document together.
 
 **How:** the `test-harness` skill (the authenticated mile), `saas-authorization` (the matrix), `shipping-artifacts` (the permissions document).
@@ -162,7 +161,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 
 **Produces:** the repository on the code host, the first deploy with its environment, and `/health`. Still the development identity instance and the development database, no custom domain. **The URL is shared with nobody yet:** sign-up is open and the terms and privacy pages are placeholders until the front door.
 
-**Done when:** the deploy is green, the deployed `/health` reports the database, and the owner can sign in and use the app from a phone that has never seen their laptop.
+**Done when:** the full gate, both browser suites included, and the whole-product review round passed before the deploying push; the deploy is green; the deployed `/health` reports the database; and the owner can sign in and use the app from a phone that has never seen their laptop.
 
 **Doing it well**
 

@@ -43,11 +43,13 @@ Learned on a remote-control product: a relay service with a web client, and an e
 - **`typecheck`** — `tsc --noEmit --incremental false`; covers `tests/` too, so keep `tsconfig.json` including `**/*.ts`.
 - **`test`** — unit + integration. A product whose integration suite needs a credential the unit run must not (such as development's connection string, `DEV_DB_URL`, above) splits it out as `test:integration`, still inside `gate` and listed here.
 - **`e2e`** · **`e2e:auth`**.
-- **`gate`** — all of them, in that order. **Mandatory locally before promotion.**
+- **`gate` runs the applicable contract at stage end and before deploying pushes.** By default, it includes all the suites above, in that order, for the product's shape and current stage. Compare `package.json` with this contract; the owner decides any smaller set, recorded in the plan with its reason and revisit trigger.
 - **`visual`** — outside `gate`, run on purpose.
 - **`smoke -- <url>`** — the URL always explicit.
 
 There is no hosted CI unless it was wired as its own change (`release-gate`, `references/go-live.md § Guards and hosted CI`). If it is, it runs `gate` minus `e2e:auth`, and that gap is covered by the local gate, never by a silent skip. **The names here match `package.json`; a script that does not exist is not listed.**
+
+For example, a product can add a unit test that fails when its `gate` script stops invoking `e2e` or `e2e:auth`. Check what the commands execute, including aliases, rather than accepting a name in a comment. (`2026-11-14`, an evals product: nine development deploys passed a gate with neither browser suite; every member-action test mocked the session module.)
 
 ## The authenticated mile — what it takes, what it resets
 

@@ -49,9 +49,11 @@ The plan is for the agents as much as for you. The prompt names the least it hol
 
 **For a SaaS on Next.js, Supabase, Clerk and Netlify**, the plan is the `app-lifecycle` skill's stages, each built and checked before the next, each with its done-when. Say "Plan the first version as app-lifecycle's stages. Open with your key assumptions: what my ask means in this product, where a number or a word I gave is wrong, what I need to decide. Then what each stage implements, how to test it (a test that would touch production, its users or its data runs only with my go), its done-when" instead. The stages run from brief and design, through screens on sample data, setup and the first real slice, to browser proof, publishing, the front door and go-live. The accepted proposal artifact is its starting input.
 
-A stage that offers options stops until you pick, such as two design directions. Five stages need you in a dashboard, because the agent can't make those clicks: setup, browser proof, publishing, the front door and go-live. It tells you which clicks.
+A stage that offers options stops until you pick, such as two design directions. Four stages need you in a dashboard: setup, publishing, the front door and go-live. Setup includes development test mode, your own verification code and the first test account. The agent tells you which clicks it needs. You decide any stage skip or deferral, recorded in the plan with what brings it back; a broad go waives none.
 
 ## 4. Build
+
+By default, every stage ends with implemented end-to-end tests of the journeys it changed; the gate keeps rerunning older ones.
 
 One session coordinates. Another builds when one is available: Codex through `codex-agents`, or a Claude subagent briefed through `delegation`. No session reviews its own work. A fresh reviewer that never saw the build reviews each completed stage and every deploying push. It reviews again after each fix to what a round found, until the bar holds.
 

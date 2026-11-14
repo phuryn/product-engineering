@@ -4,8 +4,8 @@ The record of what was verified, by which run, and what was not. What the map mu
 
 ## Who writes it
 
-- **Written by whoever ran the gate, and by nobody else.** A delegated builder whose sandbox cannot reach Postgres or a browser has no passing gate to report. Read every line a delegated stage adds and rewrite the evidence from your own run, not by editing its numbers. (`2026-09-16` and `2026-09-17`, blocked builder runs were reported in the coordinator's name with invented counts.)
-- **Updated in the same change as the tests it maps**, first written after the first data stage.
+- **Written by whoever ran the gate, and by nobody else.** A builder records only runs it performed, with their limits. The session agent rewrites stage-completion evidence from its own full run, not by editing the builder's numbers. (`2026-09-16` and `2026-09-17`, blocked builder runs were reported in the coordinator's name with invented counts.)
+- **Update the map with its tests, starting in the first data stage.** Under `app-lifecycle`, it lands with stage 5's core docs. (`2026-11-14`, an evals product: core docs arrived two weeks into the build, after the original session was lost.)
 - **Stage-by-stage harness receipts go here, not into the doc that describes the test method.** The method doc holds the harnesses and the rules; what each stage ran belongs in the map. (`2026-10-24`, a monitoring product's test-method doc had grown about 150 lines of per-stage harness tables above its method.)
 - **In a product that keeps the map by hand**, the `derive-tests` skill in `check` mode lists where it is stale and writes nothing; never run the writing mode over it (`release-gate` § Static audits).
 
@@ -36,7 +36,16 @@ Tests in the repository today, each tied to the rule it pins. **Every test file 
 
 ### Proposed
 
-Recommended cases not yet written, each marked **unit / guarded live / manual**.
+Recommended cases not yet written, each marked unit / integration / end-to-end / guarded live / manual.
+
+### Journeys
+
+**Map every journey in the flows doc to its end-to-end spec.** Record the actors, real sign-in or public entry, spec path and case, latest run, and any live or operator step outside the gate. Flag journeys whose only tests fake identity or the browser; those tests cannot establish the signed-in journey. Apply the `derive-tests` skill to check for missing specs.
+
+| Journey (flows doc) | Actors and entry | End-to-end spec and case | Latest run | Uncovered or outside gate |
+|---|---|---|---|---|
+
+(`2026-11-14`, an evals product: its map repeatedly listed signed-in browser flows as uncovered while go messages quoted only unit and integration counts.)
 
 ### Gaps
 
@@ -49,6 +58,7 @@ Documented rules with no verification, ranked by exposure. Two things go here th
 
 The first stage that introduces the database lands with at least:
 
+- **Each journey of the slice lands as a committed browser test.** Include real sign-in through the provider's own development component, one account per role, and two consecutive suite invocations. Under `app-lifecycle`, this is stage 5; paid or real-inbox steps remain in live or operator suites, with surrounding steps covered by the gate. (`2026-11-14`, an evals product: 77 reviews and nine development deploys had run without a browser test of the running app.)
 - **cross-tenant isolation** — a member of one workspace cannot see or act on another's data;
 - **the once-only action refused the second time**;
 - **`<script>alert(1)</script>` renders as text**;

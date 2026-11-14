@@ -6,6 +6,14 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 The rules come from two kinds of product, named here only by kind. The web-app half — the bars, the preview, the promotion checklist, go-live, the verify probes, Netlify's edge — was learned on Next.js (App Router) + Supabase + Clerk + Netlify, with Vitest and Playwright, by several products (a live Q&A product, a monitoring product with worker boxes and edge workers beside its web app, and others). The client+backend half — any release as one logged checklist, the backend before the client, artifacts and store listings, issues — was learned on a remote-control product: a relay service with a web client, and an editor extension with desktop installers that drives a CLI agent (`references/runbook.md`). (Undated in the original.)
 
+## Stage ends and deploying pushes both require the full applicable gate.
+
+- `2026-11-14`, an evals product: nine development deploys passed a gate with no `e2e` or `e2e:auth`. A promotion-only requirement left the missing browser suites outside the development bar. The owner made the applicable contract the default for stage ends and every deploying push, with narrower gates recorded in the plan.
+
+## Every preview and go message names each suite that did not run.
+
+- `2026-11-14`, an evals product: go messages listed passing unit and integration counts and clean reviews. Its coverage map repeatedly said signed-in browser flows were uncovered, but the owner never saw that gap in the go message.
+
 ## A host that deploys by CLI upload deploys the working tree, not a commit.
 
 - `2026-11-01`, an evals product's first deploy: this skill and `environments` both assumed a host that builds from a git branch.
