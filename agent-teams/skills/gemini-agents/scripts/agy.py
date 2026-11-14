@@ -20,6 +20,7 @@ import re
 import shlex
 import shutil
 import signal
+import stat
 import subprocess
 import sys
 import tempfile
@@ -45,13 +46,13 @@ DENY = {
 STANDING = {
     "consult": "Consult only: do not run commands, write files, delegate, or use URL/MCP tools; web search remains available and is counted. Read only within the workdir and named added folders; a refused read can end the turn.",
     "build": "Build without network or sandbox bypass. Observed on macOS: the sandbox shell can write the workdir, system temp, ~/Library/Caches and added folders, and it cannot stage or commit. Leave your changes in the working tree for the caller.",
-    "review": "Review this disposable snapshot without delegation, network, or sandbox bypass. Observed on macOS: the shell can write the snapshot, system temp, ~/Library/Caches and the added handoff folder, and Git metadata writes are refused. Report every change you make.",
+    "review": "Review this disposable snapshot without delegation, network, or sandbox bypass. Observed on macOS: the shell can write the snapshot, system temp, ~/Library/Caches and the added handoff folder, and Git metadata writes are refused. Report every change you make. Read snapshot files or explicit attachments with the file tool; the wrapper counts those reads and Git history commands, not other shell output.",
 }
 WRITES = {"write_file", "edit_file", "write_to_file", "replace_file_content", "multi_replace_file_content", "notebook_edit"}
 SUBAGENTS = {"invoke_subagent", "define_subagent", "manage_subagents", "browser_subagent"}
 NETWORK = {"read_url", "execute_url", "read_url_content", "open_browser_url", "execute_browser_javascript"}
 MCP = {"call_mcp_tool", "read_resource", "list_resources"}
-KNOWN = ({"read_file", "run_command", "search_web", "run_workflow"} | WRITES | SUBAGENTS | NETWORK | MCP)
+KNOWN = ({"read_file", "run_command", "search_web", "run_workflow", "manage_task"} | WRITES | SUBAGENTS | NETWORK | MCP)
 
 
 class Failure(Exception):
@@ -237,6 +238,8 @@ class Events:
         self.output_id = None
         self.metadata = {}
         self.non_subject_paths = []
+        self.subject_root = None
+        self.subject_paths = []
         self.code = 0
         self.stderr = ""
         self.timed_out = False
@@ -352,6 +355,156 @@ def successful_read(step, brief=None, excluded=()):
     return False
 
 
+REVIEW_GIT_COMMANDS = {"blame", "cat-file", "diff", "grep", "log", "ls-files", "ls-tree", "show"}
+REVIEW_GIT_FLAGS = {"--no-pager", "--paginate", "--bare", "--no-optional-locks", "--no-replace-objects",
+                    "--literal-pathspecs", "--glob-pathspecs", "--noglob-pathspecs", "--icase-pathspecs"}
+
+
+def lexical_path(path, directory):
+    """Replay-safe placement: normalize spelling without touching the filesystem."""
+    if not isinstance(path, str) or "\0" in path:
+        return None
+    return os.path.normcase(os.path.normpath(os.path.join(directory, path)))
+
+
+def lexical_inside(path, root):
+    try:
+        return path is not None and os.path.commonpath([path, root]) == root
+    except ValueError:
+        return False
+
+
+def review_directory(value, directory, root):
+    # These may expand in a shell or select multiple paths. Quoting alone does
+    # not establish the value, and the evidence recognizer never evaluates it.
+    if not isinstance(value, str) or any(c in value for c in "$`*?[]{}!%") or value.startswith("~"):
+        return None
+    path = lexical_path(value, directory)
+    return path if lexical_inside(path, root) else None
+
+
+def review_git_command(words, directory, root):
+    """Recognize approved Git commands, not a shell or Git config interpreter."""
+    index, effective, locations = 1, directory, []
+    while index < len(words):
+        word = words[index]
+        index += 1
+        if word in REVIEW_GIT_COMMANDS:
+            # Relative location options are also checked at final -C placement;
+            # Git can defer interpreting them until after changing directory.
+            return "--no-index" not in words[index:] and all(
+                review_directory(value, effective, root) is not None for value in locations)
+        if word in REVIEW_GIT_FLAGS:
+            continue
+        value = None
+        if word in ("-C", "-c", "--git-dir", "--work-tree"):
+            if index == len(words):
+                return False
+            value = words[index]
+            index += 1
+        elif word.startswith(("--git-dir=", "--work-tree=")):
+            word, value = word.split("=", 1)
+        elif word.startswith(("-C", "-c")) and len(word) > 2:
+            word, value = word[:2], word[2:]
+        else:
+            return False
+        if word == "-C":
+            effective = review_directory(value, effective, root)
+            if effective is None:
+                return False
+        elif word == "-c":
+            key, separator, setting = value.partition("=")
+            if not separator or not key or any(c.isspace() for c in key):
+                return False
+            # Ordinary -c k=v is accepted. A separately loaded config is not
+            # placeable from command text, so its effects are not guessed.
+            if key.casefold() == "include.path" or key.casefold().startswith("includeif."):
+                return False
+            if key.casefold() == "core.worktree":
+                if review_directory(setting, effective, root) is None:
+                    return False
+                locations.append(setting)
+        else:
+            if not value or review_directory(value, effective, root) is None:
+                return False
+            locations.append(value)
+    return False
+
+
+def review_git_history(text, root):
+    """A small positive grammar: static cd/pushd/popd and approved Git commands.
+
+    Only && and ; chains are recognized. Pipelines, redirections, substitutions,
+    environment wrappers, unknown commands and unknown Git globals fail closed.
+    """
+    if not isinstance(text, str) or any(c in text for c in "\n\r\0$`"):
+        return False
+    try:
+        lexer = shlex.shlex(text, posix=True, punctuation_chars=";&|()<>")
+        lexer.whitespace_split = True
+        lexer.commenters = ""
+        tokens = list(lexer)
+    except ValueError:
+        return False
+    segments, segment = [], []
+    for token in tokens:
+        if token in ("&&", ";"):
+            if not segment:
+                return False
+            segments.append(segment)
+            segment = []
+        elif token and all(c in ";&|()<>" for c in token):
+            return False
+        elif token.startswith("#"):
+            return False
+        else:
+            segment.append(token)
+    if not segment:
+        return False
+    segments.append(segment)
+    directory, stack, found = root, [], False
+    for words in segments:
+        if words[0] in ("cd", "pushd"):
+            args = words[1:]
+            if args[:1] == ["--"]:
+                args = args[1:]
+            if len(args) != 1 or args[0].startswith("-"):
+                return False
+            target = review_directory(args[0], directory, root)
+            if target is None:
+                return False
+            if words[0] == "pushd":
+                stack.append(directory)
+            directory = target
+        elif words == ["popd"]:
+            if not stack:
+                return False
+            directory = stack.pop()
+        elif words[0] == "git" and review_git_command(words, directory, root):
+            found = True
+        else:
+            return False
+    return found
+
+
+def review_subject_read(step, run):
+    root = run.subject_root
+    if not isinstance(root, str) or not os.path.isabs(root) or "\0" in root:
+        return False
+    root = lexical_path(root, root)
+    if not successful_read(step):
+        return False
+    if tool_name(step) == "read_file":
+        path = lexical_path(path_of(step), root)
+        if path is None or (run.brief and path == lexical_path(run.brief, root)):
+            return False
+        attachments = {lexical_path(value, root) for value in run.subject_paths if isinstance(value, str)}
+        return lexical_inside(path, root) or path in attachments
+    if tool_name(step) == "run_command":
+        return review_git_history(parameters(step).get("CommandLine"), root)
+    return False
+
+
 def quota_failure(run):
     """Docs-derived: Gemini quota errors use RESOURCE_EXHAUSTED/HTTP 429.
 
@@ -430,6 +583,11 @@ def append_cli_diagnostics(problems, warnings, run, failed):
 def judge(run, mode, expected_session=None, git_changed=False, git_observable=True, mcp=False):
     problems, warnings = [], []
     tools = run.tools()
+    legacy_review = mode == "review" and run.replay and run.subject_root is None
+    if legacy_review:
+        warnings.append("legacy review replay has no subject_root; using the recorded read heuristic")
+    elif mode == "review" and run.subject_root is None:
+        warnings.append("review subject_root is missing; positive read placement is unavailable")
     counts = {"commands": 0, "reads": 0, "searches": 0, "tool_errors": 0}
     for step in tools:
         name, state = tool_name(step), step.get("state")
@@ -481,10 +639,14 @@ def judge(run, mode, expected_session=None, git_changed=False, git_observable=Tr
         return (3 if not denied and quota_failure(run) else 1), problems, warnings, counts, duration
     for step in tools:
         name, state = tool_name(step), step.get("state")
-        if mode in ("consult", "review") and state == "DONE" and (name in WRITES | SUBAGENTS or name == "run_workflow"):
+        if mode in ("consult", "review") and (name in SUBAGENTS or name == "run_workflow"):
+            problems.append(mode + " attempted delegation tool " + name)
+        if mode in ("consult", "review") and state == "DONE" and name in WRITES:
             problems.append(mode + " completed forbidden tool " + name)
-        if mode == "consult" and name == "run_command" and state == "DONE":
-            problems.append("consult completed forbidden run_command")
+        if mode == "consult" and name in ("run_command", "manage_task") and state == "DONE":
+            problems.append("consult completed forbidden " + name)
+        if mode == "consult" and state == "DONE" and name not in KNOWN:
+            problems.append("consult completed unknown tool " + name + "; boundary is unestablished")
         if mode == "review" and name == "search_web":
             problems.append("review attempted search_web; search cannot be disabled")
         if mode == "review" and name not in KNOWN:
@@ -498,8 +660,10 @@ def judge(run, mode, expected_session=None, git_changed=False, git_observable=Tr
             problems.append("consult changed git status --porcelain")
         if not any(successful_read(s, excluded=run.non_subject_paths) for s in tools):
             problems.append("consult read nothing successfully")
-    if mode == "review" and not any(successful_read(s, run.brief, run.non_subject_paths) for s in tools):
-        problems.append("review read nothing successfully beyond the brief")
+    if mode == "review":
+        read_subject = any(successful_read(s, run.brief, run.non_subject_paths) for s in tools) if legacy_review else any(review_subject_read(s, run) for s in tools)
+        if not read_subject:
+            problems.append("review read nothing in the snapshot or its attachments; only file-tool reads there and Git history commands count")
     if mode == "build" and not any(successful_read(s) for s in tools):
         problems.append("build read nothing successfully")
     append_cli_diagnostics(problems, warnings, run, bool(problems))
@@ -518,6 +682,116 @@ def report(verdict, advice=True):
     if advice and DENIAL_ADVICE in problems:
         diagnostic(DENIAL_ADVICE)
     return code
+
+
+CUSTOMIZATION_ROOTS = (".agents", ".agent", "_agents", "_agent")
+CUSTOMIZATION_FILES = ("hooks.json", "mcp_config.json", "plugins.json")
+
+
+UNCLEAR_CUSTOMIZATION = object()
+
+
+def customization_metadata(path):
+    """Follow filesystem links for metadata, never JSON registration targets."""
+    try:
+        info = path.lstat()
+    except FileNotFoundError:
+        return None
+    except OSError:
+        return UNCLEAR_CUSTOMIZATION
+    if stat.S_ISLNK(info.st_mode):
+        try:
+            return path.stat()
+        except (OSError, RuntimeError):
+            return UNCLEAR_CUSTOMIZATION
+    return info
+
+
+def customization_entries(root):
+    """Inspect names/types/sizes only. Unclear paths are reported conservatively."""
+    info = customization_metadata(root)
+    if info is None:
+        return []
+    if info is UNCLEAR_CUSTOMIZATION:
+        return [root]
+    if not stat.S_ISDIR(info.st_mode):
+        return []
+    found = []
+    for name in CUSTOMIZATION_FILES:
+        path = root / name
+        info = customization_metadata(path)
+        if info is UNCLEAR_CUSTOMIZATION or (info is not None and (not stat.S_ISREG(info.st_mode) or info.st_size)):
+            found.append(path)
+    plugins = root / "plugins"
+    info = customization_metadata(plugins)
+    if info is UNCLEAR_CUSTOMIZATION:
+        found.append(plugins)
+    elif info is not None and stat.S_ISDIR(info.st_mode):
+        try:
+            if next(plugins.iterdir(), None) is not None:
+                found.append(plugins)
+        except OSError:
+            found.append(plugins)
+    return sorted(found, key=str)
+
+
+def command_customizations(start, stop=None):
+    """Walk actual cwd to its inclusive repository root without interpreting configs."""
+    try:
+        start = Path(start).resolve()
+        stop = Path(stop).resolve() if stop is not None else start
+    except (OSError, RuntimeError) as exc:
+        raise Failure("cannot establish customization scan boundary: " + str(exc))
+    if start != stop and stop not in start.parents:
+        raise Failure("customization scan stop is outside the working directory's ancestors")
+    found, directory = [], start
+    while True:
+        for name in CUSTOMIZATION_ROOTS:
+            found.extend(customization_entries(directory / name))
+        if directory == stop:
+            break
+        directory = directory.parent
+    return sorted(found, key=str)
+
+
+def customization_repository_root(cwd):
+    try:
+        result = git(cwd, "rev-parse", "--show-toplevel")
+        if result.returncode == 0:
+            return Path(os.fsdecode(result.stdout).strip()).resolve()
+    except (OSError, subprocess.SubprocessError) as exc:
+        warning("repository root unavailable for customization scan; inspecting cwd only: " + str(exc))
+    return None
+
+
+def user_command_customizations():
+    parent = Path.home() / ".gemini"
+    root = parent / "config"
+    info = customization_metadata(parent)
+    if info is None:
+        return []
+    if info is UNCLEAR_CUSTOMIZATION:
+        return [root]
+    return customization_entries(root)
+
+
+def warn_user_customizations():
+    paths = user_command_customizations()
+    if paths:
+        warning("user command customizations (present or unclear): " + ", ".join(str(path) for path in paths) +
+                "; hooks/plugins can run commands outside the sandbox and deny rules")
+
+
+def workspace_customization_gate(cwd, allow_hooks):
+    paths = command_customizations(cwd, customization_repository_root(cwd))
+    if not paths:
+        return
+    names = ", ".join(os.path.relpath(path, cwd) for path in paths)
+    if not allow_hooks:
+        raise Failure("workspace command customizations (present or unclear): " + names +
+                      "; these can run commands outside deny rules and the sandbox; read them and pass --allow-hooks only when the owner trusts them")
+    diagnostic("--allow-hooks permits workspace customizations: " + names +
+               "; command hooks/plugins can run outside the sandbox and deny rules")
 
 
 def git_env():
@@ -746,6 +1020,8 @@ def load_replay(path):
     run.brief = metadata.get("brief_path")
     run.metadata = metadata
     run.non_subject_paths = metadata.get("non_subject_paths", [])
+    run.subject_root = metadata.get("subject_root")
+    run.subject_paths = metadata.get("subject_paths", [])
     run.code = metadata.get("process_exit", 0)
     run.stderr = metadata.get("stderr", "")
     run.timed_out = bool(metadata.get("timed_out", False))
@@ -760,7 +1036,7 @@ def load_replay(path):
             run.feed(line)
     # Recordings may include the original wrapper's exact brief as optional metadata.
     if not run.brief:
-        warning("replay has no brief metadata; successful recorded file reads count as subject reads")
+        warning("replay has no brief metadata; the original brief cannot be identified")
     return run
 
 
@@ -785,6 +1061,7 @@ def parser():
     p.add_argument("--log", help="Append raw events, flushing each line")
     p.add_argument("--out", help="Answer file; raw events go to FILE.events.jsonl")
     p.add_argument("--raw", action="store_true")
+    p.add_argument("--allow-hooks", action="store_true", help="Allow trusted workspace command customizations outside sandbox/deny rules")
     for flag in ("status", "reset", "check", "dry-run", "mcp", "no-sandbox", "keep-snapshot"):
         p.add_argument("--" + flag, action="store_true")
     p.add_argument("--rev", default="HEAD", help="Local revision to snapshot in review")
@@ -874,6 +1151,16 @@ def attachment_inputs(values):
     return inputs
 
 
+PATH_PUNCTUATION = r"[\s`'\"<>()[\]{},;:!?]"
+PATH_END = r"(?=$|[\s`'\"<>()[\]{},;!?]|\.(?=$|[\s`'\"<>()[\]{},;!?]))"
+PATH_BOUNDARY = (r"(?=$|[/\\]|" + PATH_PUNCTUATION + r"|\.(?=$|" + PATH_PUNCTUATION +
+                 r")|#L\d+(?:-L?\d+)?" + PATH_END + r")")
+
+
+def strip_path_anchor(path):
+    return re.sub(r"(?::\d+(?::\d+)?|#L\d+(?:-L?\d+)?)$", "", path)
+
+
 def rewrite_paths(text, mappings):
     """Replace path prefixes once, so inserted handoff paths are never remapped.
 
@@ -888,7 +1175,7 @@ def rewrite_paths(text, mappings):
     if not replacements:
         return text, 0
     choices = "|".join(re.escape(x) for x in sorted(replacements, key=len, reverse=True))
-    pattern = re.compile(r"(?<![\w./\\-])(?P<uri>file://)?(?P<path>" + choices + r")(?=$|[/\\]|[\s`'\"<>()[\]{},;:!?]|\.(?=$|[\s`'\"<>()[\]{},;:!?]))")
+    pattern = re.compile(r"(?<![\w./\\-])(?P<uri>file://)?(?P<path>" + choices + r")" + PATH_BOUNDARY)
     return pattern.subn(lambda match: (match.group("uri") or "") + replacements[match.group("path")], text)
 
 
@@ -926,21 +1213,19 @@ def validate_snapshot_paths(text, clone):
     quotes = list(re.finditer(r"`[^`\n]+`", text))
     quotes += list(re.finditer(r'"[^"\n]+"', text))
     quotes += list(re.finditer(r"(?<!\w)'[^'\n]+'(?!\w)", text))
-    for match in re.finditer(re.escape(root) + r"(?=$|[/\\]|[\s`'\"<>()[\]{},;:!?]|\.(?=$|[\s`'\"<>()[\]{},;:!?]))", text):
+    for match in re.finditer(re.escape(root) + PATH_BOUNDARY, text):
         quoted = next((q for q in quotes if q.start() < match.start() < q.end()), None)
-        if quoted:
-            candidate = text[match.start():quoted.end() - 1]
-        else:
-            tail = text[match.end():]
-            end = re.search(r"[\s`'\"<>()[\]{},;:]", tail)
-            candidate = root + (tail[:end.start()] if end else tail)
-        candidate = re.sub(r":\d+(?::\d+)?$", "", candidate)
-        path = Path(candidate)
-        if not path.exists() and not quoted:
-            candidate = candidate.rstrip(".,;!?")
-            path = Path(candidate)
-        if not path.exists() or not within(path, clone):
-            raise Failure("review path is missing or ambiguous in the snapshot: " + candidate + "; commit the file or provide --attach FILE, and quote paths containing spaces")
+        tail = text[match.end():]
+        end = re.search(r"[\s`'\"<>()[\]{},;:]", tail)
+        word = root + (tail[:end.start()] if end else tail)
+        whole = text[match.start():quoted.end() - 1] if quoted else word
+        candidates = ([whole] if quoted else []) + [word, word.rstrip(".,;!?")]
+        candidates = [strip_path_anchor(candidate) for candidate in candidates]
+        if any(Path(candidate).exists() and within(Path(candidate), clone) for candidate in candidates):
+            continue
+        shown = whole if quoted and quoted.start() + 1 == match.start() else word
+        shown = strip_path_anchor(shown)
+        raise Failure("review path is missing or ambiguous in the snapshot: " + shown + "; commit the file or provide --attach FILE, and quote paths containing spaces")
 
 
 def repository_listing(cwd, excluded):
@@ -966,10 +1251,11 @@ def repository_listing(cwd, excluded):
 
 def prepare_handoff(message, original, attachments, cwd, folder, mode, path_mappings=(), listing_data=None):
     turn = folder / ("turn-" + uuid.uuid4().hex)
-    files, mappings = {}, []
+    files, mappings, subject_paths = {}, [], []
     for index, item in enumerate(attachments, 1):
         target = turn / ("attachment-%03d-" % index + item["source"].name)
         files[target] = item["data"]
+        subject_paths.append(str(target))
         mappings.extend((alias, str(target)) for alias in item["aliases"])
     rewritten, count = rewrite_paths(message, mappings + list(path_mappings))
     copied = mode == "review" or original is None or not within(original, cwd) or within(original, folder) or rewritten != message
@@ -979,7 +1265,7 @@ def prepare_handoff(message, original, attachments, cwd, folder, mode, path_mapp
     listing = turn / "repository-files.jsonl" if listing_data is not None else None
     if listing:
         files[listing] = listing_data
-    return brief, files, listing, count, rewritten
+    return brief, files, listing, count, rewritten, subject_paths
 
 
 def protected_targets(args, cwd, sources):
@@ -1041,6 +1327,7 @@ def run_main(args):
         diagnostic(json.dumps(state) if state else "no saved conversation for " + str(cwd))
         return 0
     if args.check:
+        warn_user_customizations()
         binary = find_binary()
         version = inspect_binary(binary, ALL_FLAGS)
         route, _ = auth_route()
@@ -1081,7 +1368,6 @@ def run_main(args):
         required.add("--model")
     if effort:
         required.add("--effort")
-    inspect_binary(binary, required)
     original = None
     if args.read and args.read != "-":
         original = Path(args.read).expanduser().resolve()
@@ -1103,8 +1389,11 @@ def run_main(args):
             run_cwd = stack.enter_context(snapshot(cwd, args.rev, args.keep_snapshot and not args.dry_run))
             folder = run_cwd.parent / "handoff"
             mappings = review_path_mappings(cwd, args.cwd, run_cwd)
+        warn_user_customizations()
+        workspace_customization_gate(run_cwd, args.allow_hooks)
+        inspect_binary(binary, required)
         listing_data = repository_listing(cwd, [handoff_dir(cwd), state_file(cwd)]) if mode == "consult" else None
-        brief, files, listing, rewrites, prepared_message = prepare_handoff(
+        brief, files, listing, rewrites, prepared_message, subject_paths = prepare_handoff(
             message, original, attachments, cwd, folder, mode, mappings, listing_data)
         diagnostic("handoff path rewrites: " + str(rewrites) + " (attachments and repository)")
         if mode == "review":
@@ -1160,11 +1449,16 @@ def run_main(args):
         non_subject = [str(path) for path in folder.rglob("repository-files.jsonl")]
         metadata = {"brief_path": str(brief), "mode": mode, "expected_session": session,
                     "mcp": args.mcp, "non_subject_paths": non_subject}
+        if mode == "review":
+            metadata.update(subject_root=str(run_cwd), subject_paths=subject_paths)
         for path, offset in metadata_sinks:
             path.write_text(json.dumps(dict(metadata, start_offset=offset)), encoding="utf-8")
         before = git_status(run_cwd, excluded) if mode == "consult" and listing_data is not None else None
         run = execute(command, run_cwd, args.timeout, sinks, brief)
         run.non_subject_paths = non_subject
+        if mode == "review":
+            run.subject_root = str(run_cwd)
+            run.subject_paths = subject_paths
         actual = run.conversation_id()
         if mode != "review":
             if actual and (not session or actual == session):
@@ -1181,6 +1475,9 @@ def run_main(args):
         verdict = judge(run, mode, session, before != after, before is not None and after is not None, args.mcp)
         pending_advice[0] = DENIAL_ADVICE in verdict[1]
         code = report(verdict, advice=False)
+        if code and (run.result or {}).get("response") and (args.out or args.log):
+            recording = events_path if args.out else log
+            diagnostic("answer withheld because the turn failed checks; response is in the result event of " + str(recording))
         if not code:
             emit_answer(run, args, answer_sink)
         return code
@@ -1295,6 +1592,9 @@ def probe(args):
                 continue
             announce_new()
             run = execute(command, root, args.timeout, sinks, prompt)
+            if mode == "review":
+                run.subject_root = str(root)
+                run.subject_paths = []
             verdict = judge(run, mode, mcp=False)
             # A tested boundary can be violated while the transport succeeds. Report
             # the canary evidence, then stop on genuine CLI failure before turn two.

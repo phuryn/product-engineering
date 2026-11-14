@@ -29,8 +29,10 @@ def tool(index, name, state="DONE", params=None, output=None, error=None):
             "step_type": "tool", "tool_name": name, "state": state, "tool_info": info}}
 
 
-def stream(*steps, result=None, brief=None):
+def stream(*steps, result=None, brief=None, subject_root="/synthetic", subject_paths=()):
     run = agy.Events(replay=True, brief=brief)
+    run.subject_root = subject_root
+    run.subject_paths = list(subject_paths)
     run.feed(json.dumps({"event": "init", "init": {"model": "test-model"}}))
     for step in steps:
         run.feed(json.dumps(step))
@@ -61,8 +63,41 @@ class VerdictTests(unittest.TestCase):
         run.feed(json.dumps(tool(2, "search_web", "ERROR", error="failed")))
         self.assertEqual(agy.judge(run, "consult")[3]["searches"], 0)
 
+    def test_consult_manage_task_and_failed_delegation_attempts_are_boundary_failures(self):
+        for name,state in [("manage_task","DONE"),("invoke_subagent","ERROR"),("run_workflow","ERROR")]:
+            with self.subTest(name=name,state=state):
+                self.assertEqual(self.code(stream(read(),tool(2,name,state))),2)
+
+
+    def test_delegation_any_state_and_unknown_consult_done_fail_closed(self):
+        for mode in ("consult","review"):
+            for name in ("invoke_subagent","define_subagent","manage_subagents","browser_subagent","run_workflow"):
+                for state in ("ACTIVE","DONE","ERROR"):
+                    with self.subTest(mode=mode,name=name,state=state):
+                        verdict = agy.judge(stream(read(),tool(2,name,state)),mode)
+                        self.assertEqual(verdict[0],2)
+                        self.assertIn(mode + " attempted delegation tool " + name," ".join(verdict[1]))
+            self.assertEqual(agy.judge(stream(read(),tool(2,"write_file","ERROR")),mode)[0],0)
+        for mode,state,expected in [("consult","DONE",2),("consult","ERROR",0),("build","DONE",0),("review","ERROR",2)]:
+            verdict = agy.judge(stream(read(),tool(2,"unestablished_tool",state)),mode)
+            self.assertEqual(verdict[0],expected)
+            self.assertIn("unknown tool unestablished_tool"," ".join(verdict[2]))
+            if mode == "consult" and state == "DONE":
+                self.assertIn("boundary is unestablished"," ".join(verdict[1]))
+
+    def test_manage_task_is_status_retrieval_and_not_positive_subject_evidence(self):
+        for mode in ("build","review"):
+            verdict = agy.judge(stream(read(),tool(2,"manage_task")),mode)
+            self.assertEqual(verdict[0],0)
+            self.assertNotIn("unknown tool manage_task"," ".join(verdict[2]))
+            self.assertEqual(verdict[3]["commands"],0)
+            self.assertEqual(verdict[3]["reads"],1)
+        self.assertEqual(agy.judge(stream(tool(1,"manage_task")),"review")[0],2)
+        self.assertEqual(agy.judge(stream(read(),tool(2,"manage_task","ERROR")),"consult")[0],0)
+
+
     def test_partial_updates_keep_parameters_and_output(self):
-        run = stream(tool(1, "run_command", "ACTIVE", {"CommandLine": "cat subject.txt"}),
+        run = stream(tool(1, "run_command", "ACTIVE", {"CommandLine": "git show HEAD"}),
                      tool(1, "run_command", "ACTIVE", output={"exit_code": 0, "stdout": "subject"}))
         run.feed(json.dumps({"event": "step_update", "step_update": {"step_index": 1, "state": "DONE"}}))
         self.assertEqual(self.code(run, "review"), 0)
@@ -91,11 +126,13 @@ class VerdictTests(unittest.TestCase):
     def test_consult_checks_writes_commands_and_status(self):
         for name in ("write_file", "edit_file", "run_workflow", "invoke_subagent", "define_subagent", "manage_subagents", "run_command"):
             self.assertEqual(self.code(stream(read(), tool(2, name))), 2, name)
-            self.assertEqual(self.code(stream(read(), tool(2, name, "ERROR", error="denied"))), 0, name)
+            expected = 2 if name in agy.SUBAGENTS or name == "run_workflow" else 0
+            self.assertEqual(self.code(stream(read(), tool(2, name, "ERROR", error="denied"))), expected, name)
         self.assertEqual(self.code(stream(read()), git_changed=True), 2)
         self.assertEqual(self.code(stream(read()), git_observable=False), 0)
 
     def test_review_fails_unknown_even_refused_and_search_any_state(self):
+        self.assertEqual(self.code(stream(read()), "review"), 0)
         for state in ("ACTIVE", "DONE", "ERROR"):
             for name in ("new_tool", "search_web"):
                 self.assertEqual(self.code(stream(read(), tool(2, name, state)), "review"), 2)
@@ -112,7 +149,7 @@ class VerdictTests(unittest.TestCase):
         self.assertEqual(self.code(run, "review"), 2)
         self.assertEqual(self.code(run, "consult"), 0)
         self.assertEqual(self.code(stream(command(1, text="touch empty.txt")), "review"), 2)
-        run = stream(command(1))
+        run = stream(command(1, "git log -1"))
         self.assertEqual(self.code(run, "review"), 0)
         run.tools()[0]["tool_info"]["output"] += "\nfatal: cannot read repository"
         self.assertEqual(self.code(run, "review"), 2)
@@ -426,7 +463,7 @@ class IntegrationTests(unittest.TestCase):
         events = Path(str(output) + ".events.jsonl")
         replay = self.invoke("--replay", str(events), "--mode", "review")
         self.assertEqual(replay.returncode, 2, replay.stderr)
-        self.assertIn("beyond the brief", replay.stderr)
+        self.assertIn("review read nothing in the snapshot or its attachments", replay.stderr)
         self.assertEqual(replay.stdout, "")
 
     def test_colliding_paths_fail_without_truncation_or_model(self):
@@ -801,6 +838,7 @@ class IntegrationTests(unittest.TestCase):
                     if mode == "consult":
                         steps.append(tool(3, "run_command", "ERROR", {"CommandLine":shell_text}, error="Matches user-configured deny rule"))
                     else:
+                        self.review_probe_cwd = cwd
                         shell = Path(shlex.split(shell_text)[-1])
                         shell.write_text(marker)
                         steps.append(command(3, shell_text))
@@ -821,9 +859,12 @@ class IntegrationTests(unittest.TestCase):
                     observed.append((mode, text))
                     return stream(*steps, brief=str(brief))
                 output = io.StringIO()
-                with mock.patch.dict(os.environ, self.env), mock.patch.object(agy, "find_binary", return_value=str(self.bin)), mock.patch.object(agy,"inspect_binary"), mock.patch.object(agy,"execute", side_effect=fake_execute), contextlib.redirect_stderr(output):
+                with mock.patch.dict(os.environ, self.env), mock.patch.object(agy, "find_binary", return_value=str(self.bin)), mock.patch.object(agy,"inspect_binary"), mock.patch.object(agy,"execute", side_effect=fake_execute), mock.patch.object(agy,"judge", wraps=agy.judge) as judge_spy, contextlib.redirect_stderr(output):
                     args = agy.parser().parse_args(["--probe", "--cwd", str(self.cwd)])
                     self.assertEqual(agy.probe(args), 0, output.getvalue())
+                review_run = judge_spy.call_args_list[-1][0][0]
+                self.assertEqual(review_run.subject_root, str(self.review_probe_cwd))
+                self.assertEqual(review_run.subject_paths, [])
                 self.assertEqual([mode for mode, _ in observed], ["consult", "review"])
                 self.assertIn("informational temp write: " + ("landed" if temp_lands else "did not land"), output.getvalue())
                 self.assertEqual(self.state.read_text(), "existing state remains untouched")
@@ -842,6 +883,190 @@ class IntegrationTests(unittest.TestCase):
         self.assertIn(str(Path(record["cwd"]) / "notes.txt"), record["brief_contents"])
         self.assertIn("version 1.2 and ./relative-example unchanged", record["brief_contents"])
         self.assertNotIn(str(alias / "notes.txt"), record["brief_contents"])
+
+
+    def test_review_subject_metadata_survives_deleted_snapshot_and_exact_attachment_set(self):
+        attachment = self.root / "review-subject.md"
+        attachment.write_text("synthetic subject")
+        output = self.root / "scoped-review.txt"
+        completed = self.invoke("--mode","review","--out",str(output),"--attach",str(attachment),"Review `" + str(attachment) + "`.")
+        self.assertEqual(completed.returncode,0,completed.stderr)
+        events = Path(str(output) + ".events.jsonl")
+        metadata = json.loads(Path(str(events) + ".meta.json").read_text())
+        self.assertFalse(Path(metadata["subject_root"]).exists())
+        self.assertEqual(len(metadata["subject_paths"]),1)
+        self.assertIn("attachment-001-",metadata["subject_paths"][0])
+        self.assertNotEqual(metadata["subject_paths"][0],metadata["brief_path"])
+        replay = self.invoke("--replay",str(events),"--mode","review")
+        self.assertEqual(replay.returncode,completed.returncode,replay.stderr)
+        self.assertNotIn("no subject_root",replay.stderr)
+        # Explicit attachment evidence also survives cleanup, without granting
+        # the rest of the old handoff directory the same status.
+        saved = agy.load_replay(events)
+        saved.steps = {1: tool(1,"read_file",params={"Path":metadata["subject_paths"][0]})["step_update"]}
+        self.assertEqual(agy.judge(saved,"review")[0],0)
+        saved.steps[1]["tool_info"]["parameters"]["Path"] = str(Path(metadata["brief_path"]).parent / "other.txt")
+        self.assertEqual(agy.judge(saved,"review")[0],2)
+        metadata.pop("subject_root")
+        Path(str(events) + ".meta.json").write_text(json.dumps(metadata))
+        legacy = self.invoke("--replay", str(events), "--mode", "review")
+        self.assertEqual(legacy.returncode, 0, legacy.stderr)
+        self.assertIn("no subject_root", legacy.stderr)
+
+    def test_review_subject_root_matches_execution_directory_with_symlinked_temp(self):
+        actual = self.root / "actual temporary folder"
+        actual.mkdir()
+        alias = self.root / "temporary alias"
+        alias.symlink_to(actual, target_is_directory=True)
+        self.env["TMPDIR"] = str(alias)
+        output = self.root / "review-through-alias.txt"
+        completed = self.invoke("--mode", "review", "--out", str(output), "Review notes.txt")
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        metadata = json.loads(Path(str(output) + ".events.jsonl.meta.json").read_text())
+        self.assertEqual(metadata["subject_root"], self.records(models=True)[-1]["cwd"])
+
+
+    def test_quoted_path_validation_runs_before_model_and_accepts_command_span(self):
+        missing = self.cwd / "missing filename with spaces.txt"
+        completed = self.invoke("--mode","review","Read `" + str(missing) + "`.")
+        self.assertEqual(completed.returncode,1,completed.stderr)
+        self.assertIn("missing filename with spaces.txt",completed.stderr)
+        self.assertEqual(self.records(models=True),[])
+        completed = self.invoke("--mode","review","Run `git -C " + str(self.cwd) + " status --short`.")
+        self.assertEqual(completed.returncode,0,completed.stderr)
+        self.assertEqual(len(self.records(models=True)),1)
+
+
+    def test_workspace_hooks_refuse_before_any_cli_startup(self):
+        folder = self.cwd / ".agents"
+        folder.mkdir()
+        (folder / "hooks.json").write_text("synthetic invalid JSON; never interpret")
+        completed = self.invoke("Question")
+        self.assertEqual(completed.returncode,1,completed.stderr)
+        self.assertEqual(self.records(),[])
+        self.assertIn("--allow-hooks",completed.stderr)
+
+    def test_failed_recorded_answer_has_one_locator_without_stdout(self):
+        output = self.root / "withheld.txt"
+        log = self.root / "withheld-log.jsonl"
+        self.configure(steps=[("read_file","DONE",{"Path":"notes.txt"},"subject"),
+                              ("write_file","DONE",{"Path":"changed.txt"},"")])
+        cases = [(["--out",str(output)],str(output) + ".events.jsonl"),
+                 (["--log",str(log)],str(log)),
+                 (["--out",str(output),"--log",str(log)],str(output) + ".events.jsonl"),([],None)]
+        for flags,expected in cases:
+            with self.subTest(flags=flags):
+                completed = self.invoke(*flags,"Question")
+                self.assertEqual(completed.returncode,2,completed.stderr)
+                self.assertEqual(completed.stdout,"")
+                self.assertNotIn("Synthetic successful answer.",completed.stderr)
+                lines = [line for line in completed.stderr.splitlines() if "answer withheld" in line]
+                self.assertEqual(len(lines),int(expected is not None),completed.stderr)
+                if expected:
+                    self.assertIn("result event of " + expected,lines[0])
+                if "--out" in flags:
+                    self.assertEqual(output.read_text(),"")
+        self.configure(result={"response":""})
+        completed = self.invoke("--out",str(output),"Question")
+        self.assertNotIn("answer withheld",completed.stderr)
+        self.configure(result={"denied_actions":[{"action":"command"}]},stderr="Permission denied. Add an allow rule to proceed.")
+        completed = self.invoke("--out",str(output),"Question")
+        self.assertEqual(completed.returncode,1)
+        self.assertEqual(completed.stderr.count("answer withheld"),1)
+        self.assertIn("Do not add an allow rule",completed.stderr.splitlines()[-1])
+
+    def test_workspace_customizations_block_new_resume_and_dry_run_without_mutation(self):
+        self.assertEqual(self.invoke("First question").returncode,0)
+        before_calls = self.records()
+        before_state = self.state.read_bytes()
+        handoff = Path(str(self.state) + ".handoff")
+        before_inputs = {str(path.relative_to(handoff)):path.read_bytes() for path in handoff.rglob("*") if path.is_file()}
+        config = self.cwd / ".agent" / "mcp_config.json"
+        config.parent.mkdir()
+        config.write_text("DO_NOT_PRINT_CUSTOMIZATION_CONTENT")
+        output = self.root / "existing-answer.txt"
+        output.write_text("preserve output")
+        for flags in ([],["--new"],["--dry-run"],["--new","--dry-run"],["--mode","build"]):
+            with self.subTest(flags=flags):
+                completed = self.invoke(*flags,"--out",str(output),"Question")
+                self.assertEqual(completed.returncode,1,completed.stderr)
+                self.assertEqual(self.records(),before_calls)
+                self.assertEqual(self.state.read_bytes(),before_state)
+                self.assertEqual(output.read_text(),"preserve output")
+                self.assertEqual({str(path.relative_to(handoff)):path.read_bytes() for path in handoff.rglob("*") if path.is_file()},before_inputs)
+                self.assertIn(".agent/mcp_config.json",completed.stderr)
+                self.assertNotIn("DO_NOT_PRINT_CUSTOMIZATION_CONTENT",completed.stderr)
+        # Parent entries are reported relative to the actual nested model cwd.
+        nested = self.cwd / "nested"
+        nested.mkdir()
+        completed = self.invoke("--cwd",str(nested),"Question")
+        self.assertEqual(completed.returncode,1)
+        self.assertIn("../.agent/mcp_config.json",completed.stderr)
+        self.assertEqual(self.records(),before_calls)
+
+    def test_workspace_allow_hooks_is_explicit_each_turn_and_not_cli_or_state(self):
+        config = self.cwd / "_agents" / "plugins.json"
+        config.parent.mkdir()
+        config.write_text("not JSON; inspection must not interpret it")
+        completed = self.invoke("--allow-hooks","Question")
+        self.assertEqual(completed.returncode,0,completed.stderr)
+        lines = [line for line in completed.stderr.splitlines() if "permits workspace customizations" in line]
+        self.assertEqual(len(lines),1,completed.stderr)
+        self.assertIn("outside the sandbox and deny rules",lines[0])
+        self.assertNotIn("--allow-hooks",self.records(models=True)[0]["argv"])
+        self.assertNotIn("allow_hooks",json.loads(self.state.read_text()))
+        before_calls = self.records()
+        completed = self.invoke("Continue")
+        self.assertEqual(completed.returncode,1)
+        self.assertEqual(self.records(),before_calls)
+
+    def test_review_customizations_follow_selected_snapshot_not_dirty_source(self):
+        clean_revision = self.git("rev-parse","HEAD")
+        config = self.cwd / ".agents" / "hooks.json"
+        config.parent.mkdir()
+        config.write_text("synthetic hook registration")
+        # The uncommitted source customization is absent from a HEAD snapshot.
+        completed = self.invoke("--mode","review","Review")
+        self.assertEqual(completed.returncode,0,completed.stderr)
+        self.git("add",".agents/hooks.json")
+        self.git("-c","user.name=Synthetic","-c","user.email=synthetic@example.invalid","commit","-m","customization presence")
+        before_calls = self.records()
+        completed = self.invoke("--mode","review","Review")
+        self.assertEqual(completed.returncode,1,completed.stderr)
+        self.assertEqual(self.records(),before_calls)
+        snapshot = Path(re.search(r"review snapshot: (.+); commit ",completed.stderr).group(1))
+        self.assertFalse(snapshot.exists())
+        completed = self.invoke("--mode","review","--dry-run","Review")
+        self.assertEqual(completed.returncode,1)
+        self.assertEqual(self.records(),before_calls)
+        completed = self.invoke("--mode","review","--rev",clean_revision,"Review")
+        self.assertEqual(completed.returncode,0,completed.stderr)
+        completed = self.invoke("--mode","review","--allow-hooks","Review")
+        self.assertEqual(completed.returncode,0,completed.stderr)
+        before_calls = self.records()
+        completed = self.invoke("--mode","review","--keep-snapshot","Review")
+        self.assertEqual(completed.returncode,1,completed.stderr)
+        self.assertEqual(self.records(),before_calls)
+        kept = Path(re.search(r"kept review snapshot: (.+)",completed.stderr).group(1))
+        self.assertTrue(kept.is_dir())
+        shutil.rmtree(kept.parent)
+
+    def test_user_customizations_warn_each_normal_turn_and_check_never_print_contents(self):
+        config = self.home / ".gemini" / "config" / "plugins.json"
+        config.parent.mkdir(parents=True)
+        config.write_text("DO_NOT_PRINT_USER_REGISTRATION")
+        for flags in ([],["--new"],["--dry-run"],["--check"]):
+            with self.subTest(flags=flags):
+                completed = self.invoke(*flags,*([] if "--check" in flags else ["Question"]))
+                self.assertEqual(completed.returncode,0,completed.stderr)
+                lines = [line for line in completed.stderr.splitlines() if "user command customizations" in line]
+                self.assertEqual(len(lines),1,completed.stderr)
+                self.assertIn(str(config),lines[0])
+                self.assertNotIn("DO_NOT_PRINT_USER_REGISTRATION",completed.stderr)
+        before_calls = self.records()
+        for flags in (["--status"],["--reset"]):
+            self.assertEqual(self.invoke(*flags).returncode,0)
+            self.assertEqual(self.records(),before_calls)
 
 
     def test_cli_timeout_maps_own_three_to_one(self):
@@ -907,7 +1132,299 @@ class IntegrationTests(unittest.TestCase):
         self.assertEqual(agy.judge(run, "build")[0], 1)
 
 
+class CustomizationTests(unittest.TestCase):
+    def test_each_root_and_entry_is_detected_without_reading_json(self):
+        for root_name in (".agents",".agent","_agents","_agent"):
+            for entry_name in ("hooks.json","mcp_config.json","plugins.json","plugins"):
+                with self.subTest(root=root_name,entry=entry_name), tempfile.TemporaryDirectory() as tmp:
+                    start = Path(tmp).resolve()
+                    root = start / root_name
+                    root.mkdir()
+                    entry = root / entry_name
+                    if entry_name == "plugins":
+                        entry.mkdir()
+                        (entry / "anything").touch()
+                    else:
+                        entry.write_text("invalid JSON; never read")
+                    with mock.patch.object(Path,"read_text",side_effect=AssertionError("content read")), mock.patch.object(Path,"read_bytes",side_effect=AssertionError("content read")):
+                        self.assertEqual(agy.command_customizations(start,start),[entry])
+
+    def test_empty_entries_and_above_root_are_ignored_and_nonrepo_is_start_only(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            parent = Path(tmp).resolve()
+            repo = parent / "repo"
+            nested = repo / "nested"
+            nested.mkdir(parents=True)
+            roots = [(parent / ".agents"),(repo / ".agent"),(nested / "_agents")]
+            for root in roots:
+                root.mkdir()
+                (root / "hooks.json").write_text("present")
+            empty = nested / "_agent"
+            empty.mkdir()
+            for name in ("hooks.json","mcp_config.json","plugins.json"):
+                (empty / name).touch()
+            (empty / "plugins").mkdir()
+            self.assertEqual(agy.command_customizations(nested,repo),sorted([roots[1]/"hooks.json",roots[2]/"hooks.json"],key=str))
+            self.assertEqual(agy.command_customizations(nested),[roots[2]/"hooks.json"])
+            with self.assertRaises(agy.Failure):
+                agy.command_customizations(repo,nested)
+
+    def test_broken_links_and_unclear_metadata_or_directory_access_are_found(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            start = Path(tmp).resolve()
+            outside = start / "target"
+            outside.mkdir()
+            linked_root = start / ".agents"
+            linked_root.symlink_to(outside,target_is_directory=True)
+            root = start / ".agent"
+            root.mkdir()
+            linked_file = root / "hooks.json"
+            linked_file.symlink_to(outside / "missing-target")
+            plugins = root / "plugins"
+            plugins.mkdir()
+            original_lstat = Path.lstat
+            original_iterdir = Path.iterdir
+            unclear_file = root / "mcp_config.json"
+            unclear_root = start / "_agent"
+            def check_stat(path,*args,**kwargs):
+                if path in (unclear_file,unclear_root):
+                    raise PermissionError("unclear stat")
+                return original_lstat(path,*args,**kwargs)
+            def check_iterdir(path):
+                if path == plugins:
+                    raise PermissionError("unclear directory")
+                if path in (linked_root,outside):
+                    raise AssertionError("followed configuration symlink")
+                return original_iterdir(path)
+            with mock.patch.object(Path,"lstat",check_stat), mock.patch.object(Path,"iterdir",check_iterdir):
+                expected = [linked_file,plugins,unclear_file,unclear_root]
+                self.assertEqual(agy.command_customizations(start,start),sorted(expected,key=str))
+
+    def test_readable_empty_links_skip_and_nonempty_links_are_presence_signals(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            start = Path(tmp).resolve()
+            target_root = start / "linked-root-target"
+            target_root.mkdir()
+            linked_root = start / ".agents"
+            linked_root.symlink_to(target_root,target_is_directory=True)
+            root = start / ".agent"
+            root.mkdir()
+            file_target = start / "empty-file-target"
+            file_target.touch()
+            linked_file = root / "hooks.json"
+            linked_file.symlink_to(file_target)
+            plugins_target = start / "empty-plugins-target"
+            plugins_target.mkdir()
+            linked_plugins = root / "plugins"
+            linked_plugins.symlink_to(plugins_target,target_is_directory=True)
+            with mock.patch.object(Path,"read_text",side_effect=AssertionError("read configuration contents")), mock.patch.object(Path,"read_bytes",side_effect=AssertionError("read configuration contents")):
+                self.assertEqual(agy.command_customizations(start,start),[])
+                with file_target.open("wb") as target_stream:
+                    target_stream.write(b"metadata presence")
+                (plugins_target / "entry").touch()
+                with (target_root / "mcp_config.json").open("w") as target_stream:
+                    target_stream.write("invalid JSON")
+                expected = [linked_file,linked_plugins,linked_root / "mcp_config.json"]
+                self.assertEqual(agy.command_customizations(start,start),sorted(expected,key=str))
+            broken = start / "_agents"
+            broken.symlink_to(start / "missing-root",target_is_directory=True)
+            self.assertIn(broken,agy.command_customizations(start,start))
+
+    def test_user_root_links_are_metadata_only_and_access_errors_are_signals(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            home = Path(tmp).resolve()
+            gemini = home / ".gemini"
+            gemini.mkdir()
+            root = gemini / "config"
+            target = home / "target"
+            target.mkdir()
+            root.symlink_to(target,target_is_directory=True)
+            with mock.patch.object(Path,"home",return_value=home), mock.patch.object(Path,"iterdir",side_effect=AssertionError("followed user config")):
+                self.assertEqual(agy.user_command_customizations(),[])
+            (target / "hooks.json").write_text("nonempty synthetic metadata")
+            with mock.patch.object(Path,"home",return_value=home):
+                self.assertEqual(agy.user_command_customizations(),[root / "hooks.json"])
+            root.unlink()
+            original_lstat = Path.lstat
+            def unclear(path,*args,**kwargs):
+                if path == root:
+                    raise PermissionError("user config inaccessible")
+                return original_lstat(path,*args,**kwargs)
+            with mock.patch.object(Path,"home",return_value=home), mock.patch.object(Path,"lstat",unclear):
+                self.assertEqual(agy.user_command_customizations(),[root])
+
+
+class ReviewSubjectTests(unittest.TestCase):
+    ROOT = "/synthetic/snapshot"
+    BRIEF = "/synthetic/handoff/turn-x/brief.txt"
+    ATTACHMENT = "/synthetic/handoff/turn-x/attachment-001-subject.md"
+
+    def review(self, *steps, brief=None, attachments=()):
+        return stream(*steps, brief=brief or self.BRIEF, subject_root=self.ROOT, subject_paths=attachments)
+
+    def code(self, run):
+        return agy.judge(run, "review")[0]
+
+    def test_relative_brief_shell_read_is_not_review_subject_evidence(self):
+        run = self.review(command(1, "cat ../handoff/turn-x/brief.txt"))
+        self.assertEqual(self.code(run), 2)
+        # The historical diagnostics count is deliberately unchanged.
+        self.assertEqual(agy.judge(run, "review")[3]["reads"], 1)
+
+    def test_file_tool_placement_uses_snapshot_or_exact_current_attachment(self):
+        cases = [(self.ROOT + "/README.md", 0), ("README.md", 0), (self.ATTACHMENT, 0),
+                 ("../handoff/turn-x/brief.txt", 2), (self.ROOT + "/../handoff/turn-x/brief.txt", 2),
+                 ("/synthetic/home/.gemini/rules.txt", 2), ("/etc/hosts", 2),
+                 ("/synthetic/handoff/turn-x/other.txt", 2), (self.ROOT + "-other/README.md", 2),
+                 (self.ATTACHMENT + "-other", 2)]
+        for path, expected in cases:
+            with self.subTest(path=path):
+                self.assertEqual(self.code(self.review(read(path=path), attachments=[self.ATTACHMENT])), expected)
+        run = self.review(read(path=self.ROOT + "/brief.txt"), brief=self.ROOT + "/brief.txt",
+                          attachments=[self.ROOT + "/brief.txt"])
+        self.assertEqual(self.code(run), 2)
+
+    def test_unrelated_shell_output_does_not_establish_review_reading(self):
+        rejected = ["cat ../handoff/turn-x/brief.txt", "cd /synthetic/handoff/turn-x && cat brief.txt",
+                    "git --version", "cat README.md", "sed -n '1,20p' README.md", "grep word README.md",
+                    "ls", "find .", "python3 -c 'open(\"README.md\").read()'", "git -C ../handoff log",
+                    "cd /elsewhere && git log", "git diff --no-index a b", 'git -C "$HOME/x" log',
+                    "git log | head", "env git log", "git --config-env=core.worktree=TARGET log"]
+        for text in rejected:
+            with self.subTest(command=text):
+                self.assertEqual(self.code(self.review(command(1, text))), 2)
+
+    def test_approved_git_commands_and_static_chains_establish_reading(self):
+        accepted = ["git blame README.md", "git cat-file -p HEAD:README.md", "git grep needle",
+                    "git log -1", "git ls-files", "git ls-tree HEAD", "git show HEAD"] + [
+            "git diff A..B", "git -C " + self.ROOT + " log -1", "git --no-pager show HEAD",
+            "cd nested && git log -1", "pushd nested && git show HEAD && popd && git diff A..B",
+            "cd nested; cd deeper; git ls-tree HEAD", "git -C nested -C deeper -C .. log",
+            "git -c core.pager=cat --no-pager log", "git -ccolor.ui=never -Cnested show HEAD",
+            "git --git-dir=" + self.ROOT + "/.git log", "git --git-dir .git --work-tree . diff A..B",
+            "git -C nested --git-dir ../.git --work-tree .. show HEAD",
+            "git --git-dir .git -C nested log", "git -C '' show HEAD"]
+        for text in accepted:
+            with self.subTest(command=text):
+                self.assertEqual(self.code(self.review(command(1, text))), 0)
+
+    def test_location_globals_and_directory_changes_never_leave_snapshot(self):
+        rejected = ["cd /elsewhere && cd " + self.ROOT + " && git log",
+                    "pushd ../handoff && pushd " + self.ROOT + " && git show HEAD",
+                    "git -C ../handoff -C " + self.ROOT + " log", "git -C ~ log",
+                    "git -C `pwd` log", "git -C $(pwd) log", "git -C 'nested*' log",
+                    "git --git-dir=/elsewhere/.git log", "git --work-tree /elsewhere diff",
+                    "git -C nested --git-dir=../.git -C .. log",
+                    "git -c core.worktree=/elsewhere diff", "git -c include.path=/elsewhere/config log",
+                    "git -c includeIf.gitdir:x.path=config log", "git -Q show HEAD",
+                    "git --git-dir", "git -C", "git log &&", "git log > output.txt"]
+        for text in rejected:
+            with self.subTest(command=text):
+                self.assertEqual(self.code(self.review(command(1, text))), 2)
+
+    def test_tool_completion_and_shell_failure_checks_still_apply(self):
+        for state in ("ACTIVE", "ERROR"):
+            self.assertEqual(self.code(self.review(tool(1,"read_file",state,{"Path":"README.md"}))), 2)
+        run = self.review(tool(1,"read_file",params={"Path":"README.md"},error="internal read failure"))
+        self.assertEqual(self.code(run), 2)
+        self.assertEqual(self.code(self.review(command(1,"git log",128))), 2)
+        run = self.review(command(1,"git show HEAD"))
+        run.tools()[0]["tool_info"]["output"] += "\nPermission denied"
+        self.assertEqual(self.code(run), 2)
+
+    def test_legacy_replay_fallback_is_explicit_and_never_used_live(self):
+        run = stream(command(1,"cat legacy-subject.txt"), subject_root=None)
+        verdict = agy.judge(run,"review")
+        self.assertEqual(verdict[0], 0)
+        self.assertIn("no subject_root", " ".join(verdict[2]))
+        run.replay = False
+        verdict = agy.judge(run,"review")
+        self.assertEqual(verdict[0], 2)
+        self.assertIn("subject_root is missing", " ".join(verdict[2]))
+
+    def test_placement_is_lexical_even_after_snapshot_is_gone(self):
+        run = self.review(read(path="README.md"), read(2,self.ATTACHMENT), attachments=[self.ATTACHMENT])
+        with mock.patch.object(Path,"resolve",side_effect=AssertionError("filesystem resolution")), \
+             mock.patch.object(Path,"exists",side_effect=AssertionError("filesystem existence")), \
+             mock.patch.object(os,"stat",side_effect=AssertionError("filesystem stat")):
+            self.assertEqual(self.code(run), 0)
+
+
 class PathTests(unittest.TestCase):
+    def test_quoted_git_command_can_name_existing_snapshot_directory(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            clone = Path(tmp) / "snapshot"
+            clone.mkdir()
+            agy.validate_snapshot_paths("Run `git -C " + str(clone) + " status --short`.", clone)
+
+
+    def test_quoted_path_candidates_accept_commands_spaces_and_line_references(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            clone = Path(tmp) / "snapshot with spaces"
+            clone.mkdir()
+            for name in ("notes.txt","a.txt","b.txt","filename with spaces.txt"):
+                (clone / name).write_text("subject")
+            messages = ["Run `git -C " + str(clone) + " status --short`.",
+                        "Read `" + str(clone / "filename with spaces.txt") + "`.",
+                        "Run `diff " + str(clone / "a.txt") + " " + str(clone / "b.txt") + "`.",
+                        "Read `" + str(clone / "notes.txt") + ":12`.",
+                        "Read `" + str(clone / "notes.txt") + ":12:4`.",
+                        "Read " + str(clone / "notes.txt") + ".",
+                        "Review the user's code at `" + str(clone / "notes.txt") + "`; don't edit."]
+            for message in messages:
+                with self.subTest(message=message):
+                    agy.validate_snapshot_paths(message,clone)
+
+    def test_missing_quoted_paths_name_whole_filename_or_command_word(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            clone = Path(tmp) / "snapshot"
+            clone.mkdir()
+            for message,expected in [("Read `" + str(clone / "missing filename with spaces.txt") + "`.",str(clone / "missing filename with spaces.txt")),
+                                     ("Run `cat " + str(clone / "missing.txt") + " | head`.",str(clone / "missing.txt"))]:
+                with self.subTest(message=message):
+                    with self.assertRaises(agy.Failure) as raised:
+                        agy.validate_snapshot_paths(message,clone)
+                    self.assertIn(expected,str(raised.exception))
+                    self.assertNotIn("| head",str(raised.exception))
+
+
+    def test_attachment_hash_line_anchor_maps_to_its_copy(self):
+        source = "/synthetic/repository/subject.md"
+        copy = "/synthetic/handoff/attachment-001-subject.md"
+        changed,count = agy.rewrite_paths("Read `" + source + "#L12`.",[(source,copy)])
+        self.assertEqual(changed,"Read `" + copy + "#L12`.")
+        self.assertEqual(count,1)
+
+
+    def test_hash_line_anchors_validate_and_rewrite_repo_and_attachment_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            parent = Path(tmp)
+            source = parent / "source"
+            clone = parent / "snapshot"
+            clone.mkdir()
+            base = clone / "notes.txt"
+            base.write_text("subject")
+            original_attachment = source / "subject.md"
+            copied_attachment = parent / "handoff" / "attachment-001-subject.md"
+            for anchor in ("#L12","#L12-L24","#L12-24"):
+                with self.subTest(anchor=anchor):
+                    text = "Read `" + str(source / "notes.txt") + anchor + "` and `" + str(original_attachment) + anchor + "`."
+                    changed,count = agy.rewrite_paths(text,[(str(original_attachment),str(copied_attachment)),(str(source),str(clone))])
+                    self.assertEqual(count,2)
+                    self.assertIn(str(base) + anchor,changed)
+                    self.assertIn(str(copied_attachment) + anchor,changed)
+                    agy.validate_snapshot_paths(changed,clone)
+                    with self.assertRaises(agy.Failure) as raised:
+                        agy.validate_snapshot_paths("Read `" + str(clone / "missing.txt") + anchor + "`.",clone)
+                    self.assertNotIn(anchor,str(raised.exception))
+            for suffix in ("#section","#L12-other","#L12more","#l12","#L12/nested","#L12:literal","#L12.txt"):
+                text = str(original_attachment) + suffix
+                self.assertEqual(agy.rewrite_paths(text,[(str(original_attachment),str(copied_attachment))]),(text,0))
+            literal = clone / "notes.txt#section"
+            literal.write_text("literal hash filename")
+            agy.validate_snapshot_paths("Read `" + str(literal) + "`.",clone)
+
+
     def test_boundary_replacement_uses_callable_and_does_not_replace_prose_dot(self):
         text = r'Read /synthetic/repo/file.txt, /synthetic/repo-other/file.txt and C:\neutral\repo-other. See file:///synthetic/repo/file.txt. Version 1.2.'
         changed, count = agy.rewrite_paths(text, [("/synthetic/repo", r"D:\snapshot\repo")])

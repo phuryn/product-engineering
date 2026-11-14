@@ -36,6 +36,16 @@ The CLI recipes were run on `2026-11-14`, Antigravity CLI 1.5.8, macOS, on a pai
 5. **A delegated diff is unreviewed code, and the session that wrote it never clears it.** Read it, check the disk and re-run its tests yourself. The full gate and fresh independent review come at the stage's end and before anything ships or deploys; apply `test-harness` § The gate and `independent-review` § When.
 6. **Keep product decisions, real systems and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep anything touching a real system, development included, such as deploys, migrations applied to any database, server secrets and live settings.
 
+## Command customizations
+
+**A repository's hooks and plugins run outside the sandbox and the deny rules.** The CLI runs command hooks itself, outside tool permissions and events (observed `2026-11-14`, CLI 1.5.8, macOS). Bundled customization docs also describe plugin command hooks, stdio MCP commands and registered plugin paths (read on `2026-11-14`, CLI 1.5.8). Only a root's own `hooks.json` was run live; the plugin routes were read, not run.
+
+The wrapper refuses to start when known workspace entries are present, and names their paths without reading their contents. Inspect the named paths, read their files and tell the owner which commands they run. Pass `--allow-hooks` only on the owner's word for that repository, never on the agent's judgement. A pull request from someone else gets a no by default.
+
+New, resumed and dry-run turns repeat the check; the flag is not remembered. Review checks the selected revision in its clone; checkout-only, uncommitted customizations do not block it. Entries in `~/.gemini/config/` produce a warning and appear in `--check`; they are left to the user, never refused.
+
+The detector checks `.agents/`, `.agent/`, `_agents/` and `_agent/` from the work directory through the repository root. Outside a repository it checks the work directory alone. Within each root, it finds non-empty `hooks.json`, `mcp_config.json`, `plugins.json` and non-empty `plugins/` directories. It does not interpret JSON, and an unclear case counts as found. These are the four roots and four entries the bundled docs named on `2026-11-14`; a CLI update can add unseen routes.
+
 ## Three modes
 
 **Set each turn's boundary and judge the events it actually produced.** The wrapper repeats settings on every resume, closes stdin and starts the process in `--cwd`. CLI behavior in this table was observed `2026-11-14`, CLI 1.5.8, macOS.
@@ -45,6 +55,8 @@ The CLI recipes were run on `2026-11-14`, Antigravity CLI 1.5.8, macOS, on a pai
 | `consult` | Deny file writes, commands, unsandboxed scripts, URLs and MCP; provide a repository file list | File reads by path; web search remains available and is counted | Saved id; continued by default |
 | `build` | Sandbox; deny URLs and MCP, unless `--mcp` enables MCP | Shell writes in the workspace, temp, caches and added folders; staging and commits fail | Saved id; continued within the stage |
 | `review` | Fresh detached clone without hardlinks; sandbox; deny file-tool writes, URLs and MCP; add only copied inputs | Shell writes in the clone, temp, caches and handoff folder; web search causes failure | Always new; never saved or resumed |
+
+`manage_task` is a known command-status tool, allowed in build and review; a completed call fails consult. Consult also fails on completed unknown tools; consult and review fail on every subagent or workflow attempt, including tool errors.
 
 **Pass copies of external briefs and attachments in a dedicated folder.** An added folder is writable by a sandboxed shell (observed `2026-11-14`, CLI 1.5.8, macOS). The partner gets prepared copies, never the external brief's real folder. The handoff folder holds the brief and explicitly prepared inputs, including the peer's file list.
 
@@ -75,7 +87,9 @@ Each checked boundary reports `held`, `NOT HELD` or `not attempted`; anything ex
 
 **Keep the events with the answer and inspect the wrapper's exit code.** `--out` writes the answer and `<out>.events.jsonl`; `--log` streams raw events as they arrive. Diagnostics use `[agy.py]` on stderr and count completed commands, successful reads, searches and tool errors, with duration.
 
-Keep the adjacent `.meta.json` file too; replay uses its brief path, process outcome and changed-file evidence. Without metadata, older recordings cannot establish whether a read went beyond the brief; the wrapper warns. An appended log's metadata selects its latest turn.
+When checks withhold a recorded response, the diagnostic names its result event in the events file; `--out` stays empty.
+
+Keep the adjacent `.meta.json` file too; replay uses its brief path, subject root, attachment copies, process outcome and changed-file evidence. Without a subject root, older review recordings cannot place reads against the snapshot; they warn and use the legacy read check. An appended log's metadata selects its latest turn.
 
 ```bash
 python3 <skill dir>/scripts/agy.py --replay <events.jsonl> --mode review
@@ -83,10 +97,10 @@ python3 <skill dir>/scripts/agy.py --replay <events.jsonl> --mode review
 
 Exit 1 means a failed or empty run, missing result, denied permission, missing binary or unsupported flag. Exit 2 means a broken boundary or missing successful read. Exit 3 means documented quota wording, not the CLI's own timeout exit 3. The wrapper maps `finished_reason: print_timeout` to exit 1; `--timeout` defaults to 3,600 seconds, with a later process kill as backup.
 
-**Use bare CLI calls only when you can perform the wrapper's checks.** This fallback leaves copied-input preparation, event inspection, session recording, read evidence and changed-file checks to you.
+**Use bare CLI calls only when you can perform the wrapper's checks.** This fallback leaves customization checks, copied-input preparation, event inspection, session recording, read evidence and changed-file checks to you.
 
 ```bash
-# Start in the repository. Prepare a dedicated folder containing only copied inputs.
+# Inspect workspace and user customizations first; start in the repository with only copied inputs added.
 agy -p "Read <copied-brief> and do what it says. Resolve relative paths in <repo>; do not run commands or write files." \
   --add-dir <prepared-input-folder> --print-timeout 120s --output-format stream-json \
   --settings '{"permissions":{"deny":["write_file(*)","command(*)","unsandboxed(*)","read_url(*)","execute_url(*)","mcp(*)"]}}' < /dev/null
@@ -148,13 +162,15 @@ Shell `curl https://example.com` exited 6 and `curl http://1.1.1.1` exited 7 (ob
 python3 <skill dir>/scripts/agy.py --mode review --cwd <repo> --rev HEAD --read <prompt-file> --attach <subject-file> --out <scratch>/second-opinion.md
 ```
 
-**Attach external review inputs before asking the snapshot to read them.** The wrapper rewrites attachment paths first, then source-repository paths to the snapshot, preserving path boundaries. It prints how many path occurrences changed. A named snapshot path that does not exist stops the run before a model starts; attach the file or commit it. Review refuses user `--add-dir` because that would expose another writable folder.
+**Attach external review inputs before asking the snapshot to read them.** The wrapper rewrites attachment paths first, then source-repository paths to the snapshot, preserving path boundaries. It validates a quoted span as one filename or a command naming a path, and prints how many path occurrences changed. A named snapshot path that does not exist stops the run before a model starts; attach the file or commit it. Review refuses user `--add-dir` because that would expose another writable folder.
 
 **Review a fresh detached clone and report what changed inside it.** The wrapper clones with `--no-hardlinks`, so rewriting an object inside the clone cannot rewrite a source object through a hardlink. It excludes uncommitted work and warns when any exists. `--rev` selects the snapshot; `--keep-snapshot` keeps both clone and handoff folder. Otherwise their temporary parent is deleted after clone changes are reported.
 
-**Require successful subject reads even when the partner answers confidently.** File-tool writes are denied, while the shell retains the reach documented under Builder (observed `2026-11-14`, CLI 1.5.8, macOS). The wrapper rejects completed file-tool writes, scripts and subagents, any web search, unknown tools and a run without successful reading beyond the brief. Tool errors can mean a missing file or a permission failure; neither proves a successful read.
+**Require successful subject reads even when the partner answers confidently.** File-tool writes are denied, while the shell retains the reach documented under Builder (observed `2026-11-14`, CLI 1.5.8, macOS). The gate requires a completed file-tool read inside the snapshot or of a current attachment copy, or a successful Git history command there. Qualifying Git subcommands are `blame`, `cat-file`, `diff`, `grep`, `log`, `ls-files`, `ls-tree` and `show`. Other shell readers do not count, because a command line does not prove what was read. Directory targets must stay inside the snapshot; `--no-index` and unresolved targets fail the read gate. The `reads=` diagnostic keeps its broader count; subject-read evidence is checked separately. The wrapper also rejects completed file-tool writes, any delegation attempt, any web search and unknown tools. Tool errors can mean a missing file or a permission failure; neither proves a successful read.
 
 **Report the instructions that still load and cannot be switched off.** Workspace `AGENTS.md` and `GEMINI.md`, the user's `~/.gemini/` rules and five built-in skills loaded (observed `2026-11-14`, CLI 1.5.8, macOS). `--disable-slash-commands` did not remove them. The tool registry still listed 60 names with deny rules applied; its size was no evidence of available permissions.
+
+Known workspace hook and plugin entries are refused unless `--allow-hooks` is passed; the instruction files and built-in skills still load.
 
 ## Accounts and limits
 
@@ -172,6 +188,8 @@ python3 <skill dir>/scripts/agy.py --mode review --cwd <repo> --rev HEAD --read 
 
 - Live out-of-quota output.
 - Whether `mcp(*)` holds a configured server; none was configured.
+- Plugin hooks, a plugin's MCP server starting under `mcp(*)`, and `plugins.json` registration paths; these routes are documentation-only.
+- How far the CLI walks for customization roots outside a repository.
 - Whether a subagent inherits deny rules, or anything carries between separate conversations.
 - Linux and Windows; the sandbox observations above are macOS's.
 - The API-key and Cloud routes.
@@ -180,7 +198,7 @@ Each rule's origin, the case that taught it, is in `receipts.md` beside this fil
 
 ## How you can tell it worked
 
-The user's agreement covers the run, and events show successful reads and the answer's claimed work, with searches and tool errors counted separately. The intended session resumes; a review reports clone changes and its remaining reach beside the release reviewer's findings.
+The user's agreement covers the run, workspace command customizations were absent or explicitly allowed, and any user-level entries were named; the intended session resumes. Events show successful reads and claimed work, with searches and tool errors counted separately; a review reports clone changes and remaining reach beside the release reviewer's findings.
 
 ## Not this skill
 
