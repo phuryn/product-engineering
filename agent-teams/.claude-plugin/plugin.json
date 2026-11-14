@@ -1,6 +1,6 @@
 {
   "name": "agent-teams",
-  "description": "Work with other coding agents as partners: brief any delegate with the why, and drive the Codex CLI, the Grok CLI or Claude Code headless from another agent as a peer, builder or fresh reviewer. The review loop itself is independent-review, in ai-shipping.",
+  "description": "Work with other coding agents as partners: brief any delegate with the why, and drive the Codex CLI, the Grok CLI or Claude Code headless from another agent as a peer, builder or fresh reviewer. Gemini through Antigravity is an option the user agrees to first. The review loop itself is independent-review, in ai-shipping.",
   "author": {
     "name": "Paweł Huryn",
     "email": "pawel@productcompass.pm",

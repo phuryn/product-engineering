@@ -66,7 +66,7 @@ Each entry: the date, the request, **rejected** or **deferred**, the reason, the
 
 - **2026-10-28 · rejected.**
 - **Request:** bring the descriptions an agent always has in context under 1,500 tokens a turn.
-- **Reason:** the target came from dividing characters by four. Measured, the listing runs about 2.8 characters a token, so 1,500 tokens would mean descriptions of about 80 characters: room for the trigger and nothing else. At about 150 there is room for the trigger, a clause on what the skill does and, where a skill needs one, a clause that stops it starting on the wrong request (`propose`: "Not for agreed changes or bugs"; three others start "Only when"). The validator holds the total to 6,000 characters (rule 7 in `AGENTS.md`).
+- **Reason:** the target came from dividing characters by four. Measured, the listing runs about 2.8 characters a token, so 1,500 tokens would mean descriptions of about 80 characters: room for the trigger and nothing else. At about 150 there is room for the trigger, a clause on what the skill does and, where a skill needs one, a clause that stops it starting on the wrong request (`propose`: "Not for agreed changes or bugs"; three others start "Only when"). The validator held the total to 6,000 characters then (rule 7 in `AGENTS.md`; 6,200 since `2026-11-14`).
 - **Evidence:** measured `2026-10-27` in Claude Code 2.1.311: 5,576 characters of descriptions cost 2,423 tokens a turn, against 9,143 before the rewrite. The trigger evals passed 17 of 17 at this length, the must-not-start cases included; 80-character descriptions are untested.
 - **Decided by:** the owner ("keep").
 

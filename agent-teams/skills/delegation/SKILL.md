@@ -11,7 +11,7 @@ description: "Before spawning a subagent or dispatching a build, review or resea
 
 **Manage a delegate the way a good owner manages you.** Give it the goal and context, then trust its judgement on the means instead of prescribing steps. Push back where you disagree; its view doesn't bind you.
 
-**Apply the delegate's own skill for its mechanics.** Apply `codex-agents`, `grok-agents` or `claude-agents` for a headless CLI peer, builder or reviewer. Apply `independent-review` for the unsteered review loop, normally through Grok, or without it a fresh Codex or headless Claude Code session. This skill covers their shared discipline.
+**Apply the delegate's own skill for its mechanics.** Apply `codex-agents`, `grok-agents` or `claude-agents` for a headless CLI peer, builder or reviewer. Apply `independent-review` for the unsteered review loop, normally through Grok, or without it a fresh Codex or headless Claude Code session. This skill covers their shared discipline. For a requested Gemini partner, apply `gemini-agents`: the user agrees first, per run or by an informed standing preference; Gemini is never a default. Never drive `agy` from memory.
 
 ## What never delegates
 
@@ -62,6 +62,7 @@ Three things, and the first is the one most often skipped:
 | **The Codex CLI** (`codex-agents`) | Building a stage to a brief; arguing a decision through as a peer over several turns | A new session is read-only unless told otherwise. A build that changed nothing can sound successful; check the disk. |
 | **The Grok CLI** (`grok-agents`) | A peer, builder or reviewer from a different model family; the independent review's default reviewer (`independent-review`) | A round that could not read exits 0 after a sentence; length is the tell. |
 | **Headless Claude Code** (`claude-agents`) | A session with none of your conversation: a builder or peer for a non-Claude agent, or a reviewer | Plain `-p` loads project and user instructions and auto-memory; only a restricted review starts from the repository alone. Resume keeps the model but drops effort, permission mode and tools unless re-sent (observed `2026-10-24`). |
+| **The Antigravity CLI** (`gemini-agents`) | A requested second opinion from another model family, never a default; apply `gemini-agents` and get agreement first | Unsupported by Google on consumer plans (FAQ read `2026-11-13`); headless commands and writes ran unasked, and a refused permission ended the turn with exit 0 (observed `2026-11-14`, CLI 1.5.8, macOS). |
 
 **The session that wrote the code never clears it.** Use a fresh reviewer who did not build the code. Prefer another model family, or use a fresh session of the builder's family when no other family can run. Never resume or fork the building thread, or use its subagent as reviewer. Apply `independent-review` for the loop and its stopping rule.
 

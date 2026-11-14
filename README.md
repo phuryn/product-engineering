@@ -4,7 +4,7 @@
 
 # Product Engineering
 
-44 agent skills from shipping three live products: decide what to build, build it with Claude Code or Codex, have a second model review it, release it.
+45 agent skills from shipping three live products: decide what to build, build it with Claude Code or Codex, have a second model review it, release it.
 
 **Lost at any point?** Type `/product:start-here` (Codex: `$product:start-here`) and say what you have. It tells you where the work stands and what's next. [Install](#install) first.
 
@@ -153,6 +153,7 @@ Most start themselves when the work matches what they're for. You start four, ma
 - `codex-agents`: Codex as a peer, builder or reviewer
 - `grok-agents`: Grok as a peer, builder or reviewer
 - `claude-agents`: Claude Code as a peer, builder or reviewer
+- `gemini-agents`: Gemini through Google's Antigravity CLI, only when you ask and agree first. Google doesn't support this on consumer plans (FAQ read 2026-11-13) and says it can lead to suspension
 
 **agent-harness**: A reliable agent setup, with you in the loop
 
@@ -184,12 +185,12 @@ Most start themselves when the work matches what they're for. You start four, ma
 
 - `work-humanizer`: Edits AI-sounding text, or interviews you
 
-28 of the 44 skills were learned on real products built with Claude Code, Codex and Grok; 14 are established methods (the strategy frameworks in `product`, the documentation and review methods in `ai-shipping`); `product-analytics` rests on its vendors' docs and `work-humanizer` on a detector test. Each pack's `README.md` says more about every skill.
+28 of the 45 skills were learned on real products built with Claude Code, Codex and Grok; 14 are established methods (the strategy frameworks in `product`, the documentation and review methods in `ai-shipping`); `product-analytics` rests on its vendors' docs and `work-humanizer` on a detector test; `gemini-agents` rests on one day of CLI runs and Google's documentation. Each pack's `README.md` says more about every skill.
 
 <details>
 <summary>What the skills cost your agent</summary>
 
-Your agent always carries the descriptions of the 40 skills that start themselves: about 6,000 characters, about 2,600 tokens in Claude Code. A skill's full text loads only when it runs. `tools/validate.py` holds the descriptions to 6,000 characters in total and 300 each, because a crowded agent setup cuts descriptions short, and the cut falls on the words that say when to use a skill.
+Your agent always carries the descriptions of the 41 skills that start themselves: about 6,200 characters, about 2,700 tokens in Claude Code. A skill's full text loads only when it runs. `tools/validate.py` holds the descriptions to 6,200 characters in total and 300 each, because a crowded agent setup cuts descriptions short, and the cut falls on the words that say when to use a skill.
 
 </details>
 

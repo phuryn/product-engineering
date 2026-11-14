@@ -93,6 +93,10 @@
       "mode": "new"
     },
     {
+      "skill": "agent-teams/skills/gemini-agents",
+      "mode": "new"
+    },
+    {
       "skill": "agent-harness/skills/windows-agent-shell",
       "mode": "new",
       "notes": "drawn from local working notes in product repositories; no upstream to track"

@@ -42,8 +42,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 MAX_DESCRIPTION = 1024
-# Always-loaded descriptions (AGENTS.md, rule 7). 6,000 characters, names included, is about 2,600 tokens.
-MAX_LISTED = 6000
+# Always-loaded descriptions (AGENTS.md, rule 7). 6,200 characters, names included, is about 2,700 tokens.
+MAX_LISTED = 6200
 MAX_LISTED_EACH = 300
 
 # Names that must never reach the repository outside their allowed places (AGENTS.md, rule 1).
