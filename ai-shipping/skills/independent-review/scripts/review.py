@@ -8,9 +8,17 @@ its Step 6. Read it before invoking this.
 
 --reviewer auto (the default) uses installed Grok, otherwise a fresh Codex
 session, otherwise fresh headless Claude Code. All run read-only, with user
-MCP configuration and session memory excluded where the CLI allows. Codex's
-instruction files may still load; --check names the isolation and flags of
-the selected reviewer. The thread that built the code is never the reviewer.
+MCP configuration and session memory excluded where the CLI allows.
+Codex excludes user config, including its MCP servers and project trust, and
+execpolicy rules. Connected apps, plugins, tool suggestions, web search, image
+generation, memory and the saved session are off; hooks are disabled by flag.
+Repository and CODEX_HOME AGENTS.md, bundled skills and agent-spawning tools
+remain. A spawn failed in an ephemeral session (Codex CLI 0.166.0, observed
+2026-11-14); that is not guaranteed. Administrator system, managed or cloud
+configuration can add context and tools; those layers were not observable here.
+The wrapper checks events, not flags alone: completed outside MCP calls, web searches,
+completed file changes or no successful command fail the Codex round.
+--check names the isolation and flags. The building thread never reviews.
 
 THE REASON THIS EXISTS, and it is one specific failure (2026-09-08):
 
@@ -22,16 +30,21 @@ were read as "the reviewer found nothing" before a third, run properly, found
 a real defect in the same commit both silent rounds had "cleared". The failure
 is biased toward SILENCE, so it always reads as good news.
 
-This wrapper closes that gap in two ways:
+This wrapper closes that gap in three ways:
 
   1. The flags that make a round real are applied here, not remembered.
   2. A round whose output is too short to be a real round FAILS LOUDLY
      (exit 2) instead of printing a few lines and returning 0.
+  3. Codex's event stream proves commands succeeded and checks tool isolation.
 
-The length check is the whole point. A round that comes back genuinely empty
+A round that comes back genuinely empty
 still argues its way there over paragraphs; one that comes back in three lines
 did not run. Treat a suspiciously short clean round as a failed round, never
 as a fast one.
+
+Codex's report is its last agent_message, never the raw JSON stream. With --out,
+raw stdout is saved at <out>.events.jsonl, including partial output on failure.
+Treat both files as private review artifacts; never commit them.
 
 Usage:
     python review.py --brief BRIEF.md --cwd REPO --subject origin/PROD..HEAD
@@ -61,7 +74,9 @@ Claude Code is $CLAUDE_BIN, or `claude` on PATH.
 Exit codes:
     0  round completed and looks like a real round
     1  usage / environment problem (no binary, bad path, missing flag)
-    2  round is suspiciously short — treat as FAILED, not clean
+    2  FAILED ROUND: short report; Codex had no successful command, ran an
+       outside MCP tool, searched the web, changed a file, or returned missing
+       events, no agent_message, or a failed turn despite exit 0
     3  the reviewer answered that its account is out of usage: the round did
        not run; the message gives the next installed reviewer or --subject-only
     N  the reviewer's own non-zero exit, passed through
@@ -71,6 +86,8 @@ from __future__ import annotations  # `str | None` annotations on Python 3.9, ma
 
 import argparse
 import atexit
+import getpass
+import io
 import json
 import os
 import platform
@@ -97,9 +114,9 @@ CODEX_BIN_NAME = "codex.exe" if platform.system() == "Windows" else "codex"
 DEFAULT_MIN_CHARS = 1500
 
 # An account out of credit answers in a line, which reads as a failed round with no next step.
-# Observed 2026-10-31: a signed-in Grok CLI answered "402 usage balance exhausted". Read only when
-# a round failed (a non-zero exit or a short answer), so a review that discusses a 402 is never
-# taken for one.
+# Observed 2026-10-31: a signed-in Grok CLI answered "402 usage balance exhausted".
+# Grok/Claude checks run only after a non-zero exit or a short answer.
+# Codex checks only error-event messages and stderr, never the report or command output.
 OUT_OF_USAGE = re.compile(
     r"usage balance (?:is )?exhausted|insufficient (?:credits?|balance|funds)|credit balance is too low"
     r"|exceeded your (?:current )?quota|\b402\b[^\n]{0,40}(?:payment required|balance|credits?|quota)"
@@ -157,15 +174,29 @@ CLAUDE_REVIEW_FLAGS = [
     "--no-session-persistence", "--output-format", "text",
 ]
 
-# The command in codex-agents § Reviewer: no persisted session, user config
-# (including its MCP tools) or execpolicy rules. Instruction files were not
-# shown to be disabled (Codex CLI 0.159.0, observed 2026-10-29; Windows sandbox
-# reads/writes rechecked on 0.166.0, 2026-11-02). Do not claim they are off.
-CODEX_REVIEW_FLAGS = ["exec", "--ephemeral", "--ignore-user-config", "--ignore-rules", "-s", "read-only"]
+# The command in codex-agents § Reviewer. User config alone does not exclude
+# account tools (Codex CLI 0.166.0, macOS, observed 2026-11-14: 546 tools before,
+# 22 after the feature flags and web_search setting). Hooks are disabled by
+# flag; their absence was not measured. AGENTS.md, bundled skills and agent
+# tools remain; administrator system/managed/cloud layers were not observable.
+# Instruction files were not shown disabled (Codex CLI 0.159.0, observed 2026-10-29).
+# Windows reads/writes were checked on 0.166.0, 2026-11-02 with the old flags;
+# the new feature flags were not run on Windows. Events check what actually ran.
+CODEX_DISABLED_FEATURES = ("apps", "plugins", "tool_suggest", "image_generation", "memories", "hooks")
+CODEX_REVIEW_FLAGS = [
+    "exec", "--json", "--ephemeral", "--ignore-user-config", "--ignore-rules", "-s", "read-only",
+    *[arg for feature in CODEX_DISABLED_FEATURES for arg in ("--disable", feature)],
+    "-c", "web_search=disabled",
+]
 CODEX_ISOLATION = (
-    "fresh ephemeral session; user config (including its MCP tools), execpolicy rules and session "
-    "persistence off; read-only shell; repository and CODEX_HOME AGENTS.md may still load: "
-    "name loaded instruction files and any other remaining context in the report"
+    "fresh ephemeral session; read-only shell. User config (including its MCP servers and project trust), "
+    "execpolicy rules, connected apps, plugins, tool suggestions, web search, image generation, memory "
+    "and saved session off; hooks disabled by flag. Repository and CODEX_HOME AGENTS.md, bundled skills "
+    "and agent-spawning tools remain. A spawn failed in an ephemeral session "
+    "(Codex CLI 0.166.0, observed 2026-11-14), without guaranteeing future failure. "
+    "Administrator system, managed or cloud configuration can add tools or context; those layers were not observable here. "
+    "Events fail the round for a completed outside MCP call, web search, completed file change or no successful command. "
+    "Name loaded instruction files and remaining context in the report."
 )
 
 # A file read returns at most this many lines per call (Grok's read_file does not
@@ -296,6 +327,43 @@ def require_flags(binary: str, wanted: list[str], reviewer: str) -> None:
             "update this wrapper rather than dropping the flag — dropping "
             "--always-approve is exactly the silent-failure this exists to stop."
         )
+
+
+def missing_codex_features(binary: str) -> list[str]:
+    """Read advertised feature names without silently accepting a changed CLI."""
+    cmd = [binary, "features", "list"]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
+                              errors="replace", input="", timeout=60)
+    except (OSError, subprocess.SubprocessError) as err:
+        reason = f"could not run `codex features list`: {err}"
+        have = set()
+    else:
+        have = {line.split()[0] for line in proc.stdout.splitlines() if line.split()} if proc.returncode == 0 else set()
+        reason = (f"`codex features list` exited {proc.returncode}: {proc.stderr.strip()}"
+                  if proc.returncode else "name not advertised by `codex features list`")
+    return [f"--disable {name}: {reason}; CLI is older or newer than the Codex CLI 0.166.0 "
+            "this was written against" for name in CODEX_DISABLED_FEATURES if name not in have]
+
+
+def warn_codex_administrator_files() -> None:
+    """Existence only: these layers may override flags; never read their contents."""
+    system = platform.system()
+    if system == "Windows":
+        codex_home = Path(os.environ.get("CODEX_HOME") or (Path.home() / ".codex"))
+        paths = [codex_home / "managed_config.toml"]
+        if os.environ.get("ProgramData"):
+            paths.append(Path(os.environ["ProgramData"]) / "OpenAI" / "Codex" / "requirements.toml")
+    else:
+        paths = [Path("/etc/codex") / name for name in ("config.toml", "managed_config.toml", "requirements.toml")]
+        if system == "Darwin":
+            preferences = Path("/Library/Managed Preferences")
+            paths += [preferences / "com.openai.codex.plist",
+                      preferences / getpass.getuser() / "com.openai.codex.plist"]
+    for path in paths:
+        if path.exists():
+            sys.stderr.write(f"[review.py] warning: {path} can add tools, MCP servers or hooks the wrapper "
+                             "cannot switch off; the round fails if such a tool ran.\n")
 
 
 # The prompt and subject files are named per run: rounds started in parallel
@@ -616,18 +684,175 @@ def build_codex_command(codex_bin: str, args: argparse.Namespace) -> list[str]:
     return cmd + ["-c", f"model_reasoning_effort={args.effort}", "-C", str(args.cwd_resolved), "-"]
 
 
-def warn_codex_refusals(stderr: str) -> None:
-    refused = [line for line in stderr.splitlines() if "blocked by policy" in line.lower()]
-    if not refused:
-        return
-    sys.stderr.write(f"[review.py] warning: Codex logged {len(refused)} 'blocked by policy' lines "
-                     "(showing at most 20, each capped at 500 characters):\n")
-    for line in refused[:20]:
-        sys.stderr.write(f"  {line[:500]}\n")
-    sys.stderr.write("  Refused reads with no successful reads fail the round, however long the report. "
-                     "Opening, listing and searching files are reads. A refused write is the read-only "
-                     "sandbox doing its job. Check the commands and report; this warning alone does not "
-                     "fail the round.\n")
+class CodexEvents:
+    """Evidence from JSON objects, never from phrases in command output or reports."""
+
+    def __init__(self, raw: str):
+        self.parsed = self.skipped = self.succeeded = self.file_changes = self.completed_file_changes = 0
+        self.report = ""
+        self.has_report = False
+        self.failed_commands: list[str] = []
+        self.mcp_calls: list[str] = []
+        self.outside_calls: list[str] = []
+        self.listing_calls: list[str] = []
+        self.refused_calls: list[str] = []
+        self.web_searches: set[str] = set()
+        self.unknown_items: set[str] = set()
+        self.errors: list[str] = []
+        self.turn_failed = self.turn_completed = False
+        known = {"agent_message", "command_execution", "mcp_tool_call", "web_search",
+                 "file_change", "error", "reasoning", "todo_list"}
+        # StringIO iterates one line at a time, without splitting megabytes of command output.
+        for line in io.StringIO(raw):
+            try:
+                event = json.loads(line)
+            except ValueError:
+                self.skipped += 1
+                continue
+            if not isinstance(event, dict):
+                self.skipped += 1
+                continue
+            self.parsed += 1
+            event_type = event.get("type")
+            if event_type == "turn.failed":
+                self.turn_failed = True
+            elif event_type == "turn.completed":
+                self.turn_completed = True
+            if event_type in ("error", "turn.failed"):
+                error = event.get("error")
+                message = error.get("message") if isinstance(error, dict) else event.get("message")
+                self.errors.append(str(message or event_type))
+            if event_type not in ("item.started", "item.completed"):
+                continue
+            item = event.get("item")
+            if not isinstance(item, dict):
+                self.unknown_items.add("missing item object")
+                continue
+            kind = item.get("type")
+            if not isinstance(kind, str) or kind not in known:
+                self.unknown_items.add(str(kind))
+            # A started search already violates isolation, even if it never completes.
+            if kind == "web_search":
+                self.web_searches.add(str(item.get("id") or item.get("query") or "unknown search"))
+            if event_type != "item.completed":
+                continue
+            if kind == "agent_message" and isinstance(item.get("text"), str):
+                self.report = item["text"]
+                self.has_report = True
+            elif kind == "command_execution":
+                if item.get("status") == "completed" and item.get("exit_code") == 0:
+                    self.succeeded += 1
+                else:
+                    command = str(item.get("command", "(command not recorded)"))
+                    self.failed_commands.append(f"exit {item.get('exit_code')}, {item.get('status')}: {command}")
+            elif kind == "mcp_tool_call":
+                server, tool = item.get("server"), item.get("tool")
+                label = f"{server}:{tool}"
+                self.mcp_calls.append(label)
+                if item.get("status") == "completed":
+                    if server == "codex" and tool in ("list_mcp_resources", "list_mcp_resource_templates"):
+                        self.listing_calls.append(label)
+                    else:
+                        self.outside_calls.append(label)
+                elif item.get("status") == "failed":
+                    self.refused_calls.append(label)
+            elif kind == "file_change" and item.get("status") == "completed":
+                self.completed_file_changes += 1
+            elif kind == "error":
+                error = item.get("error")
+                message = error.get("message") if isinstance(error, dict) else item.get("message")
+                self.errors.append(str(message or "error item without a message"))
+            if kind == "file_change":
+                self.file_changes += 1
+
+    def failure(self) -> str:
+        if not self.parsed:
+            return "no JSON events parsed; there is no record that a Codex review ran."
+        if not self.has_report:
+            return "no agent_message event; Codex returned no review report."
+        if self.outside_calls:
+            return ("outside MCP tool completed: " + ", ".join(self.outside_calls)
+                    + "; the review used a server the isolation flags did not exclude.")
+        if self.web_searches:
+            return "a web_search item appeared; the review reached outside the repository."
+        if self.completed_file_changes:
+            return "a file_change completed; the reviewer changed files during a read-only round."
+        if not self.succeeded:
+            return "no command succeeded; nothing was read through Codex's shell, so the review is unproved."
+        # An error item can be a notice: Codex CLI 0.166.0 (observed 2026-11-14) warned that a
+        # model's metadata was missing as an `error` item. Only a failed or unfinished turn fails.
+        if self.turn_failed:
+            return "a turn.failed event appeared despite exit 0; the round did not complete."
+        if self.errors and not self.turn_completed:
+            return "error events and no turn.completed event; the round cannot be accepted as completed."
+        return ""
+
+
+def finish_codex_round(raw: str, stderr: str, args: argparse.Namespace, elapsed: float,
+                       returncode: int, timed_out: bool = False) -> None:
+    events = CodexEvents(raw)
+    summary = (f"[review.py] {len(events.report.strip())} chars in {elapsed:.0f}s; "
+               f"Codex events: {events.parsed} parsed, {events.skipped} non-object/non-JSON lines skipped; "
+               f"commands: {events.succeeded} succeeded, {len(events.failed_commands)} failed; "
+               f"MCP calls: {len(events.mcp_calls)}; web searches: {len(events.web_searches)}; "
+               f"file changes: {events.file_changes} ({events.completed_file_changes} completed)")
+    if args.out:
+        report_path = Path(args.out).expanduser()
+        report_path.write_text(events.report, encoding="utf-8")
+        summary += f"; report: {report_path}"
+        if raw:
+            event_path = Path(str(report_path) + ".events.jsonl")
+            event_path.write_text(raw, encoding="utf-8")
+            summary += f"; events: {event_path}"
+    if events.skipped:
+        summary += "; warning: skipped stdout lines are not review evidence"
+    if events.listing_calls:
+        summary += "; Codex's own listing tools (allowed): " + ", ".join(events.listing_calls)
+    if events.outside_calls:
+        summary += "; outside MCP tools completed: " + ", ".join(events.outside_calls)
+    if events.unknown_items:
+        summary += "; WARNING: unknown item types: " + ", ".join(sorted(events.unknown_items))
+    sys.stderr.write(summary + "\n")
+    if events.failed_commands:
+        sys.stderr.write("[review.py] Failed commands (at most 20, each capped at 500 characters):\n")
+        for command in events.failed_commands[:20]:
+            sys.stderr.write("  " + command.replace("\n", " ").replace("\r", " ")[:500] + "\n")
+        sys.stderr.write("  A search with no match or a refused write is normal; a failed read of a file under review is not.\n")
+    for call in events.refused_calls:
+        sys.stderr.write(f"[review.py] warning: MCP call {call} failed; the server reached the session, "
+                         "and the next call might not be refused.\n")
+    sys.stdout.write(events.report)
+    if events.report and not events.report.endswith("\n"):
+        sys.stdout.write("\n")
+    for message in events.errors:
+        sys.stderr.write(f"[review.py] Codex event error: {message}\n")
+    if stderr:
+        sys.stderr.write("[review.py] Codex stderr tail (at most 20 lines):\n"
+                         + "\n".join(stderr.splitlines()[-20:]) + "\n")
+    if timed_out:
+        detail = "partial stdout was processed above" if raw else "no stdout was captured"
+        sys.exit(f"[review.py] FAILED ROUND — round exceeded --timeout {args.timeout}s; "
+                 f"{detail}; the review did not finish.")
+    # --json usage-limit output was not observed on Codex CLI 0.166.0, 2026-11-14.
+    # Only explicit event errors and stderr are eligible; repository prose is not.
+    # Read only when the round did not complete, as for the other reviewers.
+    if returncode or events.turn_failed or not events.turn_completed:
+        out_of_usage("codex", *events.errors, stderr)
+    if returncode:
+        sys.stderr.write(f"[review.py] codex exited {returncode} after {elapsed:.0f}s\n")
+        sys.exit(returncode)
+    failure = events.failure()
+    if failure:
+        sys.stderr.write(f"[review.py] FAILED ROUND — {failure}\n")
+        sys.exit(2)
+    if len(events.report.strip()) < args.min_chars and not args.allow_short:
+        sys.stderr.write(f"[review.py] FAILED ROUND — {len(events.report.strip())} chars is below "
+                         f"--min-chars {args.min_chars}.\n"
+                         "  A real round argues its conclusion over paragraphs; read the report before using --allow-short.\n")
+        sys.exit(2)
+    if len(events.report.strip()) < args.min_chars:
+        sys.stderr.write("[review.py] warning: short round accepted by --allow-short; "
+                         "confirm it reasoned its way to a conclusion and could read the files.\n")
 
 
 # Grok's own isolation, per process: its memory, its managed MCP configs and gateway tools, every Claude and
@@ -702,7 +927,7 @@ def out_of_usage(reviewer: str, *texts: str) -> None:
             skip = "=" not in a
             continue
         rest.append(a)
-    candidates = {"grok": ("codex", "claude"), "codex": ("claude",), "claude": ("grok", "codex")}
+    candidates = {"grok": ("codex", "claude"), "codex": ("claude", "grok"), "claude": ("grok", "codex")}
     finders = {"grok": find_grok_bin, "codex": find_codex_bin, "claude": find_claude_bin}
     other = None
     for candidate in candidates[reviewer]:
@@ -726,7 +951,7 @@ def out_of_usage(reviewer: str, *texts: str) -> None:
         f"  {next_step}\n"
         f"    {shlex.join(rerun)} < /dev/null\n"
         "  Add --model when the repository's instructions name the fallback's model. Run their recorded "
-        "fallback if it can, otherwise the next available reviewer or the manual route above, without asking. "
+        "fallback if it can, otherwise the next available reviewer or the --subject-only manual route, without asking. "
         "A repository ranks its "
         "reviewers; it cannot rule out a review. If no other family can run, use a fresh session of the "
         "builder's own family, never the building session and never no review. Record the actual "
@@ -737,7 +962,8 @@ def out_of_usage(reviewer: str, *texts: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Runs one unsteered independent review round: Grok, fresh Codex, or fresh Claude Code.",
+        description="Runs one unsteered independent review round: Grok, fresh Codex, or fresh Claude Code. "
+        "Codex's events must prove successful shell commands and no completed outside MCP calls, web searches or completed file changes.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__.split("Usage:", 1)[1] if __doc__ else "",
     )
@@ -768,7 +994,8 @@ def main() -> None:
     parser.add_argument("--sandbox", metavar="PROFILE",
                         help="Grok sandbox profile passthrough; its tool allowlist is the write boundary "
                         "(sandbox enforcement varies by platform). Codex always uses read-only.")
-    parser.add_argument("--out", metavar="FILE", help="Also write the round's output to FILE")
+    parser.add_argument("--out", metavar="FILE", help="Also write the report to FILE; "
+                        "Codex raw events go to FILE.events.jsonl, including partial output on failure")
     parser.add_argument(
         "--min-chars",
         type=int,
@@ -780,7 +1007,7 @@ def main() -> None:
         "--allow-short",
         action="store_true",
         help="Accept a short round anyway. Only after reading it and confirming "
-        "it genuinely reasoned its way to empty.",
+        "it genuinely reasoned its way to empty. Does not waive Codex's event checks.",
     )
     parser.add_argument(
         "--timeout",
@@ -796,7 +1023,8 @@ def main() -> None:
         help="auto (default): installed Grok, then fresh read-only Codex, then fresh read-only Claude Code",
     )
     parser.add_argument("--check", action="store_true",
-                        help="Say which reviewer a round would use and verify its flags; run nothing")
+                        help="Say which reviewer a round would use and verify its flags "
+                        "(Codex also checks feature names and administrator-file existence); run no round")
     parser.add_argument("--dry-run", action="store_true", help="Print the command, run nothing")
     parser.add_argument("--subject-only", action="store_true",
                         help="Write the subject and the prompt, print their paths and run nothing, "
@@ -818,7 +1046,8 @@ def main() -> None:
     claude_flags = ["--restricted", "--tools", "--strict-mcp-config", "--no-session-persistence", "--add-dir",
                     "--effort", "--output-format"]
     # Check long spellings advertised by `codex exec --help`, including -s/-m/-c/-C.
-    codex_flags = ["--ephemeral", "--ignore-user-config", "--ignore-rules", "--sandbox", "--model", "--config", "--cd"]
+    codex_flags = ["--json", "--disable", "--ephemeral", "--ignore-user-config", "--ignore-rules",
+                   "--sandbox", "--model", "--config", "--cd"]
     required = {"grok": grok_flags, "codex": codex_flags, "claude": claude_flags}
 
     if args.check:
@@ -829,8 +1058,11 @@ def main() -> None:
                   "hooks, plugins, MCP servers, auto-memory or saved session")
         if reviewer == "codex":
             print("  " + CODEX_ISOLATION)
+            warn_codex_administrator_files()
             if platform.system() == "Windows":
                 print(f"  Windows sandbox mode restored from user config: {windows_sandbox_mode()}")
+            args.cwd_resolved = Path(args.cwd or os.getcwd()).expanduser().resolve()
+            print("  command: " + shlex.join(build_codex_command(binary, args)))
         if reviewer == "grok":
             print("  memory, managed MCP servers, and Claude, Cursor and Codex compatibility off for the run; "
                   + grok_still_on(binary, args.cwd or os.getcwd()))
@@ -838,7 +1070,11 @@ def main() -> None:
                   else claude_flags + ["--model"] if reviewer == "claude" else codex_flags)
         for flag in wanted:
             print(f"  {flag:<24} {'ok' if flag in have else 'MISSING'}")
-        if any(flag not in have for flag in wanted):
+        missing_features = missing_codex_features(binary) if reviewer == "codex" else []
+        for feature in CODEX_DISABLED_FEATURES if reviewer == "codex" else ():
+            problem = next((message for message in missing_features if message.startswith(f"--disable {feature}:")), None)
+            print(f"  --disable {feature:<16} " + (f"MISSING: {problem}" if problem else "ok"))
+        if missing_features or any(flag not in have for flag in wanted):
             sys.exit(1)
         return
 
@@ -872,6 +1108,11 @@ def main() -> None:
 
     if not args.subject_only:
         require_flags(binary, required[reviewer], reviewer)
+        if reviewer == "codex":
+            warn_codex_administrator_files()
+            missing_features = missing_codex_features(binary)
+            if missing_features:
+                sys.exit("[review.py] MISSING Codex isolation feature(s):\n  " + "\n  ".join(missing_features))
 
     if not args.subject:
         sys.stderr.write("[review.py] warning: no --subject. No git range was prepared; "
@@ -928,14 +1169,18 @@ def main() -> None:
             timeout=args.timeout,
         )
     except subprocess.TimeoutExpired as err:
-        if reviewer == "codex" and err.stderr:
-            stderr = err.stderr.decode("utf-8", "replace") if isinstance(err.stderr, bytes) else err.stderr
-            warn_codex_refusals(stderr)
+        if reviewer == "codex":
+            raw = err.stdout.decode("utf-8", "replace") if isinstance(err.stdout, bytes) else (err.stdout or "")
+            stderr = err.stderr.decode("utf-8", "replace") if isinstance(err.stderr, bytes) else (err.stderr or "")
+            finish_codex_round(raw, stderr, args, time.time() - started, 1, timed_out=True)
         sys.exit(f"[review.py] round exceeded --timeout {args.timeout}s. Nothing to read.")
     except OSError as err:
         sys.exit(f"[review.py] could not start {reviewer}: {err}. The round did not run.")
 
     elapsed = time.time() - started
+    if reviewer == "codex":
+        finish_codex_round(proc.stdout or "", proc.stderr or "", args, elapsed, proc.returncode)
+        return
     out = proc.stdout or ""
     body = out.strip()
 
@@ -943,16 +1188,7 @@ def main() -> None:
         Path(args.out).expanduser().write_text(out, encoding="utf-8")
 
     stderr = proc.stderr or ""
-    # Codex's stderr is the session log: the prompt and every command's output. Only its
-    # end can be the CLI's own last word, so a file that discusses a usage limit is not one.
-    usage_text = "\n".join(stderr.splitlines()[-20:]) if reviewer == "codex" else stderr
-    if reviewer == "codex":
-        warn_codex_refusals(stderr)
-        # The warning above caps refused-command logs even when the run fails;
-        # retain other stderr diagnostics, including sign-in and usage errors.
-        stderr = "\n".join(line for line in stderr.splitlines() if "blocked by policy" not in line.lower())
-        if stderr:
-            stderr += "\n"
+    usage_text = stderr
 
     if proc.returncode != 0:
         sys.stderr.write(f"[review.py] {reviewer} exited {proc.returncode} after {elapsed:.0f}s\n")
