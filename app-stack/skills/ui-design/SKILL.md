@@ -32,7 +32,7 @@ description: "Mandatory for any product's screens, a builder's too, and any mock
 
 **Finish phase visual checks before its independent review series and owner preview.** The coordinator explores the journeys and screens the phase added or changed. Complete the newcomer walkthrough below, the rendered-screen pass against `references/screens.md § What to verify visually`, and the app-screen screenshot critique. Critique at 1440, 768 and 390, with three rounds at most.
 
-**Run the scored Impeccable-style audit at phase end for first screens and kit changes.** Fix its P0 and P1 findings. Rerun it before a release changing a screen or kit, and whenever the owner asks. Both critique and audit run from `references/collections.md` checklists without installing the collections. The owner then judges the look (`references/review.md`).
+**Run the scored Impeccable-style audit at phase end for first screens and kit changes.** Fix its P0 and P1 findings. Rerun it before a release changing a screen or kit, and whenever the owner asks. Both critique and audit run from `references/collections.md` checklists without installing the collections. The owner judges the look at the phase preview, which does not hold the next phase (`references/review.md`).
 
 ### The newcomer walkthrough
 

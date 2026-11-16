@@ -112,7 +112,7 @@ Your own run covered the tests the piece touches, or the full gate at the phase'
 |---|---|---|
 | `references/harnesses.md` | every harness in full; harnesses for a product with two halves (both real, old-client compatibility, the wire between DOM suites, operator checks, the authenticated canary); the two browser configs and the shared server module; the script contract; the authenticated mile | adding a suite or a script; a client and its backend; setting up or debugging the authenticated browser suite |
 | `references/rules-from-bugs.md` | the gate and harness rules, grouped by moment: reading a red run (the exit code, flakes, hangs, rotted checks); writing assertions; fixtures; the database; servers, builds and worktrees; browsers and layout; the harness's environment (preconditions, sign-in without a credential); same-origin checks; generated files | writing or running any test; a red, flaky or hanging run; creating or removing a worktree |
-| `references/captures.md` | the capture harness and the exploratory pass: the release set as a budget, where captures live, sweeps | after a stage that changes a screen; before a release's visual pass |
+| `references/captures.md` | the capture harness and the exploratory pass: the release set as a budget, where captures live, sweeps | at the end of a phase that changes a screen; before a release's visual pass |
 | `references/vendor-surfaces.md` | vendor-rendered elements measured from the DOM; link previews asserted on the raw response; icons and generated images | testing a third-party component, a share card, an icon or an OG image |
 | `references/coverage-map.md` | the coverage map's sections and who writes it | after a gate run; at a release; when a stage adds tests |
 

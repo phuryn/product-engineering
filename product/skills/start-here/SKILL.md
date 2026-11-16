@@ -127,7 +127,7 @@ Apply the `delegation`, `codex-agents`, `test-harness`, `code-review` and `indep
 
 **Try visible phases after their checks; owner absence does not block coding.** By default, first require:
 
-- The phase's full gate, coordinator exploration and visual checks, docs check and fresh review series complete, then its closing push where hosting exists.
+- The phase's full gate, coordinator exploration and visual checks, docs check and fresh review series complete, the full gate again if a fix followed its last run, then its closing push where hosting exists.
 - A fresh session new to the domain saying what each new screen is for and what to press next.
 - The rendered pass and screenshot critique completed.
 - The scored audit at the first screens or a kit change (the `ui-design` skill).
