@@ -82,7 +82,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 - **Scaffold the app with Cache Components off.** `create-next-app` 16.4.3 turns `cacheComponents` and `partialPrefetching` on by default (read `2026-11-02` in the package), and the rules on this stack assume both off: the nonce CSP, `force-dynamic` on every live read, the server-read theme. Pass `--no-cache-components`, check that `next.config` has neither line, and pin it with a source guard (`test-harness`) until those rules have a Cache Components version. (`2026-10-31`, an evals product's fresh app had both on.)
 - Compose every screen from the kit; extend a primitive rather than invent one. Public screens are phone-first.
 - **A phone is a phone-sized viewport, not a resized window** — the `test-harness` skill says why.
-- **Complete phase checks before previewing the first screens to the owner.** Plan briefly, build, commit and run it. Follow the plan's phase boundary, here by default, for the full checks (`independent-review` § When). These include `ui-design`'s walkthrough, rendered pass, screenshot critique and scored audit with P0 and P1 fixed, followed by docs check and clean review series. Only then give the owner the URL for the look review and what they can click. Record the pending preview; the next runnable phase can start while it waits.
+- **Complete phase checks before previewing the first screens to the owner.** Plan briefly, build, commit and run it. Follow the plan's phase boundary, here by default, for the full checks (`independent-review` § When). These include `ui-design`'s walkthrough, rendered pass, screenshot critique and scored audit with P0 and P1 fixed, followed by docs check and clean review series. Only then give the owner the URL for the look review and what they can click. Record the pending preview. The next phase can start once the series runs in its own checkout, and goes on while the preview waits.
 - **Invite owner adjustments while sample screens are cheapest to change.** Use a flat list of what should happen. Keep the preview open if the owner is away; feedback becomes stages of the phase in flight.
 
 **How:** the `ui-design` skill; the `test-harness` skill for the kit tests and viewports.
@@ -161,7 +161,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 
 **Produces:** the repository on the code host, the first deploy with its environment, and `/health`. Still the development identity instance and the development database, no custom domain. **The URL is shared with nobody yet:** sign-up is open and the terms and privacy pages are placeholders until the front door.
 
-**Done when:** the full gate, both browser suites included, and the phase review series passed before the deploying push; the deploy is green; the deployed `/health` reports the database; and the owner can sign in and use the app from a phone that has never seen their laptop.
+**Done when:** the full gate, both browser suites included, and the phase review series passed before the deploying push; the deploy is green; the deployed `/health` reports the database; and the owner can sign in and use the app from a phone that has never seen their laptop. The series, once started in its own checkout, the deploy it clears and the owner's phone try stay open without holding stage 8 (`SKILL.md` § Find the stage you are in).
 
 **Doing it well**
 

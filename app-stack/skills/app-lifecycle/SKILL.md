@@ -37,7 +37,13 @@ description: "Planning a SaaS stage, 'what's next', 'where are we', calling a st
 
 **Skip stages 0–1 when the accepted proposal settled brief and options.** Keep accepted intent and use cases in the brief, linking the artifact as evidence rather than restating it. Every other stage applies to any product through its shape: **a part of a stage the shape does not have is skipped; skipping the stage itself is the owner's recorded call.** Later phases depend on the product, so nothing after the front door has a default stage.
 
-**Find the first stage whose done-when does not hold.** Two open items don't hold the next stage. One is an owner's look still open, such as stage 3's click-through, stage 6's read of the matrix or stage 7's try on a phone: record it as untried. The other is a phase's review series once it runs in its own checkout beside the next phase (`independent-review` § Running a round beside the next phase). A phase's gate, visual checks and docs check do hold it, and so do the owner's own decisions. Honor owner-recorded deferrals until their return trigger fires. When the plan's status is missing or stale, check the code, deploy and gate, never a handoff's claim. An inherited report is a claim.
+**Find the first stage whose done-when does not hold, counting only what the next stage waits for.** Three parts of a done-when finish beside the next stage instead, and the plan keeps each open until it does:
+
+- an owner's look still open, such as stage 3's click-through, stage 6's read of the matrix or stage 7's try on a phone, recorded as untried;
+- a phase's review series once it has started in its own checkout (`independent-review` § Running a round beside the next phase);
+- the push or deploy that series clears, and what it then shows, such as stage 7's green deploy and `/health`.
+
+A phase's gate, visual checks and docs check hold the next stage, and so do the owner's own decisions. Honor owner-recorded deferrals until their return trigger fires. When the plan's status is missing or stale, check the code, deploy and gate, never a handoff's claim. An inherited report is a claim.
 
 Each stage in depth — what doing it well looks like, the owner's part, the traps, and the skill that holds the how — is `references/stages.md`.
 
