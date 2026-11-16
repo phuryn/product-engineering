@@ -1,6 +1,6 @@
 # Independent review: product-engineering, one change before a release
 
-<!-- The brief for a review round (AGENTS.md § Releasing). Copy it, fill in only `## The subject`, and pass the copy to the wrapper with --brief. -->
+<!-- The brief for a review round (AGENTS.md § Releasing). Copy it, fill in only the subject section below, and pass the copy to the wrapper with --brief. A script that fills it anchors on that heading's own line, not the first match of its text. -->
 
 ## What this is
 
