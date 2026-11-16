@@ -33,11 +33,11 @@ Every row in full, including its target and run placement, is in `references/har
 
 ## The gate
 
-**Run the full local gate at stage end and before deploying pushes.** Development deploys need browser coverage too. By default, `gate` runs `typecheck`, `test` (unit + integration), `e2e`, then `e2e:auth`, in that order, as applicable to the product's shape and current stage. Compare the actual script with `references/harnesses.md`'s script contract; a green script can omit a whole suite. The owner decides any narrower gate; record that choice in the plan, with its reason and revisit trigger.
+**Run the full local gate at phase end and before deploying pushes.** Development deploys need browser coverage too. By default, `gate` runs `typecheck`, `test` (unit + integration), `e2e`, then `e2e:auth`, in that order, as applicable to the product's shape and current stage. Compare the actual script with `references/harnesses.md`'s script contract; a green script can omit a whole suite. The owner decides any narrower gate; record that choice in the plan, with its reason and revisit trigger.
 
 `visual`, the live agent suite, and `smoke -- <url>` run outside it on purpose. There is no hosted CI unless wired as its own change (`release-gate`). If wired, it runs the gate minus the authenticated mile. The local gate covers that gap: never skip it silently, and name any suite that did not run.
 
-**Inside a stage, a piece runs the tests it touches; the full gate runs at the stage's end.** Run the full gate once on the finished stage, before its review series. Run it again on the state the series cleared when a fix followed the last full run, before that state is pushed or called done. Time one full run and write the figure in the plan, so the stage's estimate counts its runs. A gate of a couple of minutes can run on every piece.
+**Run touched tests at stage end; reserve full gates for phases.** The coordinator runs new and touched tests itself, checks changed journeys' end-to-end specs, and reads the diff and corrected docs. It takes a quick look at running screens at both widths and, when present, both themes. Run the full gate on the finished phase before its exploratory and visual checks, docs check and review series (`independent-review` § When). Rerun it on the cleared state if a fix followed its last full run, before the closing push. Time one full run and write it in the plan; phase estimates count required runs. A gate of a couple of minutes can run on every piece.
 
 ## Tests and docs are part of the change, not a later step
 
@@ -45,7 +45,7 @@ Every row in full, including its target and run placement, is in `references/har
 - **A bug fix lands with a regression test run against broken behaviour.** It must fail on the broken behaviour and pass with the fix; run the failing half, don't assume it. Run the new test on the tree before the fix: the parent commit, or the fix reverted. If it passes there, the bug was not what the finding said: revert the fix and keep the assertion. Prove a review finding's fix the same way.
 - **Any other behaviour change lands with the tests it owes** (below and in the references). Put each new test in the harness whose Runs column says where it runs: in the gate, outside it, or by hand. **Say which in the summary.**
 - **Each stage lands end-to-end tests of journeys it adds or changes.** Write each flow's test once and commit it with the change; the gate reruns older journeys. A scratchpad script or an exploratory click-through leaves no durable regression check. A mocked session tests data rules, not the signed-in journey. Steps costing money or needing a real inbox stay in the live or operator suite; the gate covers the steps around them. The owner decides exceptions, recorded in the plan with a revisit trigger.
-- **The builder runs its tests and fixes failures before the handoff.** Give it development test access and serialize suites on shared data. Apply `codex-agents` for a Codex build's test-running mode and `delegation` for its boundaries. Where the tool or platform cannot run them, name the concrete blocker and the session agent's checks; budget the fix pass above. A test changed to make it pass is named in the handoff, with why: a loosened assertion or an added fallback can turn a real failure green. The session agent still runs the full gate before declaring the stage done.
+- **The builder runs its tests and fixes failures before the handoff.** Give it development test access and serialize suites on shared data. Apply `codex-agents` for a Codex build's test-running mode and `delegation` for its boundaries. Where the tool or platform cannot run them, name the concrete blocker and the session agent's checks; budget the fix pass above. A test changed to make it pass is named in the handoff, with why: a loosened assertion or an added fallback can turn a real failure green. The coordinator reruns touched and new tests at stage end and the full gate at phase end.
 - **Every change updates the doc lines it made false.** If a doc disagrees with code you did not change, say so in the summary and let the owner decide which side moves. When instructions are silent, the skills' defaults apply. When those are silent too, decide and say so in the summary. When a library default conflicts with the product's instructions, the instructions win.
 
 ## When a fix doesn't land
@@ -78,7 +78,7 @@ The `saas-authorization` skill explains what each protects and why invariants li
 - **The gate is the exit code, never the printed counts.** A run can print every test passed and exit 1 on an unhandled rejection. Counts without the exit code establish nothing (`references/rules-from-bugs.md § Reading a red run`).
 - **An inherited report is a claim, not evidence.** Re-run the gate yourself before repeating a count.
 - **Every preview and go message names each suite that did not run.** Counts alone can read as full coverage. For example: "Unit and integration passed; `e2e` and `e2e:auth` did not run: browser launch blocked." Include the reason and what unblocks each missing run.
-- **The coverage map is written by whoever ran the gate, and by nobody else.** A builder records only what it actually ran, including blocked or partial suites. Read every line it adds and rewrite stage-completion evidence from your own full run, never by editing its numbers. Use `references/coverage-map.md` for the map's format.
+- **The coverage map is written by whoever ran the gate, and by nobody else.** A builder records only what it actually ran, including blocked or partial suites. Read every line it adds and rewrite completion evidence from your own applicable run, never by editing its numbers. Use `references/coverage-map.md` for the map's format.
 - **A green run that flakes is not a pass.** Judge a suite on a series. Record both a red run and the green one after it. A flake goes in the backlog on its first appearance; its second makes the fix due (`references/rules-from-bugs.md § Reading a red run`). A suite that has never been green reports nothing and hides the next real red.
 - **A failure whose duration equals the budget is a hang until shown otherwise.** Read the trace, network, and whole log body before the failure list (`references/rules-from-bugs.md § Reading a red run`).
 
@@ -98,13 +98,13 @@ Each of these rules has its receipt in the references. They are the ones that co
   **A deployed worker never stops**. Before the first deploy running one against development's database, scope it away from test-account workspaces or give the suites their own database. That can be a test project or the local stack. Until then, let suites' setup fail loudly when anything outside them has claimed one of their fixtures.
 - **Never test against production data or with production credentials.** Use the development instance, development project, and dedicated test accounts. Only the smoke touches production, and it writes nothing.
 - **A generated file can arrive rewritten by the tooling that wrote it.** A backtick inside `git commit -m "…"` is command substitution: the shell runs the word and replaces it with its output, usually nothing. The text vanishes silently. Commit messages go through a heredoc (`git commit -F -`). A test written through a shell into an interpreter is rewritten the same way. Generate through the fewest layers, using the agent's file-write tool, and read the bytes produced (`references/rules-from-bugs.md § Generated files`).
-- **A suite outside the gate rots silently.** A screen's captures are part of its surface. Update visual specs in the same stage, and run the visual suite after every stage that changes a screen.
+- **A suite outside the gate rots silently.** A screen's captures are part of its surface. Update visual specs in the same stage, and run the visual suite at phase end when screens changed.
 
 Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 
-Your own run covered the tests the piece touches, or the full gate at the stage's end, and you read its exit code. Each new test sits in the harness whose Runs column says where it runs. The coverage map was updated from the full gate's run.
+Your own run covered the tests the piece touches, or the full gate at the phase's end, and you read its exit code. Each new test sits in the harness whose Runs column says where it runs. The coverage map was updated from the full gate's run.
 
 ## Files
 

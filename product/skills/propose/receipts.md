@@ -45,3 +45,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Agree on static or clickable screens and build no separate prototype.
 
 - `2026-11-07`, the author dropped the separate prototype: "building an app like the first version that works is like what? A few hours." Screens "perhaps with some dynamic elements, perhaps clickable" in one artifact with the research and the decisions are enough, and the plan for a complex change grows the same page.
+
+## Show rough builder-hour size and lasting obligations beside every option.
+
+- `2026-11-16`, a live Q&A product: plan options omitted their size. The build then added about 1,500 TypeScript lines, 800 SQL lines and 2,250 test lines. Owner: "that’s too complex". Documents moved to an existing accounting tool while the product kept its page. Asked whether options should show rough sizes, the owner answered "Yes".

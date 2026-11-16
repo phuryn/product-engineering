@@ -41,3 +41,15 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Use the configured binary, installed CLI, then the extension bundle.
 
 - `2026-10-22`: the extension's bundle was a 0.155 alpha without `codex-code-mode-host.exe`, and every tool call of a build round failed before it ran, with no file changed.
+
+## Explicitly open required instruction sections beyond the entry-file context budget.
+
+- `2026-11-16`, Codex CLI 0.169.0 on Windows: a 104,297-byte `AGENTS.md` exceeded the logged 32,768-byte budget and its role table did not load. Builder briefs must name needed sections beyond that budget for explicit opening.
+
+## Name `$ai-shipping:test-harness` in builds that run tests or the gate.
+
+- `2026-11-16`, a Windows builder had only `app-stack` and `agent-harness` installed and enabled. A prose skill name could not load the missing `ai-shipping` pack.
+
+## Apply `independent-review` for round scope, brief, triage and stopping.
+
+- `2026-11-16`, Codex CLI 0.169.0 on Windows: elevated sandbox mode ran for 60 minutes with zero commands before timeout; unelevated completed in about 15 minutes. The review wrapper now offers an explicit mode override, preserving config lookup when absent. The earlier isolation tool-count measurement was on macOS, not Windows.

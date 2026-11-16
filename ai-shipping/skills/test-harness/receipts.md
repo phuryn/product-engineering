@@ -6,11 +6,13 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `Undated`: The rules come from two kinds of product, named here only by kind. Most were learned on web apps built on Next.js (App Router), Supabase Postgres and Clerk, tested with Vitest and Playwright (a live Q&A product, a monitoring product and others). The two-halves harnesses and several rules from bugs — marked *the remote-control product* where they appear — were learned on a relay service with a web client and an editor extension with desktop installers that drives a CLI agent.
 
-## Inside a stage, a piece runs the tests it touches; the full gate runs at the stage's end.
+## Run touched tests at stage end; reserve full gates for phases.
 
 - `2026-11-13`, a coding-agent client: one full gate was estimated at 25 to 42 minutes and ran 3 to 4 times per delegated piece. Gate runs, review rounds and waiting took the time outside the model's roughly 35% of a 22-hour build day.
 
-## Run the full local gate at stage end and before deploying pushes.
+- `2026-11-16`, a live Q&A product: six roughly one-hour invoice stages exposed how the old stage-level full gate consumed the build. In the first three, full gates used 110 of 301 critical-path minutes; building used 137. The earlier case had roughly six-hour stages. Owner: add unit tests at each step, with full tests and review only when the phase is complete.
+
+## Run the full local gate at phase end and before deploying pushes.
 
 - `2026-11-14`, an evals product: from 31 October to 13 November, it built stages 0–5 and six later stages, ran 77 review rounds and deployed to development nine times. No browser test drove the running app. Its gate ran lint, typecheck, unit, integration, budgets and build, with neither `e2e` nor `e2e:auth`. Requiring those suites only before promotion left development uncovered; diff reviews could not find an unwritten suite.
 

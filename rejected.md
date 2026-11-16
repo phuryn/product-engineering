@@ -133,3 +133,11 @@ Each entry: the date, the request, **rejected** or **deferred**, the reason, the
 - **Reason:** that product has no MCP server or API an agent can drive, so the skill would tell a person what to install rather than teach an agent a method, and the rules worth keeping (never approve a push that deploys unseen, cap the spend) already live in `release-gate`, `delegation` and the agent-teams skills. A skill without a step an agent takes is a product page.
 - **Reopen when:** the product exposes something an agent can call, or a receipt shows agents doing harm on long unattended runs that the existing skills don't cover.
 - **Decided by:** the maintaining agent, on the owner's word above (`2026-11-08`).
+
+## Fixed planning limits and mandatory stage reviews
+
+- **2026-11-16 · rejected.**
+- **Request:** require reuse of the owner's tools as every plan's first option, cap work in lines or turns, or mandate another review per stage.
+- **Reason:** the coordinator chooses the phase split for agent capacity and quality. Every option carries an estimated size and what it adds to run. Reuse needs judgement, not a fixed position; stage checks stay light and phases receive the full gate and review series.
+- **Evidence:** a live Q&A product's first three invoice stages took 301 critical-path minutes, including 110 in full gates and 137 building. Decisions without sizes led to a build the owner called "that's too complex"; the documents moved to the accounting tool already used. On prescribing reuse first, the owner said "overcomplicates. That's common sense" and asked to trust the agent's split.
+- **Decided by:** the owner.

@@ -65,6 +65,7 @@ Finish by marking every claim by kind (step 3); standalone research ends there.
 ### 5. Propose
 
 - **One direction when the evidence clearly favours it; two or three, with their trade-offs, when the choice is real.** Inventing alternatives hides the recommendation.
+- **Show rough builder-hour size and lasting obligations beside every option.** Label size as an estimate; lines of code can help when useful. Name what it adds to run: each service, store, job or vendor the product keeps. Put this beside directions and open decisions, so the owner sees the cost while choosing.
 - **Explain each direction's audience, value proposition, scope and advantage over alternatives.** State what its first version does and deliberately leaves out.
 - **Weigh each part of the first version by what people will see against what it costs.** Put visible, cheap parts early: a landing, displayed pricing and example data filling every screen. Add hard logic once the product is worth it.
 - **Name the weakest consequential assumption.** Choose the one that, if wrong, changes the recommendation. A shaky detail that changes nothing can wait, even if it is the weakest overall.
@@ -101,7 +102,7 @@ Finish by marking every claim by kind (step 3); standalone research ends there.
 
 ### 7. Ask only what the evidence can't decide
 
-**Keep questions in the artifact and record every answer durably.** Ask only the few questions evidence cannot decide, about the owner's values, segment or scope. Put each in open decisions with options, a recommendation and its reason.
+**Keep questions in the artifact and record every answer durably.** Ask only the few questions evidence cannot decide, about the owner's values, segment or scope. Put each in open decisions with options, a recommendation and its reason. Each option shows its rough builder-hour estimate and what it adds to run (§ 5).
 
 **Support both saved page picks and choices copied into chat.** Where the host saves viewer picks, let the person pick on the page and read those picks next iteration. Claude.ai artifacts can save picks (read `2026-11-07`). For local files and other hosts without saved picks, provide a button copying choices as text for chat; direct chat answers also work. The same file supports both paths.
 

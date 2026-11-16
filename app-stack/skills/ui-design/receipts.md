@@ -32,11 +32,11 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-11-03`, an evals product: its screens mirrored its tables and its method's vocabulary, and someone who knew the tool it replaced couldn't follow the process. The owner: "super technical, like a database".
 
-## Run every visual check before the owner's click-through.
+## Finish phase visual checks before its independent review series and owner preview.
 
 - `2026-11-03`, an evals product: the design stage was skipped by a recorded decision, nothing brought it back, no screen was rendered and checked, and the owner's click-through found five layout bugs, most of them rules the method already had.
 
-## Run the scored Impeccable-style audit before the owner's click-through at the first screens and whenever the kit changes.
+## Run the scored Impeccable-style audit at phase end for first screens and kit changes.
 
 - `2026-11-05`, an evals product passed the walkthrough and rendered pass but ran neither critique nor audit nor owner look review: control borders measured 1.61:1 against the method's 3:1, and the loudest colour on every healthy screen said *press* three or four times.
 
@@ -47,3 +47,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Nobody edits the installed pack and hopes it travels.
 
 - `2026-11-03`, an evals product.
+
+## The coordinator checks running screens briefly at the end of each stage.
+
+- `2026-11-16`, owner: "The exploratory look at the screens is done by the managing session, not by the session that built it." The full walkthrough, rendered pass, critique and required scored audit moved to the phase's end before its review series.

@@ -7,7 +7,7 @@
 - **A brief, not a keystroke script.** State the goal once, hand over the binding decisions and the context, and let the builder pick the means. Numbered micro-instructions are recipe-writing dressed up as a brief. (How to brief a builder well, and when not to: the `delegation` and `codex-agents` skills.)
 - **If the brief would be nearly as long as the diff, write the diff yourself.** The test is size, not time. (`2026-09-22`, a live Q&A product: a builder sat twelve minutes on a fifteen-line change with zero writes.)
 - **Two done-whens, kept apart.**
-  - **The stage's done-when is the plan's, copied**, so the stage is judged against what the owner agreed to, not against what came back. The session agent owns deployment, the owner's preview and the final full gate; the builder can run tests against development.
+  - **The stage's done-when is the plan's, copied**, so the stage is judged against what the owner agreed to, not against what came back. The coordinator owns deployment, phase preview and the phase's full gate; the builder can run tests against development.
   - **"Done, for this hand-off" is what the builder finishes and runs itself**: the code, its tests written, run and their failures fixed, its doc lines, a short note, and the commands the session agent will run. Where its tool or platform cannot run a suite, name the blocker and who runs it: "Browser launch is blocked here; write it, I run it." Apply `codex-agents` for Codex's test-running mode.
   - **A test changed to make it pass is named in the hand-off, with why.** A loosened assertion or an added fallback can turn a real failure green; the session agent reads each one in the diff (`test-harness`, a fallback in a test is a bug in disguise).
   - **Every handoff then says plainly that it is a code handoff, not the stage done**, and lists what it wrote but could not run. The session agent marks the stage done only from its own run against the stage's done-when.
@@ -16,7 +16,7 @@
 - **The brief and stage plan budget the tests the sandbox cannot run**, including one integration-fix pass by the session agent: apply the `test-harness` skill's round-trip budget (§ Tests and docs are part of the change).
 - **A stage that adds or changes screens names the `ui-design` skill** (`$app-stack:ui-design` for Codex) and carries its rows of the jobs map. A builder that reads no skill trigger never opens a method it isn't pointed at, and it loads one only from a pack installed in it. (`2026-11-03`, an evals product's builder, Codex with no pack installed, built its screens without the method.)
 - **Without a builder**, the session agent builds the stage itself and the plan's line for the stage is its brief; no separate file is needed.
-- **What a builder reports is a claim.** A delegated diff is unreviewed code. Read it before believing it, re-run the tests the handoff touches yourself, and rewrite the coverage evidence from your own run. Run the full gate yourself when the handoff completes the stage. Its independent review is the stage's series, not a round per handoff.
+- **What a builder reports is a claim.** A delegated diff is unreviewed code. Read it before believing it, re-run the tests the handoff touches yourself, and rewrite the coverage evidence from your own run. Run touched and new tests yourself at stage end. The phase's full gate and review series cover this stage; no round per handoff is required.
 - **When the stage is done, the brief moves unchanged to an archive folder** (`docs/history/briefs/<stage>.md`, say), and the stage's line in the plan points there. **A folder holding no brief means no stage is in flight.**
 
 ## Skeleton — copy from here
@@ -41,7 +41,7 @@
 You never deploy, apply migrations, push, change a provider setting or secret, or read production credentials.
 Only one agent runs suites on shared development data at a time; coordinate the test window with the session agent.
 Hand new migrations to the session agent to apply to development before running tests that need them.
-Run tests against development with dedicated test accounts. The session agent independently runs the full gate before marking the stage done.
+Run tests against development with dedicated test accounts. The coordinator reruns stage tests itself and runs the full gate at phase end.
 
 ## What stays with the session agent
 
@@ -59,7 +59,7 @@ Run tests against development with dedicated test accounts. The session agent in
 - The jobs map rows this stage serves: the job in the user's words → its screen → that screen's one question → its primary action.
 - The data rules that stay out of the copy, each with the plain-words outcome a screen shows instead.
 - Example data that fills every screen it touches.
-- Done includes the newcomer walkthrough, rendered-screen pass, and app-screen screenshot critique at 1440/768/390 (three rounds at most), plus the scored audit with P0 and P1 fixed when the stage builds the first screens or changes the kit, before the owner's look review and click-through (the `ui-design` skill; its local checklists work without the collections).
+- The coordinator briefly checks running screens at stage end, at phone and desktop widths and both themes when two exist; the builder never substitutes. The phase closes with the newcomer walkthrough, rendered pass, screenshot critique at 1440/768/390 (three rounds at most), and scored audit where `ui-design` requires. Fix visuals before its review series and owner preview; the local checklists work without the collections.
 
 ## Files it will touch
 
@@ -67,7 +67,7 @@ Run tests against development with dedicated test accounts. The session agent in
 
 ## Tests and docs that land with it
 
-- <Each journey added or changed → its committed end-to-end spec; its harness and gate command; live/operator steps kept outside the gate. Core docs with the first real slice, then current doc lines and the document-app check-mode result.>
+- <Each journey added or changed → its committed end-to-end spec; its harness and gate command; live/operator steps kept outside the gate. Core docs with the first real slice, then current doc lines; the phase's document-app check runs before its review series.>
 - <Every existing page and function the stage touches, exercised, not only the new ones.>
 - <The real database's measured round-trip latency and integration-test budgets; one session-agent integration-fix pass when the sandbox cannot run them (the `test-harness` skill).>
 

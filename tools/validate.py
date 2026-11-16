@@ -19,6 +19,8 @@
 - A count of the skills stated in README.md or the marketplace's description is the count: the
   description opens with it, and nothing else moves it when a skill is added.
 - No generated clutter (__pycache__, .pyc) in the tree.
+- The shared planning prompt in start-here and WALKTHROUGH stays identical from "Create a plan." on.
+- The review wrapper's regression tests (tools/test_review.py) pass.
 - Every script a skill carries parses as Python 3.9, and one that writes `X | Y` in an annotation
   imports `annotations` from __future__: macOS ships Python 3.9 as python3.
 - No leaks into any tracked file: local paths, the author's names outside their allowed places, and
@@ -310,6 +312,29 @@ def check_copies():
             errors.append(f"{copy}: not the same as {source}; copy it again")
 
 
+def check_review_tests():
+    """The review wrapper's regression tests run wherever the validator does, the hosted run included."""
+    run = subprocess.run([sys.executable, "-B", str(ROOT / "tools/test_review.py")],
+                         capture_output=True, text=True, cwd=ROOT)
+    if run.returncode != 0:
+        errors.append("tools/test_review.py failed: " + (run.stderr or run.stdout)[-2000:])
+
+
+def check_plan_prompt_copies():
+    """The two entry points must give the owner the same planning prompt."""
+    paths = ("product/skills/start-here/SKILL.md", "WALKTHROUGH.md")
+    prompts = []
+    for path in paths:
+        text = (ROOT / path).read_text(encoding="utf-8")
+        matches = re.findall(r"(?m)^(?:<the change, in your words>|The first version of the product in the accepted proposal)\. (Create a plan\..+)$", text)
+        if len(matches) != 1:
+            errors.append(f"{path}: expected one shared planning prompt; found {len(matches)}")
+            return
+        prompts.append(matches[0])
+    if prompts[0] != prompts[1]:
+        errors.append("WALKTHROUGH.md: planning prompt differs from product/skills/start-here/SKILL.md; copy it again")
+
+
 def check_python_floor():
     """Every script a skill carries runs on Python 3.9, macOS's stock python3 (2026-10-31: three
     scripts' `str | None` annotations raised TypeError there before anything ran)."""
@@ -361,6 +386,8 @@ def main():
     check_counts()
     check_tree()
     check_copies()
+    check_plan_prompt_copies()
+    check_review_tests()
     check_python_floor()
     check_cli()
     for w in warnings:

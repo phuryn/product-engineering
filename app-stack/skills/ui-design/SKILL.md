@@ -26,11 +26,13 @@ description: "Mandatory for any product's screens, a builder's too, and any mock
 - **Default to the familiar tool's structure when replacing one the owner knows.** Generalize that structure and justify every departure in the kit README.
 - **The example data fills every screen.** Fill every tab too. Show empty states on purpose beside it, so a click-through never meets an empty screen.
 
-## A stage with screens is done only after the visual checks
+## Complete phase visual checks before its review series and owner preview
 
-**Run every visual check before the owner's click-through.** Complete the newcomer walkthrough below, the rendered-screen pass against `references/screens.md § What to verify visually`, and the app-screen screenshot critique. Critique at 1440, 768 and 390, with three rounds at most.
+**The coordinator checks running screens briefly at the end of each stage.** Look at phone and desktop widths and both themes when two exist. The builder never substitutes for this exploratory look.
 
-**Run the scored Impeccable-style audit before the owner's click-through at the first screens and whenever the kit changes.** Fix its P0 and P1 findings. Rerun it before a release changing a screen or kit, and whenever the owner asks. Both critique and audit run from `references/collections.md` checklists without installing the collections. The owner then judges the look (`references/review.md`).
+**Finish phase visual checks before its independent review series and owner preview.** The coordinator explores the journeys and screens the phase added or changed. Complete the newcomer walkthrough below, the rendered-screen pass against `references/screens.md § What to verify visually`, and the app-screen screenshot critique. Critique at 1440, 768 and 390, with three rounds at most.
+
+**Run the scored Impeccable-style audit at phase end for first screens and kit changes.** Fix its P0 and P1 findings. Rerun it before a release changing a screen or kit, and whenever the owner asks. Both critique and audit run from `references/collections.md` checklists without installing the collections. The owner then judges the look (`references/review.md`).
 
 ### The newcomer walkthrough
 

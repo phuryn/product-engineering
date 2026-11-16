@@ -97,7 +97,7 @@ $product:start-here we have a bug in sign-in      Codex, plugin installed
 **Ask for a plan every time a change is complex.** The agent writes it; you review it without going deep. Use this prompt:
 
 ```
-<the change, in your words>. Create a plan. Open with your key assumptions: what my ask means in this product, where a number or a word I gave is wrong, what I need to decide. Then what to implement, how to test it (a test that would touch production, its users or its data runs only with my go), acceptance criteria.
+<the change, in your words>. Create a plan. Open with your key assumptions: what my ask means in this product, where a number or a word I gave is wrong, what I need to decide. Then what to implement, each part with a rough size in builder hours, and the total; the phases, and when the full checks and reviews run; how to test it (a test that would touch production, its users or its data runs only with my go); acceptance criteria.
 ```
 
 **Review the plan's key assumptions first.** Models plan well when asked; the ask gets skipped. Review what your ask means in this product, where a number or word you gave is wrong, and what needs a person to decide. The prompt moves what needs a person to decide up from the end, where the model plan has it (`app-lifecycle`, `references/capabilities.md` § What a proposal looks like).
@@ -110,7 +110,7 @@ $product:start-here we have a bug in sign-in      Codex, plugin installed
 
 ### 4. Build
 
-**One session coordinates; another builds when one is available.** No session reviews its own work. A fresh reviewer that never saw the build reviews each completed stage and every deploying push. It reviews again after each fix to what a round found, until the bar holds (`independent-review` § The stopping rule). Tests and doc lines land with the change.
+**One session coordinates; another builds when one is available.** No session reviews its own work. A fresh reviewer that never saw the build reviews each completed phase and every deploying push. It reviews again after each fix to what a round found, until the bar holds (`independent-review` § The stopping rule). Tests and doc lines land with the change. The coordinator closes stages with touched and new tests, a diff read, corrected docs and a quick look at running screens. Full gates, exploratory and visual checks, docs checks and fresh review series belong at phase end (`independent-review` § When).
 By default, each stage ends with implemented end-to-end tests of the journeys it changed; the owner decides and records exceptions in the plan.
 
 **Let the agent walk you through accounts, keys and domains when needed.** Keys copied from a dashboard go where it asks, put there by you, never into chat. Rotate a key that touched chat.
@@ -125,16 +125,16 @@ Apply the `delegation`, `codex-agents`, `test-harness`, `code-review` and `indep
 
 ### 5. Click-through
 
-**Click through key user flows yourself at every change that alters what a person sees.** First, require:
+**Try visible phases after their checks; owner absence does not block coding.** By default, first require:
 
-- Independent review clean or running.
+- The phase's full gate, coordinator exploration and visual checks, docs check and fresh review series complete, then its closing push where hosting exists.
 - A fresh session new to the domain saying what each new screen is for and what to press next.
 - The rendered pass and screenshot critique completed.
 - The scored audit at the first screens or a kit change (the `ui-design` skill).
 
-**The agent gives you a link and flows to try with expected results.** Each flow is an action and what should happen. Spend fifteen to twenty minutes for a mid-size app, every time. What you find goes back to the build and is reviewed again. Apply `release-gate` § The owner's preview.
+**The agent gives you a link and flows to try with expected results.** Each flow is an action and what should happen. Spend fifteen to twenty minutes for a mid-size app, every time. Feedback becomes stages of the phase in flight and is reviewed like any other change. The agent may start the next phase while your preview waits. Apply `release-gate` § The owner's preview.
 
-**Click first for taste, whether it's the right thing, or when you ask.** Skip the click-through when only code behind a screen changed. Agents taking screenshots miss what moves and what is visible only for a moment.
+**Ask for an early preview for taste, whether it's the right thing, or whenever you want one.** The agent uses a development tunnel or a named push and says which phase review has not run. Every deploying push still needs review first. Skip the click-through when only code behind a screen changed. Agents taking screenshots miss what moves and what is visible only for a moment.
 
 ### 6. Release review
 

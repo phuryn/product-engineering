@@ -14,10 +14,29 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-10-22` to `24`, a monitoring product: in about 140 rounds, commit messages name at least seven chains in which a round's finding was caused by the previous round's fix. In one, keeping an incident already open folded a real outage into a seeded test incident, so uptime never dipped; the next round caught it.
 
-## In staged work that does not deploy yet, review once per stage.
+## Review the completed phase; test each stage as it lands.
 
-- `2026-11-13`, a coding-agent client with an editor extension, desktop app and phone view built on a local branch in seven stages. Its coordinator ran the full gate 3 to 4 times per delegated piece and a fresh review round per piece. The model worked about 35% of roughly 22 hours: 429 minutes building and 31 reviewing. The rest went to gate runs, review rounds and waiting. One full gate was estimated at 25 to 42 minutes; one stage's estimate rose from 6 hours to 12.5. Four per-piece rounds found 16 real defects, all confirmed and fixed. The reviews were useful; per-stage review costs later findings on a larger diff. Owner: "Checks and review once per stage - YES." "6 stages should be 6 review series. We review till nothing > Low. Low is acceptable."
+- `2026-11-13`, a coding-agent client with an editor extension, desktop app and phone view built on a local branch in seven stages. Its coordinator ran the full gate 3 to 4 times per delegated piece and a fresh review round per piece. The model worked about 35% of roughly 22 hours: 429 minutes building and 31 reviewing. The rest went to gate runs, review rounds and waiting. Those stages were roughly six-hour builds. One full gate was estimated at 25 to 42 minutes; one stage's estimate rose from 6 hours to 12.5. Four per-piece rounds found 16 real defects, all confirmed and fixed. The reviews were useful; per-stage review costs later findings on a larger diff. Owner: "Checks and review once per stage - YES." "6 stages should be 6 review series. We review till nothing > Low. Low is acceptable."
 - `2026-10-11`, owner: "No need to run review every tiny iteration."
+
+- `2026-11-16`, invoices in a live Q&A product: six stages took roughly one builder hour each. The first three used 301 critical-path minutes: build 137, full gates 110, fixes 30, setup and commits 24. Review rounds overlapped the next build and added zero wall time. The earlier stage-review case had roughly six-hour stages. Owner: "a phase is a larger piece of development … we implement something in steps, and after every step we add unit tests. We may also briefly review, but I wouldn’t run full code reviews with a separate session … Only once the entire phase is complete … do we run full tests and a full review on the diff."
+
+## Choose the split and cadence, and state them before building.
+
+- `2026-11-16`, owner: "Rather than prescribing everything I’d rather trust the agent to choose best and propose the exact split that works for it considering what agents can handle and what will slow us down vs. what will improve quality. If you think it’s fine you can suggest three phases for a new product, that can also be a suggestion."
+- `2026-11-16`, owner: "Ok phase is one sprint, makes sense. In any case we’re talking about AI not humans so those are not exact analogies."
+
+## Close stages with coordinator checks, reserving the full process for phases.
+
+- `2026-11-16`, owner: "The exploratory look at the screens is done by the managing session, not by the session that built it."
+
+## Offer owner previews after phase checks without blocking the next phase.
+
+- `2026-11-16`, owner: "Once you’ve reviewed everything and the phase is complete, I may look at the software and provide feedback … most of the time I’m not here, and that shouldn’t block coding agents."
+
+## Keep coordinator notes out of the review subject until its series closes.
+
+- `2026-11-16`, a live Q&A product: a coordinator's suspected-defect log entered the review subject and steered the reviewer toward those suspicions.
 
 ## Read that status for what does not belong, too.
 
@@ -143,3 +162,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Number rounds in one sequence per repository.
 
 - `2026-10-22`, three sequences ran on one day, so "round 3" named three different rounds; with one sequence from then on, over a hundred rounds stayed citable.
+
+## Use the repository's runnable fallback when the default reviewer cannot run.
+
+- `2026-11-16`, Codex CLI 0.169.0 on Windows: an elevated review timed out after 60 minutes with zero commands. The unelevated round completed in about 15 minutes. The wrapper therefore accepts an explicit Windows mode override; absence keeps config lookup.

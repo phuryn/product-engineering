@@ -42,25 +42,27 @@ Say "go ahead". The `propose` skill takes over. It is not an interview: question
 Building the first version is a complex change, so it gets a plan. Ask for one with this prompt, every time:
 
 ```
-The first version of the product in the accepted proposal. Create a plan. Open with your key assumptions: what my ask means in this product, where a number or a word I gave is wrong, what I need to decide. Then what to implement, how to test it (a test that would touch production, its users or its data runs only with my go), acceptance criteria.
+The first version of the product in the accepted proposal. Create a plan. Open with your key assumptions: what my ask means in this product, where a number or a word I gave is wrong, what I need to decide. Then what to implement, each part with a rough size in builder hours, and the total; the phases, and when the full checks and reviews run; how to test it (a test that would touch production, its users or its data runs only with my go); acceptance criteria.
 ```
 
 The plan is for the agents as much as for you. The prompt names the least it holds; past that they plan whatever the build needs: phases and releases, the files and modules each phase changes, the order. That part goes into the repository, where the next session reads it. Your part is what it opens with, its key assumptions: what your ask means in this product, where a number or a word you gave is wrong, and what needs you to decide. Review those and question the ones that look wrong. When the change alters what people see or leaves choices open, they go on the proposal's page, with the screens of the flows that change in high fidelity and the choices still open, picked the same way. The testing is the agents': a test that would touch production, its users or its data still runs only with your go, and the agent asks before it runs. When the assumptions hold and choices are settled, say "build it".
 
-**For a SaaS on Next.js, Supabase, Clerk and Netlify**, the plan is the `app-lifecycle` skill's stages, each built and checked before the next, each with its done-when. Say "Plan the first version as app-lifecycle's stages. Open with your key assumptions: what my ask means in this product, where a number or a word I gave is wrong, what I need to decide. Then what each stage implements, how to test it (a test that would touch production, its users or its data runs only with my go), its done-when" instead. The stages run from brief and design, through screens on sample data, setup and the first real slice, to browser proof, publishing, the front door and go-live. The accepted proposal artifact is its starting input.
+**For a SaaS on Next.js, Supabase, Clerk and Netlify**, the plan is the `app-lifecycle` skill's stages, each built and checked before the next, each with its done-when. Say "Plan the first version as app-lifecycle's stages. Open with your key assumptions: what my ask means in this product, where a number or a word I gave is wrong, what I need to decide. Then what each stage implements, with a rough size in builder hours, and the total; how the stages group into phases, and when the full checks and reviews run; how to test it (a test that would touch production, its users or its data runs only with my go); its done-when" instead. The stages run from brief and design, through screens on sample data, setup and the first real slice, to browser proof, publishing, the front door and go-live. The accepted proposal artifact is its starting input.
 
 A stage that offers options stops until you pick, such as two design directions. Four stages need you in a dashboard: setup, publishing, the front door and go-live. Setup includes development test mode, your own verification code and the first test account. The agent tells you which clicks it needs. You decide any stage skip or deferral, recorded in the plan with what brings it back; a broad go waives none.
 
 ## 4. Build
 
-By default, every stage ends with implemented end-to-end tests of the journeys it changed; the gate keeps rerunning older ones.
+By default, every stage lands end-to-end tests of its changed journeys. The coordinator runs touched and new tests, reads the diff and corrected docs, and briefly checks running screens. Use phone and desktop widths and both themes when two exist; the builder never substitutes for this look. A stage needs no mandatory full gate, fresh review or docs check.
 
-One session coordinates. Another builds when one is available: Codex through `codex-agents`, or a Claude subagent briefed through `delegation`. No session reviews its own work. A fresh reviewer that never saw the build reviews each completed stage and every deploying push. It reviews again after each fix to what a round found, until the bar holds.
+One session coordinates. Another builds when one is available: Codex through `codex-agents`, or a Claude subagent briefed through `delegation`. No session reviews its own work. A fresh reviewer that never saw the build reviews each completed phase and every deploying push. It reviews again after each fix to what a round found, until the bar holds.
+
+The coordinator chooses phases containing related stages, sized for a few hours of builder turns and one state you can try. Two to four usually fit a first version; the plan message gives the split, cadence and rough builder-hour estimate. For the SaaS stages, 0–3, 4–7 and 8–9 are a suggested grouping. Stage 3 keeps its sample-data click-through done-when; the first deploy closes the next phase, and go-live reviews the whole product.
 
 You don't review the code line by line. Three rules apply instead:
 - **Every change lands with its tests and docs.**
 - **Every fix lands with a test that failed before it.** After two fixes that pass and leave the symptom, the agent stops and gets one real observation instead of guessing again (`test-harness`).
-- **A fresh reviewer that never saw the build reads each completed stage**, round after round, until a round finds nothing the change introduced above low severity and nothing high or critical of any age (`independent-review`). It is the one your agent instructions name, when it can run the way `independent-review` requires (when it can't, their fallback runs if it can, otherwise the wrapper's reviewer runs without asking; if no other family can run, a fresh session of the builder's family; the report names who ran and why); with none named, Grok when it's installed, otherwise a fresh Codex session, then a fresh Claude Code session, each with nothing carried over (with none of the three CLIs, a fresh read-only session of your agent). It runs before every push that deploys, and again after each fix to what a round found. For a correctness review of your own, say "review this with ai-shipping's code-review skill"; in Claude Code name it `/ai-shipping:code-review`, because Claude Code has its own `/code-review`.
+- **A fresh reviewer that never saw the build reads each completed phase**, round after round, until a round finds nothing the change introduced above low severity and nothing high or critical of any age (`independent-review`). It is the one your agent instructions name, when it can run the way `independent-review` requires (when it can't, their fallback runs if it can, otherwise the wrapper's reviewer runs without asking; if no other family can run, a fresh session of the builder's family; the report names who ran and why); with none named, Grok when it's installed, otherwise a fresh Codex session, then a fresh Claude Code session, each with nothing carried over (with none of the three CLIs, a fresh read-only session of your agent). It runs before every push that deploys, and again after each fix to what a round found. For a correctness review of your own, say "review this with ai-shipping's code-review skill"; in Claude Code name it `/ai-shipping:code-review`, because Claude Code has its own `/code-review`.
 
 Before the first stranger is asked for anything (a sign-up, an email address, a payment), the agent drafts the terms and the privacy policy from what the code collects and sends, asks you for the facts only you have, and you approve the text (`legal-pages`).
 
@@ -68,7 +70,7 @@ When the app needs accounts, keys or a domain, the agent asks you to set them up
 
 ## 5. Your click-through
 
-Once the review is clean or running, for every change you can see, you get a link and the key user flows to try, each an action and what should happen:
+After phase checks, you get a link and the key user flows to try, each an action and what should happen. The order is full gate, coordinator exploration and visual checks, docs check, fresh review series, another full gate if fixes followed its last run, then the closing push where hosting exists. Visual fixes precede the series. Before hosting, the preview can use a development tunnel. Every deploying push still needs review first:
 
 ```
 1. Sign up as a tutor and add Tuesday 4-6 pm: a student's booking page shows those slots in the student's time zone.
@@ -77,7 +79,7 @@ Once the review is clean or running, for every change you can see, you get a lin
 Not built yet: the monthly plan's limits.
 ```
 
-Before it reaches you, a fresh session new to the domain has said what each new screen is for and what to press next, and the screens have been rendered and critiqued (and, at the first screens or a kit change, audited). Expect 15 to 20 minutes for a mid-size app, every time. Screenshots taken by agents miss what moves and what is visible only for a moment, so this check is yours. What you find goes back to the build and is reviewed again. Click first when the question is taste or whether it's the right thing; skip it when only code behind a screen changed.
+Before it reaches you, a fresh session new to the domain has said what each new screen is for and what to press next, and the screens have been rendered and critiqued (and, at the first screens or a kit change, audited). Expect 15 to 20 minutes for a mid-size app, every time. Screenshots taken by agents miss what moves and what is visible only for a moment, so this check is yours. Feedback becomes stages of the phase in flight and is reviewed like any other change. Your pending preview does not block the next phase. Ask for an early preview when the question is taste or whether it's the right thing, or whenever you want one; the agent names which phase review has not run and uses a development tunnel or named push. Skip the click-through when only code behind a screen changed.
 
 ## 6. Release review
 
@@ -101,7 +103,7 @@ The check modes and the audits only report. Where a doc, a test and the code dis
 3. After your go, promotes and then verifies that the build serving is the one that was reviewed.
 
 **What you do, before the go:**
-- Perform the stage's done-when yourself.
+- Perform the done-whens this release closes yourself; the go message names any visible phase you have not tried.
 - When a screen or its words changed, look over every screen in every state, theme, width and role, signed out included. The agent's captures help, but a person looks.
 - At go-live, make the production dashboard changes the agent can't, such as connecting a real payment account to billing (`release-gate`'s go-live).
 
@@ -165,7 +167,7 @@ The coordinator needs the skills, and so does a builder whose brief names one: i
 - review a complex change's key assumptions;
 - pick and approve the design;
 - set up accounts and keys in dashboards, put each key where the agent asks (never in the chat), and paste the few commands the agent gives you into your own terminal;
-- click through each visible change;
+- try visible phases when available; your absence does not block the next phase;
 - decide where a doc and the code disagree;
 - before a release, perform what the stage promised and, when a screen or its words changed, look over every screen in every state, theme, width and role, signed out included;
 - say go.

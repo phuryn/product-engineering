@@ -42,3 +42,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Keep a repository's own skills general, with products as examples named by kind.
 
 - `2026-10-23`: Owner's rule.
+
+## Keep must-follow rules within Codex’s entry-file context budget.
+
+- `2026-11-16`, Codex CLI 0.169.0 on Windows logged a 32,768-byte project-document budget. A 104,297-byte instruction file lost its role table. Keep required rules in the first 32 KiB or raise `project_doc_max_bytes`; explicitly open needed sections beyond the budget.

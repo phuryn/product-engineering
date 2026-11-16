@@ -33,7 +33,7 @@ A release is a decision: **the owner says go; the agent supplies the evidence.**
 
 | Record | Holds |
 |---|---|
-| Plan | Stages, each with a done-when, and the one current status |
+| Plan | Phases containing stages, each stage with a done-when, phase preview status and the one current status |
 | Backlog | Deferred work, each with its reason and the trigger that reopens it |
 | Coverage map | What was verified, by which run (`test-harness`) |
 | Integrations doc | Each provider's dashboard configuration, with screenshots |
@@ -42,13 +42,14 @@ A release is a decision: **the owner says go; the agent supplies the evidence.**
 
 The suggested script names are `gate`, `smoke -- <url>`, `visual` and `agents:live`, shared with `test-harness`. Use your product's names.
 
-## Three moments, three bars
+## Four moments, four bars
 
-**Stage ends and deploying pushes both require the full applicable gate.** Apply `test-harness` to compare the script with its suite contract. The owner decides any narrower set; record the choice in the plan with its reason and revisit trigger.
+**Phase ends and deploying pushes require the full applicable gate.** Apply `test-harness` to compare the script with its suite contract. The owner decides any narrower set; record the choice in the plan with its reason and revisit trigger.
 
 | Moment | What it owes |
 |---|---|
-| A stage is done | Its plan's done-when holds, the full applicable gate passed on the session agent's own run, and end-to-end tests of changed journeys and current docs landed with it. Apply `document-app` in check mode, which writes nothing, and mark the plan line done against its evidence or state what keeps it open. These checks sit beside the review series, including stages grouped for later review. Its review series follows that gate (`independent-review` § When), unless the plan reviews it with later stages. A stage that changes what a person sees is done only once the owner has tried it (§ The owner's preview). This is not yet the release checklist. |
+| A stage is done | Its plan's done-when holds from the coordinator's own evidence. Touched and new tests pass; changed journeys' end-to-end specs and current docs land with it. The coordinator reads the diff and takes a quick look at running screens, at phone and desktop widths and both themes when two exist. No mandatory full gate, fresh review or `document-app` check. Record completion evidence or what keeps the stage open. |
+| A phase is complete | Follow `independent-review` § When: full gate; coordinator exploration of phase journeys and applicable `ui-design` checks; `document-app` check; fresh review series until the bar holds; full gate again if fixes followed its last run; closing push where hosting exists; owner preview. Fix visuals before the series. Record owner-tried status separately; awaiting a preview does not hold the next phase. |
 | A push to a branch that deploys | The full applicable gate and a clean independent review round covering everything the push adds; **the push closes that round**. Before go-live the product branch is that branch: its URL is shared with nobody, so the production preconditions are not yet owed — but the gate and the round are, and pending migrations are applied to development first. **"Just push it" is a go for the push it names**: name back, in one line, any of these still open rather than pushing past it. |
 | **A promotion to production** | Every precondition (`references/checklist.md`), then the go/no-go, the promote and the verify. **Going live is the first promotion** (`references/go-live.md`). |
 
@@ -56,7 +57,7 @@ The suggested script names are `gate`, `smoke -- <url>`, `visual` and `agents:li
 
 - **Read the exit code from the log, never the notification.** A background wrapper can report exit 0 when its inner command failed, so read that command's code rather than the notification.
 - **An inherited report is a claim, not evidence.** Run the gate yourself before repeating a count, and take the release subject from git.
-- **The coverage map is written by whoever ran the gate, and by nobody else.** A builder records its actual runs and their limits. Read every line it adds and rewrite stage-completion evidence from your own full run, rather than editing its numbers. Apply `test-harness` for the map's format.
+- **The coverage map is written by whoever ran the gate, and by nobody else.** A builder records its actual runs and their limits. Read every line it adds and rewrite completion evidence from your own applicable run, rather than editing its numbers. Apply `test-harness` for the map's format.
 - **A delegated diff is unreviewed code.** Read what comes back before believing it; nothing delegated ships or deploys without independent review. Keep product decisions, review-finding acceptance and stage-completion judgement with you. Keep operational changes too: deploys, applied migrations, pushes, workers, provider settings and secrets, including development, plus production credentials. Builders run development suites within their brief's boundary. Apply `delegation` and `codex-agents` for these boundaries.
 - **What was left out is stated, not hidden.** Record preconditions the owner waives as waived, never ticked as completed.
 - **A caveat is a claim about the world, and gets checked like one.** Before saying something has not happened, was not tested or still needs doing, find where its evidence would live and look. Caveats can sound humble enough to escape verification, yet wrong ones still cost the owner's time.
@@ -103,13 +104,15 @@ The session must never have seen the build; choose it in this order:
 
 ## The owner's preview
 
-**Send the owner a link and a short list of what to try.** Do it when a stage, or any change a person would see, is ready. Ready means your own tests are green (the full gate for a finished stage, the tests it touches for a change inside one), the independent review is clean or running, and new or changed screens have passed `ui-design`: its walkthrough, rendered pass and screenshot critique, and its scored audit where that skill calls for one. Include the look review in the list. Ten minutes of the owner using the product finds what reading code does not, so their time is best spent there, not on code review.
+**Send the owner a preview after phase checks and any closing deploy.** Ready means the phase checks passed and its review series is clean. Give a link and a short list of what to try, including the look review. Follow `independent-review` § When for the ordered phase checks and `ui-design` for the visual method. The coordinator explores the journeys and screens the phase added or changed; the builder never performs that final look. Ten minutes using the product finds what reading code does not.
+
+**Show work early only when the owner asks for that preview.** Use a development tunnel or the named push; every deploying push still needs review first. Say which phase review has not run and disclose incomplete tests as below; this request is the exception to waiting for a clean series.
 
 - **List changed flows as actions with their expected results.** For example: "Upload a 6 MB photo as the logo: the page shows it sharp." Then state missing or unverified work and unbuilt features, naming the stage that brings each. This keeps the owner's review focused on what exists.
 - **Every preview and go message names each suite that did not run.** Counts alone can imply the running app and real sign-in were tested. For example: "Unit and integration passed; `e2e:auth` did not run: development test mode is not configured." Name the reason and what brings each run back, even when the coverage map already records the gap.
 - **Link deployed development or use a temporary development tunnel.** Prefer the deployed development URL when hosting exists and contains the change. Otherwise, or before deployment, use a Cloudflare quick tunnel to `next dev`. Its address is public: use development only, share the link only with the owner, then stop tunnel and server when done. Apply `environments`, `references/environments-and-branches.md § Showing development to the owner`.
-- **What the owner finds is fixed within the same stage.** Review the fixes like any other change. A visible-change stage is not done until the owner has looked. If its done-when already requires owner click-through, this one link and list fulfil the request; do not ask twice.
-- **Run the full exploratory pass at promotion as well.** It examines every screen and state; the preview covers only the stage's changes.
+- **Keep owner feedback in the phase currently in flight.** Add stages for it and review fixes like any other change. A pending owner preview does not block the next phase. Track whether each visible phase was tried. Stage 3's explicit sample-data click-through remains its done-when; one link and list fulfil that request.
+- **Run the full exploratory pass at promotion as well.** It examines every screen and state; the preview covers the phase's changes.
 - **"Ready to test" means installed on every surface the owner holds, with nothing for the owner to do first.** Sites serve the latest push, installed apps or extensions their last installed build, and phones their last pushed bundle. These surfaces can diverge silently, so require your own green tests as above, a committed change, and every owner-used surface rebuilt and reinstalled or pushed. Say which surfaces carry which build and which need a reload or restart. Finish the batch, or hand off what exists with its edges stated. Apply `delegation` for the handoff side of this rule.
 
 ## Verify — the build serving is the one you reviewed

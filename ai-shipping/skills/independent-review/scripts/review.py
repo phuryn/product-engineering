@@ -638,17 +638,19 @@ def build_claude_command(claude_bin: str, args: argparse.Namespace, brief: Path)
     return cmd
 
 
-def windows_sandbox_mode() -> str:
-    """Read only [windows].sandbox; never silently drop it with the rest of user config.
+def windows_sandbox_mode(override: str | None = None) -> str:
+    """Use the explicit mode, or read only [windows].sandbox from user config.
 
     This narrow parser also works on Python 3.9 without a TOML dependency. It
     accepts the section and quoted mode the reviewer recipe documents; any
     missing, ambiguous or unsupported spelling stops with an actionable message.
     """
+    if override is not None:
+        return override  # argparse validates the override before any config or CLI reads.
     config = Path(os.environ.get("CODEX_HOME") or (Path.home() / ".codex")) / "config.toml"
     hint = (f"[review.py] Windows Codex review requires a [windows] section with sandbox = \"elevated\" "
-            f"or \"unelevated\" in {config}. Set that mode with Codex's Windows sandbox setup "
-            "before rerunning; --ignore-user-config otherwise drops it and reads can be refused.")
+            f"or \"unelevated\" in {config}, or --windows-sandbox elevated|unelevated. "
+            "Set that mode before rerunning; --ignore-user-config otherwise drops it and reads can be refused.")
     try:
         text = config.read_text(encoding="utf-8")
     except (OSError, UnicodeError) as err:
@@ -678,7 +680,7 @@ def windows_sandbox_mode() -> str:
 def build_codex_command(codex_bin: str, args: argparse.Namespace) -> list[str]:
     cmd = [codex_bin, *CODEX_REVIEW_FLAGS]
     if platform.system() == "Windows":
-        cmd += ["-c", f'windows.sandbox="{windows_sandbox_mode()}"']
+        cmd += ["-c", f'windows.sandbox="{windows_sandbox_mode(args.windows_sandbox)}"']
     if args.model:
         cmd += ["-m", args.model]
     return cmd + ["-c", f"model_reasoning_effort={args.effort}", "-C", str(args.cwd_resolved), "-"]
@@ -994,6 +996,9 @@ def main() -> None:
     parser.add_argument("--sandbox", metavar="PROFILE",
                         help="Grok sandbox profile passthrough; its tool allowlist is the write boundary "
                         "(sandbox enforcement varies by platform). Codex always uses read-only.")
+    parser.add_argument("--windows-sandbox", choices=["elevated", "unelevated"],
+                        help="Windows Codex sandbox mode; overrides [windows].sandbox in user config "
+                        "(default: read the configured mode). Codex still uses read-only.")
     parser.add_argument("--out", metavar="FILE", help="Also write the report to FILE; "
                         "Codex raw events go to FILE.events.jsonl, including partial output on failure")
     parser.add_argument(
@@ -1060,7 +1065,8 @@ def main() -> None:
             print("  " + CODEX_ISOLATION)
             warn_codex_administrator_files()
             if platform.system() == "Windows":
-                print(f"  Windows sandbox mode restored from user config: {windows_sandbox_mode()}")
+                source = "from --windows-sandbox" if args.windows_sandbox else "restored from user config"
+                print(f"  Windows sandbox mode {source}: {windows_sandbox_mode(args.windows_sandbox)}")
             args.cwd_resolved = Path(args.cwd or os.getcwd()).expanduser().resolve()
             print("  command: " + shlex.join(build_codex_command(binary, args)))
         if reviewer == "grok":

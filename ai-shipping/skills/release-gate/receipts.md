@@ -6,7 +6,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 The rules come from two kinds of product, named here only by kind. The web-app half — the bars, the preview, the promotion checklist, go-live, the verify probes, Netlify's edge — was learned on Next.js (App Router) + Supabase + Clerk + Netlify, with Vitest and Playwright, by several products (a live Q&A product, a monitoring product with worker boxes and edge workers beside its web app, and others). The client+backend half — any release as one logged checklist, the backend before the client, artifacts and store listings, issues — was learned on a remote-control product: a relay service with a web client, and an editor extension with desktop installers that drives a CLI agent (`references/runbook.md`). (Undated in the original.)
 
-## Stage ends and deploying pushes both require the full applicable gate.
+## Phase ends and deploying pushes require the full applicable gate.
 
 - `2026-11-14`, an evals product: nine development deploys passed a gate with no `e2e` or `e2e:auth`. A promotion-only requirement left the missing browser suites outside the development bar. The owner made the applicable contract the default for stage ends and every deploying push, with narrower gates recorded in the plan.
 
@@ -50,9 +50,11 @@ The rules come from two kinds of product, named here only by kind. The web-app h
 
 - `2026-10-23`, a monitoring product: a review round observed `db push --linked --project-ref <production ref>` write to the linked project. On CLI 2.122.0, read 2026-10-25, a probe with dummy refs saw the typed ref used for the first request, so the precedence of that pair is not something to rely on across versions; a connection string names one database on every version.
 
-## Send the owner a link and a short list of what to try.
+## Send the owner a preview after phase checks and any closing deploy.
 
 - `2026-10-22`, a monitoring product: through a tunnel to `next dev`, its owner found six problems no review had — placeholder examples naming the owner's own app, guessed defaults such as `/api/health` and `$.db.ok` prefilled as if they were real, both free-tier locations in Europe, an image size limit, an accent colour that did nothing visible, and a switch for a feature not built yet.
+
+- `2026-11-16`, a live Q&A product: the owner placed the preview after phase tests and full review, while keeping early previews available on request.
 
 ## List changed flows as actions with their expected results.
 
@@ -91,3 +93,7 @@ The rules come from two kinds of product, named here only by kind. The web-app h
 ## The branch a plugin or skill marketplace serves is production.
 
 - `2026-11-07`, a skill collection: two commits pushed after a release's tag reached auto-updated installs within the hour, a skill rename among them, before their review had finished.
+
+## Keep owner feedback in the phase currently in flight.
+
+- `2026-11-16`, owner: "Once you’ve reviewed everything and the phase is complete, I may look at the software and provide feedback … most of the time I’m not here, and that shouldn’t block coding agents." The plan records untried phases; release go names them.
