@@ -42,7 +42,7 @@ Updated <YYYY-MM-DD>. Status: <draft | reviewed by the owner on <date> | accepte
 
 ## Recommendation
 
-<One direction, or two or three when the choice is real: who it is for, the value proposition, what the first version does and deliberately doesn't do, the trade-off. Then the one recommended, and why. Rewritten, never appended to.>
+<One direction, or two or three when the choice is real: who it is for, the value proposition, what the first version does and deliberately doesn't do, the trade-off, its rough size in builder hours and what it adds to run. Then the one recommended, and why. Rewritten, never appended to.>
 
 <The first version's parts and the next builds on a labelled 3×3 impact-and-effort grid with a legend, "do first" marked (`SKILL.md` §§ 5–6).>
 
@@ -62,7 +62,7 @@ Updated <YYYY-MM-DD>. Status: <draft | reviewed by the owner on <date> | accepte
 
 ## Open decisions
 
-<Each question: options, recommendation and reason. Support saved viewer picks where the host can, plus copying choices as text for chat.>
+<Each question: options, each with its rough size in builder hours and what it adds to run; the recommendation and its reason. Support saved viewer picks where the host can, plus copying choices as text for chat.>
 
 ## Hypotheses and experiments
 

@@ -37,7 +37,7 @@ description: "Planning a SaaS stage, 'what's next', 'where are we', calling a st
 
 **Skip stages 0–1 when the accepted proposal settled brief and options.** Keep accepted intent and use cases in the brief, linking the artifact as evidence rather than restating it. Every other stage applies to any product through its shape: **a part of a stage the shape does not have is skipped; skipping the stage itself is the owner's recorded call.** Later phases depend on the product, so nothing after the front door has a default stage.
 
-**Find the first stage whose done-when does not hold.** An owner's look still open does not make its stage current: stage 3's click-through, stage 6's read of the matrix or stage 7's try on a phone. Record it as untried and go on; only the owner's own decisions hold the next stage. Honor owner-recorded deferrals until their return trigger fires. When the plan's status is missing or stale, check the code, deploy and gate, never a handoff's claim. An inherited report is a claim.
+**Find the first stage whose done-when does not hold.** An owner's look still open does not make its stage current: stage 3's click-through, stage 6's read of the matrix or stage 7's try on a phone. Record it as untried and go on, except that a stage ending a phase stays current until the phase's checks have run (`independent-review` § When). Only the owner's own decisions hold the next stage. Honor owner-recorded deferrals until their return trigger fires. When the plan's status is missing or stale, check the code, deploy and gate, never a handoff's claim. An inherited report is a claim.
 
 Each stage in depth — what doing it well looks like, the owner's part, the traps, and the skill that holds the how — is `references/stages.md`.
 
