@@ -198,5 +198,27 @@ class SubjectTests(GitRepo):
             self.assertIn("Left out by --exclude: notes/**", body)
 
 
+class ShortRoundMessageTests(unittest.TestCase):
+    """The failure message quotes the skill's acceptance sentence; a paraphrase drew findings in rounds 161 to 164."""
+
+    def test_codex_short_round_message_quotes_the_skill(self):
+        skill = (ROOT / "ai-shipping/skills/independent-review/SKILL.md").read_text(encoding="utf-8")
+        start = skill.index("Accept a shorter round by hand only when")
+        sentence = " ".join(skill[start:skill.index(".", skill.index("names what it read", start)) + 1].replace("`", "").split())
+        raw = "\n".join(json.dumps(e) for e in (
+            {"type": "item.completed", "item": {"type": "command_execution", "status": "completed", "exit_code": 0,
+                                                "command": "cat README.md"}},
+            {"type": "item.completed", "item": {"type": "agent_message", "text": "Nothing found."}},
+            {"type": "turn.completed"},
+        ))
+        args = argparse.Namespace(out=None, min_chars=1500, allow_short=False, timeout=60)
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()), \
+                self.assertRaises(SystemExit) as failed:
+            review.finish_codex_round(raw, "", args, 1.0, 0)
+        self.assertEqual(failed.exception.code, 2)
+        self.assertIn(sentence, " ".join(err.getvalue().split()))
+
+
 if __name__ == "__main__":
     unittest.main()

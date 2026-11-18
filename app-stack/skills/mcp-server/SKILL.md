@@ -53,7 +53,7 @@ description: "Before adding a remote MCP server or tool to a web product, adding
 1. **REST functions first.** MCP and REST call the same module, so the two can never disagree about what a call does. REST stays token-only; OAuth is for MCP clients.
 2. **Build a stateless Streamable HTTP route with the required controls.** Include stateless Streamable HTTP, the challenge, the three layers of error, the limits, the log (`references/server.md`).
 3. **Build the tools with both required tests.** Read `references/tools.md`.
-4. **Configure OAuth, then prove a real grant and one real client.** Apply `clerk-production` § MCP OAuth, then `references/server.md § Proving it`.
+4. **Configure OAuth for the member endpoint, then prove a real grant and one real client.** Apply `clerk-production` § MCP OAuth, then `references/server.md § Proving it`. An anonymous surface the owner chose keeps its own checks (`references/server.md § Who may call it`).
 5. **Write the API contract, public developer page and distribution record.** Include the API contract, a public page for developers pinned to the code by a test, and the distribution record.
 6. **Release with independent review of the whole release.** Apply `independent-review`; descriptions and instructions are in the subject, not context.
 7. **Publish the chosen listings or package from production after promotion and on the owner's go.** Read `references/directories.md` for listings and `references/companion-repo.md` for the package. Apply `chatgpt-plugin` for a ChatGPT plugin.

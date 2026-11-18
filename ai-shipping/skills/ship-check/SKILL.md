@@ -30,7 +30,7 @@ $ai-shipping:ship-check supabase/functions       Codex, plugin installed
 
 - With an upstream: `git log --oneline 'HEAD..@{u}'`.
 - Without an upstream: `git log --oneline HEAD..origin/HEAD`. If that ref is missing, `git remote set-head origin --auto` sets it. A repository with no remote has nothing there.
-- Once something is released, also run `git log --oneline HEAD..<last release>`. Step 6 defines the last release.
+- Once something is released, record its commit (`git rev-parse <last release>`), then run `git log --oneline HEAD..<that commit>`. Step 6 defines the last release.
 
 **Stop when any of these lists a commit.** Name the newer ref and ask the owner which checkout to review. Never pull or merge as part of this pass.
 
@@ -91,7 +91,7 @@ Use `--reviewer` to select a CLI explicitly. Record the actual reviewer in the p
 
 #### Compute the subject from releases and the working tree
 
-**Define the subject mechanically, not in prose.** Use the baseline the current-checkout check confirmed before Step 1. Run `git log --oneline <last release>..HEAD` and `git status --porcelain -uall` to include every change, committed or not. Before any release, use the whole history. Keep the checkout still during the round. A promotion while the pass runs is not seen; when one happens, run the pass again.
+**Define the subject mechanically, not in prose.** Use the baseline the current-checkout check confirmed before Step 1: from here on, `<last release>` is the commit recorded there, never a branch name a fetch can move. Run `git log --oneline <last release>..HEAD` and `git status --porcelain -uall` to include every change, committed or not. Before any release, use the whole history. Keep the checkout still during the round. A promotion while the pass runs is not seen; when one happens, run the pass again.
 
 **Take the last release from what production serves.** Use what the release doc, a tag or the production branch says production serves. On `release-gate`'s branches, that is `origin/<product>-prod`. Never use a branch that only deploys development, nor, before go-live, the product branch the host deploys (`release-gate`). Where nothing says, ask the owner. Never infer that nothing is live from a missing tag.
 
