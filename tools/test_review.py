@@ -39,7 +39,7 @@ class ReviewerSelectionTests(unittest.TestCase):
                     mock.patch.object(review, "find_grok_bin", return_value=grok):
                 self.assertEqual(review.pick_reviewer("auto"), expected)
 
-    def test_claude_out_of_usage_suggests_codex_before_grok(self):
+    def test_claude_out_of_usage_suggests_grok_so_codex_and_claude_never_loop(self):
         with mock.patch.object(sys, "argv", [str(SCRIPT), "--reviewer", "claude"]), \
                 mock.patch.object(review, "find_codex_bin", return_value="codex-bin"), \
                 mock.patch.object(review, "find_grok_bin", return_value="grok-bin"), \
@@ -47,8 +47,8 @@ class ReviewerSelectionTests(unittest.TestCase):
             with self.assertRaises(SystemExit) as failure:
                 review.out_of_usage("claude", "usage balance exhausted")
             self.assertEqual(failure.exception.code, 3)
-            self.assertIn("next installed reviewer, codex", errors.getvalue())
-            self.assertIn("--reviewer codex", errors.getvalue())
+            self.assertIn("next installed reviewer, grok", errors.getvalue())
+            self.assertIn("--reviewer grok", errors.getvalue())
 
 
 class WindowsSandboxTests(unittest.TestCase):
@@ -175,7 +175,8 @@ class SubjectTests(GitRepo):
         self.assertIn("first change", body)
         self.assertIn("second change", body)
         self.assertIn("+final", body)
-        self.assertNotIn("intermediate", body)
+        self.assertNotIn("+intermediate", body)
+        self.assertIn("-intermediate", body)  # a line added and removed inside the range still ships
         _, ordinary = self.subject("HEAD~2..HEAD")
         self.assertIn("+intermediate", ordinary)
 
@@ -200,17 +201,18 @@ class SubjectTests(GitRepo):
 class ShortReportTests(GitRepo):
     def round(self, report, *commands):
         events = [{"type": "item.completed", "item": {"type": "command_execution", "command": c,
-                                                      "status": "completed", "exit_code": 0}}
-                  for c in commands]
+                                                      "aggregated_output": out, "status": "completed",
+                                                      "exit_code": 0}}
+                  for c, out in commands]
         events.append({"type": "item.completed", "item": {"type": "agent_message", "text": report}})
         events.append({"type": "turn.completed"})
         return review.CodexEvents("\n".join(json.dumps(e) for e in events))
 
     def setUp(self):
         super().setUp()
-        self.write("src/app.py", "print(1)")
+        self.write("src/app.py", "print('hello review')")
         self.commit("change")
-        self.path, _ = self.subject("HEAD~1..HEAD")
+        self.path, self.text = self.subject("HEAD~1..HEAD")
 
     def test_a_hung_round_fails(self):
         events = review.CodexEvents(json.dumps({"type": "item.completed",
@@ -218,14 +220,19 @@ class ShortReportTests(GitRepo):
         self.assertEqual(review.subject_read(events, self.path), "")
 
     def test_a_named_read_of_the_subject_or_a_changed_file_passes(self):
-        events = self.round(f"Read {self.path.name}; no findings.", f"cat {self.path}")
+        events = self.round(f"Read {self.path.name}; no findings.", (f"cat {self.path}", self.text))
         self.assertEqual(review.subject_read(events, self.path), self.path.name)
-        events = self.round("Read src/app.py; no findings.", "sed -n 1,40p src/app.py")
+        events = self.round("Read src/app.py; no findings.",
+                            ("nl -ba src/app.py", "     1\tprint('hello review')\n"))
         self.assertEqual(review.subject_read(events, self.path), "src/app.py")
 
-    def test_an_unnamed_read_or_a_read_of_another_file_fails(self):
-        self.assertEqual(review.subject_read(self.round("No findings.", f"cat {self.path}"), self.path), "")
-        events = self.round("Read README.md and src/app.py.", "cat README.md")
+    def test_an_unnamed_read_a_listing_or_a_read_of_another_file_fails(self):
+        events = self.round("No findings.", (f"cat {self.path}", self.text))
+        self.assertEqual(review.subject_read(events, self.path), "")
+        events = self.round(f"Could not read {self.path.name}.",
+                            (f"Get-Item {self.path}", f"Mode  Length Name\n-a---  900 {self.path.name}\n"))
+        self.assertEqual(review.subject_read(events, self.path), "")
+        events = self.round("Read README.md and src/app.py.", ("cat README.md", "print('hello review')\n"))
         self.assertEqual(review.subject_read(events, self.path), "")
 
 

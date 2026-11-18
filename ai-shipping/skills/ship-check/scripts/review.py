@@ -474,9 +474,13 @@ def write_subject(cwd: Path, rng: str, net: bool = False, exclude: tuple[str, ..
     # --full-history keeps git log from dropping a merge's side when paths are given.
     spec = ["--", *(f":(top,glob,exclude){g}" for g in exclude)] if exclude else []
     hist = ["--full-history"] if exclude else []
-    if whole:
-        log = git("log", "--format=%h %ad %an <%ae>  %w(0,0,4)%s%+b%w(0)", "--date=short", rng)
-        tree = git(*attrs, "diff", "--no-ext-diff", "--stat", "-p", empty, rng, *spec, env=plain)
+    if whole or net:
+        if whole:
+            log = git("log", "--format=%h %ad %an <%ae>  %w(0,0,4)%s%+b%w(0)", "--date=short", rng)
+            tree = git(*attrs, "diff", "--no-ext-diff", "--stat", "-p", empty, rng, *spec, env=plain)
+        else:  # --net leaves out each commit's patch, so a line added and removed inside the range shows here
+            log = git("log", "--oneline", *hist, rng, *spec)
+            tree = ""
         # A push sends every commit, so a key replaced by a variable, or an .env deleted
         # or dropped on a merged branch, still ships. Every line the history held is in the
         # tree or was removed by a commit against one of its parents (-m, pinned so that
@@ -510,8 +514,6 @@ def write_subject(cwd: Path, rng: str, net: bool = False, exclude: tuple[str, ..
                      "that first removed it (each commit against each parent), and each binary file a "
                      "commit touched\n")
             tree += "\n".join(removed) + "\n"
-    elif net:
-        log = git("log", "--oneline", *hist, rng, *spec)
     else:
         log = git(*attrs, "log", "--root", "--stat", "-p", *hist, rng, *spec, env=plain)
     status = git("status", "--porcelain", "-uall", *spec)  # not --short, which status.branch changes
@@ -528,9 +530,10 @@ def write_subject(cwd: Path, rng: str, net: bool = False, exclude: tuple[str, ..
     header = f"# Review subject: {rng}\n"
     cumulative = []
     if net:
-        header = f"# Review subject: {rng} (its one-line log, then the range's cumulative diff)\n"
+        header = (f"# Review subject: {rng} (its one-line log, the range's cumulative diff, then every "
+                  "line its history removed)\n")
         cumulative = [f"\n# Cumulative diff of the range: {ends[0]} {ends[1]}\n",
-                      git(*attrs, "diff", "--no-ext-diff", "--stat", "-p", ends[0], ends[1], *spec, env=plain)]
+                      git(*attrs, "diff", "--no-ext-diff", "--stat", "-p", ends[0], ends[1], *spec, env=plain), tree]
     if whole:
         header = (f"# Review subject: {rng}, every file it holds (its log with each commit's author and "
                   "message, then each "
@@ -711,7 +714,7 @@ class CodexEvents:
         self.report = ""
         self.has_report = False
         self.failed_commands: list[str] = []
-        self.read_commands: list[str] = []
+        self.read_commands: list[tuple[str, str]] = []  # (command, its output)
         self.mcp_calls: list[str] = []
         self.outside_calls: list[str] = []
         self.listing_calls: list[str] = []
@@ -762,7 +765,8 @@ class CodexEvents:
             elif kind == "command_execution":
                 if item.get("status") == "completed" and item.get("exit_code") == 0:
                     self.succeeded += 1
-                    self.read_commands.append(str(item.get("command", "")))
+                    output = item.get("aggregated_output")
+                    self.read_commands.append((str(item.get("command", "")), output if isinstance(output, str) else ""))
                 else:
                     command = str(item.get("command", "(command not recorded)"))
                     self.failed_commands.append(f"exit {item.get('exit_code')}, {item.get('status')}: {command}")
@@ -811,7 +815,8 @@ class CodexEvents:
 
 def subject_read(events: "CodexEvents", subject: Path | None) -> str:
     """A file the round both read with a successful command and named in its report: the
-    subject file or a path it changes. Empty when none (2026-11-18: a hung round ran 0
+    subject file or a path it changes, the command's output holding a line of the subject's
+    content (a listing or Get-Item of the file is not a read). Empty when none (2026-11-18: a hung round ran 0
     commands and returned 123 characters; four valid short rounds each read the subject)."""
     if not subject:
         return ""
@@ -820,8 +825,12 @@ def subject_read(events: "CodexEvents", subject: Path | None) -> str:
              *re.findall(r"^# Untracked file: (.+)$", text, re.MULTILINE)}
     slash = lambda s: s.replace(chr(92), "/")
     report = slash(events.report)
-    commands = [slash(c) for c in events.read_commands]
-    return next((n for n in sorted(names) if n in report and any(n in c for c in commands)), "")
+    norm = lambda s: s.strip().lstrip("+- ").strip()
+    content = {norm(line) for line in text.splitlines()} - names
+    content = [c for c in content if len(c) >= 12 and not c.startswith(("diff --git", "index ", "@@", "a/", "b/"))]
+    read = lambda c, out: any(n in c for n in names) and any(line in out for line in content)
+    reads = [slash(c) for c, out in events.read_commands if read(slash(c), out)]
+    return next((n for n in sorted(names) if n in report and any(n in c for c in reads)), "")
 
 
 def finish_codex_round(raw: str, stderr: str, args: argparse.Namespace, elapsed: float,
@@ -971,7 +980,7 @@ def out_of_usage(reviewer: str, *texts: str) -> None:
             skip = "=" not in a
             continue
         rest.append(a)
-    candidates = {"grok": ("codex", "claude"), "codex": ("claude", "grok"), "claude": ("codex", "grok")}
+    candidates = {"grok": ("codex", "claude"), "codex": ("claude", "grok"), "claude": ("grok", "codex")}
     finders = {"grok": find_grok_bin, "codex": find_codex_bin, "claude": find_claude_bin}
     other = None
     for candidate in candidates[reviewer]:

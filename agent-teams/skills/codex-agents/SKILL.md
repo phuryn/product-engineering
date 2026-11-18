@@ -136,13 +136,13 @@ The wrapper auto-resumes the session it last ran in this directory. Loop until c
 codex exec --json --ephemeral --ignore-user-config --ignore-rules -s read-only \
      --disable apps --disable plugins --disable tool_suggest --disable image_generation \
      --disable memories --disable hooks -c web_search=disabled \
-     -m <confirmed-model> -c model_reasoning_effort=xhigh -C <repo> \
+     -m <confirmed-model> -c model_reasoning_effort=<confirmed effort> -C <repo> \
      -o "$S/review-NNN.md" - < "<prompt file>" > "$S/review-NNN.jsonl" 2> "$S/review-NNN.err"
 # Windows: the same, plus the sandbox mode under [windows] in ~/.codex/config.toml (elevated or unelevated)
 codex exec --json --ephemeral --ignore-user-config --ignore-rules -s read-only \
      --disable apps --disable plugins --disable tool_suggest --disable image_generation \
      --disable memories --disable hooks -c web_search=disabled -c 'windows.sandbox="<that mode>"' \
-     -m <confirmed-model> -c model_reasoning_effort=xhigh -C <repo> \
+     -m <confirmed-model> -c model_reasoning_effort=<confirmed effort> -C <repo> \
      -o "$S/review-NNN.md" - < "<prompt file>" > "$S/review-NNN.jsonl" 2> "$S/review-NNN.err"
 ```
 
@@ -154,7 +154,7 @@ grep -c '"type":"command_execution".*"exit_code":0,"status":"completed"' "$S/rev
 grep -E '"type":"(mcp_tool_call|web_search|file_change)"' "$S/review-NNN.jsonl"
 ```
 
-Zero successful commands fails at any length. Below 1,500 characters, require a successful command that read the subject file or a file it changes, and a report that names that file. The wrapper prints which rule passed. Opening, listing and searching files are reads; a refused write is the read-only sandbox doing its job. The events show command status and exit codes; inspect failed commands to distinguish refused writes or searches without matches from unread review files. The third check fails a manual round on any match, with two exceptions. One is `list_mcp_resources` or `list_mcp_resource_templates` on server `codex`. The other is a `file_change` whose status is not `completed`: a refused edit. The wrapper warns on failed MCP calls; a server reached the session, and the next call might not be refused. Keep the events with the report, never committed; `--json` with `-o` works on Codex CLI 0.166.0 (observed `2026-11-14`). Windows sandbox modes were compared with Codex CLI 0.169.0 on `2026-11-16`: elevated timed out after 60 minutes with zero commands; unelevated completed in about 15 minutes. The isolation tool-count measurement above was on macOS.
+Zero successful commands fails at any length. Below 1,500 characters, require a successful command that printed the subject's or a changed file's content, and a report naming that file. The wrapper prints which rule passed. Opening, listing and searching files are reads; a refused write is the read-only sandbox doing its job. The events show command status and exit codes; inspect failed commands to distinguish refused writes or searches without matches from unread review files. The third check fails a manual round on any match, with two exceptions. One is `list_mcp_resources` or `list_mcp_resource_templates` on server `codex`. The other is a `file_change` whose status is not `completed`: a refused edit. The wrapper warns on failed MCP calls; a server reached the session, and the next call might not be refused. Keep the events with the report, never committed; `--json` with `-o` works on Codex CLI 0.166.0 (observed `2026-11-14`). Windows sandbox modes were compared with Codex CLI 0.169.0 on `2026-11-16`: elevated timed out after 60 minutes with zero commands; unelevated completed in about 15 minutes. The isolation tool-count measurement above was on macOS.
 
 - **Read the prompt from the file the wrapper wrote through stdin.** Use `- < "<prompt file>"`, never `< /dev/null`: stdin here is the prompt. An empty or missing prompt file means the round never started.
 - **Use the manual check as the round's gate.** For a manual run, apply the length and evidence checks above. Fail a round that could not read or matches an outside-tool check.
