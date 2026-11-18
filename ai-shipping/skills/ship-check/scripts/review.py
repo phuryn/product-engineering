@@ -868,7 +868,8 @@ def finish_codex_round(raw: str, stderr: str, args: argparse.Namespace, elapsed:
     if len(events.report.strip()) < args.min_chars and not args.allow_short:
         sys.stderr.write(f"[review.py] FAILED ROUND — {len(events.report.strip())} chars is below "
                          f"--min-chars {args.min_chars}.\n"
-                         "  A real round argues its conclusion over paragraphs; read the report before using --allow-short.\n")
+                         "  A real round argues its conclusion over paragraphs. Accept this one by hand only if its saved events\n"
+                         "  (--out) show it read the subject; a rerun with --allow-short is a new, unchecked round.\n")
         sys.exit(2)
     if len(events.report.strip()) < args.min_chars:
         sys.stderr.write("[review.py] warning: short round accepted by --allow-short; "

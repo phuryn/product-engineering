@@ -119,6 +119,8 @@ Actively hunt for the refutation. Look for an enclosing guarantee making the exe
 
 **"it works nearly always" describes a race, not a refutation.** A timing window that usually resolves correctly is a finding. Having to reason about which side usually wins is the evidence.
 
+**A rare finding is still a finding; its fix is a choice.** Say how often the trigger happens and who meets it. Then name the simplest way out: narrow an assumption, drop the case, or refuse it with a clear message, beside the fix. A fix that adds machinery for a case almost nobody meets costs more than it saves, unless the case crosses a line such as lost data or a leaked secret (`independent-review` § Triage).
+
 **Deduplicate by violated agreement and root cause, never by file.** Passing tests, unfamiliar code, a suspicious name, a missing test and a sibling difference warrant investigation. None is proof, and none is refutation. There is no findings quota; zero supported findings is valid.
 
 ## Parallelism

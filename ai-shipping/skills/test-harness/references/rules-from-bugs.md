@@ -32,7 +32,7 @@ Each rule is here because a green run lied once. Grouped by the moment you meet 
 
 ## Irreversible identifiers
 
-- **Take an irreversible identifier only after every fallible step has passed once.** Run those steps on the same input. When the identifier cannot be returned, preflight with a placeholder and change only the identifier for the final run. (`2026-11-18`, a live Q&A product consumed an identifier before generating its output. Generation failed and left no output. The sequence recurred in the next stage.)
+- **Take an irreversible identifier only after every fallible step has passed once.** Run those steps on the same input. When the identifier cannot be returned, preflight with a placeholder and change only the identifier for the final run. A crash during that run still spends one; accept it or keep the identifier for the retry. (`2026-11-18`, a live Q&A product consumed an identifier before generating its output. Generation failed and left no output. The sequence recurred in the next stage.)
 
 ## The database
 

@@ -51,6 +51,8 @@ Each stage in depth — what doing it well looks like, the owner's part, the tra
 
 **Order every stage and phase by visible value against cost.** Weigh what the owner and first users will see. **The visible, cheap first versions come early.** Start with landing, placeholder legal pages, displayed pricing and example data filling every screen. **Hard logic comes once the product is worth it.** This includes concurrency-safe billing, adaptive sampling and work taking repeated review rounds.
 
+**Plan for the cases people meet, and state the rest as assumptions.** Before designing for a case, ask how often it happens and who meets it. Narrow the assumption where you can (one worker per operation, one currency, one owner) and write it in the plan, or refuse the case with a clear message. Build for a rare case only when missing it would cross a line the owner cares about: lost data, a leaked secret, the wrong environment, money. Apply `independent-review` § Triage for the same weighing of findings.
+
 **Build front-door screens with the first screens on sample data.** From the first click-through, the owner judges the whole product: landing, pricing, legal pages and footer. Make the landing and legal pages true in stage 8, block C, before any further feature phase.
 
 **Split stage 8 when needed without delaying its front-door block C.** Billing, its pricing page and concurrency-safe limits may wait until the product is worth it. Until then, public pages name no price: sample prices never reach a stranger. When the owner already runs a product on the same stack, look for its front door first and start from it.

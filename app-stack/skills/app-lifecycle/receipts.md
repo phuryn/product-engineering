@@ -48,3 +48,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Offer phase previews without making owner absence a coding dependency.
 
 - `2026-11-16`, owner: "Once you’ve reviewed everything and the phase is complete, I may look at the software and provide feedback … most of the time I’m not here, and that shouldn’t block coding agents."
+
+## Plan for the cases people meet, and state the rest as assumptions.
+
+- `2026-11-18`, the owner, after one release's review rounds rated rare triggers Medium and two fixes added machinery that was later replaced by a stated assumption, asked for this weighing in planning and in fixing bugs, not only in review triage.
