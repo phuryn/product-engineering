@@ -73,7 +73,7 @@ grok --prompt-file "$S/stage-brief.md" --cwd <worktree> --session-id "$SID" \
 
 ## Reviewer
 
-**Apply `independent-review` for scope, brief, triage and the stopping rule.** Its wrapper runs Grok this way by default. The bare call below explains the flags. The wrapper also sets the turn cap and writes the subject, range's log and diffs to a file. The reviewer has no shell and reads that file.
+**Apply `independent-review` for scope, brief, triage and the stopping rule.** Its wrapper uses this mode with `--reviewer grok`. The bare call below explains the flags. The wrapper also sets the turn cap and writes the subject, range's log and diffs to a file. The reviewer has no shell and reads that file.
 
 ```bash
 GROK_MEMORY=0 GROK_MANAGED_MCPS_ENABLED=false GROK_MANAGED_MCP_GATEWAY_TOOLS_ENABLED=false \

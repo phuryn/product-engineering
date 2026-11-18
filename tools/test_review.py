@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression checks for the Windows review mode, without starting a reviewer.
+"""Regression checks for reviewer selection and Windows mode, without starting a reviewer.
 
 Run with `python -B tools/test_review.py`.
 """
@@ -21,6 +21,31 @@ SCRIPT = ROOT / "ai-shipping/skills/independent-review/scripts/review.py"
 spec = importlib.util.spec_from_file_location("review", SCRIPT)
 review = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(review)
+
+
+class ReviewerSelectionTests(unittest.TestCase):
+    def test_auto_picks_the_first_installed_reviewer(self):
+        for codex, claude, grok, expected in (
+            ("codex-bin", "claude-bin", "grok-bin", ("codex", "codex-bin")),
+            (None, "claude-bin", "grok-bin", ("claude", "claude-bin")),
+            (None, None, "grok-bin", ("grok", "grok-bin")),
+        ):
+            with self.subTest(expected=expected), \
+                    mock.patch.object(review, "find_codex_bin", return_value=codex), \
+                    mock.patch.object(review, "find_claude_bin", return_value=claude), \
+                    mock.patch.object(review, "find_grok_bin", return_value=grok):
+                self.assertEqual(review.pick_reviewer("auto"), expected)
+
+    def test_claude_out_of_usage_suggests_codex_before_grok(self):
+        with mock.patch.object(sys, "argv", [str(SCRIPT), "--reviewer", "claude"]), \
+                mock.patch.object(review, "find_codex_bin", return_value="codex-bin"), \
+                mock.patch.object(review, "find_grok_bin", return_value="grok-bin"), \
+                contextlib.redirect_stderr(io.StringIO()) as errors:
+            with self.assertRaises(SystemExit) as failure:
+                review.out_of_usage("claude", "usage balance exhausted")
+            self.assertEqual(failure.exception.code, 3)
+            self.assertIn("next installed reviewer, codex", errors.getvalue())
+            self.assertIn("--reviewer codex", errors.getvalue())
 
 
 class WindowsSandboxTests(unittest.TestCase):

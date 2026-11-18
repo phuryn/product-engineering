@@ -38,6 +38,10 @@ The rules come from two kinds of product, named here only by kind. The web-app h
 
 - `2026-08-25`, twice in one session: "never fired on a schedule" with nineteen scheduled runs on disk, and "still needs a live connect" with the token already saved.
 
+## Use fresh Codex when no reviewer is named.
+
+- `2026-11-18`, the owner moved builds and reviews to GPT-6.2 Sol at `xhigh` and made a fresh Codex session the default reviewer, replacing Grok.
+
 ## The push applies nothing to the database.
 
 - `2026-09-16`, three migrations were absent from production through a handoff that called the release verified.

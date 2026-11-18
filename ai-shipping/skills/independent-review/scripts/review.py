@@ -6,8 +6,8 @@ round is scoped to, the stopping rule, author != reviewer, how to triage what
 comes back) lives in ../SKILL.md: the independent-review skill's, or, for the copy ship-check carries,
 its Step 6. Read it before invoking this.
 
---reviewer auto (the default) uses installed Grok, otherwise a fresh Codex
-session, otherwise fresh headless Claude Code. All run read-only, with user
+--reviewer auto (the default) uses a fresh Codex session, then fresh headless
+Claude Code, then Grok, in order of availability. All run read-only, with user
 MCP configuration and session memory excluded where the CLI allows.
 Codex excludes user config, including its MCP servers and project trust, and
 execpolicy rules. Connected apps, plugins, tool suggestions, web search, image
@@ -275,16 +275,16 @@ def find_codex_bin() -> str | None:
 
 
 def pick_reviewer(choice: str) -> tuple[str, str]:
-    """(reviewer, binary). auto: installed Grok, then Codex, then Claude Code."""
-    for reviewer, finder in (("grok", find_grok_bin), ("codex", find_codex_bin), ("claude", find_claude_bin)):
+    """(reviewer, binary). auto: first installed of Codex, Claude Code, Grok."""
+    for reviewer, finder in (("codex", find_codex_bin), ("claude", find_claude_bin), ("grok", find_grok_bin)):
         if choice in ("auto", reviewer):
             binary = finder()
             if binary:
                 return reviewer, binary
             if choice == reviewer:
                 sys.exit(f"[review.py] could not locate {reviewer}. Install its CLI, set "
-                         f"${reviewer.upper()}_BIN, or choose another --reviewer (auto, grok, codex, claude).")
-    sys.exit("[review.py] none of the Grok, Codex or Claude Code CLIs was found. The review is "
+                         f"${reviewer.upper()}_BIN, or choose another --reviewer (auto, codex, claude, grok).")
+    sys.exit("[review.py] none of the Codex, Claude Code or Grok CLIs was found. The review is "
              "still mandatory: run with --subject-only to write the subject and prompt files, then give "
              "the prompt to a fresh read-only session of your agent, started as a separate process in the "
              "checkout, never a subagent, fork or resumed session of this one (the independent-review skill, "
@@ -929,7 +929,7 @@ def out_of_usage(reviewer: str, *texts: str) -> None:
             skip = "=" not in a
             continue
         rest.append(a)
-    candidates = {"grok": ("codex", "claude"), "codex": ("claude", "grok"), "claude": ("grok", "codex")}
+    candidates = {"grok": ("codex", "claude"), "codex": ("claude", "grok"), "claude": ("codex", "grok")}
     finders = {"grok": find_grok_bin, "codex": find_codex_bin, "claude": find_claude_bin}
     other = None
     for candidate in candidates[reviewer]:
@@ -1023,9 +1023,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--reviewer",
-        choices=["auto", "grok", "codex", "claude"],
+        choices=["auto", "codex", "claude", "grok"],
         default="auto",
-        help="auto (default): installed Grok, then fresh read-only Codex, then fresh read-only Claude Code",
+        help="auto (default): first installed of Codex, Claude Code, Grok; all fresh and read-only",
     )
     parser.add_argument("--check", action="store_true",
                         help="Say which reviewer a round would use and verify its flags "

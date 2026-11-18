@@ -7,7 +7,7 @@ description: "'Ask Codex', 'check with Codex', handing Codex a build or review, 
 
 **Treat Codex as a peer with the same standing as Claude.** Not a formatter, not a gate, not an authority. Run it on the newest model the Codex CLI offers, at its highest reasoning effort: `xhigh`, the wrapper's default on every turn.
 
-Author's example (chosen `2026-11-14`): GPT-6.1 Sol at `xhigh`, for builds, and for reviews when Grok cannot run. Choose your own model.
+Author's example (chosen `2026-11-18`): GPT-6.2 Sol at `xhigh`, for builds and reviews. Choose your own model.
 
 **It can build, and what it builds is reviewed by someone else.** Hand it a build stage with the goal, binding decisions and files it will touch. Read its diff before believing it; a delegated diff is unreviewed code. The session that wrote code never clears it. An independent review does, through `independent-review` or whatever the project uses. Codex can review code it didn't write (§ Reviewer).
 
@@ -129,7 +129,7 @@ The wrapper auto-resumes the session it last ran in this directory. Loop until c
 
 ## Reviewer
 
-**Apply `independent-review` for round scope, brief, triage and stopping.** Its wrapper runs the command below with `--reviewer codex`, or `auto` when Grok is absent. On Windows, pass `--windows-sandbox elevated|unelevated` to override its mode; absent that flag, it reads config (observed `2026-11-16`, Codex CLI 0.169.0). It passes `--effort` (`xhigh` by default); use `--model` to choose a model, since user config is ignored. Repository instructions rank reviewers first. When running by hand, get the prompt with `--subject-only`, which writes subject and prompt into the git directory and prints their paths. Use a new session meeting the review bar, never this skill's wrapper and never a resume of the building thread:
+**Apply `independent-review` for round scope, brief, triage and stopping.** With Codex installed, the wrapper runs this command by default. `--reviewer codex` forces it. On Windows, pass `--windows-sandbox elevated|unelevated` to override its mode; absent that flag, it reads config (observed `2026-11-16`, Codex CLI 0.169.0). It passes `--effort` (`xhigh` by default); use `--model` to choose a model, since user config is ignored. Repository instructions rank reviewers first. When running by hand, get the prompt with `--subject-only`, which writes subject and prompt into the git directory and prints their paths. Use a new session meeting the review bar, never this skill's wrapper and never a resume of the building thread:
 
 ```bash
 # macOS and Linux

@@ -5,6 +5,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## A fresh session of the builder's own model is independent: it never saw the build.
 
 - `2026-11-14`, owner, on why a fresh Codex session reviews when Grok cannot: "if Grok is not available, also GPT 6.1 Sol [at xhigh] for code reviews. So independent sessions from the same lab and the same model. That's fine." Until then the wrapper went from Grok straight to a fresh Claude Code session. The model is the owner's pick; the reader chooses their own.
+- `2026-11-18`, the owner moved builds and reviews to GPT-6.2 Sol at `xhigh` and made a fresh Codex session the default reviewer, replacing Grok.
 
 ## a repository ranks its reviewers; it cannot rule out a review.
 
