@@ -16,12 +16,12 @@ description: "Before adding a remote MCP server or tool to a web product, adding
 - The decision log: dated decisions that had real options, each with its reopen trigger;
 - The backlog: deferred work, each item with the trigger that reopens it.
 
-**Apply `clerk-production` § MCP OAuth before writing a member-authenticated OAuth route.** Discovery lists differ from token shape. Return `503` on verifier outages, refuse unknown `kid` values before calling Clerk and recheck live workspace access on every call because revocation remains unseen until expiry.
+**Apply `clerk-production` § MCP OAuth before writing the route.** Discovery lists differ from token shape. Return `503` on verifier outages, refuse unknown `kid` values before calling Clerk and recheck live workspace access on every call because revocation remains unseen until expiry.
 
 ## What binds, in order
 
 1. **Apply `saas-authorization` first because a tool is a route.** Its caller is resolved by the three functions, deterministic code decides what it may do, and everything it returns that a person wrote is untrusted text.
-2. **Apply and reread every Clerk OAuth setting per instance when using OAuth.** Apply `clerk-production` § MCP OAuth.
+2. **Apply and reread every Clerk OAuth setting per instance.** Apply `clerk-production` § MCP OAuth.
 3. **Apply this skill to the server and its distribution.** It covers tools, directories, clients and the package.
 4. **Let each chosen directory's current page override this skill.** Read it again before every submission and record the date. Where the page and this skill disagree, follow the page and correct this skill with the date.
 
@@ -53,7 +53,7 @@ description: "Before adding a remote MCP server or tool to a web product, adding
 1. **REST functions first.** MCP and REST call the same module, so the two can never disagree about what a call does. REST stays token-only; OAuth is for MCP clients.
 2. **Build a stateless Streamable HTTP route with the required controls.** Include stateless Streamable HTTP, the challenge, the three layers of error, the limits, the log (`references/server.md`).
 3. **Build the tools with both required tests.** Read `references/tools.md`.
-4. **Prove the hosted endpoint with one real client.** If it uses Clerk OAuth, apply `clerk-production` § MCP OAuth and prove a real grant too. Use `references/server.md § Proving it`.
+4. **Configure OAuth, then prove a real grant and one real client.** Apply `clerk-production` § MCP OAuth, then `references/server.md § Proving it`.
 5. **Write the API contract, public developer page and distribution record.** Include the API contract, a public page for developers pinned to the code by a test, and the distribution record.
 6. **Release with independent review of the whole release.** Apply `independent-review`; descriptions and instructions are in the subject, not context.
 7. **Publish the chosen listings or package from production after promotion and on the owner's go.** Read `references/directories.md` for listings and `references/companion-repo.md` for the package. Apply `chatgpt-plugin` for a ChatGPT plugin.

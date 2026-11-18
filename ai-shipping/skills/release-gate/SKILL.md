@@ -78,11 +78,7 @@ The suggested script names are `gate`, `smoke -- <url>`, `visual` and `agents:li
 
 ## The independent review — mandatory at every release
 
-**Review before every deploying push and again before production promotion.** Apply this however small the change and however green the gate. Apply `independent-review` § Reviewer selection and isolation and § Running it for selection, fallbacks and failed-round evidence. Run the wrapper supplied by that skill:
-
-```sh
-python <independent-review skill dir>/scripts/review.py --brief <scratch>/brief.md --cwd <repo> --subject <range> --out <scratch>/round-N.md --model <review model> < /dev/null
-```
+**Review before every deploying push and again before production promotion.** Apply this however small the change and however green the gate. Before every round, apply `independent-review` § Reviewer selection and isolation and § Running it for its wrapper, selection, fallbacks and failed-round evidence.
 
 **Use fresh Codex when no reviewer is named.** Prefer a qualifying product-named reviewer or recorded fallback. Otherwise use the wrapper's available reviewer without asking. A fresh session of the builder's family can serve when other families cannot. Record the reviewer, why it ran and anything left enabled.
 
