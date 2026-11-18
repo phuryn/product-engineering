@@ -69,6 +69,11 @@ class ResumeSandboxTests(unittest.TestCase):
         self.assertIn("sandbox: danger-full-access", err)
         self.assertNotIn("warning", err)
 
+    def test_a_sandbox_with_writable_roots_reads_as_its_first_word(self):
+        _, err = self.run_wrapper("--new", "--sandbox", "workspace-write")
+        self.assertIn("sandbox: workspace-write\n", err)
+        self.assertNotIn("warning", err)
+
     def test_new_session_defaults_to_read_only(self):
         cmd, _ = self.run_wrapper("--new")
         self.assertEqual(cmd[cmd.index("-s") + 1], "read-only")

@@ -124,7 +124,7 @@ The wrapper auto-resumes the session it last ran in this directory. Loop until c
 - **Within a stage, resume.** Follow-up rounds fixing review findings or finishing the same work continue the session that built it. The wrapper resumes per directory, so this is the default in the stage's worktree.
 - **A new stage or a new area starts fresh, with `--new`.** Project knowledge belongs in docs and the stage's brief, not an old thread. Long threads carry replaced assumptions and fill their context window; a fresh start takes a few minutes of reading. If a fresh session would miss something, write it in the docs.
 - **Parallel builds get a worktree, a session and a marker each.** One session can't drive two builds. The wrapper's marker is one file per user and holds one directory, so the second build overwrites the first's marker. The first build's next round then starts new, read-only unless `--sandbox` is passed. Use `CODEX_AGENTS_STATE=<a file per build>` on every call for each build.
-- **An earlier session can still be resumed, by its id: `--session <id>`.** Sessions stay in `~/.codex/sessions/<yyyy>/<mm>/<dd>/`, one `rollout-<time>-<id>.jsonl` each. Its first line names `cwd`, and the wrapper prints each run's id. Use that session's `--cwd`, plus `--model` if it used something other than the config default; resume doesn't keep the model (§ Session continuity). Explicit resume fails rather than starting new. Once Codex opens it, even if the run later fails, the marker names it and the next plain call continues it.
+- **An earlier session can still be resumed, by its id: `--session <id>`.** Sessions stay in `~/.codex/sessions/<yyyy>/<mm>/<dd>/`, one `rollout-<time>-<id>.jsonl` each. Its first line names `cwd`, and the wrapper prints each run's id. Use that session's `--cwd`, plus `--model` if it used something other than the config default and `--sandbox` if it writes. The wrapper re-sends them only when the marker names that session (§ Session continuity). Explicit resume fails rather than starting new. Once Codex opens it, even if the run later fails, the marker names it and the next plain call continues it.
 - **A usage limit makes the builder unavailable, as a missing CLI does.** Codex answers "You've hit your usage limit … try again at <time>" and exits at once. Wait when reset is near; otherwise the session agent builds the stage itself, treating 90 minutes away as too long. Independent review still applies. The marker keeps the stage's session through failure, so the next call after reset continues it.
 
 ## Reviewer
@@ -167,7 +167,7 @@ Each rule's origin, the case that taught it, is in `receipts.md` beside this fil
 
 ## How you can tell it worked
 
-Codex argued at least one point you then changed or defended, and the run's header shows the session and model you meant. Any diff it reported is on disk and was reviewed by someone else.
+Codex argued at least one point you then changed or defended, and the run's header shows the session, model and sandbox you meant. Any diff it reported is on disk and was reviewed by someone else.
 
 ## Mechanics
 
@@ -187,7 +187,7 @@ Codex argued at least one point you then changed or defended, and the run's head
 | Flag | Default | Notes |
 |---|---|---|
 | `--new` | off | Force new session even if one is stored |
-| `--session ID` | — | Resume that session in `--cwd`, with no fallback to a new one. The model comes from `--model`, or from the marker when it names this session. |
+| `--session ID` | — | Resume that session in `--cwd`, with no fallback to a new one. The model and sandbox come from `--model` and `--sandbox`, or from the marker when it names this session; otherwise both are the config's. |
 | `--read FILE` | — | Read message body from FILE (`-` for stdin). Use for long context-rich openings. |
 | `--model MODEL` | codex's configured default | Override the model. Pass one only to pin the newest model the Codex CLI offers when the configured default (`~/.codex/config.toml`) is not it. Remembered for the session and re-sent on every resume. |
 | `--effort LEVEL` | `xhigh`, on every turn | `low` / `medium` / `high` / `xhigh`, sent as `-c model_reasoning_effort=…`. |
@@ -197,7 +197,7 @@ Codex argued at least one point you then changed or defended, and the run's head
 
 ### Session continuity
 
-**Resume the recorded id rather than whichever session ran most recently.** The marker at `~/.claude/.codex_agents_active`, overridden by `$CODEX_AGENTS_STATE`, records the active directory, model and id. The wrapper uses `codex exec resume <id>` and continues until `--reset` or `--new`. `--last` instead takes the newest session Codex recorded in that directory, whoever started it, including a `--new` consult. `--all` lifts that directory scope (codex 0.159, checked 2026-10-22). A marker predating recorded ids uses `--last` once and records the selected id. If it picked the wrong stage session, correct it with `--session`.
+**Resume the recorded id rather than whichever session ran most recently.** The marker at `~/.claude/.codex_agents_active`, overridden by `$CODEX_AGENTS_STATE`, records the active directory, model, sandbox and id. The wrapper uses `codex exec resume <id>` and continues until `--reset` or `--new`. `--last` instead takes the newest session Codex recorded in that directory, whoever started it, including a `--new` consult. `--all` lifts that directory scope (codex 0.159, checked 2026-10-22). A marker predating recorded ids uses `--last` once and records the selected id. If it picked the wrong stage session, correct it with `--session`.
 
 **The marker names the last session Codex opened, including failed runs.** Codex prints a session header only after opening it. A usage limit fails after the session takes the turn, so the marker keeps that session, including a newly opened one. It holds the brief and work so far; the next call continues it, while `--new` starts over. Resume falls back to a new session only when Codex couldn't open the old one: no rollout remains, so it fails without a header. Otherwise, a failed resume exits with its error rather than starting without the stage.
 
@@ -205,7 +205,7 @@ Codex argued at least one point you then changed or defended, and the run's head
 
 **A resume does not keep the session's model.** `codex exec resume` takes its model from `~/.codex/config.toml`, not the resumed session, and reports it only in the header. A session started with `--model` and resumed without it silently uses the config default. The wrapper records the starting model, re-sends `-m` on every resume and prints the reported model to stderr after each run. It warns when that differs from the request. Read that line before trusting a round. Direct `codex exec resume` calls must pass `-m <model> -c model_reasoning_effort=<level>` every time.
 
-**A resume does not keep the session's sandbox either.** `codex exec resume` rejects `-s`, and without an override it runs on the config's `sandbox_mode`, read-only by default (observed `2026-11-17`, Codex CLI 0.169.0). The wrapper records the sandbox, re-sends it on every resume as `-c sandbox_mode="<mode>"`, prints the reported sandbox after each run, and warns when it differs. Direct resume calls pass `-c sandbox_mode="<mode>"` too.
+**A resume does not keep the session's sandbox either.** `codex exec resume` rejects `-s`, and without an override it runs on the config's `sandbox_mode`, read-only by default (observed `2026-11-17`, Codex CLI 0.169.0). The wrapper records the sandbox, re-sends it on every resume as `-c sandbox_mode="<mode>"`, prints the reported sandbox after each run, and warns when it differs. Direct resume calls pass `-c sandbox_mode="<mode>"` too. An older wrapper's marker records no sandbox: its first resume runs on the config's, and stderr says to pass `--sandbox` once.
 
 ### Codex binary lookup
 
@@ -223,6 +223,6 @@ The installed CLI comes first because you install and update it; the extension s
 
 ### Why it works this way (gotchas captured)
 
-- **Read the piped run's metadata from stderr and answer from stdout.** The header contains workdir, model and session id (codex 0.159, observed 2026-10-22). The wrapper reads model and id, records the id for resume and prints both after each run. It strips a stdout header only when the block between two `----` lines is a header. An answer with two horizontal rules is never cut.
+- **Read the piped run's metadata from stderr and answer from stdout.** The header contains workdir, model, sandbox and session id (codex 0.159, observed 2026-10-22; the sandbox line on 0.169.0, `2026-11-17`). The wrapper reads model, sandbox and id, records the id for resume and prints the model and sandbox after each run. It strips a stdout header only when the block between two `----` lines is a header. An answer with two horizontal rules is never cut.
 - **Pass `-s SANDBOX` only to new sessions, not `exec resume`.** It is an exec-level flag; a resume takes the sandbox as `-c sandbox_mode=…` instead. The wrapper separates new-session and resume paths accordingly. Outside a git repository, resume also needs `--skip-git-repo-check` (observed in a live scratch-folder wrapper test, 2026-10-21). Without it, Codex refuses with "Not inside a trusted directory" and the wrapper falls back to a new session. The conversation is lost, and only stderr says so. The wrapper adds this flag there and only there.
 - **Close stdin so Codex does not wait for interactive input.** Use subprocess `input=""`.

@@ -78,9 +78,10 @@ user installs and updates; the extension ships whatever build it pins. On
 2026-10-22 that was a 0.155 alpha without `codex-code-mode-host.exe`, and every
 tool call of a build round failed before it ran.
 
-Piped, codex writes its metadata header (workdir, model, session id) to
-stderr and the answer to stdout. The wrapper reads the model and the session
-id from that header, records the id, and prints both after each run.
+Piped, codex writes its metadata header (workdir, model, sandbox, session id)
+to stderr and the answer to stdout. The wrapper reads the model, the sandbox
+and the session id from that header, records the id, and prints the model and
+the sandbox after each run.
 `-s SANDBOX` is an exec-level flag not valid on `exec resume`, which takes
 the sandbox as `-c sandbox_mode=...` instead. Outside a git
 repository a resume needs `--skip-git-repo-check` too, or codex refuses it and
@@ -253,7 +254,7 @@ def strip_header(text: str) -> str:
 
 def header_field(proc: subprocess.CompletedProcess, name: str) -> str | None:
     """A field of codex's header block (the text between the first two '----'
-    dividers), on stderr or stdout: `model`, `session id`. Read before
+    dividers), on stderr or stdout: `model`, `sandbox`, `session id`. Read before
     strip_header drops it, and only from a block that is a header, so a
     matching line in the answer itself is never taken for it; no header, None.
     Stderr is read first because stdout can be the answer alone."""
@@ -415,8 +416,9 @@ def main() -> None:
         "--session",
         metavar="ID",
         help="Resume the session with this id (an earlier one, or one the marker no "
-        "longer names) in --cwd; it fails rather than starting a new one. Pass "
-        "--model when the session ran on a model other than the config default.",
+        "longer names) in --cwd; it fails rather than starting a new one. Unless the "
+        "marker names that session, pass --model when it ran on a model other than the "
+        "config default and --sandbox when it writes: otherwise both are the config's.",
     )
     parser.add_argument("--read", metavar="FILE", help="Read message from FILE (- for stdin)")
     parser.add_argument("--status", action="store_true", help="Show session status")
