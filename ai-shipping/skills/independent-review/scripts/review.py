@@ -34,9 +34,9 @@ This wrapper closes that gap in three ways:
 
   1. The flags that make a round real are applied here, not remembered.
   2. A round whose output is too short to be a real round FAILS LOUDLY
-     (exit 2) instead of printing a few lines and returning 0. A short Codex
-     round passes only when a successful command read the subject or a file it
-     changes, and the report names that file.
+     (exit 2) instead of printing a few lines and returning 0. For a short Codex
+     round it lists the successful commands that named the subject or a changed
+     file, so the coordinator can judge it by hand.
   3. Codex's event stream proves commands succeeded and checks tool isolation.
 
 A round that comes back genuinely empty
@@ -714,7 +714,7 @@ class CodexEvents:
         self.report = ""
         self.has_report = False
         self.failed_commands: list[str] = []
-        self.read_commands: list[tuple[str, str]] = []  # (command, its output)
+        self.read_commands: list[str] = []
         self.mcp_calls: list[str] = []
         self.outside_calls: list[str] = []
         self.listing_calls: list[str] = []
@@ -765,8 +765,7 @@ class CodexEvents:
             elif kind == "command_execution":
                 if item.get("status") == "completed" and item.get("exit_code") == 0:
                     self.succeeded += 1
-                    output = item.get("aggregated_output")
-                    self.read_commands.append((str(item.get("command", "")), output if isinstance(output, str) else ""))
+                    self.read_commands.append(str(item.get("command", "")))
                 else:
                     command = str(item.get("command", "(command not recorded)"))
                     self.failed_commands.append(f"exit {item.get('exit_code')}, {item.get('status')}: {command}")
@@ -813,24 +812,18 @@ class CodexEvents:
         return ""
 
 
-def subject_read(events: "CodexEvents", subject: Path | None) -> str:
-    """A file the round both read with a successful command and named in its report: the
-    subject file or a path it changes, the command's output holding a line of the subject's
-    content (a listing or Get-Item of the file is not a read). Empty when none (2026-11-18: a hung round ran 0
-    commands and returned 123 characters; four valid short rounds each read the subject)."""
+def subject_reads(events: "CodexEvents", subject: Path | None) -> list[str]:
+    """The successful commands that named the subject file or a path it changes: evidence
+    for the coordinator, who accepts a short round by hand after reading them (2026-11-18:
+    a hung round ran 0 commands and returned 123 characters; four valid short rounds each
+    read the subject, which only their events showed)."""
     if not subject:
-        return ""
+        return []
     text = subject.read_text(encoding="utf-8", errors="replace")
     names = {subject.name, *re.findall(r"^diff --git a/(\S+) b/", text, re.MULTILINE),
              *re.findall(r"^# Untracked file: (.+)$", text, re.MULTILINE)}
     slash = lambda s: s.replace(chr(92), "/")
-    report = slash(events.report)
-    norm = lambda s: s.strip().lstrip("+- ").strip()
-    content = {norm(line) for line in text.splitlines()} - names
-    content = [c for c in content if len(c) >= 12 and not c.startswith(("diff --git", "index ", "@@", "a/", "b/"))]
-    read = lambda c, out: any(n in c for n in names) and any(line in out for line in content)
-    reads = [slash(c) for c, out in events.read_commands if read(slash(c), out)]
-    return next((n for n in sorted(names) if n in report and any(n in c for c in reads)), "")
+    return [c for c in events.read_commands if any(n in slash(c) for n in names)]
 
 
 def finish_codex_round(raw: str, stderr: str, args: argparse.Namespace, elapsed: float,
@@ -890,22 +883,21 @@ def finish_codex_round(raw: str, stderr: str, args: argparse.Namespace, elapsed:
     if failure:
         sys.stderr.write(f"[review.py] FAILED ROUND — {failure}\n")
         sys.exit(2)
-    short = len(events.report.strip()) < args.min_chars
-    read = subject_read(events, subject) if short else ""
-    if short and not read and not args.allow_short:
-        sys.stderr.write(f"[review.py] FAILED ROUND — {len(events.report.strip())} chars is below "
-                         f"--min-chars {args.min_chars}, and no successful command read a file the report names "
-                         "(the subject file or a path it changes).\n"
-                         "  A real round argues its conclusion over paragraphs; read the report before using --allow-short.\n")
-        sys.exit(2)
-    if not short:
+    length = len(events.report.strip())
+    if length >= args.min_chars:
         sys.stderr.write(f"[review.py] passed: the report is at least --min-chars {args.min_chars}.\n")
-    elif read:
-        sys.stderr.write(f"[review.py] passed the short-report rule: a successful command read {read}, "
-                         "and the report names it.\n")
-    else:
-        sys.stderr.write("[review.py] warning: short round accepted by --allow-short; "
-                         "confirm it reasoned its way to a conclusion and could read the files.\n")
+        return
+    if not args.allow_short:
+        reads = subject_reads(events, subject)
+        sys.stderr.write(f"[review.py] FAILED ROUND — {length} chars is below --min-chars {args.min_chars}.\n"
+                         "  A real round argues its conclusion over paragraphs. Accept a short one by hand only "
+                         "when its successful commands printed the subject's or a changed file's content and the "
+                         "report names what it read"
+                         + (": the commands that named them follow.\n    " + "\n    ".join(reads[:20]) + "\n"
+                            if reads else "; no successful command named the subject or a changed file.\n"))
+        sys.exit(2)
+    sys.stderr.write("[review.py] warning: short round accepted by --allow-short; "
+                     "confirm it reasoned its way to a conclusion and could read the files.\n")
 
 
 # Grok's own isolation, per process: its memory, its managed MCP configs and gateway tools, every Claude and
@@ -1063,8 +1055,7 @@ def main() -> None:
         type=int,
         default=DEFAULT_MIN_CHARS,
         metavar="N",
-        help=f"Below this, the round is treated as FAILED (default: {DEFAULT_MIN_CHARS}), unless a "
-        "Codex command read a file the report names",
+        help=f"Below this, the round is treated as FAILED (default: {DEFAULT_MIN_CHARS})",
     )
     parser.add_argument(
         "--allow-short",

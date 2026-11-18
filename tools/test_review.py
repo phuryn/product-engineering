@@ -199,41 +199,25 @@ class SubjectTests(GitRepo):
 
 
 class ShortReportTests(GitRepo):
-    def round(self, report, *commands):
+    def round(self, *commands):
         events = [{"type": "item.completed", "item": {"type": "command_execution", "command": c,
-                                                      "aggregated_output": out, "status": "completed",
-                                                      "exit_code": 0}}
-                  for c, out in commands]
-        events.append({"type": "item.completed", "item": {"type": "agent_message", "text": report}})
-        events.append({"type": "turn.completed"})
+                                                      "status": "completed", "exit_code": 0}}
+                  for c in commands]
+        events.append({"type": "item.completed", "item": {"type": "agent_message", "text": "No findings."}})
         return review.CodexEvents("\n".join(json.dumps(e) for e in events))
 
     def setUp(self):
         super().setUp()
         self.write("src/app.py", "print('hello review')")
         self.commit("change")
-        self.path, self.text = self.subject("HEAD~1..HEAD")
+        self.path, _ = self.subject("HEAD~1..HEAD")
 
-    def test_a_hung_round_fails(self):
-        events = review.CodexEvents(json.dumps({"type": "item.completed",
-                                                "item": {"type": "agent_message", "text": "x" * 123}}))
-        self.assertEqual(review.subject_read(events, self.path), "")
+    def test_a_hung_round_has_no_evidence(self):
+        self.assertEqual(review.subject_reads(self.round(), self.path), [])
 
-    def test_a_named_read_of_the_subject_or_a_changed_file_passes(self):
-        events = self.round(f"Read {self.path.name}; no findings.", (f"cat {self.path}", self.text))
-        self.assertEqual(review.subject_read(events, self.path), self.path.name)
-        events = self.round("Read src/app.py; no findings.",
-                            ("nl -ba src/app.py", "     1\tprint('hello review')\n"))
-        self.assertEqual(review.subject_read(events, self.path), "src/app.py")
-
-    def test_an_unnamed_read_a_listing_or_a_read_of_another_file_fails(self):
-        events = self.round("No findings.", (f"cat {self.path}", self.text))
-        self.assertEqual(review.subject_read(events, self.path), "")
-        events = self.round(f"Could not read {self.path.name}.",
-                            (f"Get-Item {self.path}", f"Mode  Length Name\n-a---  900 {self.path.name}\n"))
-        self.assertEqual(review.subject_read(events, self.path), "")
-        events = self.round("Read README.md and src/app.py.", ("cat README.md", "print('hello review')\n"))
-        self.assertEqual(review.subject_read(events, self.path), "")
+    def test_commands_naming_the_subject_or_a_changed_file_are_listed_for_the_coordinator(self):
+        events = self.round(f"cat {self.path}", "nl -ba src/app.py", "cat README.md")
+        self.assertEqual(review.subject_reads(events, self.path), [f"cat {self.path}", "nl -ba src/app.py"])
 
 
 if __name__ == "__main__":
