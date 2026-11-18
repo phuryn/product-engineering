@@ -2,6 +2,10 @@
 
 Each heading is a rule from `SKILL.md`, with the case that taught it.
 
+## Confirm the build model and the review model with the user.
+
+- `2026-11-18`, the owner: "there are two choices. Model for building. Model for reviewing. My preference and suggestion for both is newest available sol high or xhigh. Confirm with the user." And: "then user preference goes to user files."
+
 ## Keep product decisions, operational changes and stage-completion judgement with the session agent.
 
 - `2026-11-14`, the owner allowed builders to run development tests and fix failures before handoff. Applied migrations still go through the session agent before dependent tests; deploys, pushes, provider settings, secrets, production credentials and final stage judgement remain with it.

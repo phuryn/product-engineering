@@ -2,6 +2,10 @@
 
 Each heading is a rule from `SKILL.md`, with the case that taught it.
 
+## Read each new timestamp from the clock when you write it.
+
+- `2026-11-18`, The coordinator of a live Q&A product twice corrected estimated log times that ran ahead of the machine clock. A status report built from the log would have repeated them.
+
 ## Give the owner a short status and only asks that need them.
 
 - `2026-10-21` to `25`: The owner's-page rules come from a monitoring product built in this period, where the owner ran the whole build from such a page.

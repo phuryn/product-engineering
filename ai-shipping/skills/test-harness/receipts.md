@@ -60,6 +60,10 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-09-16`, a verified-sounding handoff missed unapplied production migrations.
 
+## Copy a red run's failure artifacts out of the output directory before rerunning.
+
+- `2026-11-18`, a rerun for a live Q&A product erased the failed run's trace. On the next failure, the trace was copied first and showed the cause.
+
 ## The coverage map is written by whoever ran the gate, and by nobody else.
 
 - `2026-09-16` and `2026-09-17`, blocked builder runs were reported in the coordinator's name with invented counts.

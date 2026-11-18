@@ -54,6 +54,8 @@ Three things, and the first is the one most often skipped:
 - **Name ranges, not commits, in a brief you will reuse.** A pinned SHA can send the next round back to an already reviewed commit. Use `git log --oneline <last-reviewed>..HEAD` to fail loudly when the range is stale.
 - **Use the brief template and request its handoff.** Start from `references/brief-template.md`, asking for what it built, choices where the brief was silent, spec corrections, blockers and validation actually run. It also names commands for you and what must be redeployed after the push.
 
+For a contract shared by sessions in separate repositories, apply the `release-gate` skill's backend-first rule before handing off a build.
+
 ## Choosing the delegate
 
 | Delegate | Strong at | Watch for |
@@ -98,6 +100,7 @@ Three things, and the first is the one most often skipped:
 - **A delegated diff is unreviewed code.** Read it before believing it. Its independent review comes before anything ships or deploys; in staged work it is the phase's series (`independent-review` § When).
 - **Check the disk before believing a round happened.** Inspect `git status` and file times, since a run without write access can return a convincing report with no changes.
 - **Re-run its tests yourself, and rewrite any evidence it wrote from your own run.** A piece inside a stage reruns the tests it touches; the full gate runs at phase end and before deploying pushes (`test-harness` § The gate). A builder's passing report remains a claim, even when it can reach development. Read every line it adds to a coverage map or status file; replace stage-completion evidence from your own run rather than inventing counts.
+- **Compare the test inventory before and after each delegated turn.** Check specs, cases and captured states. Send back cuts the brief did not ask for.
 - **Before passing a delegate's "commands for the owner" up, do every one you can.** Use an API, CLI or key you hold and reread the result. Escalate only what needs a person: a dashboard-only click, money or taste.
 - **A builder's objection that is a product decision goes to the owner.** Give it its own handoff section, keeping it separate from corrections you can accept yourself.
 - **When you take a handoff over, put a dated status line at its top.** Say whether it is merged, which rounds reviewed it, where it is deployed, and what still waits. Keep your changes in their own section, leaving the delegate's text as written. Check claimed deploys against your environment log.

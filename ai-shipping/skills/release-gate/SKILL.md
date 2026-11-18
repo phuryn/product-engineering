@@ -22,6 +22,8 @@ A release is a decision: **the owner says go; the agent supplies the evidence.**
 
 **A host that deploys by CLI upload deploys the working tree, not a commit.** Treat the upload as the push: close the review round first and upload a clean worktree of the reviewed commit. Name the target: `railway up --ci -p <project> -e <environment> -s <service>`. Bare `railway up` in an unlinked folder offers to create a project.
 
+**Local scheduled jobs run a released copy that changes only at release.** A job pointed at the working tree runs each edit on its next tick. The released copy includes local code the job imports. Check the job's target during promotion (`references/checklist.md § 4`).
+
 **Stamp every upload with its commit.** Use `railway up --message <commit>` so the deployment records its commit as `meta.cliMessage`. Railway uploads otherwise have a snapshot id without a commit, preventing comparison of web and worker trees (observed `2026-11-03`). State-reading scripts must account for these behaviours (Railway, observed `2026-11-03`):
 
 - **Exclude stopped deployments when checking what is running.** A stopped deployment remains in `activeDeployments` with status `SUCCESS` and `deploymentStopped: true`.
@@ -70,7 +72,7 @@ The suggested script names are `gate`, `smoke -- <url>`, `visual` and `agents:li
 The session must never have seen the build; choose it in this order:
 
 1. **Use the product's named reviewer when it meets review requirements.** Take the choice from its agent instructions or release doc, checking that it can run as `independent-review` requires. If it cannot, use its recorded fallback when that can, otherwise the wrapper's reviewer without asking. If no other family can run, use a fresh session of the builder's family. The report names the actual reviewer and why.
-2. **Use fresh Codex when no reviewer is named.** Use the newest model at the highest reasoning effort. Without Codex, the wrapper uses fresh headless Claude Code, then Grok.
+2. **Use fresh Codex when no reviewer is named.** Run it on the review model the user confirmed (`codex-agents`). Without Codex, the wrapper uses fresh headless Claude Code, then Grok.
 3. **Only the tools are optional; the review never is.** With none of the three CLIs available, review manually in a fresh read-only session of the agent you are using.
 
 **Keep the review read-only, fresh and unsteered.** Start without carried-over memory, using a fresh session rather than resuming or forking the building thread. Supply the unreleased diff plus working tree, without a checklist, earlier findings or an argument for the design.
@@ -136,7 +138,7 @@ Commands and the record are in `references/checklist.md § 4`.
 
 - **If a script exists for a step, use the script.** Reinventing a step can change what ships. On the first manual release, record commands and evidence in the release doc. On the second, script them and route the command from the entry file; apply `agent-instructions`. Run the script only after the owner's clear go, authorizing that one release (`references/runbook.md`). The doc names the steps the owner keeps.
 - **A release script refuses every option it does not read.** Name no target by default. Never echo a flag's value. An ignored `--dry-run` deploys for real.
-- **The backend ships first.** Publish a client relying on new backend behaviour only once that backend is in production. Keep every backend release usable with the last published client.
+- **The backend ships first.** Publish a client relying on new backend behaviour only once that backend is in production. Keep every backend release usable with the last published client. When sessions in separate repositories share a contract, keep its file byte-identical and pin its version with a test in each repository. Every contract change bumps the version and requires explicit agreement from each session before builds start. Probe each published client's parser before widening a response. If a client would reject it, ship client tolerance before the backend widens the response.
 - **A release is finished only when every artifact is attached.** Read the asset list.
 - **Publishing is not availability.** Poll the store for the version. A publishing timestamp is insufficient, so describe a listing as live only once it serves the version.
 - **Nothing unreleased is described in the present tense.** Describe it as future work.

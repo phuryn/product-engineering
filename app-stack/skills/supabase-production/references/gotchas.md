@@ -10,6 +10,7 @@ Read these before writing a query, an RPC, a migration or a connection string. E
 - A refused `on delete restrict` has a different SQLSTATE from Postgres 18
 - An RPC's HTTP status comes from its SQLSTATE, and three codes mislead
 - Two plpgsql and node-postgres mistakes that only fail at runtime
+- Parenthesize JSON extraction beside other operators
 - The generated types call every argument without a default non-null
 - supabase-js needs a global `WebSocket` in Node
 - `npx supabase` can fail on npm's install-script policy
@@ -68,6 +69,17 @@ Both pass the migration and the catalog suite, and fail the first time the code 
 - **node-postgres sends a JavaScript array as a Postgres array**, so an array bound to a `jsonb` parameter fails or arrives as the wrong type. Pass `JSON.stringify(value)` and cast the parameter (`$1::jsonb`).
 
 (`2026-11-01`, an evals product: a retention job failed on the alias the first time a test ran it, and a `jsonb` write failed on the array; each cost a debugging round.)
+
+## Parenthesize JSON extraction beside other operators
+
+**Parenthesize each `jsonb` extraction chain beside `-`, `||`, `@>` or `?`.** This applies to `->` and `->>`. Postgres can group the operators differently from the intended expression (observed `2026-11-18`).
+
+- `doc -> 'details' - ARRAY['note']` groups as `doc -> ('details' - ARRAY['note'])` because `-` binds more tightly. Write `(doc -> 'details') - ARRAY['note']`.
+- `first_doc -> 'items' @> second_doc -> 'items'` groups as `((first_doc -> 'items') @> second_doc) -> 'items'`. `->` and `@>` share precedence and associate left to right. Write `(first_doc -> 'items') @> (second_doc -> 'items')`.
+
+**Let unexpected errors escape a validator and test true and false directly.** Avoid `exception when others then return false`, which reports a broken expression as invalid input. Call the validator with valid and invalid inputs and assert each result.
+
+(`2026-11-18`, a live Q&A product's catch-all made the first bug reject every input. A review caught the second before the migration was applied.)
 
 ## The generated types call every argument without a default non-null
 

@@ -34,7 +34,9 @@ This wrapper closes that gap in three ways:
 
   1. The flags that make a round real are applied here, not remembered.
   2. A round whose output is too short to be a real round FAILS LOUDLY
-     (exit 2) instead of printing a few lines and returning 0.
+     (exit 2) instead of printing a few lines and returning 0. A short Codex
+     round passes only when a successful command read the subject or a file it
+     changes, and the report names that file.
   3. Codex's event stream proves commands succeeded and checks tool isolation.
 
 A round that comes back genuinely empty
@@ -401,7 +403,7 @@ def range_ends(rng: str) -> tuple[str, str] | None:
     return None
 
 
-def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
+def write_subject(cwd: Path, rng: str, net: bool = False, exclude: tuple[str, ...] = ()) -> tuple[Path, int]:
     """Not every reviewer has a shell, so the subject is written where all can read it:
     inside the git directory, which is never committed. The range's log with
     patches, plus the range's cumulative diff when it contains a merge (for a bare
@@ -466,9 +468,15 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
     # begun in another repository (a clone or a fork) can be many times that.
     ends = range_ends(rng)
     whole = bool(ends) and not ends[0]
+    if net and (whole or not ends):
+        sys.exit(f"[review.py] --net takes an A..B or <sha>^! subject, not {rng}")
+    # --exclude: repository-root globs left out of every diff, log and status below.
+    # --full-history keeps git log from dropping a merge's side when paths are given.
+    spec = ["--", *(f":(top,glob,exclude){g}" for g in exclude)] if exclude else []
+    hist = ["--full-history"] if exclude else []
     if whole:
         log = git("log", "--format=%h %ad %an <%ae>  %w(0,0,4)%s%+b%w(0)", "--date=short", rng)
-        tree = git(*attrs, "diff", "--no-ext-diff", "--stat", "-p", empty, rng, env=plain)
+        tree = git(*attrs, "diff", "--no-ext-diff", "--stat", "-p", empty, rng, *spec, env=plain)
         # A push sends every commit, so a key replaced by a variable, or an .env deleted
         # or dropped on a merged branch, still ships. Every line the history held is in the
         # tree or was removed by a commit against one of its parents (-m, pinned so that
@@ -479,7 +487,7 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
         removed, seen, commit, path, shown, hunk = [], set(), "", "", "", False
         for line in git(*attrs, "-c", "log.diffMerges=separate", "log", "-p", "-m", "-U0", "--reverse",
                         "--no-renames", "--no-ext-diff", "--format=commit %h %ad %an  %s",
-                        "--date=short", rng, env=plain, raw=True).split("\n"):
+                        "--date=short", *hist, rng, *spec, env=plain, raw=True).split("\n"):
             line = line[:-1] if line.endswith("\r") else line
             if line.startswith("commit "):
                 commit, path, hunk = line, "", False
@@ -502,9 +510,11 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
                      "that first removed it (each commit against each parent), and each binary file a "
                      "commit touched\n")
             tree += "\n".join(removed) + "\n"
+    elif net:
+        log = git("log", "--oneline", *hist, rng, *spec)
     else:
-        log = git(*attrs, "log", "--root", "--stat", "-p", rng, env=plain)
-    status = git("status", "--porcelain", "-uall")  # not --short, which status.branch changes
+        log = git(*attrs, "log", "--root", "--stat", "-p", *hist, rng, *spec, env=plain)
+    status = git("status", "--porcelain", "-uall", *spec)  # not --short, which status.branch changes
     if not log.strip() and not status.strip():
         sys.exit(f"[review.py] --subject {rng} has no commits and the tree is clean: "
                  "nothing in that range, which is not the same as nothing to review. Round 1 "
@@ -514,9 +524,13 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
     # or an edit made inside a merge, never reaches the reviewer from the log. A
     # two-dot diff of the range's ends does show it. Not `--cc`: a resolution that
     # keeps one parent's version over a line the range added has no combined hunk.
-    merges = git("rev-list", "--merges", rng).split() if log.strip() and not whole else []
+    merges = git("rev-list", "--merges", rng).split() if log.strip() and not whole and not net else []
     header = f"# Review subject: {rng}\n"
     cumulative = []
+    if net:
+        header = f"# Review subject: {rng} (its one-line log, then the range's cumulative diff)\n"
+        cumulative = [f"\n# Cumulative diff of the range: {ends[0]} {ends[1]}\n",
+                      git(*attrs, "diff", "--no-ext-diff", "--stat", "-p", ends[0], ends[1], *spec, env=plain)]
     if whole:
         header = (f"# Review subject: {rng}, every file it holds (its log with each commit's author and "
                   "message, then each "
@@ -529,20 +543,22 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
                "conflict resolution or an edit made inside a merge appears only here")
         if ends:
             cumulative = [f"\n# Cumulative diff of the range: {ends[0]} {ends[1]} ({why})\n",
-                          git(*attrs, "diff", "--no-ext-diff", "--stat", "-p", ends[0], ends[1], env=plain)]
+                          git(*attrs, "diff", "--no-ext-diff", "--stat", "-p", ends[0], ends[1], *spec, env=plain)]
         else:
             cumulative = [f"\n# Cumulative diff of the range: not computed for `{rng}` ({why}). "
                           "Run the round with an A..B range to include it.\n"]
             sys.stderr.write(f"[review.py] warning: {rng} contains merge commits but is not "
                              "an A..B, <sha>^! or bare-ref range, so the subject has no cumulative diff and "
                              "what the merges changed is not in it.\n")
+    if exclude:
+        header += "# Left out by --exclude: " + ", ".join(exclude) + "\n"
     parts = [header, log or "(no commits in this range)\n", *cumulative,
-             "\n# Working tree (uncommitted)\n", status or "(clean)\n", git("diff", "--no-ext-diff", "--no-textconv", "HEAD")]
+             "\n# Working tree (uncommitted)\n", status or "(clean)\n", git("diff", "--no-ext-diff", "--no-textconv", "HEAD", *spec)]
     # The working tree's diff keeps the attributes, whose line-ending and filter rules
     # it needs, so a path it shows as binary goes in again with --text when its
     # content is text on both sides.
     as_text = []
-    for entry in git("diff", "--no-textconv", "--no-renames", "--numstat", "-z", "HEAD", raw=True).split("\0"):
+    for entry in git("diff", "--no-textconv", "--no-renames", "--numstat", "-z", "HEAD", *spec, raw=True).split("\0"):
         if not entry.startswith("-\t-\t"):
             continue
         rel = entry[4:]
@@ -565,7 +581,7 @@ def write_subject(cwd: Path, rng: str) -> tuple[Path, int]:
                              *as_text[i:i + 100]))
     untracked: list[tuple[int, int, str]] = []  # (lines, bytes, path) of each file inlined
     # -z gives raw paths: no quoting or octal escapes to undo, whatever the name.
-    for entry in git("status", "--porcelain", "-z", "-uall", raw=True).split("\0"):
+    for entry in git("status", "--porcelain", "-z", "-uall", *spec, raw=True).split("\0"):
         if not entry.startswith("?? "):
             continue
         rel = entry[3:]
@@ -622,7 +638,8 @@ def compose_prompt(cwd: Path, brief: Path, subject: Path | None, lines: int = 0)
         reading = "No subject file was prepared, so read the working tree as it stands. "
     note = ("\n\n## Reading the subject\n\nYou have read-only tools. " + reading
             + f"Everything else you need is in the repository's files, at `{cwd}`. "
-            + "Name any instruction files or other context still loaded in the report.\n")
+            + "Name the subject or changed files you read in the report, and any instruction files "
+            "or other context still loaded.\n")
     path = git_dir(cwd) / f"review-prompt-{RUN_ID}.md"
     path.write_text(brief.read_text(encoding="utf-8", errors="replace") + note, encoding="utf-8")
     return path
@@ -694,6 +711,7 @@ class CodexEvents:
         self.report = ""
         self.has_report = False
         self.failed_commands: list[str] = []
+        self.read_commands: list[str] = []
         self.mcp_calls: list[str] = []
         self.outside_calls: list[str] = []
         self.listing_calls: list[str] = []
@@ -744,6 +762,7 @@ class CodexEvents:
             elif kind == "command_execution":
                 if item.get("status") == "completed" and item.get("exit_code") == 0:
                     self.succeeded += 1
+                    self.read_commands.append(str(item.get("command", "")))
                 else:
                     command = str(item.get("command", "(command not recorded)"))
                     self.failed_commands.append(f"exit {item.get('exit_code')}, {item.get('status')}: {command}")
@@ -790,8 +809,23 @@ class CodexEvents:
         return ""
 
 
+def subject_read(events: "CodexEvents", subject: Path | None) -> str:
+    """A file the round both read with a successful command and named in its report: the
+    subject file or a path it changes. Empty when none (2026-11-18: a hung round ran 0
+    commands and returned 123 characters; four valid short rounds each read the subject)."""
+    if not subject:
+        return ""
+    text = subject.read_text(encoding="utf-8", errors="replace")
+    names = {subject.name, *re.findall(r"^diff --git a/(\S+) b/", text, re.MULTILINE),
+             *re.findall(r"^# Untracked file: (.+)$", text, re.MULTILINE)}
+    slash = lambda s: s.replace(chr(92), "/")
+    report = slash(events.report)
+    commands = [slash(c) for c in events.read_commands]
+    return next((n for n in sorted(names) if n in report and any(n in c for c in commands)), "")
+
+
 def finish_codex_round(raw: str, stderr: str, args: argparse.Namespace, elapsed: float,
-                       returncode: int, timed_out: bool = False) -> None:
+                       returncode: int, timed_out: bool = False, subject: Path | None = None) -> None:
     events = CodexEvents(raw)
     summary = (f"[review.py] {len(events.report.strip())} chars in {elapsed:.0f}s; "
                f"Codex events: {events.parsed} parsed, {events.skipped} non-object/non-JSON lines skipped; "
@@ -847,12 +881,20 @@ def finish_codex_round(raw: str, stderr: str, args: argparse.Namespace, elapsed:
     if failure:
         sys.stderr.write(f"[review.py] FAILED ROUND — {failure}\n")
         sys.exit(2)
-    if len(events.report.strip()) < args.min_chars and not args.allow_short:
+    short = len(events.report.strip()) < args.min_chars
+    read = subject_read(events, subject) if short else ""
+    if short and not read and not args.allow_short:
         sys.stderr.write(f"[review.py] FAILED ROUND — {len(events.report.strip())} chars is below "
-                         f"--min-chars {args.min_chars}.\n"
+                         f"--min-chars {args.min_chars}, and no successful command read a file the report names "
+                         "(the subject file or a path it changes).\n"
                          "  A real round argues its conclusion over paragraphs; read the report before using --allow-short.\n")
         sys.exit(2)
-    if len(events.report.strip()) < args.min_chars:
+    if not short:
+        sys.stderr.write(f"[review.py] passed: the report is at least --min-chars {args.min_chars}.\n")
+    elif read:
+        sys.stderr.write(f"[review.py] passed the short-report rule: a successful command read {read}, "
+                         "and the report names it.\n")
+    else:
         sys.stderr.write("[review.py] warning: short round accepted by --allow-short; "
                          "confirm it reasoned its way to a conclusion and could read the files.\n")
 
@@ -984,7 +1026,7 @@ def main() -> None:
         "--model",
         metavar="MODEL",
         help="Override the model (default: the CLI's). Codex passes this as -m; user config, "
-        "including its model choice, is ignored. Pick the newest model your CLI offers; "
+        "including its model choice, is ignored, so pass the model the user confirmed. "
         "`grok models` lists Grok's.",
     )
     parser.add_argument(
@@ -993,6 +1035,12 @@ def main() -> None:
         help="Git range under review (e.g. origin/PROD..HEAD, or abc123^! for one commit). "
         "Written to a file every reviewer can read, including those without a shell.",
     )
+    parser.add_argument("--net", action="store_true",
+                        help="With an A..B or <sha>^! --subject: the one-line log and the range's cumulative "
+                        "diff instead of each commit's patch, for a range that wrote and later removed code")
+    parser.add_argument("--exclude", action="append", default=[], metavar="GLOB",
+                        help="With --subject: leave paths matching this repository-root glob out of the "
+                        "subject, such as working notes (repeatable)")
     parser.add_argument("--sandbox", metavar="PROFILE",
                         help="Grok sandbox profile passthrough; its tool allowlist is the write boundary "
                         "(sandbox enforcement varies by platform). Codex always uses read-only.")
@@ -1006,7 +1054,8 @@ def main() -> None:
         type=int,
         default=DEFAULT_MIN_CHARS,
         metavar="N",
-        help=f"Below this, the round is treated as FAILED (default: {DEFAULT_MIN_CHARS})",
+        help=f"Below this, the round is treated as FAILED (default: {DEFAULT_MIN_CHARS}), unless a "
+        "Codex command read a file the report names",
     )
     parser.add_argument(
         "--allow-short",
@@ -1042,6 +1091,8 @@ def main() -> None:
                  "missing tag is not proof that nothing is released: a production branch or the deployed "
                  "commit may say, and where nothing does, ask the owner), or before the first "
                  f"release:{product_start(Path(args.cwd or '.'))}")
+    if (args.net or args.exclude) and not args.subject:
+        sys.exit("[review.py] --net and --exclude take a --subject")
     if args.subject_only and (args.check or args.dry_run or not args.subject):
         sys.exit("[review.py] --subject-only takes --brief, --cwd and --subject, and runs no reviewer")
 
@@ -1123,7 +1174,8 @@ def main() -> None:
     if not args.subject:
         sys.stderr.write("[review.py] warning: no --subject. No git range was prepared; "
                          "the prompt asks the reviewer to read only the working tree.\n")
-    subject, lines = write_subject(args.cwd_resolved, args.subject) if args.subject else (None, 0)
+    subject, lines = (write_subject(args.cwd_resolved, args.subject, args.net, tuple(args.exclude))
+                      if args.subject else (None, 0))
     prompt = compose_prompt(args.cwd_resolved, brief, subject, lines)
     if args.subject_only:
         print(f"subject: {subject} ({lines} lines)\nprompt:  {prompt}")
@@ -1178,14 +1230,14 @@ def main() -> None:
         if reviewer == "codex":
             raw = err.stdout.decode("utf-8", "replace") if isinstance(err.stdout, bytes) else (err.stdout or "")
             stderr = err.stderr.decode("utf-8", "replace") if isinstance(err.stderr, bytes) else (err.stderr or "")
-            finish_codex_round(raw, stderr, args, time.time() - started, 1, timed_out=True)
+            finish_codex_round(raw, stderr, args, time.time() - started, 1, timed_out=True, subject=subject)
         sys.exit(f"[review.py] round exceeded --timeout {args.timeout}s. Nothing to read.")
     except OSError as err:
         sys.exit(f"[review.py] could not start {reviewer}: {err}. The round did not run.")
 
     elapsed = time.time() - started
     if reviewer == "codex":
-        finish_codex_round(proc.stdout or "", proc.stderr or "", args, elapsed, proc.returncode)
+        finish_codex_round(proc.stdout or "", proc.stderr or "", args, elapsed, proc.returncode, subject=subject)
         return
     out = proc.stdout or ""
     body = out.strip()

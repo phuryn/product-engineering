@@ -98,6 +98,10 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-09-16`, `2026-09-17`: A delegated builder whose sandbox could not reach the database or a browser had no passing gate to report; twice its runs were written up with invented counts.
 
+## Compare the test inventory before and after each delegated turn.
+
+- `2026-11-18`, a builder for a live Q&A product rewrote a visual spec to cover only the changed states, silently dropping six captured states.
+
 ## Before passing a delegate's "commands for the owner" up, do every one you can.
 
 - `2026-10-23`, a monitoring product: a handoff listed the identity provider's OAuth settings as owner settings; they were applied through its backend API with the instance's secret key and re-read, and the migrations and edge rollout in two other handoffs' owner commands were run by the coordinator.

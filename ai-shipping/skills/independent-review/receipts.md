@@ -52,6 +52,10 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-09-17`, one commit reviewed as code completed; the same commit reviewed with its docs exhausted the round.
 
+## Send the net diff when a range wrote code and later removed it.
+
+- `2026-11-18`, a live Q&A product's last review series covered a range holding code built over three stages and then deleted, and notes commits carrying earlier rounds' findings. The wrapper's subject was 26,205 lines; the net diff without the notes was 4,728, and the coordinator rebuilt it by hand for seven rounds.
+
 ## An installed reviewer can still be out of usage.
 
 - `2026-10-31`: a signed-in Grok CLI answered `402 usage balance exhausted`.
@@ -59,6 +63,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## A short clean round is a failed round.
 
 - `2026-09-08`: two such rounds were read as clean before a third, run properly, found a real defect in the commit both had "cleared".
+- `2026-11-18`, A hung round for a live Q&A product returned 123 characters with zero commands. Four other short reports had evidence of subject reads and probes. The coordinator accepted those after reading the events.
 
 ## A round can fail by running out of room, leaving the same short output.
 

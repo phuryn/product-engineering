@@ -5,9 +5,9 @@ description: "'Ask Codex', 'check with Codex', handing Codex a build or review, 
 
 # Codex agents — the Codex CLI as peer, builder and reviewer
 
-**Treat Codex as a peer with the same standing as Claude.** Not a formatter, not a gate, not an authority. Run it on the newest model the Codex CLI offers, at its highest reasoning effort: `xhigh`, the wrapper's default on every turn.
+**Treat Codex as a peer with the same standing as Claude.** Not a formatter, not a gate, not an authority.
 
-Author's example (chosen `2026-11-18`): GPT-6.2 Sol at `xhigh`, for builds and reviews. Choose your own model.
+**Confirm the build model and the review model with the user.** They are two choices. For each, suggest the newest GPT Sol their Codex lists, at `high` or `xhigh` (`--effort`; the wrapper's default is `xhigh`). The list is `models[].slug` in `~/.codex/models_cache.json` (verified `2026-11-18`, Codex CLI 0.169.0); without it, ask. A standing preference goes into the user's own `CLAUDE.md` or `AGENTS.md`, never a skill or the wrapper's state, so later sessions read it there and don't ask again. The author's example, chosen `2026-11-18`: GPT-6.2 Sol at `xhigh` for both.
 
 **It can build, and what it builds is reviewed by someone else.** Hand it a build stage with the goal, binding decisions and files it will touch. Read its diff before believing it; a delegated diff is unreviewed code. The session that wrote code never clears it. An independent review does, through `independent-review` or whatever the project uses. Codex can review code it didn't write (§ Reviewer).
 
@@ -129,20 +129,20 @@ The wrapper auto-resumes the session it last ran in this directory. Loop until c
 
 ## Reviewer
 
-**Apply `independent-review` for round scope, brief, triage and stopping.** With Codex installed, the wrapper runs this command by default. `--reviewer codex` forces it. On Windows, pass `--windows-sandbox elevated|unelevated` to override its mode; absent that flag, it reads config (observed `2026-11-16`, Codex CLI 0.169.0). It passes `--effort` (`xhigh` by default); use `--model` to choose a model, since user config is ignored. Repository instructions rank reviewers first. When running by hand, get the prompt with `--subject-only`, which writes subject and prompt into the git directory and prints their paths. Use a new session meeting the review bar, never this skill's wrapper and never a resume of the building thread:
+**Apply `independent-review` for round scope, brief, triage and stopping.** With Codex installed, the wrapper runs this command by default. `--reviewer codex` forces it. On Windows, pass `--windows-sandbox elevated|unelevated` to override its mode; absent that flag, it reads config (observed `2026-11-16`, Codex CLI 0.169.0). It passes `--effort` (`xhigh` by default). Pass the confirmed choice as `--model` because the wrapper ignores the configured model. Repository instructions rank reviewers first. When running by hand, get the prompt with `--subject-only`, which writes subject and prompt into the git directory and prints their paths. Use a new session meeting the review bar, never this skill's wrapper and never a resume of the building thread:
 
 ```bash
 # macOS and Linux
 codex exec --json --ephemeral --ignore-user-config --ignore-rules -s read-only \
      --disable apps --disable plugins --disable tool_suggest --disable image_generation \
      --disable memories --disable hooks -c web_search=disabled \
-     -m <the newest model> -c model_reasoning_effort=xhigh -C <repo> \
+     -m <confirmed-model> -c model_reasoning_effort=xhigh -C <repo> \
      -o "$S/review-NNN.md" - < "<prompt file>" > "$S/review-NNN.jsonl" 2> "$S/review-NNN.err"
 # Windows: the same, plus the sandbox mode under [windows] in ~/.codex/config.toml (elevated or unelevated)
 codex exec --json --ephemeral --ignore-user-config --ignore-rules -s read-only \
      --disable apps --disable plugins --disable tool_suggest --disable image_generation \
      --disable memories --disable hooks -c web_search=disabled -c 'windows.sandbox="<that mode>"' \
-     -m <the newest model> -c model_reasoning_effort=xhigh -C <repo> \
+     -m <confirmed-model> -c model_reasoning_effort=xhigh -C <repo> \
      -o "$S/review-NNN.md" - < "<prompt file>" > "$S/review-NNN.jsonl" 2> "$S/review-NNN.err"
 ```
 
@@ -154,10 +154,10 @@ grep -c '"type":"command_execution".*"exit_code":0,"status":"completed"' "$S/rev
 grep -E '"type":"(mcp_tool_call|web_search|file_change)"' "$S/review-NNN.jsonl"
 ```
 
-A report under 1,500 is a failed round. Zero successful commands also fails, however long the answer. Opening, listing and searching files are reads; a refused write is the read-only sandbox doing its job. The events show command status and exit codes; inspect failed commands to distinguish refused writes or searches without matches from unread review files. The third check fails a manual round on any match, with two exceptions. One is `list_mcp_resources` or `list_mcp_resource_templates` on server `codex`. The other is a `file_change` whose status is not `completed`: a refused edit. The wrapper warns on failed MCP calls; a server reached the session, and the next call might not be refused. Keep the events with the report, never committed; `--json` with `-o` works on Codex CLI 0.166.0 (observed `2026-11-14`). Windows sandbox modes were compared with Codex CLI 0.169.0 on `2026-11-16`: elevated timed out after 60 minutes with zero commands; unelevated completed in about 15 minutes. The isolation tool-count measurement above was on macOS.
+Zero successful commands fails at any length. Below 1,500 characters, require a successful command that read the subject file or a file it changes, and a report that names that file. The wrapper prints which rule passed. Opening, listing and searching files are reads; a refused write is the read-only sandbox doing its job. The events show command status and exit codes; inspect failed commands to distinguish refused writes or searches without matches from unread review files. The third check fails a manual round on any match, with two exceptions. One is `list_mcp_resources` or `list_mcp_resource_templates` on server `codex`. The other is a `file_change` whose status is not `completed`: a refused edit. The wrapper warns on failed MCP calls; a server reached the session, and the next call might not be refused. Keep the events with the report, never committed; `--json` with `-o` works on Codex CLI 0.166.0 (observed `2026-11-14`). Windows sandbox modes were compared with Codex CLI 0.169.0 on `2026-11-16`: elevated timed out after 60 minutes with zero commands; unelevated completed in about 15 minutes. The isolation tool-count measurement above was on macOS.
 
 - **Read the prompt from the file the wrapper wrote through stdin.** Use `- < "<prompt file>"`, never `< /dev/null`: stdin here is the prompt. An empty or missing prompt file means the round never started.
-- **Use the manual check as the round's gate.** For a manual run, no wrapper measures it; the `independent-review` bar fails a short round, one unable to read or an outside-tool match.
+- **Use the manual check as the round's gate.** For a manual run, apply the length and evidence checks above. Fail a round that could not read or matches an outside-tool check.
 - **Start with `--ephemeral` so the review saves no session.** A new `codex exec` starts without an earlier conversation.
 - **Exclude user config and execpolicy rules from the review session.** `--ignore-user-config` omits `~/.codex/config.toml`, including its MCP servers and project trust. The sandbox covers only shell commands the model runs; `-s read-only` does not bind those added tools (Codex CLI 0.159.0, observed 2026-10-29). Ignoring user config does not remove connected apps, plugins or web search. The `--disable` flags and `-c web_search=disabled` remove them (Codex CLI 0.166.0, macOS, observed `2026-11-14`: 546 tools before, 22 after). The hooks feature is disabled by flag; its absence was not measured. Ignoring user config also omits the model and, on Windows, the sandbox mode without which every read is refused. Put both back on the command line. The review wrapper takes `--model`; `--windows-sandbox` explicitly supplies the Windows mode. Without that override, it restores config's mode or stops when none can be read (observed `2026-11-16`, Codex CLI 0.169.0). Observed on Codex CLI 0.166.0, Windows 11, 2026-11-02: with model and mode specified, a session read a file and was refused a write. Without the mode, both were refused as "blocked by policy", yet the session still answered in full sentences. `--ignore-rules` skips execpolicy rule files.
 - **Name the instruction files still loaded in the round's report.** These flags were not shown to disable Codex's instruction files: the repository's `AGENTS.md` and the one in `CODEX_HOME`. Bundled skills and agent-spawning tools remain, plus whatever administrator system, managed or cloud configuration adds; those administrator layers were not observable here. A spawn failed in an ephemeral session (Codex CLI 0.166.0, observed `2026-11-14`); that does not guarantee it always fails. On managed machines, configuration can add tools, MCP servers or hooks the flags cannot remove; the wrapper names files it finds and fails outside-tool rounds. POSIX paths are `/etc/codex/config.toml`, `/etc/codex/managed_config.toml` and `/etc/codex/requirements.toml`; macOS also has `/Library/Managed Preferences/com.openai.codex.plist` and `/Library/Managed Preferences/<user>/com.openai.codex.plist`. Windows paths are `%ProgramData%\OpenAI\Codex\requirements.toml` and `managed_config.toml` under the Codex home. Managed-configuration documentation names managed paths and cloud configuration, and says managed layers override command-line `--config` (read on `2026-11-14`).
@@ -189,7 +189,7 @@ Codex argued at least one point you then changed or defended, and the run's head
 | `--new` | off | Force new session even if one is stored |
 | `--session ID` | — | Resume that session in `--cwd`, with no fallback to a new one. The model and sandbox come from `--model` and `--sandbox`, or from the marker when it names this session; otherwise both are the config's. |
 | `--read FILE` | — | Read message body from FILE (`-` for stdin). Use for long context-rich openings. |
-| `--model MODEL` | codex's configured default | Override the model. Pass one only to pin the newest model the Codex CLI offers when the configured default (`~/.codex/config.toml`) is not it. Remembered for the session and re-sent on every resume. |
+| `--model MODEL` | codex's configured default | Pass the confirmed model when it differs from the config default. The wrapper re-sends that model only for this session's resumes. |
 | `--effort LEVEL` | `xhigh`, on every turn | `low` / `medium` / `high` / `xhigh`, sent as `-c model_reasoning_effort=…`. |
 | `--sandbox MODE` | `read-only` for a new session | `read-only` / `workspace-write` / `danger-full-access`. Remembered for the session and re-sent on every resume as `-c sandbox_mode=…`; passing it on a resume changes it. |
 | `--cwd DIR` | current directory | Directory the codex run happens in. Required to drive a repo other than the one the caller is sitting in, and it also scopes session continuity (below). Fails loudly if `DIR` is not a directory. |

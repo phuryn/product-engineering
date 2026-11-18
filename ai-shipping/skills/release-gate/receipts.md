@@ -18,6 +18,10 @@ The rules come from two kinds of product, named here only by kind. The web-app h
 
 - `2026-11-01`, an evals product's first deploy: this skill and `environments` both assumed a host that builds from a git branch.
 
+## Local scheduled jobs run a released copy that changes only at release.
+
+- `2026-11-18`, A scheduled job for a desktop tool that writes to an external system's API ran unreleased working-tree changes against production. The job was repointed to a released copy that is updated only at release.
+
 ## Stamp every upload with its commit.
 
 - `2026-11-03`, an evals product's worker stop and start script: each found only by running it. A stopped deployment stays in `activeDeployments` with status `SUCCESS` and `deploymentStopped: true`, and reading `environmentStagedChanges` creates an empty staged record (`{ patch: {} }`), so a "nothing staged" check ignores an empty patch.
@@ -93,6 +97,10 @@ The rules come from two kinds of product, named here only by kind. The web-app h
 ## Run each release as one ordered, logged checklist.
 
 - `Undated`: A live Q&A product's release doc lists its no-go checks with their commands, a go/no-go paragraph ("Silence is not go"), the promotion commands with the production refs spelled out, and how to prove the release serves. A skipped gate is a recorded waiver. (No separate date in the original's `2026-11-05` release examples.)
+
+## The backend ships first.
+
+- `2026-11-18`, A build for a live Q&A product started before sessions agreed on the contract. The sessions went on to agree explicitly and pin the version of the identical contract file in each repository. When a response enum gained a value, the compatibility assessment missed that the client's parser would reject it. The backend change waited until the tolerant client was live.
 
 ## The branch a plugin or skill marketplace serves is production.
 

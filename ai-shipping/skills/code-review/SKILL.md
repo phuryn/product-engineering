@@ -84,6 +84,8 @@ Observable consumer or consequence:
 
 Establish that each case is actually reachable. Do not assume it.
 
+For a non-idempotent external create, check each write's durable state before and after, and probe a rerun at each crash point. Apply the `test-harness` skill's `references/external-creates.md`.
+
 ### Two lenses that need a forced probe, not a mention
 
 **Probe authority reconciliation and identity correlation explicitly.** Strong agents almost never even report these two classes: they miss them at the look, not at the fix. Naming them in a checklist does not make agents inspect them.

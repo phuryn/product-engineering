@@ -31,6 +31,8 @@ description: "Writing or running tests, proving a fix, a red or flaky run, a fix
 
 Every row in full, including its target and run placement, is in `references/harnesses.md`. That reference also covers the two-halves harnesses, browser configs, script contract, and authenticated mile.
 
+When an external create lacks an idempotency guarantee, follow `references/external-creates.md` before the first review.
+
 ## The gate
 
 **Run the full local gate at phase end and before deploying pushes.** Development deploys need browser coverage too. By default, `gate` runs `typecheck`, `test` (unit + integration), `e2e`, then `e2e:auth`, in that order, as applicable to the product's shape and current stage. Compare the actual script with `references/harnesses.md`'s script contract; a green script can omit a whole suite. The owner decides any narrower gate; record that choice in the plan, with its reason and revisit trigger.
@@ -79,6 +81,7 @@ The `saas-authorization` skill explains what each protects and why invariants li
 - **Read every exit code from the log, never the notification.** A background wrapper can report exit 0 while the command inside it failed.
 - **The gate is the exit code, never the printed counts.** A run can print every test passed and exit 1 on an unhandled rejection. Counts without the exit code establish nothing (`references/rules-from-bugs.md § Reading a red run`).
 - **An inherited report is a claim, not evidence.** Re-run the gate yourself before repeating a count.
+- **Copy a red run's failure artifacts out of the output directory before rerunning.** The runner can erase them on startup.
 - **Every preview and go message names each suite that did not run.** Counts alone can read as full coverage. For example: "Unit and integration passed; `e2e` and `e2e:auth` did not run: browser launch blocked." Include the reason and what unblocks each missing run.
 - **The coverage map is written by whoever ran the gate, and by nobody else.** A builder records only what it actually ran, including blocked or partial suites. Read every line it adds and rewrite completion evidence from your own applicable run, never by editing its numbers. Use `references/coverage-map.md` for the map's format.
 - **A green run that flakes is not a pass.** Judge a suite on a series. Record both a red run and the green one after it. A flake goes in the backlog on its first appearance; its second makes the fix due (`references/rules-from-bugs.md § Reading a red run`). Never cure one with a sleep, a retry until green or a skip: each hides the cause. A suite that has never been green reports nothing and hides the next real red.
@@ -113,9 +116,10 @@ Your own run covered the tests the piece touches, or the full gate at the phase'
 | File | Holds | Read when |
 |---|---|---|
 | `references/harnesses.md` | every harness in full; harnesses for a product with two halves (both real, old-client compatibility, the wire between DOM suites, operator checks, the authenticated canary); the two browser configs and the shared server module; the script contract; the authenticated mile | adding a suite or a script; a client and its backend; setting up or debugging the authenticated browser suite |
-| `references/rules-from-bugs.md` | the gate and harness rules, grouped by moment: reading a red run (the exit code, flakes, hangs, rotted checks); writing assertions; fixtures; the database; servers, builds and worktrees; browsers and layout; the harness's environment (preconditions, sign-in without a credential); same-origin checks; generated files | writing or running any test; a red, flaky or hanging run; creating or removing a worktree |
+| `references/rules-from-bugs.md` | the gate and harness rules, grouped by moment: reading a red run (the exit code, flakes, hangs, rotted checks); writing assertions; fixtures; irreversible identifiers; the database; servers, builds and worktrees; browsers and layout; the harness's environment (preconditions, sign-in without a credential); same-origin checks; generated files | writing or running any test; a red, flaky or hanging run; creating or removing a worktree |
 | `references/captures.md` | the capture harness and the exploratory pass: the release set as a budget, where captures live, sweeps | at the end of a phase that changes a screen; before a release's visual pass |
-| `references/vendor-surfaces.md` | vendor-rendered elements measured from the DOM; link previews asserted on the raw response; icons and generated images | testing a third-party component, a share card, an icon or an OG image |
+| `references/vendor-surfaces.md` | vendor-rendered elements measured from the DOM; API response parsers and shared contract suites; link previews asserted on the raw response; icons and generated images | testing a third-party component, API contract, share card, icon or OG image |
+| `references/external-creates.md` | durable recovery for non-idempotent external writes and fault-injection tests | before reviewing a change that creates objects without an idempotency guarantee |
 | `references/coverage-map.md` | the coverage map's sections and who writes it | after a gate run; at a release; when a stage adds tests |
 
 **Use the related skills for screen claims, coverage documents, and release mechanics.** What a screen may claim and what to verify visually are outside this skill: widths, states, themes, roles, and the 320 px floor. Use the `ui-design` skill's `references/screens.md`. The coverage map as a document, including its required reviewer contents, is `shipping-artifacts`. The `derive-tests` skill derives one from docs; its `check` mode lists stale entries and writes nothing. Use `release-gate` for the release checklist. The identity provider's harness mechanics in depth are `clerk-production`; the database's catalog posture and error codes are `supabase-production`.

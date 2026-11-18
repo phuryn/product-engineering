@@ -141,3 +141,11 @@ Each entry: the date, the request, **rejected** or **deferred**, the reason, the
 - **Reason:** the coordinator chooses the phase split for agent capacity and quality. Every option carries an estimated size and what it adds to run. Reuse needs judgement, not a fixed position; stage checks stay light and phases receive the full gate and review series.
 - **Evidence:** a live Q&A product's first three invoice stages took 301 critical-path minutes, including 110 in full gates and 137 building. Decisions without sizes led to a build the owner called "that's too complex"; the documents moved to the accounting tool already used. On prescribing reuse first, the owner said "overcomplicates. That's common sense" and asked to trust the agent's split.
 - **Decided by:** the owner.
+
+## One key per caller of a shared service
+
+- **2026-11-18 · rejected.**
+- **Request** — Teach one key per app that calls a shared service.
+- **Reason** — The proposal was lower impact than the other lessons and came from a design choice.
+- **Evidence** — A live Q&A product chose separate keys during design. The feedback records the choice.
+- **Decided by** — The maintaining session, under the owner's rule of 2026-11-18 to take universal mechanisms; reopen on a defect it would have prevented.

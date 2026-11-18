@@ -43,6 +43,10 @@ The principle behind all of this is `saas-authorization`: a role says *who may a
   - Its Members tab invites with any role the instance defines, custom roles included.
   - (`2026-09-20`, a live Q&A product retired its own invitation form once Clerk's role picker offered its custom role.)
 - **What the modal lacks goes in as a custom page inside it** (`OrganizationSwitcher.OrganizationProfilePage`). Its data moves only through Server Actions that re-resolve the caller and recheck the permission the page is shown under.
+- **Match a custom page's layout to the modal's built-in pages.** Compose the kit inside the vendor layout. A live Q&A product used two kit primitives, one for the page and one for each section.
+  - Remeasure the built-in pages at every capture width. In that example, the 17 px title at weight 700 with 24 px line height aligned with the close button (reported `2026-11-18`). Hairlines divided sections, with 13 px labels at weight 500 in a 176 px column.
+  - The section stacked at 992 px and navigation collapsed at 768 px. Use the section's measured breakpoint for its layout. Use the kit's own divider token when the hairline is too faint in dark mode.
+  - Capture each custom page beside a built-in page. Apply the `ui-design` skill's vendor layout rule under What to verify visually.
 - **A dialog of yours inside Clerk's modal shares its keyboard.** `showModal()` moves the dialog into the top layer, not out of the DOM tree, so every bubbling key still reaches Clerk's handlers before your `onCancel` runs.
   - An open modal dialog therefore takes Escape on `window` in the capture phase, ahead of any listener a vendor puts on `document`, and stops it there with `stopImmediatePropagation()`.
   - Only an undismissable dialog also calls `preventDefault()`. A plain confirmation still closes, while the vendor behind it does not.

@@ -2,6 +2,14 @@
 
 Each heading is a rule from `SKILL.md`, with the case that taught it.
 
+## Write text containing backslashes with the file tool.
+
+- `2026-11-18`, While working on a desktop tool that writes to an external system's API, Claude Code's Bash tool on Windows 11 used Git Bash to run `python -B - <<'EOF'`. A doubled backslash arrived single, so Python read `\b`, `\f` and `\a` as control characters. In one run, a backspace reached a production regex. No other environment was tried.
+
+## Stop a Windows background server by its process ID or listening port.
+
+- `2026-11-18`, On Windows, stopping a background task for a live Q&A product ended its shell wrapper. The server kept its port, and the restart failed because the port was in use.
+
 ## When something works here and breaks there, suspect the environment you did not measure.
 
 - `Undated`: Most of the receipts below cost an hour or more because the failure looked like a code problem.

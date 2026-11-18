@@ -18,7 +18,7 @@ Flags:
     --session ID     Resume the session with this id, in --cwd; no fallback
     --read FILE      Read message from FILE
     --model MODEL    Override the model (default: codex's configured one).
-                     Use the newest model the Codex CLI offers. Remembered
+                     Pass the model confirmed with the user. Remembered
                      for the session and re-sent on every resume.
     --effort LEVEL   low / medium / high / xhigh (default: xhigh, on every turn).
                      The highest, xhigh, is the default.

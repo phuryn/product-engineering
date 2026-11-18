@@ -10,8 +10,11 @@ import argparse
 import contextlib
 import importlib.util
 import io
+import json
 import os
+import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -133,6 +136,97 @@ class WindowsSandboxTests(unittest.TestCase):
             command = self.command("unelevated")
             mode.assert_not_called()
             self.assertFalse(any("windows.sandbox" in arg for arg in command))
+
+
+class GitRepo(unittest.TestCase):
+    def setUp(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        self.cwd = Path(temp.name).resolve()
+        self.git("init", "-q")
+        self.commit("baseline")
+
+    def git(self, *args):
+        return subprocess.run(["git", "-c", "user.name=Test", "-c", "user.email=test@example.invalid",
+                               "-c", "commit.gpgsign=false", *args], cwd=self.cwd, check=True,
+                              capture_output=True, text=True, encoding="utf-8").stdout
+
+    def write(self, name, content):
+        path = self.cwd / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content + "\n", encoding="utf-8")
+
+    def commit(self, message):
+        self.git("add", ".")
+        self.git("commit", "-q", "--allow-empty", "-m", message)
+
+    def subject(self, rng, **options):
+        path, _ = review.write_subject(self.cwd, rng, **options)
+        return path, path.read_text(encoding="utf-8")
+
+
+class SubjectTests(GitRepo):
+    def test_net_keeps_the_commit_list_and_drops_intermediate_patches(self):
+        self.write("src/main.txt", "intermediate")
+        self.commit("first change")
+        self.write("src/main.txt", "final")
+        self.commit("second change")
+        _, body = self.subject("HEAD~2..HEAD", net=True)
+        self.assertIn("first change", body)
+        self.assertIn("second change", body)
+        self.assertIn("+final", body)
+        self.assertNotIn("intermediate", body)
+        _, ordinary = self.subject("HEAD~2..HEAD")
+        self.assertIn("+intermediate", ordinary)
+
+    def test_net_refuses_a_bare_ref(self):
+        with self.assertRaises(SystemExit):
+            self.subject("HEAD", net=True)
+
+    def test_exclude_leaves_paths_out_of_commits_and_the_working_tree(self):
+        self.write("src/main.txt", "kept")
+        self.write("notes/round.md", "committed note")
+        self.commit("change")
+        self.write("notes/draft.md", "untracked note")
+        self.write("src/main.txt", "kept, edited")
+        for net in (False, True):
+            _, body = self.subject("HEAD~1..HEAD", net=net, exclude=("notes/**",))
+            self.assertIn("+kept", body)
+            self.assertNotIn("committed note", body)
+            self.assertNotIn("untracked note", body)
+            self.assertIn("Left out by --exclude: notes/**", body)
+
+
+class ShortReportTests(GitRepo):
+    def round(self, report, *commands):
+        events = [{"type": "item.completed", "item": {"type": "command_execution", "command": c,
+                                                      "status": "completed", "exit_code": 0}}
+                  for c in commands]
+        events.append({"type": "item.completed", "item": {"type": "agent_message", "text": report}})
+        events.append({"type": "turn.completed"})
+        return review.CodexEvents("\n".join(json.dumps(e) for e in events))
+
+    def setUp(self):
+        super().setUp()
+        self.write("src/app.py", "print(1)")
+        self.commit("change")
+        self.path, _ = self.subject("HEAD~1..HEAD")
+
+    def test_a_hung_round_fails(self):
+        events = review.CodexEvents(json.dumps({"type": "item.completed",
+                                                "item": {"type": "agent_message", "text": "x" * 123}}))
+        self.assertEqual(review.subject_read(events, self.path), "")
+
+    def test_a_named_read_of_the_subject_or_a_changed_file_passes(self):
+        events = self.round(f"Read {self.path.name}; no findings.", f"cat {self.path}")
+        self.assertEqual(review.subject_read(events, self.path), self.path.name)
+        events = self.round("Read src/app.py; no findings.", "sed -n 1,40p src/app.py")
+        self.assertEqual(review.subject_read(events, self.path), "src/app.py")
+
+    def test_an_unnamed_read_or_a_read_of_another_file_fails(self):
+        self.assertEqual(review.subject_read(self.round("No findings.", f"cat {self.path}"), self.path), "")
+        events = self.round("Read README.md and src/app.py.", "cat README.md")
+        self.assertEqual(review.subject_read(events, self.path), "")
 
 
 if __name__ == "__main__":

@@ -30,6 +30,10 @@ Each rule is here because a green run lied once. Grouped by the moment you meet 
 - **A test must not need two clocks to agree.** A window computed on the machine and checked against timestamps the database wrote passes or fails by the skew between them. Take both ends from one clock — the database's `now()`, or a time the test passes in. (`2026-10-22`, a monitoring product's budget-window test needed the machine's clock to agree with the database's to the second.)
 - **A regenerated fixture does not regenerate the facts derived from the columns it leaves alone.** A reset, reseed or demo refresh can be right in every row it writes and still leave a screen wrong, because the screen computes from a timestamp or counter the reset never touched. List the columns a regeneration does **not** write, ask which of them a screen does arithmetic on — elapsed time, age, *since* — and re-stamp those in the same reset. Every assertion passes on this; only the running screen shows it. (`2026-09-21`, a freshly reset demo said *open for 6 days* above content the same transaction had just written.)
 
+## Irreversible identifiers
+
+- **Take an irreversible identifier only after every fallible step has passed once.** Run those steps on the same input. When the identifier cannot be returned, preflight with a placeholder and change only the identifier for the final run. (`2026-11-18`, a live Q&A product consumed an identifier before generating its output. Generation failed and left no output. The sequence recurred in the next stage.)
+
 ## The database
 
 - **A gateway rejection is not proof of database denial.** A missing publishable key skips loudly; a configured key rejected with HTTP 401 fails. Admit the key before asserting the permission-denied SQLSTATE (`42501`), and run the secret-key catalog assertions independently. (`2026-09-16`, a stale key let the deny-all suite pass without reaching PostgreSQL.)

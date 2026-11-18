@@ -83,9 +83,15 @@ Run `cd <dir> && sed -n '1,5p' <file>` in auto mode on your version. If clean, d
 
 **Write CLI text to a file and pass it by path.** Use `git commit -F <file>`, `gh ... --body-file <file>`, or `gh api ... -F body=@<file>`. The shell expands nothing in the file, and an analyser has nothing to infer.
 
-**Use a quoted heredoc where your version accepts it.** The usual fix is `git commit -F -`, never `-m "..."`, because backticks execute and vanish silently (§ Arguments 1). A quoted delimiter (`<<'EOF'`) passes text without expansion. Native Windows auto mode in Claude Code 2.1.232/2.1.233 read heredocs as “expansion obfuscation” and prompted (observed `2026-08-16`). On 2.1.310 (observed `2026-10-24`), they ran without stopping. Where accepted, `git commit -F - <<'EOF'` is equally safe.
+**Write text containing backslashes with the file tool.** Run scripts by path and pass other text by path. Skip heredocs even with a quoted delimiter, because the Windows Bash tool can strip an escape. See `test-harness` § Generated files in `references/rules-from-bugs.md` for the related test rule.
+
+**Use a quoted heredoc for other text where your version accepts it.** The usual fix is `git commit -F -`, never `-m "..."`, because backticks execute and vanish silently (§ Arguments 1). A quoted delimiter (`<<'EOF'`) prevents shell expansion. Native Windows auto mode in Claude Code 2.1.232/2.1.233 read heredocs as “expansion obfuscation” and prompted (observed `2026-08-16`). On 2.1.310 (observed `2026-10-24`), they ran without stopping.
 
 Never `-m` with backticks · never text that came through PowerShell 5.1's `Get-Content` (§ Encoding 1).
+
+## Background servers
+
+**Stop a Windows background server by its process ID or listening port.** Stopping the task can end only its shell wrapper. Find the server process, stop it, and check that the port is free before reporting it stopped.
 
 ## Works here, breaks there
 

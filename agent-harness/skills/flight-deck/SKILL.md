@@ -78,6 +78,8 @@ description: "'What's the status', 'where were we', a progress report or status 
 
 **Update `STATUS.md` on every state change.** Do it when a job starts, finishes, fails or gets published, a decision lands, or something becomes blocked. Not "at the end", not "when asked": the moment it changes. A status file that is 80% true is worse than none, because it is trusted.
 
+**Read each new timestamp from the clock when you write it.** Use that reading in the status, the log and the owner's page.
+
 **Keep status short enough to stay true.** If maintaining it is a burden, it is too detailed.
 
 ## Write down evidence, not just tasks
