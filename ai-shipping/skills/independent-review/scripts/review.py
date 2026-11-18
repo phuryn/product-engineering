@@ -1255,8 +1255,8 @@ def main() -> None:
             "reads as a clean round.\n"
             "  A round that genuinely found nothing still argues its way there "
             "over paragraphs.\n"
-            "  Read the output above. If it really did reason to empty, re-run "
-            "with --allow-short.\n"
+            "  This reviewer saves no events to check by hand, so run a fresh round.\n"
+            "  A rerun with --allow-short is a new, unchecked round.\n"
         )
         sys.exit(2)
 

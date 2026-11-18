@@ -35,7 +35,7 @@ What the product holds, how long it keeps it, how it would get it back, and what
 **Where it hurts first:**
 
 - **`/health`** reports configuration and database status, and is what the uptime monitor probes; a public status page, where the owner chose one, is linked from the footer (`release-gate`, `references/go-live.md`). **Every other runtime needs its own outside check**, because the app's `/health` says nothing about a Worker or a box, and a dead-man switch runs outside the system it watches. (`2026-10-24`, a monitoring product's top-ranked risk: nothing outside watched production, and its watchdog read only its own probes.)
-- **Database logs and advisors** are read through the database's MCP server against development, or the provider's dashboard for production — the MCP is for looking, against development (`supabase-production`).
+- **Read database logs and advisors in the provider's dashboard.** A separate development project may use a read-only MCP connection for these diagnostics. For production or its development branch, use the dashboard (`supabase-production` § The choices).
 - **Error tracking** (Sentry, for example) is absent until it is wired; say so rather than implying it.
 - **A symptom table**, once there is more than one runtime: symptom · first look (a command or a console, read-only) · usual causes, one row per thing a person would notice. Write it while the causes are fresh, not during the incident.
 

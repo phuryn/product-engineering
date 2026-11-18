@@ -50,7 +50,7 @@
 - It is where sign-in and sign-up land.
 - In the individual shape, the workspace row is created on the first visit there, never on `/`.
 
-**The shape on this stack:**
+**Use the App Router shape below for pages that share the app layout.** Apply `product-analytics` § What binds for a standalone static landing document; it follows the same session and redirect boundary.
 
 - **One root layout**, holding `<html>`, the theme cookie and the provider. Several root layouts would reload the page between them.
 - **`app/(public)/layout.tsx`** holds the public header and footer and reads nothing.
@@ -62,7 +62,7 @@
   - The label is a guess used for nothing else. A stale cookie says "signed in", and the member home sends the visitor to sign-in at no cost, because both labels open the same page.
   - **Read the cookie with `useSyncExternalStore`**: a `subscribe` that does nothing, the cookie test as the client snapshot, and `false` as the server snapshot, so hydration starts from the signed-out label. Not `useEffect` plus `setState`, which Next 16's default lint fails (`react-hooks/set-state-in-effect`; `2026-10-31`, an evals product). (`2026-11-07`, a live Q&A product, medians of 20 on a local production build, Next 16 with a Clerk development instance: the cookie was readable at 43 ms, before first paint at 124 ms; Clerk's client had a user at 621 ms. Waiting for Clerk client state swaps the header about half a second after the page appears; production network and instance were not measured.)
 
-**What it does not do.** `/` is not static, and this rule does not make it so. The nonce CSP and the theme cookie render every page per request; Next's CSP guide says a nonce needs dynamic rendering.
+**The App Router landing renders per request.** The nonce CSP and the theme cookie render every page in that layout per request; Next's CSP guide says a nonce needs dynamic rendering.
 
 - What the rule removes is session-dependent page work: Backend API calls and workspace writes a session seam in the root layout can put before the first byte. **Do not promise a signed-out speed gain:** `auth()` without a session cookie was local in the measurement; the signed-in visit gained, and the other reasons are architectural. (`2026-11-07`, a live Q&A product: two local production builds of one commit, Next 16 with a Clerk development instance, medians of 20. Signed-out TTFB was 262 versus 257 ms, no measurable gain; signed in, `/` answered in 22 ms versus 283 ms for the old redirect plus the member home's TTFB — not a measure of the session read alone. Production network and instance were not measured.)
 - One wait remains outside the page. Clerk's middleware still runs on `/` to write the CSP, and a browser whose session token has expired gets a token refresh or a handshake redirect before any page renders (`gotchas.md`).
@@ -77,7 +77,7 @@
 
 **The tests that pin it:**
 
-- A source guard: nothing under `src/app/(public)/`, `src/app/layout.tsx` or any component the landing composes imports `@clerk/nextjs/server` or the session seam, calls `auth()` or `currentUser()`, or renders `<Show>`, and the root provider has no `dynamic`. Once any file imports the analytics tag's component, wherever it is mounted and whatever its project id, it also fails on any import from `@clerk/nextjs` (component or hook) in every `layout`, `template`, `loading`, `error`, `global-error` and `not-found` file in `src/app/` and `src/app/(public)/`, the landing page and every component they import, except `ClerkProvider` in `src/app/layout.tsx` (`product-analytics`).
+- A source guard: nothing under `src/app/(public)/`, `src/app/layout.tsx` or any component the landing composes imports `@clerk/nextjs/server` or the session seam, calls `auth()` or `currentUser()`, or renders `<Show>`, and the root provider has no `dynamic`. When analytics is opted into the shared App Router, apply `product-analytics` § What binds for the additional source guard, regardless of where the component mounts or whether its project id is set.
 - A unit test of the cookie parser: plain and suffixed names, `0`, empty, absent.
 - In the public browser suite, `/` renders the landing with and without Clerk's cookies, and with JavaScript off, with no redirect.
 - In the authenticated suite (`authenticated-mile.md`):

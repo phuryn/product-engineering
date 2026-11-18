@@ -26,15 +26,13 @@ $ai-shipping:ship-check supabase/functions       Codex, plugin installed
 
 ### Before step 1: say what this pass would overwrite
 
-**First, fetch, and bring the checkout up to date before anything is written**. Every step documents or audits this checkout; an older one is code that is no longer the product. Run `git fetch`; a failed fetch stops the pass. Then list what the remote has that the checkout lacks:
+**Check that the checkout is current before writing any files.** Every step documents or audits this checkout; an older one is code that is no longer the product. Run `git fetch`; a failed fetch stops the pass. Then list what the checkout lacks:
 
 - With an upstream: `git log --oneline 'HEAD..@{u}'`.
 - Without an upstream: `git log --oneline HEAD..origin/HEAD`. If that ref is missing, `git remote set-head origin --auto` sets it. A repository with no remote has nothing there.
 - Once something is released, also run `git log --oneline HEAD..<last release>`. Step 6 defines the last release.
 
-If the upstream lists commits, use `git pull --ff-only` only with a clean tree and no local commits (`git log --oneline '@{u}..HEAD'` empty). If the release still lists commits afterward, use `git merge --ff-only <last release>` only with a clean tree and an empty `git log --oneline <last release>..HEAD`.
-
-Where a ref still lists commits, stop and tell the owner which ref is newer. This includes commits on `origin/HEAD` with no upstream. Where none does, go on.
+**Stop when any of these lists a commit.** Name the newer ref and ask the owner which checkout to review. Never pull or merge as part of this pass.
 
 **Identify records this pass must not overwrite unasked across the whole repository.** The pass writes from code: missing or stale system docs (step 1), agent instructions (step 2) and the coverage map (step 7). Two kinds of record need the owner's choice:
 
@@ -79,29 +77,21 @@ Run authority reconciliation: a requested value still drives state where the aut
 
 **Hand the subject to a fresh session that never saw the build.** The earlier passes are steered by their checklists and share blind spots across reruns. This independent backstop is the highest-yield step on a real release.
 
-#### Choose a reviewer that meets every requirement
+#### Run the independent review
 
-**Use the repo's named reviewer only when it meets every review requirement.** Every reviewer must have:
-
-- A fresh session that never saw the build, never a resume, fork or subagent of it.
-- Read-only tools only, no MCP servers or connectors, memory off and high effort or above; a sandbox flag alone does not make tools read-only.
-- Project and user instructions off where its CLI allows.
-
-Replace a named reviewer that cannot meet these requirements with the repo's recorded fallback when that one can, without asking. If none can, run the wrapper's reviewer without asking. If no other family can run, use a fresh session of the builder's family. Never use the building session, and never skip review.
-
-Record the actual reviewer in the packet's Independent Review section. Say why it replaced the named one and what it couldn't switch off, which the wrapper prints.
-
-**Use the carried review wrapper when the repo names no reviewer.** This skill carries the `independent-review` skill's wrapper as `scripts/review.py` so it works on its own:
+**Use a fresh, read-only reviewer that can prove it read the subject.** Every reviewer, a named one included, is a new session, never a resume, fork or subagent of the build. It gets read-only tools, no MCP servers or connectors, memory off and high effort or above; a sandbox flag alone does not make tools read-only. Prefer the repository's qualifying named reviewer or recorded fallback, then use the wrapper's available reviewer without asking. A fresh session of the builder's family can serve when no other family can. Use the carried wrapper for a supported CLI:
 
 ```
 python <skill dir>/scripts/review.py --brief <scratch>/brief.md --cwd <repo> --subject <range> --out <scratch>/round-N.md --model <review model> < /dev/null
 ```
 
-For Codex, `--out` also keeps `<out>.events.jsonl`; treat it like the report and never commit it. Keep the brief, report and any events file outside the repository; one left in the checkout enters the next round's subject. When the wrapper warns about untracked files, keep every file that belongs to the change, step 2's edits included, and step 1's docs as context. For the rest, delete only what this session generated; otherwise gitignore it or ask the owner. Exit 2 means a failed round, such as a short report without qualifying evidence, missing Codex events or failed tool isolation. The wrapper starts a fresh session with the first installed of Codex, headless Claude Code and Grok. Use `--reviewer grok` for another family when needed. A fresh session of the builder's family is independent because it never saw the build. Apply `independent-review` for what each run switches off and what still loads.
+Use `--reviewer` to select a CLI explicitly. Record the actual reviewer in the packet, why it ran and whatever it could not switch off. Keep the brief, report and Codex's `<out>.events.jsonl` outside the repository. When the wrapper warns about untracked files, keep every file that belongs to the change, including step 2's edits, and step 1's docs as context. For other files, delete only what this session generated. Otherwise gitignore them or ask the owner.
+
+**A failed round leaves the packet waiting.** Exit 2 means failure, including insufficient read evidence, missing Codex events or failed isolation checks. For exit 3, use the qualifying fallback or the printed next reviewer without asking. For a manual round, require successful reads and a report naming what was read. Accept fewer than 1,500 characters only when saved events show commands that printed the subject's content and the report names what was read.
 
 #### Compute the subject from releases and the working tree
 
-**Define the subject mechanically, not in prose.** Fetch, then diff against the last release plus the working tree. For example, run `git fetch`, then `git log --oneline <last release>..HEAD` and `git status --porcelain -uall`. Before any release, use the whole history. A described subject drifts; a computed one does not.
+**Define the subject mechanically, not in prose.** Use the fetched baseline verified before Step 1. Run `git log --oneline <last release>..HEAD` and `git status --porcelain -uall` to include every change, committed or not. Before any release, use the whole history. Keep the checkout still during the round.
 
 **Take the last release from what production serves.** Use what the release doc, a tag or the production branch says production serves. On `release-gate`'s branches, that is `origin/<product>-prod`. Never use a branch that only deploys development, nor, before go-live, the product branch the host deploys (`release-gate`). Where nothing says, ask the owner. Never infer that nothing is live from a missing tag.
 
@@ -124,15 +114,9 @@ Name the docs step 1 wrote, for reading as claims about code, not as the change.
 
 When reviewing released code, say it is already live: findings in it are PRE-EXISTING. Findings in step 2's agent-instruction edits are INTRODUCED and block like any other. Before any release, say nothing is live yet, so every code finding is INTRODUCED.
 
-**Use `--subject-only` when none of the three CLIs is available.** The wrapper still writes the subject file and prompt and prints their paths. Give the prompt, and nothing else, to a fresh read-only session of your agent. Run it as a separate process in the checkout under review, never a subagent, fork or resumed session of this one. Require read-only tools, no MCP servers or connectors and high reasoning effort or above. Turn off memory and project and personal instructions where it allows.
+**Use `--subject-only` when none of the supported CLIs is available.** Give the resulting prompt to a fresh, separate process in the checkout under review. Use read-only tools and high effort or above, with memory, MCP servers and connectors off. Switch off project and personal instructions where the CLI allows. A resumed session, fork or builder subagent cannot serve. If no fresh session can start, stop and hand the owner the prompt path. Delete the prompt and subject files when the round ends.
 
-If no fresh session can start, stop and hand the owner the prompt. The packet waits until the round has run. Treat a short clean answer as a failed round, and delete both files when the round ends.
-
-**Keep every round fresh, unprimed and mechanically scoped.** A same-model reviewer shares more builder blind spots, and a round that runs still beats one skipped. Three rules apply either way:
-
-1. **Fresh, never a resume.** It must not have written the code or seen earlier findings. A session that already argued the code is correct will argue it again.
-2. **No checklist and no pointer to prior findings.** An unprimed reader supplies the value; audit output converts an independent sample into a confirmation pass.
-3. Define the subject mechanically, not in prose, as above. Fetch and include the working tree, using the last release or the whole history before any release.
+**Give every reviewer the brief and subject without priming it.** Keep earlier findings, checklists and design arguments out of the round.
 
 **Verify every finding against the code by hand before it enters the packet.** Unsteered reviewers can report confident findings that the code already prevents. Apply the `code-review` skill's keep/drop rule. A finding survives only with a supported obligation, feasible execution, concrete contradiction, observable consequence and a counterargument you actually checked.
 

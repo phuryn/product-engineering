@@ -110,13 +110,13 @@ Never apply attacker-equals-victim refutation to SSRF/outbound-network sinks, sh
 
 ### 6. Report only what survives — with an OWASP Top 10 2021 backstop
 
-**Map every surviving finding to OWASP Top 10 2021 before writing the report.** Flag every category with zero findings as an explicit "not covered — double-check" line. This coverage check catches classes the engine underweights:
+**Map every surviving finding to OWASP Top 10 2021 before writing the report.** For each category with zero findings, report "examined, none found" if you checked it, or "not examined" with the reason. This coverage check catches classes the engine underweights:
 
 - A02 cryptographic failures: plaintext or weakly-hashed credentials, tokens or PII at rest; predictable tokens; missing encryption on sensitive columns.
 - A06 vulnerable and outdated components: a dependency with a *reachable* exploit path, not version-drift noise.
 - A09 logging and monitoring failures: auth failures, access-control denials and privileged actions that leave no trace for detection.
 
-The backstop does not require invented findings. An honest "no evidence found in A02" is valid.
+Base the coverage record on checks performed and leave unexamined categories visible for follow-up.
 
 ## High-miss checklist (technology-shaped, not stack-specific)
 
@@ -173,4 +173,4 @@ Security Audit: [scope — path, or range / changes and N changed files]
 
 ## How you can tell it worked
 
-Every reported finding quotes the code it accuses at a current line, and each OWASP Top 10 2021 category with no finding has its "not covered" line. The report says which model each cluster ran on.
+Every reported finding quotes the code it accuses at a current line, and each OWASP Top 10 2021 category with no finding is marked "examined, none found" or "not examined". The report says which model each cluster ran on.

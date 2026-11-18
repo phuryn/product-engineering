@@ -31,21 +31,22 @@ Every app needs a CSP header (`saas-authorization § Untrusted text`). This is h
   - **`img-src data:` is there for Clerk itself.** `<SignIn />` and `<SignUp />` draw a `data:` SVG, which the default policy refused with a console error on every visit (`2026-10-22`). A browser test loads sign-in and sign-up and fails on any CSP refusal.
   - `strict: true` issues a per-request nonce with `'strict-dynamic'`.
   - Next's own scripts carry the nonce too, because the policy is also set on the request headers Next reads.
-  - A nonce needs dynamic rendering, which live pages already have. That is also why `/` renders per request (`sessions-and-front-door.md § The front door and the member home`).
+  - A nonce needs dynamic rendering, which app pages already have. That is why `/` renders per request when it is an App Router page (`sessions-and-front-door.md § The front door and the member home`).
 - **A third-party origin joins the directives only once its integration is wired.** For example, cookieless Microsoft Clarity adds `connect-src https://*.clarity.ms` and `img-src data: https://*.clarity.ms https://c.bing.com` once a project id is set.
 - **The static headers go in `next.config.ts` `headers()`, on `/:path*`:**
   - `X-Content-Type-Options: nosniff`;
   - `Referrer-Policy: strict-origin`, so no page, same-origin or not, hands its path and query (an id, an invitation ticket) to the next; never `no-referrer`, which makes the browser send `Origin: null` (`saas-authorization`, threat model);
   - `X-Frame-Options: DENY`.
 - **A surface that must be framed gets its own policy and its own branch in the proxy**, never a hole in the general one.
-- **Prove it on a raw response**, on `/` and on a page reached by an id: `content-security-policy` contains `frame-ancestors 'none'` and `'nonce-`, two requests get different nonces, and `referrer-policy` is `strict-origin`.
+- **Serve a standalone static landing document with its own CSP.** Apply `product-analytics` § What binds for this setup outside Clerk middleware. Serve the same protections as static response headers and admit only the sources the document uses. Keep the nonce policy on Clerk's app pages.
+- **Prove the headers on raw responses** from `/` and from a page reached by an id. Check `frame-ancestors 'none'` and `referrer-policy: strict-origin` on both. On every response carrying Clerk's policy, check that `content-security-policy` contains `'nonce-` and that two requests get different nonces.
 
 Receipts:
 
 - `2026-09-15`, a production-readiness review found no CSP or `X-Frame-Options` header on a live Q&A product's production.
 - A later product on the same stack deferred its CSP, believing Clerk's scripts needed a nonce-aware policy someone would have to write. The middleware *is* that policy.
 
-**What the middleware costs:** it runs on `/` too, so a browser with an expired session token gets a refresh or a handshake redirect before any page renders, even a page that reads no session. Only a page outside the middleware avoids that, and such a page loses the nonce policy (`gotchas.md`).
+**What the middleware costs:** it runs on `/` too when the landing page uses the shared App Router, so a browser with an expired session token gets a refresh or a handshake redirect before any page renders, even a page that reads no session. Only a page outside the middleware avoids that, and such a page loses the nonce policy (`gotchas.md`).
 
 ## Variables
 
@@ -74,7 +75,7 @@ Receipts:
 - **If a build or a dev server ever ran with the secret in the public variable, rotate it.**
 - (`2026-10-10`, a product's `.env` held the secret in both variables; caught before anything was built with it.)
 
-**MCP OAuth needs no new variable:** the publishable key gives the issuer, the secret key verifies tokens, and `APP_URL` gives the resource (`SKILL.md § MCP OAuth`).
+**MCP OAuth needs no new variable:** the publishable key gives the issuer, the secret key verifies tokens, and `APP_URL` gives the resource (`mcp-oauth.md`).
 
 ## What to record about Clerk
 

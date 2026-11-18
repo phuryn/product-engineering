@@ -49,12 +49,31 @@ Three things, and the first is the one most often skipped:
 - **Compress the evidence, not the context.** Three log lines beat twenty lines explaining how you reached your conclusion. Keep the goal, binding constraints and traps at full length. A terse brief can produce a locally correct change that fails in the larger system.
 - **The brief is the delegate's entire reality.** Ask it to confirm or refute every consequential claim against primary sources. Treat absence claims such as "none of them shipped X" as extraordinary. Engagement numbers, link lists and filenames do not establish product reality. When a fact changes mid-build, append a dated "Added while you build" section to the brief file. Keep that file complete rather than relying on a side message.
 - **A feature that guesses from real-world input starts from evidence.** Run unchanged code on a real corpus first, citing its numbers for each binding decision. After the build, pin a live golden set that runs on demand, outside the gate. Treat a research-based decision as a hypothesis the live run may reverse, and record any reversal with its measurement.
-- **Don't prescribe the means.** Leave paths, filenames, libraries and structure to the delegate unless they are hard constraints. For those choices, "the existing system uses X" gives context without requiring X. Surface a choice you disagree with as a disagreement, rather than calling it a defect.
+- **Prescribe the means only when they are hard requirements.** Leave paths, filenames, libraries, structure and presentation choices to the delegate's judgement. For example, "the existing system uses X" gives context. A choice you disagree with is something to discuss.
 - **Long briefs go in a file.** Pass them by path or stdin, rather than as a long inline argument. Long inline arguments trip permission classifiers and shell quoting.
 - **Name ranges, not commits, in a brief you will reuse.** A pinned SHA can send the next round back to an already reviewed commit. Use `git log --oneline <last-reviewed>..HEAD` to fail loudly when the range is stale.
 - **Use the brief template and request its handoff.** Start from `references/brief-template.md`, asking for what it built, choices where the brief was silent, spec corrections, blockers and validation actually run. It also names commands for you and what must be redeployed after the push.
 
 For a contract shared by sessions in separate repositories, apply the `release-gate` skill's backend-first rule before handing off a build.
+
+## Peer discussion
+
+**Bring a peer in while it can still change the framing.** Use it to test an angle, hook, load-bearing claim or an unvoiced critique. A different model family can catch different misses. Keep routine drafting and mechanical work in the session.
+
+**State the goal once and give the peer enough context to challenge it.** Explain the reasoning behind non-obvious decisions. Give the peer room to choose the format, fonts, dimensions, libraries and steps unless any are binding.
+
+| Give it | Example |
+|---|---|
+| Target and audience | "A choice about whether retries belong in the client or the queue" |
+| Established facts | Logs, measurements, source quotes, the owner's words, prior attempts and audience context |
+| Actual draft | The artifact and alternatives already considered |
+| Reasoning and uncertainty | What you rejected and why, what still binds the decision and how you'll prove it |
+
+**Iterate in the same conversation with specific reactions.** Agree where it is right, push back on surprising choices and name missed constraints. Use ordinary replies without repackaging the goal or numbering the reaction. Three to eight turns is normal. For example, "agree on the queue, but a poison message would block the shard. How would that work?"
+
+**Keep iterating while a critique, disputed choice or option remains untested.** If the draft misses the owner's stated goal, or you want to present two reasonable versions, argue through the trade-off first. You have converged when you would defend the result against your own critique, neither peer finds a new angle and the remaining differences concern taste.
+
+**Converge before surfacing.** Bring the owner one result. If a real deadlock remains after iteration, state the disagreement plainly. Ask when intent would change the work or when only the owner knows a fact or constraint that would reshape it. The owner decides intent and taste.
 
 ## Choosing the delegate
 
@@ -99,14 +118,13 @@ For a contract shared by sessions in separate repositories, apply the `release-g
 
 - **A delegated diff is unreviewed code.** Read it before believing it. Its independent review comes before anything ships or deploys; in staged work it is the phase's series (`independent-review` § When).
 - **Check the disk before believing a round happened.** Inspect `git status` and file times, since a run without write access can return a convincing report with no changes.
-- **Re-run its tests yourself, and rewrite any evidence it wrote from your own run.** A piece inside a stage reruns the tests it touches; the full gate runs at phase end and before deploying pushes (`test-harness` § The gate). A builder's passing report remains a claim, even when it can reach development. Read every line it adds to a coverage map or status file; replace stage-completion evidence from your own run rather than inventing counts.
+- **Re-run its tests yourself, and rewrite any evidence it wrote from your own run.** A piece inside a stage reruns the tests it touches. Apply `release-gate` § Stage and phase close for full gates. A builder's passing report remains a claim, even when it can reach development. Read every line it adds to a coverage map or status file; replace stage-completion evidence from your own run rather than inventing counts.
 - **Compare the test inventory before and after each delegated turn.** Check specs, cases and captured states. Send back cuts the brief did not ask for.
 - **Before passing a delegate's "commands for the owner" up, do every one you can.** Use an API, CLI or key you hold and reread the result. Escalate only what needs a person: a dashboard-only click, money or taste.
 - **A builder's objection that is a product decision goes to the owner.** Give it its own handoff section, keeping it separate from corrections you can accept yourself.
 - **When you take a handoff over, put a dated status line at its top.** Say whether it is merged, which rounds reviewed it, where it is deployed, and what still waits. Keep your changes in their own section, leaving the delegate's text as written. Check claimed deploys against your environment log.
 - **Audits record `HEAD` and `git status --short` at the start and again before delivering.** Put this instruction in the audit brief. Reverify findings about deleted, moved or renamed files against current `HEAD`.
 - **Repeated correct fixes that don't work mean the model of the problem is wrong.** Stop fixing and distinguish two mechanisms with a screenshot or a question the owner can answer in a minute. Do this on the second failed fix, rather than the fifth. Green tests that exercise a sequence the user never receives turn "I don't understand this" into "this is fixed".
-- **Converge before surfacing.** Bring one result or a clearly stated disagreement, leaving the owner to arbitrate intent and taste.
 - **"Ready to test" means testable with nothing to do first.** Build, install or deploy it on the surface the owner uses, and say what needs reloading. Complete the handoff, or state its remaining edges plainly.
 
 Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.

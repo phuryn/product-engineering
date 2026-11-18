@@ -101,7 +101,7 @@ Everything OpenAI's plugin directory takes, on any stack, is the `chatgpt-plugin
 
 ## After a tool change
 
-What a release that changes the tool surface owes, after promotion, in order:
+**Update the package and listings the owner chose to publish.** After promoting a release that changes the tool surface, follow the applicable steps in this order:
 
 1. The package and its registry entry: `references/companion-repo.md § After a product release`.
 2. Smithery: rescan. Glama: in the browser the owner signed in to (above), and once the owner has approved the new text, the agent updates the server's and the connector's descriptions and, if the build installs the package, its pinned version, then checks that a new Glama release exists (Build & Release, or Auto-Release on the GitHub release). ChatGPT, once the plugin is published: the deploy is enough, because OpenAI scans the server daily (Rescan in the portal's MCPs tab runs one at once), keeps a changed tool's old definition live until the change passes its checks, and holds a new tool until then, so the server keeps answering the live schemas meanwhile. Before publication, rescan before submitting. A change to the package (listing fields, skills, a test case, the video, `mcp.json`) is a new ZIP (the `chatgpt-plugin` skill, after publication).

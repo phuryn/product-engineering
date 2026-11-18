@@ -44,14 +44,25 @@ A release is a decision: **the owner says go; the agent supplies the evidence.**
 
 The suggested script names are `gate`, `smoke -- <url>`, `visual` and `agents:live`, shared with `test-harness`. Use your product's names.
 
-## Four moments, four bars
+## Stage and phase close
 
 **Phase ends and deploying pushes require the full applicable gate.** Apply `test-harness` to compare the script with its suite contract. The owner decides any narrower set; record the choice in the plan with its reason and revisit trigger.
 
+**Close stages with coordinator checks, reserving the full process for phases.** The coordinator runs touched and new tests and confirms changed journeys' end-to-end specs. Tests and corrected docs land with the change. Read the diff and run the router rows it matches (apply `agent-instructions` for those checks). An edited test, gate script or instruction file needs its reason, so a change cannot loosen the check that judges it. For screens, the coordinator takes a quick look at the running result, at phone and desktop widths and both themes when two exist. The builder never substitutes for that look. A stage owes no mandatory full gate, fresh review or `document-app` check. Mark its plan line done when its done-when holds from the coordinator's evidence, or write what keeps it open.
+
+**Finish phase checks in order before its closing push and preview.**
+
+1. The coordinator runs the full applicable gate on the finished phase.
+2. The coordinator explores the phase's added or changed journeys and screens. Apply `ui-design` § Complete phase visual checks before its review series and owner preview. Do a rendered check of affected screens. For a new or materially changed journey, a kit change or an owner request, also do the newcomer walkthrough, screenshot critique and scored audit. Fix visual defects before starting the review series.
+3. Apply `document-app` in check mode. It reports disagreements without rewriting docs.
+4. Apply `independent-review` to the whole phase and run fresh rounds until the bar holds. List Lows for the owner. If a fix followed the last full gate, rerun the full gate on the cleared state. A resulting fix needs another fresh round. Earlier phase series never replace the first release's whole-product review.
+5. Where the branch deploys, push the cleared state to close the series. Before hosting, keep the state local or push a branch that does not deploy. From the first deploying push onward, keep stage commits local or on a branch that does not deploy until the phase's closing push. An advisory stage round can overlap the next build for migration, authorization or money risks and clears nothing.
+6. Offer the owner a development preview (§ The owner's preview). Record whether the owner tried each visible phase separately from its completion.
+
+## Deploying pushes and production promotions
+
 | Moment | What it owes |
 |---|---|
-| A stage is done | Its plan's done-when holds from the coordinator's own evidence. Touched and new tests pass; changed journeys' end-to-end specs and current docs land with it. The coordinator reads the diff and takes a quick look at running screens, at phone and desktop widths and both themes when two exist. The read of the diff runs the router rows it matches; an edited test, gate script or instruction file needs its reason. No mandatory full gate, fresh review or `document-app` check. Record completion evidence or what keeps the stage open. |
-| A phase is complete | Follow `independent-review` § When: full gate; coordinator exploration of phase journeys and applicable `ui-design` checks; `document-app` check; fresh review series until the bar holds; full gate again if fixes followed its last run; closing push where hosting exists; owner preview. Fix visuals before the series. Record owner-tried status separately; awaiting a preview does not hold the next phase. |
 | A push to a branch that deploys | The full applicable gate and a clean independent review round covering everything the push adds; **the push closes that round**. Before go-live the product branch is that branch: its URL is shared with nobody, so the production preconditions are not yet owed — but the gate and the round are, and pending migrations are applied to development first. **"Just push it" is a go for the push it names**: name back, in one line, any of these still open rather than pushing past it. |
 | **A promotion to production** | Every precondition (`references/checklist.md`), then the go/no-go, the promote and the verify. **Going live is the first promotion** (`references/go-live.md`). |
 
@@ -67,15 +78,15 @@ The suggested script names are `gate`, `smoke -- <url>`, `visual` and `agents:li
 
 ## The independent review — mandatory at every release
 
-**Review before every deploying push and again before production promotion.** Apply this however small the change and however green the gate. Before every round, read and apply `independent-review` for the wrapper, brief, scope, triage, short reports, severity, fix costs, and commit/push effects.
+**Review before every deploying push and again before production promotion.** Apply this however small the change and however green the gate. Apply `independent-review` § Reviewer selection and isolation and § Running it for selection, fallbacks and failed-round evidence. Run the wrapper supplied by that skill:
 
-The session must never have seen the build; choose it in this order:
+```sh
+python <independent-review skill dir>/scripts/review.py --brief <scratch>/brief.md --cwd <repo> --subject <range> --out <scratch>/round-N.md --model <review model> < /dev/null
+```
 
-1. **Use the product's named reviewer when it meets review requirements.** Take the choice from its agent instructions or release doc, checking that it can run as `independent-review` requires. If it cannot, use its recorded fallback when that can, otherwise the wrapper's reviewer without asking. If no other family can run, use a fresh session of the builder's family. The report names the actual reviewer and why.
-2. **Use fresh Codex when no reviewer is named.** Run it on the review model the user confirmed (`codex-agents`). Without Codex, the wrapper uses fresh headless Claude Code, then Grok.
-3. **Only the tools are optional; the review never is.** With none of the three CLIs available, review manually in a fresh read-only session of the agent you are using.
+**Use fresh Codex when no reviewer is named.** Prefer a qualifying product-named reviewer or recorded fallback. Otherwise use the wrapper's available reviewer without asking. A fresh session of the builder's family can serve when other families cannot. Record the reviewer, why it ran and anything left enabled.
 
-**Keep the review read-only, fresh and unsteered.** Start without carried-over memory, using a fresh session rather than resuming or forking the building thread. Supply the unreleased diff plus working tree, without a checklist, earlier findings or an argument for the design.
+**Run the review by hand when the reviewer CLIs cannot run.** Use the wrapper's `--subject-only` prompt when available, or provide the git subject and working tree directly. Start a fresh, separate, read-only session at high effort or above, with memory, MCP servers and connectors off. Switch off project and user instructions where the CLI allows. Keep checklists, prior findings and design arguments out of the brief. Require successful read evidence and a report naming what was read. A short clean answer without that evidence fails. When no eligible session can run, stop the release.
 
 **Compute review subjects from git and repeat until the bar holds.** Cover the whole unreleased range in round one, then only changes since the last round, with everything else as context. Fix what the bar names, rerun the tests each fix touches yourself, then review again. Apply `independent-review` for full gate timing and recording accepted Lows. Stop only when the round has no INTRODUCED finding above Low and no High or Critical of any age remains open. Put pre-existing findings in the backlog with a reason and revisit trigger. Fix High and Critical now, regardless of age.
 
@@ -104,9 +115,13 @@ The session must never have seen the build; choose it in this order:
 
 **Reach production through its connection string only.** Keep the CLI unlinked for both environments. Reach production through `--db-url` on the Supabase CLI; use development's own connection string for development. Avoid `db push --linked --project-ref <production ref>`: precedence is not reliable across versions. A dummy-ref probe used the typed ref for its first request (Supabase CLI 2.122.0, read `2026-10-25`). A connection string names one database across versions. Apply `supabase-production` for the ledger and `environments` for the window where deployed code meets the new schema.
 
+## The paid-launch check
+
+**Sell only what runs.** Every selling or promising surface reads the same launch list. Require its separate, non-skippable test to pass on the exact commit before production billing exists and at every promotion. Flip an area's flag and update its claims in the release that makes it live. The list, its consumers and the test are in `references/go-live.md` § The paid-launch check.
+
 ## The owner's preview
 
-**Send the owner a preview after phase checks and any closing deploy.** Ready means the phase checks passed and its review series is clean. Give a link and a short list of what to try, including the look review. Follow `independent-review` § When for the ordered phase checks and `ui-design` for the visual method. The coordinator explores the journeys and screens the phase added or changed; the builder never performs that final look. Ten minutes using the product finds what reading code does not.
+**Send the owner a preview after phase checks and any closing deploy.** Ready means the phase checks passed and its review series is clean (§ Stage and phase close). Give a link and a short list of what to try, including the look review. Ten minutes using the product finds what reading code does not.
 
 **Show work early only when the owner asks for that preview.** Use a development tunnel or the named push; every deploying push still needs review first. Say which phase review has not run and disclose incomplete tests as below; this request is the exception to waiting for a clean series.
 
@@ -114,7 +129,8 @@ The session must never have seen the build; choose it in this order:
 - **Every preview and go message names each suite that did not run.** Counts alone can imply the running app and real sign-in were tested. For example: "Unit and integration passed; `e2e:auth` did not run: development test mode is not configured." Name the reason and what brings each run back, even when the coverage map already records the gap.
 - **Link deployed development or use a temporary development tunnel.** Prefer the deployed development URL when hosting exists and contains the change. Otherwise, or before deployment, use a Cloudflare quick tunnel to `next dev`. Its address is public: use development only, share the link only with the owner, then stop tunnel and server when done. Apply `environments`, `references/environments-and-branches.md § Showing development to the owner`.
 - **Keep owner feedback in the phase currently in flight.** Add stages for it and review fixes like any other change. A pending owner preview does not block the next phase. Track whether each visible phase was tried. Stage 3's explicit sample-data click-through remains its done-when; one link and list fulfil that request.
-- **Run the full exploratory pass at promotion as well.** It examines every screen and state; the preview covers the phase's changes.
+- **Offer owner previews after phase checks without blocking the next phase.** Design direction, artboards, options, legal text and release go remain owner decisions. The release go message names every visible phase the owner has not tried.
+- **Explore changed screens and affected shared surfaces at promotion.** Go-live and broad UI changes require the full exploratory sweep (`references/checklist.md` § 1).
 - **"Ready to test" means installed on every surface the owner holds, with nothing for the owner to do first.** Sites serve the latest push, installed apps or extensions their last installed build, and phones their last pushed bundle. These surfaces can diverge silently, so require your own green tests as above, a committed change, and every owner-used surface rebuilt and reinstalled or pushed. Say which surfaces carry which build and which need a reload or restart. Finish the batch, or hand off what exists with its edges stated. Apply `delegation` for the handoff side of this rule.
 
 ## Verify — the build serving is the one you reviewed
@@ -170,7 +186,7 @@ The reviewed commit serves on the live site, beyond the deploy log, and the post
 | File | Holds | Read when |
 |---|---|---|
 | `references/checklist.md` | § 1 every precondition with its reason; § 2 the go/no-go; § 3 the promote commands; § 4 the verify steps (every runtime the push does not build included), the tag and the record, with the release-history format | before any promotion; when posting a go/no-go; after a deploy; deploying a worker, an edge or a box |
-| `references/go-live.md` | the first promotion, step by step, and the go-live check (sell only what runs); the health route and the uptime monitor; guards and hosted CI; rollback, per runtime | making the product live for the first time; adding a fail-closed guard or hosted CI; rolling back code, schema, a runtime, configuration or a key |
+| `references/go-live.md` | the first promotion, step by step, and the paid-launch check; the health route and the uptime monitor; guards and hosted CI; rollback, per runtime | making the product live for the first time; checking what is sold or promised; adding a fail-closed guard or hosted CI; rolling back code, schema, a runtime, configuration or a key |
 | `references/runbook.md` | any release as one logged checklist: the scripts it calls, the candidate (clean trees, live checks, the review, pins), docs and bookkeeping (staleness, the docs round, the backlog sweep), the backend first, the client release (leak check, the script, artifacts, stores), after the stores (deferred deletions, installations in the field, issues, contributors) | releasing a package, an extension, installers or a store listing; a client and its backend; any release with more than one artifact; writing an operator script |
 | `references/netlify.md` | build settings and the adapter; how Netlify's edge handles a request (firewall, WAF, rate limiting, functions); edge-refused Server Actions; the client IP; `after()`; redirects that keep the query; Cloudflare as DNS only | writing or changing an edge rule; reading a client IP; a deploy that behaves differently with no diff; any redirect on Netlify |
 

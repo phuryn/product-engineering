@@ -7,7 +7,7 @@ description: "Competitive research or a competitive brief: competitors and subst
 
 ## Purpose
 
-**Analyze five direct competitors and the substitutes people use instead.** Map the competitive landscape and positioning. Synthesize strengths and weaknesses to uncover opportunities for strategic differentiation.
+**Compare up to five direct competitors and the substitutes people use.** Map the competitive landscape and positioning. Synthesize strengths and weaknesses to uncover opportunities for strategic differentiation.
 
 ## Instructions
 
@@ -24,7 +24,7 @@ description: "Competitive research or a competitive brief: competitors and subst
 ### Analysis steps
 
 1. **Define the market, industry and addressable customer base for $ARGUMENTS.**
-2. **Use web search to identify 5 primary direct competitors.**
+2. **Use web search to identify up to five direct competitors.** If the evidence supports fewer, give the set you found and explain the limit.
 3. **Research each competitor's positioning, features, pricing and go-to-market strategy.**
 4. **Assess each competitor's capabilities, limitations and market positioning.**
 5. **Identify gaps, overlaps and opportunities for $ARGUMENTS to differentiate.**
@@ -32,7 +32,7 @@ description: "Competitive research or a competitive brief: competitors and subst
 
 ### Output structure
 
-**Produce the market overview, competitive set, five profiles and positioning recommendation.** Use the following sections.
+**Compare the alternatives and recommend where to differentiate.** Give a short market overview, then compare positioning, pricing, strengths and gaps. Write company dossiers only on request. Open `references/competitor-dossiers.md` when the request calls for those profiles.
 
 #### Market overview and definition
 
@@ -43,49 +43,11 @@ description: "Competitive research or a competitive brief: competitors and subst
 
 #### Competitive set summary
 
-- 5 primary direct competitors identified
+- Up to five direct competitors, with evidence for including each
+- Each alternative's positioning, pricing, strengths and gaps
 - Market positions: leaders, challengers, niche players
 - Positioning; market share only with its source and date
 - Substitutes (a spreadsheet, an agency, a manual workaround) and doing nothing
-
-For each of the 5 competitors, include the next five sections.
-
-#### Competitor profile
-
-- Company name; founding date and funding with their source, or "no source found"
-- Primary market focus and customer segments served
-- Market share or customer base, with its source and date, or "no source found"
-- Market positioning and go-to-market strategy
-
-#### Core product strengths
-
-- Key features and capabilities
-- Unique competitive advantages
-- Customer value proposition
-- Technology differentiation or moats
-- Customer satisfaction and retention signals
-
-#### Product weaknesses and gaps
-
-- Missing features or use cases
-- Known limitations or pain points for customers
-- Technical or operational weaknesses
-- Market positioning gaps
-- Customer dissatisfaction areas
-
-#### Business model and pricing
-
-- Pricing structure (per-seat, per-usage, flat-fee, freemium, etc.)
-- Price point(s) in market
-- Go-to-market channels and sales motion
-- Revenue model and growth stage
-
-#### Competitive threats and advantages
-
-- How this competitor threatens $ARGUMENTS
-- Existing customer base and switching costs
-- Strategic partnerships or ecosystems
-- Recent product updates or strategic moves
 
 #### Differentiation opportunities for $ARGUMENTS
 

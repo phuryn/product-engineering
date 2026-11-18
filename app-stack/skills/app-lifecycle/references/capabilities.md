@@ -23,6 +23,28 @@ The first capability built this way (edge flood limits, on a live Q&A product) i
 
 ## The capabilities
 
+Default stages reach the first release. The rest is proposed, not pasted. Prerequisites can fire earlier: legal pages do not wait for release. When planning any phase, read the capabilities and propose every row whose trigger has fired. Rows do not claim implementation; the product records actual connections while building. Email, scheduled jobs and an API for outside agents are capabilities, not stages.
+
+| Capability | Propose it when |
+|---|---|
+| Uptime monitor + status page (the `uptime-monitoring` skill; Staygreen by default, made by this collection's author) | once go-live's done-when holds; the status page linked from the footer, for example, in a change of its own |
+| Edge flood limits | the first deploy is done and a public `POST` surface exists |
+| Legal pages + legal consent at sign-up (the `legal-pages` skill) | before the first stranger is asked for anything (with the front door) |
+| Share cards + icons | any public page that will be pasted into a chat — the front door is one |
+| Behaviour analytics, cookieless (the `product-analytics` skill) | a landing page exists and the privacy page can promise it |
+| Error tracking | the first real users, or the first 500 nobody saw |
+| Production branch + release procedure | the first release to a real audience |
+| Hosted CI gate | at go-live, or when a second person pushes to the product branch — as its own change |
+| Transactional email | a flow must reach someone outside the session |
+| Deletion webhooks + personal data | before the first paying customer, or the first deletion request |
+| Retention / purge job | the first promise about retention on a legal page |
+| API tokens | the phase that gives an outside agent access |
+| Remote MCP server with OAuth | an outside agent should act as a member and a pasted token is the friction, or a directory requires OAuth |
+| Public companion repository | the first public page that needs a place to report a bug, or the MCP package |
+| Realtime | when polling's delay is the complaint, not before |
+| Embedded agent deployed | the first agent that must leave localhost |
+| Proxy WAF + origin seal | blocked until a host that accepts a proxy is chosen |
+
 Each: what it is · propose it when · the owner's part · where the how lives.
 
 ### Uptime monitor + status page
@@ -44,7 +66,7 @@ Error capture and alerts for failures users encounter (Sentry, on this stack); n
 - **How:** the `environments` skill (variables); record the wiring in the product's integration notes when it exists.
 
 ### Behaviour analytics, cookieless
-Session recordings and heatmaps with cookies off and both storage consents denied; disabled without a project id.
+Session recordings and heatmaps on a standalone static landing document by default, with cookies off and both storage consents denied. The tag stays off without a project id. Apply `product-analytics` § What binds for safe inputs, full-load exits and the shared App Router option.
 - **When:** a landing page exists and the privacy page can promise it.
 - **Owner:** create the project, switch its cookies off, capture the setting in a screenshot, have Clarity's support mask the URL parameters the agent names (or decide with counsel to record them), then supply the project id.
 - **How:** the `product-analytics` skill; `default-choices.md` (analytics, cookieless).
@@ -88,11 +110,11 @@ Workspace-owned, scoped, shown-once tokens with peppered hashes and revocation t
 ### Remote MCP server with OAuth
 An MCP route that outside agents (custom connectors in Claude or ChatGPT, MCP Inspector) reach with the identity provider as the OAuth authorization server, acting as a signed-in member with that member's permissions rather than with a pasted token. Every call is authenticated; a surface that answers without sign-in is a product decision with its own costs, not part of this row. Its tools carry descriptions, titles, annotations and output schemas that directories score, held by a test.
 - **When:** an outside agent should act as a member and a pasted API token is the friction, or a connector directory requires OAuth.
-- **Owner:** apply and re-read the OAuth application settings on each identity-provider instance; run a real connector grant against production; submit to the chosen directories from the owner's own accounts (a reviewer account with sample data for each directory that signs in; ChatGPT's directory also needs identity verification under the exact name the legal pages use).
+- **Owner:** apply and re-read the OAuth application settings on each identity-provider instance and run a real connector grant in one client against production when approved. Pick any additional distribution surfaces. For selected directories, submit from the owner's own verified accounts and supply a reviewer account with sample data where sign-in is required. ChatGPT's directory also needs identity verification under the exact name the legal pages use.
 - **How:** the `mcp-server` skill; the `clerk-production` skill (OAuth settings).
 
 ### Public companion repository
-A public `<owner>/<product>` repository that is the product's issue tracker, and later the home of its MCP package (a stdio wrapper of the REST API), its MCP Registry entry, a desktop bundle manifest and directory listings. Its README says only what exists — once the package is there, leading with what the server does, because directories read the README — that issues are public, and that pull requests are not accepted; its own agent instructions are the package's release procedure. The private product links to it from its support page and footer, and updates it after every release that changes the API.
+A public `<owner>/<product>` repository for the product's issue tracker and, if the owner chooses those surfaces, its MCP package (a stdio wrapper of the REST API), Registry entry, desktop bundle manifest or directory listings. Its README says what exists, that issues are public and that pull requests are closed. Once the package exists, lead with what the server does because directories read the README. The companion repository's agent instructions hold the package's release procedure. Link the repository from support and the footer, and update shipped surfaces after releases that change the API.
 - **When:** the first public page that needs a place to report a bug, or the MCP package.
 - **Owner:** say go to create it (it is public from the first second); later, the package registry's two-factor publish and the MCP Registry login.
 - **How:** the `mcp-server` skill (the companion repository).

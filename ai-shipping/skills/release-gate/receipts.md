@@ -10,6 +10,15 @@ The rules come from two kinds of product, named here only by kind. The web-app h
 
 - `2026-11-14`, an evals product: nine development deploys passed a gate with no `e2e` or `e2e:auth`. A promotion-only requirement left the missing browser suites outside the development bar. The owner made the applicable contract the default for stage ends and every deploying push, with narrower gates recorded in the plan.
 
+## Close stages with coordinator checks, reserving the full process for phases.
+
+- `2026-11-17`, the Claude Code team's account of how it verifies changes (Addy Osmani, "How the Claude Code team thinks about verification", claude.dev, 2026-11-16, read `2026-11-17`): each of 39 reliability checks has a trigger readable from a diff, the check, and the incidents behind it; a change runs only those it matches, usually 3 to 10. And: "If a change can modify the check that judges it, the check is broken." With the fresh review moved from each stage to each phase, the stage-end read is where a product's own checks run.
+- `2026-11-16`, owner: "The exploratory look at the screens is done by the managing session, not by the session that built it."
+
+## Offer owner previews after phase checks without blocking the next phase.
+
+- `2026-11-16`, owner: "Once you’ve reviewed everything and the phase is complete, I may look at the software and provide feedback … most of the time I’m not here, and that shouldn’t block coding agents."
+
 ## Every preview and go message names each suite that did not run.
 
 - `2026-11-14`, an evals product: go messages listed passing unit and integration counts and clean reviews. Its coverage map repeatedly said signed-in browser flows were uncovered, but the owner never saw that gap in the go message.

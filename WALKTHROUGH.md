@@ -79,7 +79,7 @@ After phase checks, you get a link and the key user flows to try, each an action
 Not built yet: the monthly plan's limits.
 ```
 
-Before it reaches you, a fresh session new to the domain has said what each new screen is for and what to press next, and the screens have been rendered and critiqued (and, at the first screens or a kit change, audited). Expect 15 to 20 minutes for a mid-size app, every time. Screenshots taken by agents miss what moves and what is visible only for a moment, so this check is yours. Feedback becomes stages of the phase in flight and is reviewed like any other change. Your pending preview does not block the next phase. Ask for an early preview when the question is taste or whether it's the right thing, or whenever you want one; the agent names which phase review has not run and uses a development tunnel or named push. Skip the click-through when only code behind a screen changed.
+Before it reaches you, the coordinator checks affected screens in the browser. For a new or materially changed journey or a kit change, the full `ui-design` checks also include a fresh-session walkthrough, screenshot critique and scored audit. Expect 15 to 20 minutes for a mid-size app. Your click-through can catch movement or brief states that screenshots miss. Feedback becomes stages of the phase in flight and receives review. The next phase can start while you try the preview. For an early preview, the agent names which phase review has not run and uses a development tunnel or reviewed push. Skip the click-through when only code behind a screen changed.
 
 ## 6. Release review
 
@@ -104,7 +104,7 @@ The check modes and the audits only report. Where a doc, a test and the code dis
 
 **What you do, before the go:**
 - Perform the done-whens this release closes yourself; the go message names any visible phase you have not tried.
-- When a screen or its words changed, look over every screen in every state, theme, width and role, signed out included. The agent's captures help, but a person looks.
+- When a screen or its words changed, look over the changed screens and affected shared surfaces in each relevant state, theme, width and role, signed out where applicable. Sweep the whole product at go-live and for broad UI changes. Use the captures to help with the live walkthrough.
 - At go-live, make the production dashboard changes the agent can't, such as connecting a real payment account to billing (`release-gate`'s go-live).
 
 Then answer go or no-go in the chat. Silence is not go.
@@ -169,7 +169,7 @@ The coordinator needs the skills, and so does a builder whose brief names one: i
 - set up accounts and keys in dashboards, put each key where the agent asks (never in the chat), and paste the few commands the agent gives you into your own terminal;
 - try visible phases when available; your absence does not block the next phase;
 - decide where a doc and the code disagree;
-- before a release, perform what the stage promised and, when a screen or its words changed, look over every screen in every state, theme, width and role, signed out included;
+- before a release, perform what the stage promised. Explore changed screens and affected shared surfaces across the relevant states, themes, widths and roles, signed out where applicable. Walk the whole product at go-live and on broad UI changes;
 - say go.
 
 **You don't:** write tickets, read the test plan, review the code line by line, or approve a plan for a change you could check in a minute.

@@ -63,7 +63,7 @@ Tests that assert a refusal assert status, code and message together, with the r
 
 ## Two plpgsql and node-postgres mistakes that only fail at runtime
 
-Both pass the migration and the catalog suite, and fail the first time the code runs. Only a test that runs the function end to end catches them (`test-harness`, § Required for every feature that touches data).
+Both pass the migration and the catalog suite, and fail the first time the code runs. Only a test that runs the function end to end catches them (`test-harness`, § Boundary tests for features that touch data).
 
 - **A plpgsql loop variable named like a table alias in a query inside the loop** (`for t in … loop … from public.traces t …`) fails with "column reference … is ambiguous" only when the loop runs. Give loop variables names no query uses (`trace_row`).
 - **node-postgres sends a JavaScript array as a Postgres array**, so an array bound to a `jsonb` parameter fails or arrives as the wrong type. Pass `JSON.stringify(value)` and cast the parameter (`$1::jsonb`).

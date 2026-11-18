@@ -39,7 +39,7 @@ When an external create lacks an idempotency guarantee, follow `references/exter
 
 `visual`, the live agent suite, and `smoke -- <url>` run outside it on purpose. There is no hosted CI unless wired as its own change (`release-gate`). If wired, it runs the gate minus the authenticated mile. The local gate covers that gap: never skip it silently, and name any suite that did not run.
 
-**Run touched tests at stage end; reserve full gates for phases.** The coordinator runs new and touched tests itself, checks changed journeys' end-to-end specs, and reads the diff and corrected docs. The read of the diff runs the router rows it matches; an edited test, gate script or instruction file needs its reason. It takes a quick look at running screens at both widths and, when present, both themes. Run the full gate on the finished phase before its exploratory and visual checks, docs check and review series (`independent-review` § When). Rerun it on the cleared state if a fix followed its last full run, before the closing push. Time one full run and write it in the plan; phase estimates count required runs. A gate of a couple of minutes can run on every piece.
+**Run touched tests at stage end; reserve full gates for phases.** The coordinator runs new and touched tests itself and checks changed journeys' end-to-end specs. Run the full gate on the finished phase before visual checks, the docs check and fresh review. Rerun it on the cleared state if a fix followed its last full run, before the closing push. Apply `release-gate` § Stage and phase close for the full sequence. Time one full run and write it in the plan. Phase estimates count required runs. A gate of a couple of minutes can run on every piece.
 
 ## Tests and docs are part of the change, not a later step
 
@@ -61,15 +61,15 @@ When an external create lacks an idempotency guarantee, follow `references/exter
 
 The fix that lands comes with a test that reproduced the symptom before it, and the person confirms the symptom is gone in their own run.
 
-## Required for every feature that touches data
+## Boundary tests for features that touch data
 
-**Every feature that touches data gets the required boundary and integrity tests.** These checks establish:
+**Every feature that touches data gets the boundary and integrity tests its mechanisms need.** These checks establish:
 
-- **A workspace A member cannot see or act with workspace B's ids.**
-- **Refuse a once-only action's second attempt; hold the quota under a race.**
-- **A script tag renders as text.**
-- **Idempotent work runs twice and acts once.**
-- **A token does only what it was scoped to.**
+- **Every data route refuses cross-tenant access.** Check a workspace A member cannot see or act on workspace B's ids.
+- **Once-only actions refuse repeats and enforced quotas hold under a race.** Run these checks where those mechanisms exist.
+- **Untrusted content rendered by the app displays a script tag as text.**
+- **Replayable work runs twice and acts once.**
+- **Scoped tokens do only what their scope permits.**
 - **Every page renders once:** A page-level smoke in the browser suites opens each page as each role, with a foreign workspace's id, and signed out. Assert it renders, refuses, or sends to sign-in as its permission row says, never an error page. Per-route tests prove refusals; only this proves every page renders.
 - **Every new database function runs end to end once**, in the integration suite against the applied schema, with the rows it will meet. A migration applying and a catalog check passing prove nothing about a body plpgsql checks only when run (`supabase-production`, `references/gotchas.md`).
 - **Test deletion of a fully populated workspace as one test.** Put a row in every table a member can fill, then delete the workspace. The deletion completes and leaves none.

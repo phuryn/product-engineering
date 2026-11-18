@@ -30,30 +30,13 @@ description: "Mandatory for any product's screens, a builder's too, and any mock
 
 **The coordinator checks running screens briefly at the end of each stage.** Look at phone and desktop widths and both themes when two exist. The builder never substitutes for this exploratory look.
 
-**Finish phase visual checks before its independent review series and owner preview.** The coordinator explores the journeys and screens the phase added or changed. Complete the newcomer walkthrough below, the rendered-screen pass against `references/screens.md § What to verify visually`, and the app-screen screenshot critique. Critique at 1440, 768 and 390, with three rounds at most.
+**Finish phase visual checks before its independent review series and owner preview.** The coordinator explores changed journeys and their affected shared surfaces. For routine edits, check the rendered screens at phone and desktop widths and in both themes when they exist. Check affected roles and states, accessibility, and any claims about data or payment against `references/screens.md`.
 
-**Run the scored Impeccable-style audit at phase end for first screens and kit changes.** Fix its P0 and P1 findings. Rerun it before a release changing a screen or kit, and whenever the owner asks. Both critique and audit run from `references/collections.md` checklists without installing the collections. The owner judges the look at the phase preview, which does not hold the next phase (`references/review.md`).
-
-### The newcomer walkthrough
-
-**Give a fresh session only the ordered screenshots and the user's job.** Never give the brief or code; alternatively, ask a person new to the domain. Ask the same questions for every screen: what is it for, what would you press next, and what is unclear? Fix any screen it cannot explain or next step it cannot find. Capture every route and dialog with a Playwright crawl at 1280 and 390. Crop pages taller than about 3,000px into ordered parts for reading without downscaling. For Clerk's test-user sign-in recipe, apply the `clerk-production` skill (`references/authenticated-mile.md`); other providers use their development test sessions.
+**Run the walkthrough, screenshot critique and scored audit for new or materially changed journeys and kit changes.** Run the rendered pass as part of that review. Repeat the full checks before releasing those changes and whenever the owner asks. Fix P0 and P1 findings. Open `references/review.md` when the full checks are due. The owner judges the look at the phase preview, which does not hold the next phase.
 
 ## Which collection leads, stage by stage
 
-| Stage | Leads | Take | Keep out |
-|---|---|---|---|
-| The jobs. Before any screen | this skill, § Before any screen | the jobs map; the data rules kept out of the copy | a screen per table |
-| Direction. No look yet; the look is the problem; a public page whose job is to persuade | `frontend-design` (always on) | a direction grounded in the product's subject; a plan (palette, type, layout, principles) checked against the generic defaults before anything is built; keeping brand colours still runs the kit stage | a new direction per screen. Once one is picked, it stops leading |
-| A choice between options. A palette, a font pairing, a chart type, a stack's convention | UI/UX Pro Max | candidates to choose from. The pick goes into the kit by hand | its persisted design-system files and its installer: a second design system beside the kit |
-| The kit | the method, with `frontend-design`'s plan | tokens and primitives that satisfy every rule in `method.md`, each held by a test where one can be written | anything a collection proposes that the method forbids |
-| Screens people work in. Dashboards, admin, tables, settings | the app-screen checklist in `references/collections.md § Taste`, distilled from its last upstream app chapter | the screen's one question and face; every block's empty, zero, loading and error state; colour only on data, status and the one primary action; its screenshot critique, three rounds at most | Taste's current company-page system, and its palette and type when a kit exists |
-| Charts | `dataviz` (built in) | form first, colour last; its palette validator; one axis; hover by default | state colours reused as series colours |
-| What a screen says | `references/screens.md § What a screen may claim`, and `frontend-design`'s section on writing | sentences only as true as what the renderer is handed; one function for every summary of a state | — |
-| Before it ships | `references/screens.md § What to verify visually`, then Impeccable | every width, state, theme and role; Pro Max's web checks (`quick-reference.md` §1–3, §8, §9, inside the UI/UX Pro Max skill; without it, its distilled list in `collections.md`) as a quick pass; Impeccable's audit, hardening and polish | Pro Max's native/mobile pre-delivery checklist for web work; Impeccable's commands that write their own design documents, and any redesign through it; ellipsis for text a person typed |
-| The owner judges the look | `references/review.md` | measured claims, before/after specimens in the real tokens, fixes split from the owner's calls | opinions without numbers |
-| A page published as a claude.ai artifact | `artifact-design` (built in) | its page contract and both themes | — |
-
-Read `collections.md` for each collection's purpose, what to take, what to keep out, installation and a checklist usable without installing it. Without third-party collections, design from the method, `frontend-design` and those checklists.
+**Use the collection that fits the work, within the product's kit.** Open `references/collections.md` for direction, candidate choices, app screens, charts, pre-ship checks or published artifacts. Its matrix routes each task to a collection and includes checklists usable without installing third-party collections.
 
 ## The owner's standing preferences
 
@@ -73,11 +56,11 @@ Each rule's origin, the case that taught it, is in `receipts.md` beside this fil
 
 ## How you can tell it worked
 
-Every screen answers a mapped job and passed the walkthrough, rendered pass and screenshot critique; the last scored audit has no open P0 or P1. The owner approved its look at phone and desktop width, and every raw style value comes from the tokens.
+Every screen answers a mapped job. Changed screens passed the rendered check. New or materially changed journeys and kit changes passed the walkthrough and critique, and their scored audit has no open P0 or P1. The owner approved the look at phone and desktop width, and every raw style value comes from the tokens.
 
 ## When something is learned
 
-- **Send lessons true for any product to this collection.** Make a change for this collection, drafted in the product's feedback file or as an issue on the collection's repository (`/agent-harness:retro` says how), naming the file it belongs in:
+- **Record lessons true for any product in the product's feedback file.** Draft an upstream issue only when the owner requests one. For the session workflow, type `/agent-harness:retro` (Codex: `$agent-harness:retro`). Name the file the lesson belongs in:
   - a rule for the kit or for building screens goes in `method.md`;
   - a rule about what screens claim, or how they're checked, goes in `screens.md`;
   - a change to the review procedure goes in `review.md`.

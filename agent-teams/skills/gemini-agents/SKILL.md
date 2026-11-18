@@ -33,7 +33,7 @@ The CLI recipes were run on `2026-11-14`, Antigravity CLI 1.5.8, macOS, on a pai
 2. **Treat the delegate as a peer, not a tool.** Its view is not binding, and neither is yours. A choice you would not have made is a disagreement to surface, not a defect.
 3. **Bring the partner in at framing and keep iterating.** The cheapest wins are at framing; three to eight turns is normal.
 4. **Converge before surfacing.** Bring the human one result, or a disagreement stated cleanly.
-5. **A delegated diff is unreviewed code, and the session that wrote it never clears it.** Read it, check the disk and re-run its tests yourself. The coordinator runs touched and new tests at stage end; the full gate and fresh independent review come at phase end and before anything ships or deploys; apply `test-harness` § The gate and `independent-review` § When.
+5. **A delegated diff is unreviewed code, and the session that wrote it never clears it.** Read it, check the disk and rerun its tests yourself. Apply `release-gate` § Stage and phase close for the checks and fresh review before a deployment.
 6. **Keep product decisions, operational changes and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep operational changes, including development deploys, applied migrations, pushes, provider settings and secrets, plus production credentials. Development suite runs are delegated within the brief's boundaries; apply `delegation`.
 
 ## Command customizations
@@ -89,7 +89,7 @@ Each checked boundary reports `held`, `NOT HELD` or `not attempted`; anything ex
 
 When checks withhold a recorded response, the diagnostic names its result event in the events file; `--out` stays empty.
 
-Keep the adjacent `.meta.json` file too; replay uses its brief path, subject root, attachment copies, process outcome and changed-file evidence. Without a subject root, older review recordings cannot place reads against the snapshot; they warn and use the legacy read check. An appended log's metadata selects its latest turn.
+Keep the adjacent `.meta.json` file too. Replay uses its brief path, subject root, attachment copies, process outcome and changed-file evidence. A legacy review recording without a subject root reports “subject reads unverified” and fails the read check. You can still inspect its log. An appended log's metadata selects its latest turn.
 
 ```bash
 python3 <skill dir>/scripts/agy.py --replay <events.jsonl> --mode review
@@ -97,14 +97,7 @@ python3 <skill dir>/scripts/agy.py --replay <events.jsonl> --mode review
 
 Exit 1 means a failed or empty run, missing result, denied permission, missing binary or unsupported flag. Exit 2 means a broken boundary or missing successful read. Exit 3 means documented quota wording, not the CLI's own timeout exit 3. The wrapper maps `finished_reason: print_timeout` to exit 1; `--timeout` defaults to 3,600 seconds, with a later process kill as backup.
 
-**Use bare CLI calls only when you can perform the wrapper's checks.** This fallback leaves customization checks, copied-input preparation, event inspection, session recording, read evidence and changed-file checks to you.
-
-```bash
-# Inspect workspace and user customizations first; start in the repository with only copied inputs added.
-agy -p "Read <copied-brief> and do what it says. Resolve relative paths in <repo>; do not run commands or write files." \
-  --add-dir <prepared-input-folder> --print-timeout 120s --output-format stream-json \
-  --settings '{"permissions":{"deny":["write_file(*)","command(*)","unsandboxed(*)","read_url(*)","execute_url(*)","mcp(*)"]}}' < /dev/null
-```
+**Use the wrapper for every Gemini turn.** If `<skill dir>/scripts/agy.py` is missing or unusable, stop and report the blocker.
 
 ## Peer
 

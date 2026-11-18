@@ -263,7 +263,7 @@ It needs Python 3 (standard library only), and the search makes no network calls
   - Bands out of 20: 18+ excellent, 14+ good, 10+ acceptable, 6+ poor, below 6 critical.
   - Every finding names its severity, its location (`file:line`), its impact, the standard it breaks and the fix.
   - Never report a finding you haven't verified.
-  - It runs at phase end, before the review series, at the first screens and when the kit changes, before a release that changes a screen or the kit, and when the owner asks (`SKILL.md`). Record the scores, fix P0 and P1, and rescore.
+  - Run it before the phase review series and before release for new or materially changed journeys or kit changes, and whenever the owner asks (`SKILL.md`). Record the scores, fix P0 and P1, and rescore.
 - **Severity for design findings.**
   - **P0** blocks the task: fix now.
   - **P1** causes significant difficulty or breaks WCAG AA: fix before what the audit ran for: the phase's review series, or the release.
@@ -384,6 +384,23 @@ Its non-negotiables:
 **It leads only for a page published as an artifact**, such as a review's specimens or a report for the owner. An artifact that mocks a product screen loads and composes the product's kit and satisfies the method (`SKILL.md § What binds`).
 
 ## Where they disagree, and the side this skill takes
+
+### Which collection leads, stage by stage
+
+The pre-ship row gives the full checks. Apply the scope in `SKILL.md` § Complete phase visual checks before its review series and owner preview for routine edits.
+
+| Stage | Leads | Take | Keep out |
+|---|---|---|---|
+| The jobs. Before any screen | this skill, § Before any screen | the jobs map; the data rules kept out of the copy | a screen per table |
+| Direction. No look yet; the look is the problem; a public page whose job is to persuade | `frontend-design` (always on) | a direction grounded in the product's subject; a plan (palette, type, layout, principles) checked against the generic defaults before anything is built; keeping brand colours still runs the kit stage | a new direction per screen. Once one is picked, it stops leading |
+| A choice between options. A palette, a font pairing, a chart type, a stack's convention | UI/UX Pro Max | candidates to choose from. The pick goes into the kit by hand | its persisted design-system files and its installer: a second design system beside the kit |
+| The kit | the method, with `frontend-design`'s plan | tokens and primitives that satisfy every rule in `method.md`, each held by a test where one can be written | anything a collection proposes that the method forbids |
+| Screens people work in. Dashboards, admin, tables, settings | the app-screen checklist in `references/collections.md § Taste`, distilled from its last upstream app chapter | the screen's one question and face; every block's empty, zero, loading and error state; colour only on data, status and the one primary action; its screenshot critique, three rounds at most | Taste's current company-page system, and its palette and type when a kit exists |
+| Charts | `dataviz` (built in) | form first, colour last; its palette validator; one axis; hover by default | state colours reused as series colours |
+| What a screen says | `references/screens.md § What a screen may claim`, and `frontend-design`'s section on writing | sentences only as true as what the renderer is handed; one function for every summary of a state | — |
+| Before it ships | `references/screens.md § What to verify visually`, then Impeccable | every width, state, theme and role; Pro Max's web checks (`quick-reference.md` §1–3, §8, §9, inside the UI/UX Pro Max skill; without it, its distilled list in `collections.md`) as a quick pass; Impeccable's audit, hardening and polish | Pro Max's native/mobile pre-delivery checklist for web work; Impeccable's commands that write their own design documents, and any redesign through it; ellipsis for text a person typed |
+| The owner judges the look | `references/review.md` | measured claims, before/after specimens in the real tokens, fixes split from the owner's calls | opinions without numbers |
+| A page published as a claude.ai artifact | `artifact-design` (built in) | its page contract and both themes | — |
 
 | Question | They say | This skill |
 |---|---|---|

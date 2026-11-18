@@ -7,7 +7,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 - `2026-11-14`, owner, on why a fresh Codex session reviews when Grok cannot: "if Grok is not available, also GPT 6.1 Sol [at xhigh] for code reviews. So independent sessions from the same lab and the same model. That's fine." Until then the wrapper went from Grok straight to a fresh Claude Code session. The model is the owner's pick; the reader chooses their own.
 - `2026-11-18`, the owner moved builds and reviews to GPT-6.2 Sol at `xhigh` and made a fresh Codex session the default reviewer, replacing Grok.
 
-## a repository ranks its reviewers; it cannot rule out a review.
+## A repository ranks its reviewers; it cannot rule out a review.
 
 - `2026-11-06`, owner: "Of course the same family when there is no other".
 
@@ -26,15 +26,6 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-11-16`, owner: "Rather than prescribing everything I’d rather trust the agent to choose best and propose the exact split that works for it considering what agents can handle and what will slow us down vs. what will improve quality. If you think it’s fine you can suggest three phases for a new product, that can also be a suggestion."
 - `2026-11-16`, owner: "Ok phase is one sprint, makes sense. In any case we’re talking about AI not humans so those are not exact analogies."
-
-## Close stages with coordinator checks, reserving the full process for phases.
-
-- `2026-11-17`, the Claude Code team's account of how it verifies changes (Addy Osmani, "How the Claude Code team thinks about verification", claude.dev, 2026-11-16, read `2026-11-17`): each of 39 reliability checks has a trigger readable from a diff, the check, and the incidents behind it; a change runs only those it matches, usually 3 to 10. And: "If a change can modify the check that judges it, the check is broken." With the fresh review moved from each stage to each phase, the stage-end read is where a product's own checks run.
-- `2026-11-16`, owner: "The exploratory look at the screens is done by the managing session, not by the session that built it."
-
-## Offer owner previews after phase checks without blocking the next phase.
-
-- `2026-11-16`, owner: "Once you’ve reviewed everything and the phase is complete, I may look at the software and provide feedback … most of the time I’m not here, and that shouldn’t block coding agents."
 
 ## Keep coordinator notes out of the review subject until its series closes.
 
@@ -68,10 +59,6 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## A round can fail by running out of room, leaving the same short output.
 
 - `2026-09-17`, a round exhausted context across 77 files and stopped after one real finding.
-
-## Never remove a worktree whose `node_modules` links to another checkout.
-
-- `2026-10-02`, a temporary worktree's junction; `npm ci` restored the main checkout.
 
 ## A push can have side effects beyond the deploy.
 
@@ -173,7 +160,3 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Number rounds in one sequence per repository.
 
 - `2026-10-22`, three sequences ran on one day, so "round 3" named three different rounds; with one sequence from then on, over a hundred rounds stayed citable.
-
-## Use the repository's runnable fallback when the default reviewer cannot run.
-
-- `2026-11-16`, Codex CLI 0.169.0 on Windows: an elevated review timed out after 60 minutes with zero commands. The unelevated round completed in about 15 minutes. The wrapper therefore accepts an explicit Windows mode override; absence keeps config lookup.

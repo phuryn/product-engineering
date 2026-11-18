@@ -23,6 +23,8 @@
 
 ## Applied by the CLI, against a target you state
 
+**Check the connection string inside the command that uses it.** Keep the operator files outside git, with each value single-quoted as in the production example below. Check `npm ls supabase` before running these pinned 2.x CLI commands.
+
 ```sh
 # Development. <dev-ref> is the ref in the app's own SUPABASE_URL. Each line loads development's
 # connection string into itself alone and checks, without printing it, that it names <dev-ref>,
@@ -38,13 +40,13 @@ If that listing is already aligned, stop: record *no migration*. Otherwise read 
 
 Where the owner kept development as a branch of production (`SKILL.md` § Setting it up the first time, step 1), the same lines hold: a branch's connection string carries its own ref, in the pooler user `postgres.<ref>` or the host `db.<ref>.supabase.co`.
 
-**Production is its own run, only at a release and on the owner's go**, never in the same script or command list as development. Its connection string comes from the production operator file, loaded into each command alone, as `SKILL.md` § Applying a migration says, never typed or printed. Read first:
+**Production is its own run, only at a release and on the owner's go.** Never in the same script or command list as development. Keep production's percent-encoded connection string in its uncommitted operator file outside the development checkout. Verify that it belongs to the recorded production project before using it. Load it only into the command using it. A session environment exposes it to every process the agent starts. Run each command below as `( . <production operator file> && test -n "$PROD_DB_URL" && <command> )`, which expands the string without exporting the file's other values. Type the variable on the operator's own machine and keep the string out of commands, output and chat. The expanded `--db-url` is visible in the local process list (`environments`, `references/variables.md`). With `;`, bash runs the command after a file that failed to load. An empty `--db-url` goes to whatever database the shell's `PG*` variables name, or to localhost (Supabase CLI 2.122.0, observed `2026-10-29`). The shell reads the file, so single-quote every value; a `'` inside one written `'\''` (`PROD_DB_URL='postgresql://…?sslmode=verify-full&sslrootcert=…'`). Unquoted, the `&` joining the URL's parameters ends the assignment and the variable comes out empty. A machine without IPv6 uses the session pooler (`gotchas.md`). Read first:
 
 ```sh
 npx supabase migration list --db-url "$PROD_DB_URL" && npx supabase db push --db-url "$PROD_DB_URL" --dry-run
 ```
 
-Then, only once the dry run is read and the owner's go is in the chat, as its own command:
+**Apply production only after reading the dry run and getting the owner's go in the chat.** Run this as its own command:
 
 ```sh
 npx supabase db push --db-url "$PROD_DB_URL" && npx supabase migration list --db-url "$PROD_DB_URL"
@@ -82,13 +84,15 @@ After applying, regenerate the types from that same target and run the tests. Th
 
 ## The MCP is for looking
 
-The Supabase MCP server is for **looking** at tables, logs and advisors, against **development**.
+**Install the read-only MCP only when you need development logs or advisors.** Use a separate development project scoped to its own token. For an owner-chosen development branch of production, use its connection string through the CLI and leave MCP unconfigured.
 
 - **Never apply a migration through it.** `apply_migration` timestamps the migration when it runs, so the ledger and the directory drift apart.
 - **Its reads have the same edge.** `list_migrations` answers about whatever the MCP config names, so it can give a confident all-clear about the wrong database.
 - **Check its URL before believing any answer about schema.** The config is gitignored and per machine, and the next clone may name a different target.
 
 (`2026-09-16`, the MCP config named production while the product's rules still blessed migration writes through it.)
+
+The owner issues a scoped token for the development project alone, read-only, and sets it in `SUPABASE_ACCESS_TOKEN` outside the chat, in the environment the agent starts in (a token pasted into the chat is revoked; set after the agent started, the session is restarted to inherit it, which in Claude Code `claude --resume`, picking this conversation, does without losing it). *Connect → MCP* in the dashboard generates the add command for your project; add the token as a header, single-quoted so the shell writes the variable's name, not its value: `claude mcp add --scope project --transport http supabase "https://mcp.supabase.com/mcp?project_ref=<dev-ref>&read_only=true&features=…" --header 'Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}'`. Check it without printing it: `grep -qF 'Bearer ${SUPABASE_ACCESS_TOKEN}' .mcp.json && echo ok`. Anything but `ok` means a value was written in: remove the server (`claude mcp remove supabase`), and the owner revokes that token and issues a new one. Claude Code expands the name from the environment it starts in. The browser sign-in grants the whole organization. Sign out in the client and have the owner revoke any token it already issued. Keep its config file out of git. The server loads in a new session: restart (`claude --resume`, picking this conversation), and the owner approves the project's `supabase` server when Claude Code asks, until `/mcp` shows it connected. Check the configured URL and confirm the MCP answers about the same development project before relying on it.
 
 ## Does a push apply migrations?
 
@@ -135,15 +139,13 @@ Receipts:
 
 ## Before a promotion
 
-These are the Supabase mechanics. The checklist they sit in is `release-gate`.
+These are the Supabase mechanics. Apply `release-gate` for the release around them.
 
-- **Every schema change is a migration file, no applied migration was edited, and the dashboard is untouched.**
-- **`npx supabase migration list --db-url "$PROD_DB_URL"` shows no row with an empty `remote`** (every production command here runs with the string loaded from the production operator file into that command alone, as `SKILL.md` § Applying a migration says). Otherwise:
-  1. `npx supabase db push --db-url "$PROD_DB_URL" --dry-run` names the pending rows.
-  2. After the owner's go, they are applied by CLI, with that URL, immediately before the promotion.
-  3. The list is re-run.
-- **Going live the first time:** a production project separate from development. Every migration is applied to it with `--db-url` (a new project takes every file in one push), and the ledger is read again.
-- **Never** apply a migration through the MCP or the dashboard, and never by linking the CLI to production.
+- **Confirm each schema change is a migration file.** Leave applied migrations and the dashboard untouched.
+- **Run the production ledger read in § Applied by the CLI before every promotion.** An empty `remote` names a pending migration. Review the dry run and the compatibility window for every pending row and runtime (§ The window).
+- **Apply pending files immediately before promoting and after the owner's go.** Use the separate production apply command in § Applied by the CLI. Re-read the production ledger and verify alignment before promoting.
+- **Use the production project and its own connection string at first go-live.** A new project takes every file in one push. Read the ledger again before promoting. When the owner chose a development branch, that branch keeps its distinct connection string.
+- **Apply only through the unlinked CLI.** The MCP and the dashboard stay read-only.
 
 ## After the deploy
 

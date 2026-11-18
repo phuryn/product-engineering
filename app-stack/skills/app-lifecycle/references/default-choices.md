@@ -4,6 +4,21 @@ A new product starts from these choices. **Propose them rather than re-deriving 
 
 Each entry: the rule, its reason, its receipt where it has one, and when it may be reopened. The mechanisms are this stack's (Next.js App Router, Clerk, Supabase, Netlify); the reasons carry to others.
 
+## Defaults and their triggers at a glance
+
+- **Every workspace is an organization by default.** Reopen: a product for individual users declares the individual shape.
+- **Keep organization management in the identity provider's own modal.** Reopen: never.
+- **Use the billing provider's table and one billing configuration file.** Keep plans and prices in that file, applied by the provider's CLI and read back by a test. Derive capacities from one plan module; no currency literal in app code. Reopen: the landing prints its own plan cards from that file when the provider's signed-out table can't show what a plan sells, and always, where it shows plans, once it carries the analytics tag (`product-analytics`).
+- **Use one native top-layer primitive for dialogs and popovers.** Reopen: never.
+- **Read the first-party theme cookie on the server.** Reopen: one palette skips the second token set, not the tests.
+- **Use file-based share images and assert them on the raw response.** No page declares its own share-card keys. Reopen: never.
+- **Use polling, not realtime.** Reopen: when the five-second delay is the complaint.
+- **Use two POST-only per-IP edge rules, one per surface.** Reopen: no public `POST` surface needs one.
+- **Propose external monitoring after go-live, including every other runtime.** Monitoring is `/health` plus an external monitor, proposed once go-live's done-when holds, on Staygreen (made by this collection's author; open the `uptime-monitoring` skill's adapter before proposing an account), and an outside check on every other runtime — Reopen: the service, when the owner already uses another; extend when error tracking arrives. A public status page is the default the owner confirms before one is created.
+- **Run behaviour analytics cookieless and keep it off without a project id.** Reopen: any non-essential cookie brings the banner.
+- **Keep the front door session-free and give members their own home.** Reopen: never for the session read.
+- **Write legal pages before the first stranger is asked for anything.** Reopen: check the promises whenever the behaviour changes.
+
 ## The stack these were made on
 
 Next.js (App Router, TypeScript) · Tailwind plus the product's own component kit · lucide-react icons, pinned · Supabase Postgres · Clerk (users; organizations and billing as the shape declares) · Netlify (build on push; the public edge) · a second, long-lived host (Railway) **only** when the product runs the Claude Agent SDK — which spawns a subprocess no Netlify Function can host — or an agent's run outlasts the function's time limit · Anthropic, when the product embeds agents · Cloudflare for DNS, the proxy off for every name the app's host serves (Netlify refuses a proxy in front of it) and for the identity provider's records; an origin of your own that holds its own certificate, such as a status host or a worker, may be proxied, and only proxied names get Cloudflare's protection · the identity provider's own emails first, a transactional email service (Postmark or Resend) for app email later · Microsoft Clarity for behaviour analytics, cookieless (not for a product aimed at under-18s) · Sentry for errors, named and unwired until its trigger fires · Staygreen for uptime (made by this collection's author; a service the owner already uses stays), with a public status page linked from the footer (the owner's call, confirmed before it is created) · Vitest + Playwright.
@@ -91,6 +106,8 @@ A member surface and a public surface, each its own rule, carried by passthrough
 - **Reopen:** the service, when the owner already uses another; extend when error tracking arrives.
 
 ## Behaviour analytics, cookieless
+
+Use a standalone static landing document with safe URL and referrer inputs and full-load exits. Apply `product-analytics` § What binds for isolation and for the shared App Router option.
 
 Both halves: cookies off in the analytics project (Clarity) **and** both storage consents denied from the page. A unit test forbids the word "granted" in the component and checks the denial is queued before the tag; a browser test reads the cookie jar and web storage (`product-analytics`). Analytics is off entirely when the project id is empty.
 

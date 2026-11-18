@@ -334,12 +334,12 @@ def same_path(left, right):
     return os.path.normcase(os.path.abspath(left)) == os.path.normcase(os.path.abspath(right))
 
 
-def successful_read(step, brief=None, excluded=()):
+def successful_read(step, excluded=()):
     if step.get("state") != "DONE" or step.get("tool_info", {}).get("error"):
         return False
     name = tool_name(step)
     if name == "read_file":
-        return not ((brief and same_path(path_of(step), brief)) or any(same_path(path_of(step), str(path)) for path in excluded))
+        return not any(same_path(path_of(step), str(path)) for path in excluded)
     if name == "run_command":
         text = output_text(step)
         if command_exit(step) != 0:
@@ -348,7 +348,7 @@ def successful_read(step, brief=None, excluded=()):
         if re.search(r"operation not permitted|permission denied|fatal:|cannot (?:open|read)|no such file", text, re.I):
             return False
         cmd = parameters(step).get("CommandLine", "")
-        if (brief and brief in cmd) or any(str(path) in cmd for path in excluded):
+        if any(str(path) in cmd for path in excluded):
             return False
         # An observed shell result proves a read only when the command is a reader.
         return bool(re.search(r"(?:^|[\s;&|])(?:cat|head|tail|sed|grep|rg|ls|find|git|type|Get-Content|Select-String)\b|\b(?:read_text|read_bytes|open)\s*\(", cmd, re.I))
@@ -463,11 +463,8 @@ def append_cli_diagnostics(problems, warnings, run, failed):
 def judge(run, mode, expected_session=None, git_changed=False, git_observable=True, mcp=False):
     problems, warnings = [], []
     tools = run.tools()
-    legacy_review = mode == "review" and run.replay and run.subject_root is None
-    if legacy_review:
-        warnings.append("legacy review replay has no subject_root; using the recorded read heuristic")
-    elif mode == "review" and run.subject_root is None:
-        warnings.append("review subject_root is missing; positive read placement is unavailable")
+    if mode == "review" and run.subject_root is None:
+        warnings.append("subject reads unverified: no recorded subject_root")
     counts = {"commands": 0, "reads": 0, "searches": 0, "tool_errors": 0}
     for step in tools:
         name, state = tool_name(step), step.get("state")
@@ -540,10 +537,8 @@ def judge(run, mode, expected_session=None, git_changed=False, git_observable=Tr
             problems.append("consult changed git status --porcelain")
         if not any(successful_read(s, excluded=run.non_subject_paths) for s in tools):
             problems.append("consult read nothing successfully")
-    if mode == "review":
-        read_subject = any(successful_read(s, run.brief, run.non_subject_paths) for s in tools) if legacy_review else any(review_subject_read(s, run) for s in tools)
-        if not read_subject:
-            problems.append("review read nothing in the snapshot or its attachments; only file-tool reads there count")
+    if mode == "review" and not any(review_subject_read(s, run) for s in tools):
+        problems.append("review read nothing in the snapshot or its attachments; only file-tool reads there count")
     if mode == "build" and not any(successful_read(s) for s in tools):
         problems.append("build read nothing successfully")
     append_cli_diagnostics(problems, warnings, run, bool(problems))

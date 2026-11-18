@@ -904,7 +904,7 @@ class IntegrationTests(unittest.TestCase):
         self.assertNotEqual(metadata["subject_paths"][0],metadata["brief_path"])
         replay = self.invoke("--replay",str(events),"--mode","review")
         self.assertEqual(replay.returncode,completed.returncode,replay.stderr)
-        self.assertNotIn("no subject_root",replay.stderr)
+        self.assertNotIn("subject reads unverified",replay.stderr)
         # Explicit attachment evidence also survives cleanup, without granting
         # the rest of the old handoff directory the same status.
         saved = agy.load_replay(events)
@@ -915,8 +915,8 @@ class IntegrationTests(unittest.TestCase):
         metadata.pop("subject_root")
         Path(str(events) + ".meta.json").write_text(json.dumps(metadata))
         legacy = self.invoke("--replay", str(events), "--mode", "review")
-        self.assertEqual(legacy.returncode, 0, legacy.stderr)
-        self.assertIn("no subject_root", legacy.stderr)
+        self.assertEqual(legacy.returncode, 2, legacy.stderr)
+        self.assertIn("subject reads unverified", legacy.stderr)
 
     def test_review_subject_root_matches_execution_directory_with_symlinked_temp(self):
         actual = self.root / "actual temporary folder"
@@ -1318,15 +1318,15 @@ class ReviewSubjectTests(unittest.TestCase):
         self.assertEqual(self.code(run), 2)
         self.assertEqual(agy.judge(run,"review")[3]["reads"],0)
 
-    def test_legacy_replay_fallback_is_explicit_and_never_used_live(self):
+    def test_review_without_subject_root_reports_unverified_reads(self):
         run = stream(command(1,"cat legacy-subject.txt"), subject_root=None)
         verdict = agy.judge(run,"review")
-        self.assertEqual(verdict[0], 0)
-        self.assertIn("no subject_root", " ".join(verdict[2]))
+        self.assertEqual(verdict[0], 2)
+        self.assertIn("subject reads unverified", " ".join(verdict[2]))
         run.replay = False
         verdict = agy.judge(run,"review")
         self.assertEqual(verdict[0], 2)
-        self.assertIn("subject_root is missing", " ".join(verdict[2]))
+        self.assertIn("subject reads unverified", " ".join(verdict[2]))
 
     def test_placement_is_lexical_even_after_snapshot_is_gone(self):
         run = self.review(read(path="README.md"), read(2,self.ATTACHMENT), attachments=[self.ATTACHMENT])

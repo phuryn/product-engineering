@@ -103,7 +103,7 @@ The rest stays the owner's, in the dashboard.
 
 5. **Configure billing only when the product bills, after organizations.** Use Free and one paid plan for organizations, written in a billing file (its `plans` block included) and applied in two commands: `npx clerk config patch --file <file> --dry-run`, read what it would send, then the same without `--dry-run`. *Manage billing* goes to the admin role alone. → `references/organizations-and-billing.md § Billing`
 6. **Enable legal consent once the legal pages are live.** Use *Configure → Legal → Require express consent to legal documents*, with their URLs. The sign-up form then carries the consent checkbox.
-7. **Configure OAuth application settings only for an MCP server.** See § MCP OAuth.
+7. **Configure OAuth application settings only for a member-authenticated MCP server.** See § MCP OAuth.
 8. **Configure production's own instance at go-live.** It gets:
    - its own keys, which work only on the domains the instance is configured for, and its DNS records;
    - its own OAuth client for each social sign-in (development borrows Clerk's shared ones);
@@ -120,7 +120,7 @@ The rest stays the owner's, in the dashboard.
 
 - the plans and features: the billing file, and each instance's read-back against it (§ The choices, 9);
 - the organization settings, `GET /v1/instance/organization_settings` with that instance's secret key: *Membership required*, automatic first organization, admin deletion off;
-- the OAuth settings, `GET /v1/instance/oauth_application_settings` (§ MCP OAuth);
+- for a member-authenticated MCP server, the OAuth settings, `GET /v1/instance/oauth_application_settings` (§ MCP OAuth);
 - sign-in methods, legal consent, self-deletion and social providers, from the instance's public settings, `GET https://<frontend API host>/v1/environment`, which needs no key;
 - a screenshot for the rest: *Roles* (each role's name and key, and who holds *Manage billing*), *Test mode* on (development only), *Webhooks* (the endpoint and its events, once the personal-data trigger fires).
 
@@ -128,30 +128,7 @@ The rest stays the owner's, in the dashboard.
 
 ## MCP OAuth
 
-**Apply these OAuth settings only for a member-authenticated MCP server.** Outside agents must reach it as signed-in members, with Clerk as authorization server. This section holds only Clerk settings. Apply `mcp-server` for callers, the route, limits, tools, directories, clients and package. That skill also covers agent-started sign-up through *Create first organization automatically*, an organization setting rather than an OAuth one.
-
-Use *OAuth applications → Settings* (observed `2026-10-06`); these settings can fail silently.
-
-- **Create no OAuth application by hand.** MCP clients register themselves (DCR) or identify by a metadata URL (CIMD). Clerk says a DCR client appears under *OAuth applications → Applications* after its first sign-in. A CIMD client may not appear at all (Backend API observed `2026-10-27`; the dashboard was not checked). A manual application is only for a client that can do neither. It needs the consent screen on and the same scopes, because instance defaults do not rewrite its scopes.
-- **Enable CIMD support and admit any compatible CIMD client.** Set Client admission to *Any compatible CIMD client*. That is `client_id_metadata_documents_advertised` `true`, with `client_id_metadata_documents_only_allow_pre_registered_clients` and `client_id_metadata_documents_block_implicitly_allowed_clients` both `false`. When the switch goes on, the dashboard preselects *pre-registered and previously connected clients*, which refuses every new client.
-- **Enable published DCR support even though Clerk labels it deprecated.** Set `dynamic_oauth_client_registration` on; Clerk labels it *Deprecated*. Many MCP clients still register only through DCR.
-- **Set default scopes for identity and, where applicable, organizations.** Use `openid`, `profile`, `email`, plus `user:org:read` in the organization shape.
-  - Without `user:org:read`, the consent screen asks for no organization, and every connection is refused `organization_required`.
-  - The dashboard shows `offline_access` and will not remove it. It is not stored in `default_scopes`, and it only lets a client that asks for it refresh. ChatGPT asks for it (observed `2026-10-27`).
-- **Require PKCE.** Turn `pkce_required` on.
-- **Enable JWT access tokens and include the audience.** Turn on `oauth_jwt_access_tokens` and *Include Audience* (`aud_claim_enabled`, off by default).
-  - The route requires its own exact URL as the resource in `aud`: `<APP_URL>/api/mcp` by default, or the path the product chose instead (one product mounts it at `/mcp`).
-  - The protected-resource metadata describes that path, never the origin root.
-- **Apply, then re-read.** Use `PATCH`, then `GET /v1/instance/oauth_application_settings`, with that instance's own secret key. Record the re-read in the integration notes: development and production separately, dated.
-- **An instance cloned from development does not carry these settings.** (Observed `2026-10-24`.) Apply and re-read them on the clone as on any new instance.
-- **No new environment variable.** The publishable key gives the issuer, the secret key verifies tokens and reads membership, and `APP_URL` gives the resource and the discovery URLs.
-
-**Allow for all four OAuth verification behaviours in the route.**
-
-- **Discovery's `claims_supported` is not the shape of the JWT Clerk emits.** The list omits `client_id` and `scope`, which a real grant can carry. Run a real DCR + PKCE grant before changing which claims the route requires.
-- **A JWKS or network failure while verifying is a retryable `503`, never an invalid-token `401`.** A `401` sends the client back through the whole OAuth flow.
-- **An unknown `kid` never reaches Clerk's verifier.** Given a `kid` it has not cached, `verifyToken` fetches the JWKS from the Backend API with the secret key, and an unauthenticated caller chooses the `kid`. Check the unverified header's `kid` against the key list last loaded, refresh that list at most once a minute, and refuse the rest as invalid.
-- **Offline JWT verification does not see a revoked grant until the token expires.** It remains unseen until token expiry, a day by default. Recheck workspace access on every request through `requireWorkspaceAccess`, never from the token's claims alone.
+**Open the OAuth procedure when configuring a member-authenticated MCP server.** Read the procedure in `references/mcp-oauth.md` for scopes, PKCE, the exact audience, per-instance read-back and verifier behavior. Recheck live workspace access on every request.
 
 Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
@@ -167,6 +144,7 @@ A new user signs up on a phone against production and lands where they should, i
 | `references/organizations-and-billing.md` | organizations and the choose-organization task; roles and *Manage billing*; the organization modal and custom pages; Clerk Billing: the billing file and the CLI, in code (callers with no session included) and in tests; pricing; webhooks, personal data and Clerk's own deletion paths | adding organizations, a role, a plan, a limit, pricing or a deletion webhook |
 | `references/csp-and-variables.md` | the nonce CSP and static headers; every Clerk variable and the env schema's Clerk checks; what to record; the production instance | adding a CSP or a third-party origin; adding or checking a Clerk key; going live |
 | `references/authenticated-mile.md` | Clerk's half of a real-session browser suite: Test mode, test accounts, the testing token, organizations in `globalSetup`, signing in through `<SignIn />`, the signed-out-action trap, locators | writing or debugging an authenticated end-to-end test |
+| `references/mcp-oauth.md` | issuer and client registration, scopes, audience, PKCE, per-instance read-back and verification | adding or changing member-authenticated MCP |
 | `references/gotchas.md` | every Clerk gotcha, each with its symptom and receipt | before touching Clerk; when sign-in or an authenticated action seems to do nothing |
 
 ## When something is learned

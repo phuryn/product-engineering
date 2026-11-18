@@ -43,7 +43,7 @@ Use this analysis for:
 
 ### 3. Winnable market share
 
-**Assess whether you can realistically capture 60-70% of the segment in 3-18 months.** Look for:
+**Show why the segment is winnable with your time and resources.** In a measurable niche, use 60–70% capture in 3–18 months as a heuristic. Label any assumptions behind your estimate. Look for:
 
 - A segment large enough but not oversaturated
 - Limited competition or easy differentiation
@@ -141,16 +141,16 @@ Quantify the problem's cost or impact, and identify current workarounds and thei
 
 ## Output
 
-**Produce a beachhead analysis with recommendations, evidence and an acquisition plan.** Include:
+**Recommend a beachhead with supporting evidence and a first acquisition test.** Include:
 
 - Top 3-5 recommended segments with scoring
 - Primary beachhead segment recommendation
 - Pain point validation and evidence
 - Willingness to pay assessment and pricing guidance
-- Realistic market share and revenue projections
+- Realistic market share and revenue potential, with projections where the evidence supports them
 - Referral and expansion pathways to adjacent segments
-- 90-day customer acquisition plan for the beachhead
-- Post-beachhead expansion roadmap
+
+**Add the 90-day acquisition plan and expansion roadmap on request.** Use evidence about the chosen segment to plan that work.
 
 **Every displayed score names its scale beside the number or in the subtitle.**
 
@@ -166,7 +166,7 @@ Based on Geoffrey Moore's beachhead market strategy in "Crossing the Chasm." The
 - **Select the segment with the fastest path to revenue and references.**
 - **Ensure the beachhead can reference to adjacent market segments.**
 - **Focus all resources on dominating the beachhead.** Do not dilute efforts.
-- **Plan an exit from the beachhead only after 60%+ market share.**
+- **Use customer references and evidence of traction to judge when to expand.**
 
 Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 

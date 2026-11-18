@@ -30,7 +30,7 @@ A split to copy into the product's environments doc:
 ## Branches
 
 - **The product branch** (`<product>`) is where stage work lands. **The production branch** (`<product>-prod`) — fast-forward only, after the local gate, the independent review and a human **go** — is what the host deploys to production (`release-gate`).
-- **Until the production branch exists, the host deploys the product branch itself**, so every push to it needs a review round first (`release-gate`, § Four moments, four bars).
+- **Until the production branch exists, the host deploys the product branch itself**, so every push to it needs a review round first (`release-gate` § Deploying pushes and production promotions).
 - **At go-live the product branch becomes a branch deploy: scope its environment to the development values**, or it starts writing to production. Pin it before production's values go in, and deploy production again after they do (`release-gate`, go-live step 3). On Netlify that is a per-branch value (the *Branch deploys* deploy context, or a value for one named branch), which every plan has; only *scopes* (Builds, Functions, Runtime) are a paid feature (Netlify's environment-variable docs, read 2026-10-25).
 - **Or run two sites, each building only its own branch**, with deploy previews and branch deploys off: then no build of the product branch can ever exist on the production site. Netlify ignored `skip_prs` and `allowed_branches` when a site was created through its API, so set them right after creation and read them back. (`2026-10-23`, a monitoring product chose two sites; both were created through the API, with those settings applied after creation.)
 - **The names are written once**, in the product's release doc, at the first push.

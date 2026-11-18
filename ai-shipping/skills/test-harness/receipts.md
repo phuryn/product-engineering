@@ -44,7 +44,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-08-19`: the owner tested a fix twice against the previous night's build.
 
-## Every feature that touches data gets the required boundary and integrity tests.
+## Every feature that touches data gets the boundary and integrity tests its mechanisms need.
 
 - `2026-11-01`, an evals product: builder-written integration tests found three bugs no review round had: a broken trace page no test had opened, a retention job that failed at runtime on an ambiguous plpgsql alias, and a workspace deletion that failed mid-cascade.
 

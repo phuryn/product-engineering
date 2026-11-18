@@ -79,13 +79,13 @@ Use these test types:
 
 **Follow the repo's stated gate policy instead of proposing a replacement.** Start from its agent instructions, contributing guide, or release docs. They may define a local command plus human go, hosted CI, or another merge or release gate. Record that policy and its source in the coverage map, and check the deterministic set runs inside it. Don't recommend hosted CI or branch protection over the stated policy. If that gate omits the deterministic set, report a finding for the owner rather than proposing a different gate.
 
-**Where no policy exists, suggest CI matched to the repo's tooling.** Recommend it; don't silently install it. Match the repo's stack and existing tooling:
+**Where no policy exists, recommend which suites should gate.** Match the repo's stack and existing tooling:
 
 - run deterministic unit, integration and end-to-end suites on every pull request where their dependencies and development credentials are available; record any local-only remainder;
 - keep guarded-live tests opt-in, manual or scheduled, never blocking;
 - gate merges to `main` on green via a required status check plus branch protection.
 
-Output the workflow file and branch-protection setting as a clearly labeled suggestion for user approval, not an applied change.
+Draft a workflow file and branch-protection setting only when asked. Present them as a suggestion and get approval before applying CI or branch-protection changes.
 
 ### 6. Report coverage and gaps
 
@@ -136,10 +136,7 @@ Coverage check, [date], commit [short SHA], scope [scope]: [N] map rows read, [N
 
 ## Output
 
-**Write the map and full report to the repo's existing locations.** Use the defaults below only where it has none, giving the user both paths and saying which are plugin defaults:
-
-- coverage map: `documentation/tests.md`;
-- full report: `reports/test_plan_{timestamp}.md`.
+**Deliver the coverage map in the repo's existing location.** Use `documentation/tests.md` if it has none. Produce a separate full test-plan report only when asked, in the repo's reports location or `reports/test_plan_{timestamp}.md`. Give the user the paths written and identify any plugin default.
 
 ```
 Test Coverage: [scope]
@@ -158,7 +155,7 @@ Test Coverage: [scope]
 [flows-doc journey → end-to-end spec and case → real-session coverage → missing or live/operator steps]
 
 ### Gate
-[the repo's stated gate policy, with its source, and whether the deterministic set runs inside it — or, where it states none, a workflow snippet for the detected stack + "green-before-merge" branch-protection note]
+[the repo's stated gate policy, with its source, and whether the deterministic set runs inside it — or, where it states none, recommended suites and green-before-merge policy]
 
 ### Gaps — documented but unverified
 [rules with no test yet, ranked by what crossing them exposes]

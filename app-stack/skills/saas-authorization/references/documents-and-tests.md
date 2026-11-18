@@ -7,7 +7,7 @@ The core docs (architecture, permissions, flows, variables, the coverage map) ar
 - The permissions doc
 - The architecture doc's authorization sections
 - The flows doc
-- Tests required for every feature that touches data
+- Authorization test matrix
 - Rules that came from bugs
 - Reading the matrix against intent
 
@@ -97,15 +97,17 @@ Only the journeys where permissions, data integrity, external side effects, mone
 
 Every flow that reaches a provider names the variable pair it needs and what happens when the pair is empty.
 
-## Tests required for every feature that touches data
+## Authorization test matrix
 
-| Test | What it proves |
-|---|---|
-| Cross-tenant | a member of A, holding B's ids, is refused, with the same 404 as a missing id |
-| The invariant | the once-only action is refused the second time; the quota holds under a race (ten simultaneous creates against a limit of one leave exactly one winner) |
-| The sanitizer | `<script>alert(1)</script>` renders as text |
-| Idempotency | runs twice, acts once |
-| Token scope | a token does only what its scope and its workspace allow |
+**Prove cross-tenant refusal on every data route.** Run the other tests where the change uses or affects the corresponding mechanism.
+
+| Test | Where to run it | What it proves |
+|---|---|---|
+| Cross-tenant | Every route that touches data | A member of A, holding B's ids, is refused, with the same 404 as a missing id. |
+| The invariant | Once-only actions and quotas | The once-only action is refused the second time. For a quota, ten simultaneous creates against a limit of one leave exactly one winner. |
+| The sanitizer | Rendering untrusted text | `<script>alert(1)</script>` renders as text. |
+| Idempotency | Retried or replayed requests and jobs | Two runs act once. |
+| Token scope | Routes and tools that accept tokens | A token does only what its scope and its workspace allow. |
 
 The invariants and races run against the real database through the real SQL functions, with identity faked behind the same seam as the identity provider. A browser suite signed in as **each role from one organization**, beside the anonymous public, exercises the matrix with real members. Which harness makes what real, and the gate: `test-harness`. The identity provider's half of a real-session suite: `clerk-production § The authenticated mile`.
 

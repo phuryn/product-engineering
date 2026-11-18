@@ -53,18 +53,15 @@ Read `references/model.md` for each full rule, reason and receipt.
 ## Order of work
 
 - **The plan that introduces the database names the workspace table, the three functions and the first migration.** Screens built before it read fixtures behind the seams the real system will use, never invented persistence.
-- **The first real slice is done when these conditions all hold.** Two members of different workspaces cannot see each other's data. Where there is an anonymous public, a visitor takes the public action from a phone without an account. The once-only action is refused the second time. `<script>alert(1)</script>` renders as text. Its tests and its permissions doc land in the same change.
+- **The first real slice proves the access model with the mechanisms it uses.** Two members of different workspaces cannot see each other's data. Where there is an anonymous public, a visitor takes the public action from a phone without an account. Run the applicable tests below and land them with the permissions doc in the same change.
 - **Recheck authorization in every later identity, workspace, route or permission change.** For changes touching sign-in, workspaces, roles, a route or a permission, require the three functions, the same permission on the screen as in the action, and a cross-tenant test. The permissions doc changes in the same commit.
 - **Decide whether a role or tier answers who or how much.** Do this before writing any code. A role goes into the permission map. A feature goes into the plan module and a quota parameter, never into a permission (`references/model.md § Roles and entitlements never touch`).
 - **Propose `security-audit-static` on the release's changes before release.** It compares code against the permissions doc. The release procedure itself is `release-gate`.
 
-## Required for every feature that touches data
+## Authorization tests for data routes
 
-- **Prove cross-tenant access is refused.** A member of workspace A, holding B's ids, is refused with the same 404 as a missing id.
-- **Prove once-only and quota invariants, including races.** Test the once-only action refused the second time; the quota under a race (ten simultaneous creates against a limit of one leave exactly one winner).
-- **Prove the sanitizer renders a script tag as text.**
-- **Prove a repeated run acts only once.** Run it twice.
-- **Prove a token acts only within its scope and workspace.**
+- **Prove cross-tenant access is refused on every data route.** A member of workspace A, holding B's ids, is refused with the same 404 as a missing id.
+- **Run mechanism-specific tests where the feature uses or changes that mechanism.** Prove once-only and quota invariants, including a race, where they apply. Prove script tags render as text where untrusted text is rendered, repeated runs act once where requests or jobs can replay, and tokens are confined to their scope and workspace where accepted. Use `references/documents-and-tests.md § Authorization test matrix`.
 
 **A denial test must prove it reached the check it claims to test.** A `404` from a function that does not exist passes for an ownership check that works (`references/documents-and-tests.md § Rules that came from bugs`). Which harness runs each test is `test-harness`.
 

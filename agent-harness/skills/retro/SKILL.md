@@ -53,13 +53,13 @@ $agent-harness:retro                             Codex, plugin installed
 
 **Put each learning where it must change a decision.** The entry file (`AGENTS.md`, or the project's own name) holds what every session needs. Put the rest at its fire point, not its topic home, usually in the file for the area that task touches. Add an entry-file index line saying when to read it.
 
-**Re-read an area's file at the start of every task touching it.** The index must require this, not once a session. After compaction or a long session, the earlier read is gone. If the router doesn't yet say to re-read at every task, add that sentence. Each file stays within its word budget, and the rule carries its receipt and a review date (`agent-instructions`, budgets).
+**Re-read an area's file at the start of every task touching it.** The index must require this, not once a session. After compaction or a long session, the earlier read is gone. If the router doesn't yet say to re-read at every task, add that sentence. Keep the file within budget and give the rule a receipt and, where the repository uses them, a review date (`agent-instructions` § Budgets).
 
 **Make reversible repository fixes and verify each where it applies.** Pipe a sample payload that must trigger into a hook, and one that must not; for a new or rewired hook, also run its canary in a live session where it has one (the `guardrail-hooks` templates do); otherwise report the wiring unchecked. Never run a real one-way door to test it. Open the route where the agent will read it; run the script. Report an unchecked fix as unchecked. Propose changes outside the repository with exact text; don't make them unless the owner says so. This includes the user's own settings and global instructions.
 
 **Keep a skill's correction in the project's own agent instructions.** Put it where the agent reads it while that skill is in use. Use the router row for when the skill runs, or the entry file if it can fire in any task. An installed plugin copy sits outside the repository; a copied skill is overwritten by its next update, so edits to either are lost.
 
-**Draft skill corrections for the source repository for the owner to file.** Use the repository its plugin or copy came from. Include what the skill says, what happened (the receipt), and replacement text, for the owner to file as an issue there. Follow that repository's skill style: name the product by kind. Include no session names, ids, hostnames, paths, account names or values, since the repository is usually public.
+**Draft an upstream issue only when the owner requests one.** Include what the skill says, the receipt and replacement text for the repository its plugin or copy came from. Follow that repository's skill style and name the product by kind. Omit session names, ids, hostnames, paths, account names and values. Leave submission to the owner unless they authorize it.
 
 ### 4. Report
 

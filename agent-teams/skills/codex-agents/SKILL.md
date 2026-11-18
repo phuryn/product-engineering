@@ -15,40 +15,13 @@ description: "'Ask Codex', 'check with Codex', handing Codex a build or review, 
 
 **Delegate only what is worth the hand-off; the test is size, not time.** If the brief would be nearly as long as the diff, write the diff. A stage small enough to describe precisely is small enough to write, and handing it over only buys a wait. Stop a build round that has made no writes on a small change; twelve minutes on a fifteen-line change is enough. Check `git status`. Kill its leftover process and write the change in-session. The session agent keeps the same responsibilities, and its diff still gets independent review.
 
-**Manage Codex with the goal, context and room for judgement.** Use the way the human manages Claude: avoid step-by-step direction, trust judgement and push back on disagreement.
+**Bring Codex in while the framing is still open.** Invoke it for "check with Codex", "iterate with Codex", "ideate with Codex" and similar requests. Reach for it yourself when a load-bearing decision needs a peer or when different model blind spots matter. Keep routine drafting, formatting and mechanical tasks in-session.
+
+**Give Codex the goal, the facts and the decision you need to make.** Share the actual draft, alternatives and reasoning, and prescribe only binding constraints. Treat Codex's judgement as a peer's. Argue through critiques and options over several turns, then bring the human one result or a clear deadlock, question of intent or missing fact. Apply `delegation` § Peer discussion for examples and convergence.
 
 **Ask for the deliverable's actual format, including an image when needed.** Codex can write code and generate images directly through multimodal output. If the goal is a PNG, say that. Don't translate it to "an HTML file we'll screenshot."
 
-## Core discipline (read before every session)
-
-1. **Treat Codex as a peer, not a tool.** It has the same standing as Claude. Trust its judgement on path, structure, format, fonts, dimensions and libraries. A choice you wouldn't have made is a useful disagreement to surface, not a defect. Its view is not binding; push back where warranted.
-2. **Bring Codex in at ideation and framing, before a sign-off.** The cheapest wins concern the angle, load-bearing claim and what to cut. Late peer review is the least valuable use; don't use it only as a pre-publish gate.
-3. **Give the goal, facts and reasoning behind non-obvious choices.** Do not prescribe paths, filenames, fonts, dimensions, libraries, chart types or step-by-step procedures unless they are hard requirements.
-4. **Iterate.** Continue iterating after Codex produces the first draft. About 3–8 turns is normal. Stopping at turn 1 treats Codex as a one-shot generator; the value comes from the back-and-forth.
-5. **Converge before surfacing.** The human arbitrates intent and taste, not editorial trade-offs two agents can resolve. Default to one result after convergence.
-
-## When to invoke (proactively, not just on explicit request)
-
-**Invoke Codex for explicit requests and decisions that need a peer.** Explicit requests include "check with Codex", "iterate with Codex", "ideate with Codex" and "ask Codex". Claude should also reach for this skill without being asked in these situations:
-
-- **Consult Codex when stuck between two reasonable framings or angles.** Do this before punting the choice to the human.
-- **Pressure-test a load-bearing claim, structure or hook before committing.**
-- **Argue options through before asking the human to choose.** Use this when two agents could resolve the choice.
-- **Work through an unvoiced critique of a draft with Codex.**
-- **Use a fresh model when its misses would matter on an important deliverable.** A different model has different blind spots.
-
-**Do not invoke Codex for routine work Claude confidently handles in-session.** This includes routine drafting, formatting and mechanical tasks. This is a peer-agent skill, not a text-formatter API.
-
-## Opening turn — the four things Codex needs
-
-**Give Codex the target, research, draft and specific uncertainty.**
-
-| | What | Example |
-|---|---|---|
-| TARGET | What we're producing or deciding | "X reply to <link>", "framing for <topic>", "call on <trade-off>" |
-| RESEARCH | What's actually known | Parent tweet, source quotes, verified facts, what the other party actually said, audience size, prior posts |
-| DRAFT | Current version + variants considered | Paste the artifact, not a description of it |
-| REASONING | Why you're stuck | What you've rejected and why; name the specific load-bearing question. Not "give me feedback" — name the genuine uncertainty |
+## Dispatch
 
 **Keep resumable briefs in a persistent file and use `--read`.** Use the repository or a working folder outside session scratchpads and system temp. Apply `flight-deck` when the work must survive a restart.
 
@@ -60,7 +33,7 @@ python <skill dir>/scripts/codex.py --new --read <brief_file>
 
 **Pass it on every build dispatch, not only the ones you think are new sessions.** By default, use `--sandbox danger-full-access` for builds that run tests; use `workspace-write` for file-only work. Add `--cwd <repo>` to scope the session to its repository. A new session defaults to `read-only`; the wrapper records the sandbox and re-sends it on every resume, and the flag on a resume changes it. A run you expected to resume starts new when the marker names another directory, and without the flag it lands read-only. The resulting reasoned report can argue a verdict while changing nothing. Check `git status` and file mtimes before believing a build round happened.
 
-**A test-running build runs without a sandbox, bounded by its instructions.** This is the author's chosen default; the product owner can choose another boundary and record any resulting test handback. Under `danger-full-access`, the brief supplies the boundary: no deploys, applied migrations, pushes, provider-setting or secret changes, or production-credential reads. Only one agent runs suites on shared development data at a time. The builder runs its tests and fixes failures before handoff; the coordinator reruns touched and new tests at stage end and the full gate at phase end. Observed `2026-11-14`, Codex CLI 0.166.0 on macOS with Playwright 1.64.1: `workspace-write` denied Chromium's `mach-register` and DNS failed. Under `danger-full-access`, Chromium started and the network answered. This observation does not establish other platforms' limits. The `delegation` skill's brief template states these boundaries for each dispatch.
+**A test-running build runs without a sandbox, bounded by its instructions.** This is the author's chosen default; the product owner can choose another boundary and record any resulting test handback. Under `danger-full-access`, the brief supplies the boundary: no deploys, applied migrations, pushes, provider-setting or secret changes, or production-credential reads. Only one agent runs suites on shared development data at a time. The builder runs its tests and fixes failures before handoff. The coordinator reruns its tests and applies `release-gate` § Stage and phase close. Observed `2026-11-14`, Codex CLI 0.166.0 on macOS with Playwright 1.64.1: `workspace-write` denied Chromium's `mach-register` and DNS failed. Under `danger-full-access`, Chromium started and the network answered. This observation does not establish other platforms' limits. The `delegation` skill's brief template states these boundaries for each dispatch.
 
 **Leave builds uncommitted when the session agent owns the commit.** Ask for a commit-message handoff. On Codex CLI 0.159, Windows 11, `workspace-write` could neither commit nor run git in another checkout (observed 2026-10-25). All three restrictions below were reproduced in scratch repositories. Other platforms were not tested in that probe. That sandbox kept `.git` read-only: `git add` failed creating `.git/index.lock` with `Permission denied`. A linked worktree's index lives in the main checkout's `.git/worktrees/<name>/` and failed the same way. Adding that `.git` with `--add-dir` did not lift the restriction. Windows also ran sandbox commands as a separate local user, so git refused other repositories as "dubious ownership". Read the diff and commit it yourself. If a brief sends Codex to another repository for prior art, tell it to read files from disk.
 
@@ -70,52 +43,15 @@ python <skill dir>/scripts/codex.py --new --read <brief_file>
 
 **Budget real-database integration tests in the build brief.** Include the session agent's integration-fix pass when the sandbox cannot run them. Apply `test-harness`'s round-trip budget (§ Tests and docs are part of the change). State the target's measured latency and which checks the session agent runs.
 
-## Follow-up turns — conversational, short, peer-to-peer
+## Follow-up turns
 
-**React like a colleague without rewriting the goal or numbering points.** Agree where it's right, push back where it's wrong, ask why where it's surprising, and name what it missed. Don't re-package the goal as a new structured prompt.
-
-> "the opener still feels abstract — what if we lead with X instead?"
-> "agree on the third option, but 'harness' is too broad, doesn't it collapse the distinction you just made?"
-> "you're right about Y but it loses Z — can we keep both?"
+**Keep follow-ups conversational and continue the same thread.** Push back on a specific choice or ask what the partner missed. Keep the original goal as the context for each reaction.
 
 ```bash
 python <skill dir>/scripts/codex.py "<your reaction>"
 ```
 
-The wrapper auto-resumes the session it last ran in this directory. Loop until convergence or until the disagreement is clear enough to hand back to the human.
-
-## Iterate — signs you should still be going
-
-**Keep iterating while relevant critiques, choices or trade-offs remain untested.**
-
-- A critique of the current draft you haven't voiced.
-- A choice Codex made that you don't fully buy and haven't pushed on.
-- A non-obvious option neither of you has explored.
-- The human's stated goal not fully reflected in the draft.
-- The temptation to ask the human which of two reasonable versions they prefer. Ask Codex first.
-- An open trade-off you haven't run past Codex: recipe versus frame, tighter versus richer, or hook A versus B.
-
-## Iterate — signs you've actually converged
-
-**Stop iterating when the draft holds and only taste remains.** You would defend it against your own critique. Neither you nor Codex finds new angles, and remaining trade-offs concern taste rather than correctness.
-
-## Surface to the human — when
-
-**Surface deadlock, unclear intent or consequential information you lack.**
-
-- **State genuine deadlock after both agents iterated and still disagree.** Articulate the disagreement cleanly.
-- **Ask about unclear intent when resolving it changes the iteration's direction.**
-- **Surface information the human knows and you don't when it would reshape the draft.** This includes a constraint, audience signal, content rule or strategic call.
-
-**Do not surface reasonable options or taste trade-offs you haven't argued through.** This includes "which of these two do you prefer", untested word choice, hook or closer choices, and tighter-versus-richer or frame-versus-recipe trade-offs. Stopping after 1–2 Codex turns and dumping open calls on the human as a menu is the failure mode. Converge before the human sees the result.
-
-## Anti-patterns
-
-- **State the goal once and let the partner pick the means.** Numbered "concrete asks" with sub-bullets dress a step-by-step recipe as a brief.
-- **Prescribe paths and other implementation choices only when they are hard constraints.** This includes file paths, filenames, fonts, dimensions, libraries and frameworks. "The existing system uses X" gives context rather than a directive.
-- **Keep follow-up turns conversational instead of sending a fresh structured prompt.** Rewriting the goal section in turn 3 leaves the conversation.
-- **Treat Codex's view as a judgement you can challenge.** It isn't binding.
-- **Keep the requested deliverable format when Codex can produce it directly.** Don't translate it because you assume Codex produces only code or HTML; it can generate images.
+A plain call resumes the recorded session for this directory when its id and sandbox are known.
 
 ## Resume or start fresh
 
@@ -124,44 +60,12 @@ The wrapper auto-resumes the session it last ran in this directory. Loop until c
 - **Within a stage, resume.** Follow-up rounds fixing review findings or finishing the same work continue the session that built it. The wrapper resumes per directory, so this is the default in the stage's worktree.
 - **A new stage or a new area starts fresh, with `--new`.** Project knowledge belongs in docs and the stage's brief, not an old thread. Long threads carry replaced assumptions and fill their context window; a fresh start takes a few minutes of reading. If a fresh session would miss something, write it in the docs.
 - **Parallel builds get a worktree, a session and a marker each.** One session can't drive two builds. The wrapper's marker is one file per user and holds one directory, so the second build overwrites the first's marker. The first build's next round then starts new, read-only unless `--sandbox` is passed. Use `CODEX_AGENTS_STATE=<a file per build>` on every call for each build.
-- **An earlier session can still be resumed, by its id: `--session <id>`.** Sessions stay in `~/.codex/sessions/<yyyy>/<mm>/<dd>/`, one `rollout-<time>-<id>.jsonl` each. Its first line names `cwd`, and the wrapper prints each run's id. Use that session's `--cwd`, plus `--model` if it used something other than the config default and `--sandbox` if it writes. The wrapper re-sends them only when the marker names that session (§ Session continuity). Explicit resume fails rather than starting new. Once Codex opens it, even if the run later fails, the marker names it and the next plain call continues it.
+- **An earlier session can still be resumed, by its id: `--session <id>`.** Sessions stay in `~/.codex/sessions/<yyyy>/<mm>/<dd>/`, one `rollout-<time>-<id>.jsonl` each. Its first line names `cwd`, and the wrapper prints each run's id. Use that session's `--cwd`, plus `--model` if it used something other than the config default and `--sandbox` if it writes. The wrapper re-sends them only when the marker names that session (§ Session continuity). Explicit resume fails rather than starting new. Once Codex opens it, even if the turn fails, the marker names it. A plain call can continue it once the sandbox is recorded.
 - **A usage limit makes the builder unavailable, as a missing CLI does.** Codex answers "You've hit your usage limit … try again at <time>" and exits at once. Wait when reset is near; otherwise the session agent builds the stage itself, treating 90 minutes away as too long. Independent review still applies. The marker keeps the stage's session through failure, so the next call after reset continues it.
 
 ## Reviewer
 
-**Apply `independent-review` for round scope, brief, triage and stopping.** With Codex installed, the wrapper runs this command by default. `--reviewer codex` forces it. On Windows, pass `--windows-sandbox elevated|unelevated` to override its mode; absent that flag, it reads config (observed `2026-11-16`, Codex CLI 0.169.0). It passes `--effort` (`xhigh` by default). Pass the confirmed choice as `--model` because the wrapper ignores the configured model. Repository instructions rank reviewers first. When running by hand, get the prompt with `--subject-only`, which writes subject and prompt into the git directory and prints their paths. Use a new session meeting the review bar, never this skill's wrapper and never a resume of the building thread:
-
-```bash
-# macOS and Linux
-codex exec --json --ephemeral --ignore-user-config --ignore-rules -s read-only \
-     --disable apps --disable plugins --disable tool_suggest --disable image_generation \
-     --disable memories --disable hooks -c web_search=disabled \
-     -m <confirmed-model> -c model_reasoning_effort=<confirmed effort> -C <repo> \
-     -o "$S/review-NNN.md" - < "<prompt file>" > "$S/review-NNN.jsonl" 2> "$S/review-NNN.err"
-# Windows: the same, plus the sandbox mode under [windows] in ~/.codex/config.toml (elevated or unelevated)
-codex exec --json --ephemeral --ignore-user-config --ignore-rules -s read-only \
-     --disable apps --disable plugins --disable tool_suggest --disable image_generation \
-     --disable memories --disable hooks -c web_search=disabled -c 'windows.sandbox="<that mode>"' \
-     -m <confirmed-model> -c model_reasoning_effort=<confirmed effort> -C <repo> \
-     -o "$S/review-NNN.md" - < "<prompt file>" > "$S/review-NNN.jsonl" 2> "$S/review-NNN.err"
-```
-
-**Check report length and successful reads before accepting a review round.** For a manual run, check the report and events:
-
-```bash
-python -c "import sys; print(len(open(sys.argv[1], encoding='utf-8').read().strip()))" "$S/review-NNN.md"
-grep -c '"type":"command_execution".*"exit_code":0,"status":"completed"' "$S/review-NNN.jsonl"
-grep -E '"type":"(mcp_tool_call|web_search|file_change)"' "$S/review-NNN.jsonl"
-```
-
-Zero successful commands fails at any length. A report under 1,500 characters fails unless you accept it by hand: the events show successful commands that printed the subject's or a changed file's content, and the report names what it read. Opening, listing and searching files are reads; a refused write is the read-only sandbox doing its job. The events show command status and exit codes; inspect failed commands to distinguish refused writes or searches without matches from unread review files. The third check fails a manual round on any match, with two exceptions. One is `list_mcp_resources` or `list_mcp_resource_templates` on server `codex`. The other is a `file_change` whose status is not `completed`: a refused edit. The wrapper warns on failed MCP calls; a server reached the session, and the next call might not be refused. Keep the events with the report, never committed; `--json` with `-o` works on Codex CLI 0.166.0 (observed `2026-11-14`). Windows sandbox modes were compared with Codex CLI 0.169.0 on `2026-11-16`: elevated timed out after 60 minutes with zero commands; unelevated completed in about 15 minutes. The isolation tool-count measurement above was on macOS.
-
-- **Read the prompt from the file the wrapper wrote through stdin.** Use `- < "<prompt file>"`, never `< /dev/null`: stdin here is the prompt. An empty or missing prompt file means the round never started.
-- **Use the manual check as the round's gate.** For a manual run, apply the length and evidence checks above. Fail a round that could not read or matches an outside-tool check.
-- **Start with `--ephemeral` so the review saves no session.** A new `codex exec` starts without an earlier conversation.
-- **Exclude user config and execpolicy rules from the review session.** `--ignore-user-config` omits `~/.codex/config.toml`, including its MCP servers and project trust. The sandbox covers only shell commands the model runs; `-s read-only` does not bind those added tools (Codex CLI 0.159.0, observed 2026-10-29). Ignoring user config does not remove connected apps, plugins or web search. The `--disable` flags and `-c web_search=disabled` remove them (Codex CLI 0.166.0, macOS, observed `2026-11-14`: 546 tools before, 22 after). The hooks feature is disabled by flag; its absence was not measured. Ignoring user config also omits the model and, on Windows, the sandbox mode without which every read is refused. Put both back on the command line. The review wrapper takes `--model`; `--windows-sandbox` explicitly supplies the Windows mode. Without that override, it restores config's mode or stops when none can be read (observed `2026-11-16`, Codex CLI 0.169.0). Observed on Codex CLI 0.166.0, Windows 11, 2026-11-02: with model and mode specified, a session read a file and was refused a write. Without the mode, both were refused as "blocked by policy", yet the session still answered in full sentences. `--ignore-rules` skips execpolicy rule files.
-- **Name the instruction files still loaded in the round's report.** These flags were not shown to disable Codex's instruction files: the repository's `AGENTS.md` and the one in `CODEX_HOME`. Bundled skills and agent-spawning tools remain, plus whatever administrator system, managed or cloud configuration adds; those administrator layers were not observable here. A spawn failed in an ephemeral session (Codex CLI 0.166.0, observed `2026-11-14`); that does not guarantee it always fails. On managed machines, configuration can add tools, MCP servers or hooks the flags cannot remove; the wrapper names files it finds and fails outside-tool rounds. POSIX paths are `/etc/codex/config.toml`, `/etc/codex/managed_config.toml` and `/etc/codex/requirements.toml`; macOS also has `/Library/Managed Preferences/com.openai.codex.plist` and `/Library/Managed Preferences/<user>/com.openai.codex.plist`. Windows paths are `%ProgramData%\OpenAI\Codex\requirements.toml` and `managed_config.toml` under the Codex home. Managed-configuration documentation names managed paths and cloud configuration, and says managed layers override command-line `--config` (read on `2026-11-14`).
-- **Treat a short answer as failed and delete the temporary review files.** It is a clean round only when the events show it read the subject (above). Delete subject and prompt files when the round ends, as `independent-review` requires.
+**Apply `independent-review` for round scope, brief, triage and stopping.** Run its wrapper with the confirmed `--model` and `--reviewer codex` when selecting Codex explicitly. For a manual fallback, open `references/manual-review.md` before starting. Use a fresh session, verify successful subject reads and check isolation before accepting the round.
 
 Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 
@@ -175,7 +79,7 @@ Codex argued at least one point you then changed or defended, and the run's head
 
 | Command | Effect |
 |---|---|
-| `codex.py "<msg>"` | Send; auto-resume if a session exists, else start new |
+| `codex.py "<msg>"` | Resume the recorded session here, start new if none is here, or refuse automatic resume if the marker lacks the id or sandbox |
 | `codex.py --new "<msg>"` | Force new session |
 | `codex.py --session ID "<msg>"` | Resume the session with that id (§ Resume or start fresh) |
 | `codex.py --read FILE` | Read message body from FILE (`-` for stdin) |
@@ -197,7 +101,7 @@ Codex argued at least one point you then changed or defended, and the run's head
 
 ### Session continuity
 
-**Resume the recorded id rather than whichever session ran most recently.** The marker at `~/.claude/.codex_agents_active`, overridden by `$CODEX_AGENTS_STATE`, records the active directory, model, sandbox and id. The wrapper uses `codex exec resume <id>` and continues until `--reset` or `--new`. `--last` instead takes the newest session Codex recorded in that directory, whoever started it, including a `--new` consult. `--all` lifts that directory scope (codex 0.159, checked 2026-10-22). A marker predating recorded ids uses `--last` once and records the selected id. If it picked the wrong stage session, correct it with `--session`.
+**Resume the recorded id rather than whichever session ran most recently.** The marker at `~/.claude/.codex_agents_active`, overridden by `$CODEX_AGENTS_STATE`, records the active directory, model, sandbox and id. The wrapper uses `codex exec resume <id>` and continues until `--reset` or `--new`. `--last` instead takes the newest session Codex recorded in that directory, whoever started it, including a `--new` consult. `--all` lifts that directory scope (codex 0.159, checked 2026-10-22). If the marker for this directory lacks an id or sandbox, pass `--session <id>` with `--sandbox` when needed, or `--new`.
 
 **The marker names the last session Codex opened, including failed runs.** Codex prints a session header only after opening it. A usage limit fails after the session takes the turn, so the marker keeps that session, including a newly opened one. It holds the brief and work so far; the next call continues it, while `--new` starts over. Resume falls back to a new session only when Codex couldn't open the old one: no rollout remains, so it fails without a header. Otherwise, a failed resume exits with its error rather than starting without the stage.
 
@@ -205,7 +109,7 @@ Codex argued at least one point you then changed or defended, and the run's head
 
 **A resume does not keep the session's model.** `codex exec resume` takes its model from `~/.codex/config.toml`, not the resumed session, and reports it only in the header. A session started with `--model` and resumed without it silently uses the config default. The wrapper records the starting model, re-sends `-m` on every resume and prints the reported model to stderr after each run. It warns when that differs from the request. Read that line before trusting a round. Direct `codex exec resume` calls must pass `-m <model> -c model_reasoning_effort=<level>` every time.
 
-**A resume does not keep the session's sandbox either.** `codex exec resume` rejects `-s`, and without an override it runs on the config's `sandbox_mode`, read-only by default (observed `2026-11-17`, Codex CLI 0.169.0). The wrapper records the sandbox, re-sends it on every resume as `-c sandbox_mode="<mode>"`, prints the reported sandbox after each run, and warns when it differs. Direct resume calls pass `-c sandbox_mode="<mode>"` too. An older wrapper's marker records no sandbox: its first resume runs on the config's, and stderr says to pass `--sandbox` once.
+**A resume does not keep the session's sandbox either.** `codex exec resume` rejects `-s`, and without an override it runs on the config's `sandbox_mode`, read-only by default (observed `2026-11-17`, Codex CLI 0.169.0). The wrapper records the sandbox, re-sends it on every resume as `-c sandbox_mode="<mode>"`, prints the reported sandbox after each run, and warns when it differs. Direct resume calls pass `-c sandbox_mode="<mode>"` too. A marker without a sandbox cannot auto-resume. Name the session and sandbox explicitly to record both.
 
 ### Codex binary lookup
 

@@ -110,7 +110,7 @@ $product:start-here we have a bug in sign-in      Codex, plugin installed
 
 ### 4. Build
 
-**One session coordinates; another builds when one is available.** No session reviews its own work. A fresh reviewer that never saw the build reviews each completed phase and every deploying push. It reviews again after each fix to what a round found, until the bar holds (`independent-review` § The stopping rule). Tests and doc lines land with the change. The coordinator closes stages with touched and new tests, a diff read, corrected docs and a quick look at running screens. Full gates, exploratory and visual checks, docs checks and fresh review series belong at phase end (`independent-review` § When).
+**One session coordinates; another builds when one is available.** No session reviews its own work. Tests and doc lines land with the change. Close stages on coordinator evidence. Before deploying pushes and at phase close, run the full gate and fresh independent review. Apply `release-gate` § Stage and phase close.
 By default, each stage ends with implemented end-to-end tests of the journeys it changed; the owner decides and records exceptions in the plan.
 
 **Let the agent walk you through accounts, keys and domains when needed.** Keys copied from a dashboard go where it asks, put there by you, never into chat. Rotate a key that touched chat.
@@ -125,12 +125,7 @@ Apply the `delegation`, `codex-agents`, `test-harness`, `code-review` and `indep
 
 ### 5. Click-through
 
-**Try visible phases after their checks; owner absence does not block coding.** By default, first require:
-
-- The phase's full gate, coordinator exploration and visual checks, docs check and fresh review series complete, the full gate again if a fix followed its last run, then its closing push where hosting exists.
-- A fresh session new to the domain saying what each new screen is for and what to press next.
-- The rendered pass and screenshot critique completed.
-- The scored audit at the first screens or a kit change (the `ui-design` skill).
+**Try visible phases after their checks; owner absence does not block coding.** Finish the phase checks and any closing deployment before its normal preview (`release-gate` § Stage and phase close). Apply `ui-design` for the rendered check and for the walkthrough, critique and audit when a journey is new or materially changed or the kit changes.
 
 **The agent gives you a link and flows to try with expected results.** Each flow is an action and what should happen. Spend fifteen to twenty minutes for a mid-size app, every time. Feedback becomes stages of the phase in flight and is reviewed like any other change. The agent may start the next phase while your preview waits. Apply `release-gate` § The owner's preview.
 

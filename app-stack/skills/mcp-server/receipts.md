@@ -26,6 +26,6 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `Undated`: Per-field output descriptions once took one server from 12 KB to 49 KB.
 
-## Update the package and directories after promoting a tool-surface change.
+## Update every published package and listing after promoting a tool-surface change.
 
 - `Undated`: Output schemas added to one hosted server never reached its package, which then offered a different surface from the one directories scored.

@@ -7,13 +7,9 @@ description: "Before 'ship it', a deploy or release, for 'an independent review'
 
 **The session that wrote the code never clears it.** A fresh reviewer that never saw the build reads the change for what would block or break it. That separation applies at every size: a one-line fix that ships gets a short round, never no round. Inside a phase, it joins the phase's series (§ When).
 
-**The tool is optional; the review is not.** The wrapper picks the first installed CLI in this order. Run `python <skill dir>/scripts/review.py --check` to see which.
+## Reviewer selection and isolation
 
-- A fresh Codex session in a read-only sandbox excludes user config and its MCP servers, execpolicy rules, connected apps, plugins, tool suggestions, web search, image generation, memory and saved sessions. A flag disables hooks. Repository and `CODEX_HOME` `AGENTS.md`, bundled skills, agent tools and administrator additions remain. Name them in the report (`codex-agents` § Reviewer lists the boundaries).
-- A fresh headless Claude Code session uses read-only tools. It has no settings, hooks, plugins, MCP servers, auto-memory or saved session, starting from the repository and brief alone.
-- Grok runs with read-only tools. Its memory, managed MCP servers, and Claude, Cursor and Codex compatibility, including session reading, are off for the run. The wrapper reads whatever still loads from `grok inspect` and prints it for the report. In a trusted folder, that includes project instructions and a gitignored `CLAUDE.local.md`. A review worktree of the snapshot does not hold that file.
-
-Never use the building thread, resumed or forked, or a subagent of it. The reviewer must not inherit the builder's beliefs.
+**The tool is optional; the review is not.** By default, the wrapper chooses the first installed of Codex, headless Claude Code and Grok. Run `python <skill dir>/scripts/review.py --check` to see which.
 
 **A fresh session of the builder's own model is independent: it never saw the build.** It shares more blind spots than another family would. Accept that cost: a round that runs beats one skipped.
 
@@ -21,31 +17,28 @@ The method holds for any reviewer. Apply `codex-agents`, `claude-agents` or `gro
 
 **The repository's own instructions come first.** Follow its agent instructions or release docs for reviewer, fallback, review bar, required moments and release range. They may also name the test gate and where deferred findings go.
 
-**a repository ranks its reviewers; it cannot rule out a review.** When none of its named reviewers can run, use the wrapper's reviewer without asking. If no other family can run, use a fresh session of the builder's family. Never use the building session or skip review. Interpret "a model never reviews its own family's work" as "prefer another family". Apply `agent-instructions` to rewrite it accordingly and record owner choices and their precedence.
+**A repository ranks its reviewers; it cannot rule out a review.** When none of its named reviewers can run, use the wrapper's reviewer without asking. If no other family can run, use a fresh session of the builder's family. Never use the building session or skip review. Interpret "a model never reviews its own family's work" as "prefer another family". Apply `agent-instructions` to rewrite it accordingly and record owner choices and their precedence.
 
-**Apply one bar to every reviewer, including a repository's named reviewer.** Require a fresh session that never saw the build, never a resume, fork or subagent of it. Use read-only tools only, no MCP servers or connectors, memory off, and high effort or above. Switch off project and user instructions where the CLI allows. Name everything that cannot be switched off in the round's report.
+**Apply one bar to every reviewer, including a repository's named reviewer.** Require a fresh session that never saw the build, never a resume, fork or subagent of it: the reviewer must not inherit the builder's beliefs. Use read-only tools only, no MCP servers or connectors, memory off, and high effort or above. Switch off project and user instructions where the CLI allows. Name everything that cannot be switched off in the round's report.
 
-A sandbox flag alone is insufficient. In Codex, `-s read-only` binds only shell commands; user configuration can add tools acting outside it (Codex CLI 0.159.0, observed `2026-10-29`). Ignoring user config does not remove connected apps, plugins or web search (Codex CLI 0.166.0, observed `2026-11-14`). Leave that configuration out and switch those features off by name; apply `codex-agents` § Reviewer.
+A sandbox flag alone is insufficient. The wrapper prints what still loads. For each CLI's controls, observed limitations and manual setup, read `references/reviewer-clis.md`.
 
 When a named reviewer cannot meet that bar, use the product's recorded fallback if it can, without asking. Otherwise use the fallback above, without asking. Name the actual reviewer and why it replaced the named one in the report. Where repository instructions say nothing, use these defaults. Ask when a default needs an owner-only fact, such as the released branch or last release.
 
-**Verify findings yourself, and after every fix rerun the tests it touches yourself.** Run the full gate on the finished phase or standalone change, then follow § When before fresh review. Verify every finding against the code yourself, its severity and how often its trigger happens included (§ Triage), then fix what the bar names. Rerun each fix's regression test and the tests it touches yourself, then get a fresh review of the changed state. Repeat until the bar holds. Rerun the full gate on the cleared state when a fix followed its last full run, before that state is pushed or called done. If that gate fails, its fix is new code and gets a round. A gate that takes a couple of minutes can simply run after every fix.
+**Verify findings yourself, and after every fix rerun the tests it touches yourself.** Check each finding against the code, including its severity and how often its trigger happens (§ Triage). Fix what the bar names and run each fix's regression test and the tests it touches. Get a fresh round on the changed state until the bar holds.
 
 **Treat findings and their severity labels as claims, not results.** Triage below is mandatory; it is the part that most often goes wrong.
 
 ## When
 
 - **Review before every release, however green the tests are.** A release without an independent pass is not a release.
-- **Review before every push to a branch that deploys.** When users receive the push, "just push it" requires a round first. The push closes the round (§ Running a round beside the next phase).
+- **Review before every push to a branch that deploys.** When users receive the push, "just push it" requires a round first. The push closes the round (§ Keep the subject still).
 - **The first push goes only where the owner named.** Every URL from `git remote get-url --push --all origin | sed -E 's#//[^/@]*@#//#'` must name that repository. The `sed` removes any username or token. If any URL differs, push nothing and ask.
 - **Review again after fixing anything a round found.** A fix is unreviewed code, and fixes produce the worst defects. Never report readiness from a round you fixed anything after, however small or confident the fix.
 - **Review the completed phase; test each stage as it lands.** A phase is the review unit: related stages ending in one state the owner can try. Size phases for agents: a few hours of builder turns, ending in something clickable and deployable. A first version usually needs two to four phases. A sprint is an analogy, not a human timetable. A stage is one consistent, testable piece inside a phase; a delegated piece is part of a stage.
 - **Choose the split and cadence, and state them before building.** The coordinator chooses what agents can handle and what improves quality without needless delay. The plan message itself names the phase split, review cadence and rough builder-hour estimate. Repository instructions or the owner may set another cadence; record it in the plan. Findings land later on a larger diff; split an oversized subject by stages' commits or area, never shorten it (§ The subject).
-- **Close stages with coordinator checks, reserving the full process for phases.** The coordinator runs touched and new tests, confirms changed journeys have end-to-end specs, corrects false docs, and reads the diff. The read of the diff runs the router rows it matches (`agent-instructions`); an edited test, gate script or instruction file needs its reason, so a change cannot loosen the check that judges it. For screens, the coordinator takes a quick look at the running result, at phone and desktop widths and both themes when two exist. The builder never substitutes for that look. A stage owes no mandatory full gate, fresh review or `document-app` check.
-- **Finish phase checks in order before its closing push and preview.** Run the full applicable gate. Then the coordinator explores the phase's added or changed journeys and screens. Apply `ui-design` visual checks to those screens, including walkthrough, rendered pass, screenshot critique and scored audit where required. Fix visual defects before starting the review series. Apply `document-app` in check mode, then repeat fresh review rounds until the bar holds; list Lows rather than fixing them. If any fix followed the last full gate, rerun it on the cleared state. Any resulting fix needs another fresh round. Where the branch deploys, its phase-ending push closes the series; then offer the owner a preview. Before hosting, keep the state local or push a branch that does not deploy, and preview through development.
-- **Keep stage commits local once a push can deploy the product.** From the first deploying push onward, use local commits or a branch that does not deploy until the phase's closing push. Every deploying push and release needs independent review of the unchanged state first. The builder never clears its own code.
-- **An advisory stage round clears nothing and need not block building.** The coordinator may run one beside the next build for migration, authorization or money risks. It is optional; it replaces neither the phase's series nor a deploying push's review.
-- **Offer owner previews after phase checks without blocking the next phase.** Only the owner's request brings an early preview, through a development tunnel or a named push that itself needs review. Say which phase review has not run. Owner feedback becomes stages of the phase in flight. Only exclusive owner decisions wait: design direction and artboards, options, legal text and release go. Track whether the owner tried each visible phase; the release go message names all those they have not tried.
+- **Run phase reviews after the coordinator's gate, visual and docs checks.** Apply `release-gate` § Stage and phase close for stage checks, the ordered phase checks, closing push and owner preview. A stage's optional advisory round clears nothing.
+- **Run the full applicable gate before reviewing a finished standalone change.** Rerun it on the cleared phase or standalone change if a fix followed its last full run, before pushing or calling it done. If that gate fails, its fix gets a fresh round. A gate of a couple of minutes can run after every fix.
 
 ## The subject: computed from git, and it narrows after round 1
 
@@ -90,68 +83,33 @@ echo "exit=$?"   # 2: failed round (length or Codex event checks); 3: the review
 
 With `--out`, Codex also saves `<out>.events.jsonl`, recording what the reviewer read and ran; treat it like the report and never commit it.
 
-`--subject` takes a git range: `<sha>^!` for one commit or `HEAD` before the first release. The wrapper refuses an empty subject, a range without a start, or one with no commits and a clean tree. Grok and Claude Code have no shell; Codex has a read-only shell. The wrapper writes the range's log and diffs, then everything uncommitted, to a never-committed file inside the git directory. It lists untracked files individually, with their content. It gives the reviewer the length and paging instructions: some file tools return at most 1,000 lines and may not say there are more. For Grok, it raises the turn cap when paging the subject needs more turns. The Codex and Claude Code runs have no turn cap; `--max-turns` does not apply to them.
+`--subject` takes a git range, `<sha>^!` for one commit or `HEAD` before the first release. The wrapper refuses an empty subject, a range without a start, or one with no commits and a clean tree. Keep the brief, report and events outside the repository. The wrapper writes the range's log, diffs and working tree, including untracked files, into the git directory for the reviewer.
 
 **A range that contains a merge also carries the range's cumulative diff.** `git log -p` shows merge commits without their diffs, omitting conflict resolutions or edits inside merges. The wrapper adds the cumulative diff for `A..B` and `<sha>^!`. A bare ref such as `HEAD` needs none: its subject includes every held file and every line removed in history. It warns on any other range shape. Each commit's change appears again, nearly doubling the subject; size the round accordingly.
 
 **Send the net diff when a range wrote code and later removed it.** With an `A..B` or `<sha>^!` subject, `--net` keeps the one-line commit list and replaces each commit's patch with the range's cumulative diff and every line its history removed, which a push still sends. `--exclude <glob>`, repeatable, leaves out paths that are not the change, such as working notes from earlier series.
 
-**Use the repository's runnable fallback when the default reviewer cannot run.** `--reviewer auto` defaults to the first installed of Codex, Claude Code and Grok. Choose `--reviewer codex`, `claude` or `grok` explicitly. Codex runs `exec --json --ephemeral --ignore-user-config --ignore-rules -s read-only --disable apps --disable plugins --disable tool_suggest --disable image_generation --disable memories --disable hooks -c web_search=disabled`. It passes `--effort` as `model_reasoning_effort` (`xhigh` by default). Its event stream fails a round with no successful command, a completed outside MCP call, a web search, completed file changes, a missing report or events, or a failed turn. Pass the review model the user confirmed (`codex-agents`) with `--model`, because ignoring user config also omits your configured model. On Windows, `--windows-sandbox elevated|unelevated` explicitly overrides the mode; absent that flag, the wrapper restores `[windows].sandbox` from config. It stops with setup instructions when neither supplies a mode (observed `2026-11-16`, Codex CLI 0.169.0). Claude runs `claude -p` with `--restricted`, `--tools Read,Grep,Glob`, `--strict-mcp-config`, `--no-session-persistence`, `--effort max` and `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`. Measured on 2026-10-10: without that variable, a headless session loads the project's memory index holding builder notes. With these flags, no project instructions, personal notes, memory or skills list was in its context.
+**Use the repository's runnable fallback when the default reviewer cannot run.** Pick `--reviewer codex`, `claude` or `grok` as needed, and pass the confirmed review model with `--model`. See `references/reviewer-clis.md` for CLI flags, Windows setup and the event checks.
 
-**An installed reviewer can still be out of usage.** The wrapper then exits 3 and prints the same round with the next installed reviewer. After Codex, the order is Claude Code then Grok. After Claude Code, it's Grok then Codex. After Grok, it's Codex then Claude Code. With no other installed, it prints the `--subject-only` route. Run the repository's recorded fallback if it can run, including its model. Otherwise run the wrapper's fallback without asking, even if the repository names only the reviewer that ran out. If no other family can run, use a fresh session of the builder's family. Record the actual reviewer and reason (§ Apply one bar to every reviewer, including a repository's named reviewer).
+**An installed reviewer can still be out of usage.** Exit 3 prints the same round with the next installed reviewer, or the `--subject-only` route if none is installed. Use the repository's qualifying fallback and its model, or use the printed fallback without asking. A fresh session of the builder's family can run when no other family can. Record the reviewer and reason (§ Reviewer selection and isolation).
 
 **With none of the three CLIs, give the wrapper's prompt to a fresh separate process.** Use `--subject-only` with `--brief`, `--cwd` and `--subject` as above. It writes the subject and prompt into the git directory and prints their paths. The prompt contains the brief plus paging instructions. Give it to a fresh read-only session of your agent, started as a separate process in the checkout under review. Never use a subagent, fork or resumed session of this one. Require read-only tools, no MCP servers or connectors, high reasoning effort or above, and memory off where it allows. Switch off project and personal instructions where allowed. In a review worktree, the git directory is outside the checkout; give read access there, never write.
 
 Where no fresh session can be started, stop and hand the owner the prompt path. The round has not run until a fresh session answers. Apply the same report and evidence checks as below. Delete both files when the round ends.
 
-**Apply the CLI's skill when running a reviewer by hand.** Apply `codex-agents` § Reviewer for the wrapper's Codex command and its manual checks. Apply `grok-agents` for Grok's bare call and each wrapper flag's purpose. These facts hold whichever reviewer runs:
+**Check what the reviewer actually read before accepting any round.** Open the report and saved read evidence. Apply `references/reviewer-clis.md` when a reviewer needs manual setup or a round fails at the CLI.
 
 - **A short clean round is a failed round.** A reviewer unable to use its tools, such as Grok without `--always-approve`, can exit 0 after a sentence of preamble. That reads like "found nothing". A genuinely empty round argues its way there over paragraphs. Require it to say what it read, what it expected to find and why it holds. The wrapper fails output under 1,500 characters with exit 2; measure a manual round the same way. Accept a shorter round by hand only when its saved events (`--out`) show commands that printed the subject's content and the report names what it read.
 - **A round whose reviewer couldn't read is failed however long it is.** Refused reads, such as "blocked by policy", without any successful reads mean nothing was reviewed. So does an answer saying it could not open the files. A refused write is different: the read-only sandbox is doing its job. For Codex, the wrapper fails a round with no successful command and lists failed commands for you to judge. Check the same evidence in a manual run; opening, listing and searching files are reads.
-- **The prompt comes from a file, the working directory is the repository under review, and stdin never waits on a terminal.** Close stdin with `< /dev/null` when the CLI takes the prompt through a file flag. When it reads stdin, as Codex does, pass the prompt file itself. Never leave stdin waiting on a terminal: that hangs without output. Long inline prompts trip permission classifiers.
 - **A round takes minutes at a high effort.** Run it in the background.
 
 **A round can fail by running out of room, leaving the same short output.** Read its log. Memory flushes distinguish context exhaustion from a reviewer that read nothing. Split a large phase subject by its stages' commits or area; never shorten the range. Keep and verify findings emitted before failure.
 
-## Running a round beside the next phase
+## Keep the subject still
 
-**Run the closing series beside the next phase in its own checkout.** An optional advisory stage round uses the same isolation and clears nothing. Their safe overlap depends on the checkout, not the commit.
+**Review in a still checkout for the length of the round.** Use the current checkout for serial review and keep it still throughout. For a phase or advisory stage round that overlaps another build, follow `references/overlapping-phases.md`. It isolates the exact snapshot, preserves the full gate and release go, and protects linked dependencies when removing the worktree.
 
 **Commit means "reviewed from here". Push means "this round is closed".** Local history is working state; a deploying branch receives only the state a closing series cleared. Advisory stage rounds clear nothing; before hosting, a phase can remain local. A production push remains a release and requires the owner's go.
-
-    # 1. tests green on your own run, then freeze the subject
-    git add -A && git commit -F -          # the snapshot the round reviews
-    SNAP=$(git rev-parse HEAD)
-
-    # 2. give the reviewer its own checkout of that exact commit, under a name no other
-    #    session on this machine is using (`git worktree list` shows the taken ones)
-    git worktree add ../<repo>-review-<phase> "$SNAP"
-
-    # 3. review there while the next phase builds in the main tree. In the worktree the
-    #    range ends at HEAD, the snapshot ($RELEASED..HEAD, <last round>..HEAD), never at
-    #    a branch name, which moves as the next phase commits
-    python <skill dir>/scripts/review.py \
-         --brief "$S/review-NNN-brief.md" --cwd ../<repo>-review-<phase> --subject "<range>" ...
-
-    # 4. when a round closes with no INTRODUCED finding above Low and no High or Critical
-    #    of any age, push the snapshot THAT round reviewed — never the branch tip, which may hold the next phase's commits.
-    #    If a fix followed the last full gate run, the full gate passes on that snapshot first, in a
-    #    checkout of it when the main tree has moved on.
-    #    A round that found anything the bar names is fixed, re-tested, re-snapshotted and reviewed again;
-    #    SNAP is read from that round's worktree, whose HEAD is the snapshot it reviewed
-    #    (a new shell has lost it, and the main tree's HEAD may hold the next phase); `:?`
-    #    refuses an empty one, which would turn the push into a delete. The first push goes
-    #    only where the owner named (§ When)
-    SNAP=$(git -C ../<repo>-review-<phase> rev-parse --verify HEAD)
-    git push --no-follow-tags origin "${SNAP:?}:refs/heads/<branch>"
-    #    (if you linked node_modules into the worktree, delete that link first; see below)
-    git worktree remove ../<repo>-review-<phase>
-
-**Never remove a worktree whose `node_modules` links to another checkout.** The reviewer only reads, so its worktree needs no `node_modules`. A linked one may support typechecks, unit tests or builds: a Windows junction or a symlink elsewhere. `git worktree remove --force` deletes through that link, emptying the main checkout's `node_modules`. A running gate or dev server dies; the next run fails with `'playwright' is not recognized`. Remove the link itself first. On Windows, `cmd /c rmdir <worktree>\node_modules` removes a junction without touching its target. Elsewhere, use `rm <worktree>/node_modules` without `-r`, then remove the worktree. Alternatively, give the worktree its own `npm ci`, which `next build` needs anyway.
-
-**Push the snapshot, not the branch.** Once pushes deploy, the branch tip can ship unreviewed commits made by the next phase during review. Those commits belong to the next round's subject.
-
-**The worktree is the load-bearing part.** Committing alone isolates nothing. The reviewer deliberately reads the working tree and diff because a diff cannot show interactions. Pointing it at the builder's tree produces findings about half-written code that no longer exists that way.
 
 **A push can have side effects beyond the deploy.** An integration may apply migrations, or a hook may publish. Complete prerequisites before pushing, such as applying and verifying migrations by hand, so the push finds nothing pending. A production migration also waits for the owner's go; apply `release-gate`. Keep files you do not intend to run out of any integration's pickup location.
 

@@ -23,7 +23,7 @@
   - every other runtime's login, its group role and how it connects;
   - the RLS posture, and the catalog suite that proves it, with how it reaches the database and which ref it targets;
   - that migrations go through the CLI, each database by its own `--db-url`, the CLI never linked;
-  - the MCP connection: for looking, against development, per machine;
+  - the per-machine, read-only MCP connection if a separate development project uses one for logs or advisors (`migrations.md` § The MCP is for looking);
   - backups.
 
 ## RLS on, zero policies, grants revoked

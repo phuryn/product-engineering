@@ -2,9 +2,7 @@
 """claude_agent.py — Drive Claude Code headless (`claude -p`) as a partner, for the
 claude-agents skill.
 
-Wrapper only. The how-and-when discipline (a delegate gets the why, not just the
-what; iterate over turns; converge before surfacing; a delegated diff is
-unreviewed code) lives in ../SKILL.md. Read SKILL.md before invoking this.
+Read ../SKILL.md for the invocation and handoff rules before using this wrapper.
 
 Usage:
     python claude_agent.py "<message>"            # continue this directory's session, else start one

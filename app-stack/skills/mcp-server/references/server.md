@@ -24,10 +24,10 @@ A product that declines the surface serves the no-account case through the clien
 
 ## The first call
 
-In the organization shape the token's `org_id` names a Clerk organization, and the product's own workspace row may not exist yet. Two answers:
+In the organization shape the token's `org_id` names a Clerk organization, and the product's own workspace row may not exist yet.
 
-- **Refuse it**: `403 organization_not_found`, "Open your organization's dashboard before connecting." Simple, and a user who meets the product first in an agent has to leave it.
-- **Make it work**: with *Membership required* and Clerk's **Create first organization automatically** on (`organization_creation_defaults.automatic_organization_creation`, in the organization settings, not the OAuth ones), a user who signs up inside the client's OAuth prompt already has an organization when the consent screen asks for one, and the first authenticated call creates the workspace row, through the same function a first dashboard visit runs, **after** the token is verified, the admission budget is spent and live membership is confirmed. No connect link, no dashboard visit. This is Clerk's documented behaviour; treat it as designed, not proven, until a fresh sign-up has ended in a successful tool call against the product's real instance.
+- **Refuse a missing workspace by default and point to the dashboard.** Return `403 organization_not_found` with "Open your organization's dashboard before connecting."
+- **Provision on the first authorized call only when the owner chooses agent-started sign-up.** Turn on *Membership required* and *Create first organization automatically* (`organization_creation_defaults.automatic_organization_creation` in Clerk's organization settings). The OAuth consent screen can then ask for the new organization. Verify the token, spend the admission budget and confirm live membership and the admission permission before creating the workspace row. Use the same function a first dashboard visit runs. Prove the path with a fresh sign-up that completes a tool call against the product's real instance.
 
 ## The route
 
@@ -71,6 +71,6 @@ One row for every request that reaches a handler on the REST API and every MCP r
 
 ## Proving it
 
-- **An automated real grant**, outside the gate: a script that drives a real DCR registration, S256 PKCE, Clerk's sign-in and consent with an explicit choice between two organizations, the code exchange, and `tools/list` through Playwright against localhost. It refuses anything but test keys and a development database, prints only allowlisted claims, statuses and tool names, and deletes the client and the extra organization afterwards. It is how one product learned that Clerk's access token carries `client_id` and `scope`, which Clerk's discovery omits, beside the selected `org_id`.
-- **Then a real client against production, by the owner**, recorded in the product's distribution record with the date and what was called (`references/clients.md`).
+- **Prove a real Clerk OAuth grant outside the gate when the server uses OAuth.** A script drives a real DCR registration, S256 PKCE, Clerk's sign-in and consent with an explicit choice between two organizations, the code exchange, and `tools/list` through Playwright against localhost. It refuses anything but test keys and a development database, prints only allowlisted claims, statuses and tool names, and deletes the client and the extra organization afterwards. It is how one product learned that Clerk's access token carries `client_id` and `scope`, which Clerk's discovery omits, beside the selected `org_id`.
+- **Have the owner prove the endpoint with one real client against production.** Record the client, date and what was called in the product's distribution record (`references/clients.md`).
 - **After every deploy**: discovery returns `200` from all three documents, an unauthenticated `POST` is `401` with the path-specific metadata URL and no `invalid_token`, and the log holds the smoke's own row.

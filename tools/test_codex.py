@@ -94,6 +94,32 @@ class ResumeSandboxTests(unittest.TestCase):
         self.assertFalse(any(a.startswith("sandbox_mode=") for a in cmd))
         self.assertIn("config default", err)
 
+    def test_incomplete_marker_requires_an_explicit_session_choice(self):
+        for missing in ("session", "sandbox"):
+            with self.subTest(missing=missing):
+                marker = {"cwd": str(ROOT), "session": "s-1", "sandbox": "workspace-write"}
+                del marker[missing]
+                original = json.dumps(marker)
+                self.marker.write_text(original, encoding="utf-8")
+                with self.assertRaises(SystemExit) as failure:
+                    self.run_wrapper("--sandbox", "workspace-write")
+                self.assertIn(f"missing {missing}", str(failure.exception))
+                self.assertIn("--session <id>", str(failure.exception))
+                self.assertIn("--new", str(failure.exception))
+                self.assertEqual(self.calls, [])
+                self.assertEqual(self.marker.read_text(encoding="utf-8"), original)
+
+    def test_incomplete_marker_allows_explicit_recovery(self):
+        self.marker.write_text(json.dumps({"cwd": str(ROOT), "session": "s-1"}), encoding="utf-8")
+        cmd, _ = self.run_wrapper("--session", "s-1", "--sandbox", "workspace-write")
+        self.assertEqual(cmd[1:4], ["exec", "resume", "s-1"])
+        self.assertIn('sandbox_mode="workspace-write"', cmd)
+
+        self.marker.write_text(json.dumps({"cwd": str(ROOT), "sandbox": "workspace-write"}), encoding="utf-8")
+        cmd, _ = self.run_wrapper("--new")
+        self.assertEqual(cmd[1], "exec")
+        self.assertNotIn("resume", cmd)
+
     def test_a_narrower_reported_sandbox_warns(self):
         self.run_wrapper("--new", "--sandbox", "workspace-write")
         with mock.patch.object(codex, "_sandbox_args", return_value=[]):

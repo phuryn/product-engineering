@@ -1,5 +1,16 @@
 # Reviewing a built product's look
 
+## Full phase visual checks
+
+Run the walkthrough, the rendered-screen pass against `screens.md` § What to verify visually, the app-screen screenshot critique and the scored Impeccable-style audit. Critique at 1440, 768 and 390, with three rounds at most. Both critique and audit run from the `collections.md` checklists without installing the collections.
+
+### The newcomer walkthrough
+
+**Give a fresh session only the ordered screenshots and the user's job.** Never give the brief or code; alternatively, ask a person new to the domain. Ask the same questions for every screen: what is it for, what would you press next, and what is unclear? Fix any screen it cannot explain or next step it cannot find. Capture every route and dialog with a Playwright crawl at 1280 and 390. Crop pages taller than about 3,000px into ordered parts for reading without downscaling. For Clerk's test-user sign-in recipe, apply the `clerk-production` skill (`references/authenticated-mile.md`); other providers use their development test sessions.
+(`2026-11-04`, an evals product: a fresh `claude -p` session using this recipe found in about 20 minutes that no screen said how often each failure happened, a gap three review rounds missed.)
+
+## The owner's look review
+
 When the owner judges what is built — "okay but not stunning", a product they admire, a question about borders, buttons or colour — or before a release's visual pass. **A design review produces decisions, not opinions.**
 - Every claim is measured.
 - Every recommendation the owner sees comes with a before/after built from the product's real tokens.

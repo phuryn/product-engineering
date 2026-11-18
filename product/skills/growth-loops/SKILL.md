@@ -7,7 +7,7 @@ description: "Designing how a product grows: loops that compound (viral, usage, 
 
 ## Overview
 
-**Identify and design growth loops (flywheels) that compound user acquisition through the product.** Evaluate five proven mechanisms for sustainable traction, reducing reliance on paid acquisition and building product-led growth.
+**Design one growth loop that compounds user acquisition through the product.** Compare the five mechanisms for fit and choose the most promising one.
 
 ## When to use
 
@@ -108,7 +108,7 @@ Use this analysis for:
 
 ### Step 4: Calculate loop coefficient
 
-**Estimate growth velocity and the loop coefficient.** Calculate:
+**Measure the loop before projecting how fast it can grow.** Use observed inputs where available and label estimates as assumptions. Measure or estimate:
 
 - Invites/shares per user per cycle
 - Conversion rate of invites to new users
@@ -117,7 +117,7 @@ Use this analysis for:
 
 ### Step 5: Build the loop
 
-**Implement the highest-leverage loop first.** Start with the most natural loop for your product. Optimize messaging and friction, measure loop metrics and conversion rates, and compound results over time.
+**Design the first test for the highest-leverage loop.** Start with the most natural loop for your product. State which step could break, what to measure, and how the result changes the next iteration.
 
 ## Input format
 
@@ -131,14 +131,9 @@ Use this analysis for:
 
 ## Output
 
-**Produce a ranked growth-loop analysis and implementation plan.** Include:
+**Deliver one loop, its conversion chain and its first measurable test.** Give the reason for choosing this loop, who acts and why, what each step produces, and how it brings the next user. Include the incentive's unit economics when the loop offers a reward.
 
-- Ranked evaluation of all 5 loop types for your product
-- Recommended primary growth loop with implementation plan
-- Secondary loops to layer over time
-- Key metrics and measurement framework
-- 30-60-90 day implementation roadmap
-- Potential loop coefficient and growth projections
+**Add a roadmap or projections when the inputs support them.** Use activation and cycle-time evidence for growth projections. For a 30-60-90 day roadmap, use rollout constraints and the resources available. Mark any estimates as assumptions.
 
 ## Framework
 
@@ -154,4 +149,4 @@ Based on growth loops research by Ognjen Bošković. The focus is compounding us
 
 ## How you can tell it worked
 
-Each loop names who acts, what their action produces and how that brings the next user. The step most likely to break is marked as the one to test.
+The chosen loop names who acts, what their action produces and how that brings the next user. The first test measures the step most likely to break.

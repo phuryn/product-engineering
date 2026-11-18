@@ -161,13 +161,12 @@ Do not bolt on personality. "Honestly,", "Quick heads-up", "Not bad.", "On a hap
 4. **Rhythm:** the band and the openers.
 5. **Read it aloud as the writer.** Anything they would not say gets plainer.
 6. **Length.** Shorter than a padded input; about the same as an input that was not padded. Never cut a fact, the voice, or the warmth the genre needs to get there.
-7. **Shorter option (run it every time; the writer decides).** Your final text stays as it is. Then cover each paragraph in turn and read the rest: would the reader miss a fact, a commitment, a decision, or the writer's point? A paragraph that fails is a cut candidate. The usual candidates, most common first: an opening that states the point in general terms before the piece shows it (the opening is not protected by being the crafted line: if the examples or the story below make the point better, it is a candidate); lines any similar piece would have (a general moral, a "there's more to do" or "good to pause" close, a second thank-you); a part that says almost the same as another part (keep the stronger one); a second argument or finding that could stand on its own (it can move to a reply, a follow-up, or another piece). Never offer to cut the proof or the stakes: the examples, the numbers, the commitments, or a disclosure that makes the reader trust the piece. Note each candidate with its rough word count and add them up; do the count, don't guess. If the candidates add up to about a quarter of the text or more, offer the shorter option; be bold, a third or half is fine when those parts don't earn their place. Otherwise the answer is "none, it's already tight." Pieces under about 100 words skip this check.
 
 ## What to return
 
 Rewrite mode: the final text. If the user wants notes, add up to five bullets on what changed, plus any spot where a real specific would help ("A real customer number would make this line land"). Interview mode: the numbered questions first; after the answers, the final text.
 
-**Then, for any piece over about 100 words, end with one line that starts "Shorter option:"** (final check 7). Either the option, offered and never applied: the cuts, roughly how much shorter the piece gets, and any fact a cut would lose and where it could move. Or "none, it's already tight." If the writer asks, write the shorter version in full.
+**Offer a shorter version on request or when there is a material cut.** Look for a repeated point, a generic opening or close, or a second argument that could move to a follow-up. Keep the proof and the stakes, including examples, numbers, commitments and disclosures. If proposing a cut, name it and say where any displaced fact could go. Write the shorter version in full when the writer asks.
 
 ## How you can tell it worked
 

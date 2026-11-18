@@ -29,19 +29,3 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## A screenshot records intended configuration, not the live value.
 
 - `2026-10-21` to `2026-10-24`, a monitoring product recorded its organization, sign-in and OAuth settings on both instances as read-backs.
-
-## Apply these OAuth settings only for a member-authenticated MCP server.
-
-- `2026-10-06`, a live Q&A product's MCP OAuth stage, development and production. Every setting failed silently, or would have, the first time.
-
-## Create no OAuth application by hand.
-
-- `2026-10-27`, after ChatGPT signed in by CIMD, the Backend API's `GET /v1/oauth_applications` listed none; the dashboard was not checked.
-
-## An instance cloned from development does not carry these settings.
-
-- `2026-10-24`, a production instance made from development's settings had DCR, CIMD and `aud_claim_enabled` off and no default scopes.
-
-## Discovery's `claims_supported` is not the shape of the JWT Clerk emits.
-
-- `Undated`: A real grant carried `client_id` and `scope`, which the list omits.

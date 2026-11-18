@@ -59,7 +59,7 @@ Run tests against development with dedicated test accounts. The coordinator reru
 - The jobs map rows this stage serves: the job in the user's words → its screen → that screen's one question → its primary action.
 - The data rules that stay out of the copy, each with the plain-words outcome a screen shows instead.
 - Example data that fills every screen it touches.
-- The coordinator briefly checks running screens at stage end, at phone and desktop widths and both themes when two exist; the builder never substitutes. The phase closes with the newcomer walkthrough, rendered pass, screenshot critique at 1440/768/390 (three rounds at most), and scored audit where `ui-design` requires. Fix visuals before its review series and owner preview; the local checklists work without the collections.
+- **The coordinator checks affected screens at stage end and before phase review.** Apply `ui-design` § Complete phase visual checks before its review series and owner preview for the routine rendered check and the full walkthrough, critique and audit for new or materially changed journeys or kit changes. Apply `release-gate` § Stage and phase close for the sequence.
 
 ## Files it will touch
 
