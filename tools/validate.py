@@ -20,7 +20,7 @@
   description opens with it, and nothing else moves it when a skill is added.
 - No generated clutter (__pycache__, .pyc) in the tree.
 - The shared planning prompt in start-here and WALKTHROUGH stays identical from "Create a plan." on.
-- The review wrapper's regression tests (tools/test_review.py) pass.
+- The wrappers' regression tests (tools/test_review.py, tools/test_codex.py) pass.
 - Every script a skill carries parses as Python 3.9, and one that writes `X | Y` in an annotation
   imports `annotations` from __future__: macOS ships Python 3.9 as python3.
 - No leaks into any tracked file: local paths, the author's names outside their allowed places, and
@@ -313,11 +313,12 @@ def check_copies():
 
 
 def check_review_tests():
-    """The review wrapper's regression tests run wherever the validator does, the hosted run included."""
-    run = subprocess.run([sys.executable, "-B", str(ROOT / "tools/test_review.py")],
-                         capture_output=True, text=True, cwd=ROOT)
-    if run.returncode != 0:
-        errors.append("tools/test_review.py failed: " + (run.stderr or run.stdout)[-2000:])
+    """The wrappers' regression tests run wherever the validator does, the hosted run included."""
+    for test in ("tools/test_review.py", "tools/test_codex.py"):
+        run = subprocess.run([sys.executable, "-B", str(ROOT / test)],
+                             capture_output=True, text=True, cwd=ROOT)
+        if run.returncode != 0:
+            errors.append(f"{test} failed: " + (run.stderr or run.stdout)[-2000:])
 
 
 def check_plan_prompt_copies():

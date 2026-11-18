@@ -38,6 +38,10 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-10-01`: a resumed session came back on the config default, and nothing failed to say so.
 
+## A resume does not keep the session's sandbox either.
+
+- `2026-11-17`, a product's second build round: the wrapper resumed the session started with `--sandbox danger-full-access`, which then ran read-only, answered that it was blocked, changed no files and exited 0. Called directly with `-c sandbox_mode="danger-full-access"`, the same session built. A probe that day read the header's sandbox: `workspace-write` when new, `read-only` on a plain resume, `workspace-write` again with the override.
+
 ## Use the configured binary, installed CLI, then the extension bundle.
 
 - `2026-10-22`: the extension's bundle was a 0.155 alpha without `codex-code-mode-host.exe`, and every tool call of a build round failed before it ran, with no file changed.

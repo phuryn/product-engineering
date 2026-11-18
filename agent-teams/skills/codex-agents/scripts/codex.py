@@ -22,8 +22,9 @@ Flags:
                      for the session and re-sent on every resume.
     --effort LEVEL   low / medium / high / xhigh (default: xhigh, on every turn).
                      The highest, xhigh, is the default.
-    --sandbox MODE   read-only (default) / workspace-write / danger-full-access
-                     New sessions only — `exec resume` inherits sandbox.
+    --sandbox MODE   read-only / workspace-write / danger-full-access (a new
+                     session's default: read-only). Remembered for the session
+                     and re-sent on every resume.
     --cwd DIR        Working directory for the run (default: current directory)
     --raw            Pass through raw codex output (default strips the header)
 
@@ -58,6 +59,14 @@ with (--model, or none for the config default), every resume re-sends it, and
 the model codex reports in its header is written to stderr after each run,
 with a warning when it differs from the one requested.
 
+Nor does a resume keep the session's sandbox: `exec resume` takes no `-s`, and
+without one it runs on the config's `sandbox_mode`, read-only by default
+(codex 0.169.0, 2026-11-17: a session started with `-s workspace-write`
+resumed read-only, so a build turn changed nothing and exited 0). So the
+marker records the sandbox too, every resume re-sends it as
+`-c sandbox_mode="<mode>"`, and the sandbox codex reports is checked the same
+way as the model.
+
 Codex binary lookup, in order:
     1. $CODEX_BIN
     2. `codex` on PATH (via shutil.which); for the npm package, the native binary
@@ -72,7 +81,8 @@ tool call of a build round failed before it ran.
 Piped, codex writes its metadata header (workdir, model, session id) to
 stderr and the answer to stdout. The wrapper reads the model and the session
 id from that header, records the id, and prints both after each run.
-`-s SANDBOX` is an exec-level flag not valid on `exec resume`. Outside a git
+`-s SANDBOX` is an exec-level flag not valid on `exec resume`, which takes
+the sandbox as `-c sandbox_mode=...` instead. Outside a git
 repository a resume needs `--skip-git-repo-check` too, or codex refuses it and
 the wrapper falls back to a new session. Stdin must be closed (input="") or
 codex hangs.
@@ -102,6 +112,8 @@ ACTIVE_MARKER = Path(
     os.environ.get("CODEX_AGENTS_STATE")
     or (Path.home() / ".claude" / ".codex_agents_active")
 )
+
+SANDBOXES = ("read-only", "workspace-write", "danger-full-access")
 
 CODEX_BIN_NAME = "codex.exe" if platform.system() == "Windows" else "codex"
 
@@ -155,14 +167,15 @@ def find_codex_bin() -> str:
 
 def read_marker() -> dict:
     """Marker contents as ``{"ts": int, "cwd": str, "model": str | None,
-    "session": str | None}``, or ``{}`` if unreadable.
+    "session": str | None, "sandbox": str | None}``, or ``{}`` if unreadable.
 
     A legacy bare-timestamp marker (written before --cwd existed) reports an
     empty cwd, which never equals a resolved directory. The first run after
     this upgrade therefore starts a fresh thread instead of risking a resume
     into whichever repo happened to be last. A marker without a model (written
     before the model was recorded, or by a session on the config default)
-    means no pinned model; one without a session id resumes with `--last`."""
+    means no pinned model; one without a session id resumes with `--last`; one
+    without a sandbox (an older wrapper's) resumes on the config's."""
     try:
         raw = ACTIVE_MARKER.read_text(encoding="utf-8").strip()
     except OSError:
@@ -172,17 +185,19 @@ def read_marker() -> dict:
     try:
         data = json.loads(raw)
     except ValueError:
-        return {"ts": int(raw) if raw.isdigit() else 0, "cwd": "", "model": None, "session": None}
+        return {"ts": int(raw) if raw.isdigit() else 0, "cwd": "", "model": None, "session": None,
+                "sandbox": None}
     if not isinstance(data, dict):
         return {}
     try:
         ts = int(data.get("ts") or 0)
     except (TypeError, ValueError):
         ts = 0
-    model, session = data.get("model"), data.get("session")
+    model, session, sandbox = data.get("model"), data.get("session"), data.get("sandbox")
     return {"ts": ts, "cwd": str(data.get("cwd") or ""),
             "model": model if isinstance(model, str) and model else None,
-            "session": session if isinstance(session, str) and session else None}
+            "session": session if isinstance(session, str) and session else None,
+            "sandbox": sandbox if sandbox in SANDBOXES else None}
 
 
 def has_active_session(work_dir: Path) -> bool:
@@ -197,16 +212,17 @@ def has_active_session(work_dir: Path) -> bool:
     return read_marker().get("cwd") == str(work_dir)
 
 
-def mark_active(work_dir: Path, model: str | None, session: str | None) -> None:
+def mark_active(work_dir: Path, model: str | None, session: str | None,
+                sandbox: str | None = None) -> None:
     """Record the session: its directory, its id (None: codex reported none, so
-    the next resume uses `--last`), and the model it runs on (None: the config
-    default). `codex exec resume` takes its model from ~/.codex/config.toml, not
-    from the session it resumes, so the wrapper re-sends this one on every
-    resume."""
+    the next resume uses `--last`), the model it runs on (None: the config
+    default) and its sandbox (None: the config's). `codex exec resume` takes
+    both from ~/.codex/config.toml, not from the session it resumes, so the
+    wrapper re-sends them on every resume."""
     ACTIVE_MARKER.parent.mkdir(parents=True, exist_ok=True)
     ACTIVE_MARKER.write_text(
         json.dumps({"ts": int(time.time()), "cwd": str(work_dir), "model": model,
-                    "session": session}),
+                    "session": session, "sandbox": sandbox}),
         encoding="utf-8",
     )
 
@@ -241,7 +257,9 @@ def header_field(proc: subprocess.CompletedProcess, name: str) -> str | None:
     strip_header drops it, and only from a block that is a header, so a
     matching line in the answer itself is never taken for it; no header, None.
     Stderr is read first because stdout can be the answer alone."""
-    line_re = re.compile(rf"^{re.escape(name)}:\s*(\S+)\s*$", re.MULTILINE)
+    # The value's first word: codex 0.169 follows a sandbox with its writable roots
+    # (`sandbox: workspace-write [workdir, /tmp, $TMPDIR]`).
+    line_re = re.compile(rf"^{re.escape(name)}:[ \t]*(\S+)", re.MULTILINE)
     for stream in (proc.stderr or "", proc.stdout or ""):
         parts = HEADER_END_RE.split(stream, maxsplit=2)
         if len(parts) != 3 or not HEADER_FIELD_RE.search(parts[1]):
@@ -260,6 +278,11 @@ def reported_model(proc: subprocess.CompletedProcess) -> str | None:
 def reported_session(proc: subprocess.CompletedProcess) -> str | None:
     """The id of the session the run used, which the next resume names."""
     return header_field(proc, "session id")
+
+
+def reported_sandbox(proc: subprocess.CompletedProcess) -> str | None:
+    """The sandbox codex says the run had."""
+    return header_field(proc, "sandbox")
 
 
 def _run(cmd: list[str], work_dir: Path) -> subprocess.CompletedProcess:
@@ -289,6 +312,12 @@ def _effort_args(effort: str | None) -> list[str]:
     return ["-c", f"model_reasoning_effort={effort}"] if effort else []
 
 
+def _sandbox_args(sandbox: str | None) -> list[str]:
+    """A resume's sandbox. `exec resume` rejects `-s`, and without this override
+    it runs on the config's `sandbox_mode`, not the session's."""
+    return ["-c", f'sandbox_mode="{sandbox}"'] if sandbox else []
+
+
 def in_git_repo(work_dir: Path) -> bool:
     """True when work_dir or a parent holds a `.git` (a directory, or the file a
     worktree or submodule uses)."""
@@ -304,8 +333,8 @@ def run_codex_new(
     effort: str | None = None,
 ) -> subprocess.CompletedProcess:
     """Start a new codex session; the caller decides what a failure means.
-    `-s SANDBOX` is an exec-level option that isn't valid on `exec resume`,
-    which inherits the session's sandbox."""
+    `-s SANDBOX` is an exec-level option that isn't valid on `exec resume`;
+    a resume re-sends the sandbox through `_sandbox_args`."""
     cmd = [codex_bin, "exec", "--skip-git-repo-check", "-s", sandbox]
     if model:
         cmd += ["-m", model]
@@ -321,10 +350,11 @@ def run_codex_resume(
     prompt: str,
     work_dir: Path,
     effort: str | None = None,
+    sandbox: str | None = None,
 ) -> subprocess.CompletedProcess:
     """Resume `session` by its id, or the newest session in work_dir when there
-    is no id (`--last`). `model` is sent whenever one is known: a resume does
-    not keep the session's model."""
+    is no id (`--last`). `model` and `sandbox` are sent whenever known: a
+    resume keeps neither from the session."""
     cmd = [codex_bin, "exec", "resume", session or "--last"]
     # Only outside a repository: there codex refuses a resume without it, and
     # inside one it is not needed, so a codex old enough to reject the flag on
@@ -334,6 +364,7 @@ def run_codex_resume(
     if model:
         cmd += ["-m", model]
     cmd += _effort_args(effort)
+    cmd += _sandbox_args(sandbox)
     cmd.append(prompt)
     return _run(cmd, work_dir)
 
@@ -342,7 +373,7 @@ def run_codex_resume_or_new(
     codex_bin: str,
     session: str | None,
     model: str | None,
-    sandbox: str,
+    sandbox: str | None,
     prompt: str,
     work_dir: Path,
     effort: str | None = None,
@@ -356,7 +387,7 @@ def run_codex_resume_or_new(
     stage; the caller keeps the marker on it.
 
     Returns (completed process, started_new)."""
-    proc = run_codex_resume(codex_bin, session, model, prompt, work_dir, effort)
+    proc = run_codex_resume(codex_bin, session, model, prompt, work_dir, effort, sandbox)
     if proc.returncode == 0 or reported_session(proc):
         return proc, False
 
@@ -369,7 +400,7 @@ def run_codex_resume_or_new(
         sys.stderr.write(proc.stderr)
         if not proc.stderr.endswith("\n"):
             sys.stderr.write("\n")
-    return run_codex_new(codex_bin, model, sandbox, prompt, work_dir, effort), True
+    return run_codex_new(codex_bin, model, sandbox or "read-only", prompt, work_dir, effort), True
 
 
 def main() -> None:
@@ -400,9 +431,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--sandbox",
-        default="read-only",
-        choices=["read-only", "workspace-write", "danger-full-access"],
-        help="Codex sandbox mode (new sessions only; default: read-only)",
+        choices=SANDBOXES,
+        help="Codex sandbox mode (a new session's default: read-only). Remembered for "
+        "the session and re-sent on every resume; passing it on a resume changes it.",
     )
     parser.add_argument(
         "--cwd",
@@ -429,7 +460,8 @@ def main() -> None:
             print(f"session: active (last call {age_min} min ago)")
             print(f"cwd:     {work_dir}")
             print(f"model:   {marker.get('model') or '(the config default)'}")
-            print(f"id:      {marker.get('session') or '(none recorded: the next resume uses --last)'}")
+            print(f"sandbox: {marker.get('sandbox') or '(not recorded: a resume runs on the config default)'}")
+            print(f"id:     {marker.get('session') or '(none recorded: the next resume uses --last)'}")
             print(f"marker:  {ACTIVE_MARKER}")
         else:
             other = marker.get("cwd")
@@ -460,32 +492,38 @@ def main() -> None:
     marker = read_marker()
 
     if args.session:
-        # The marker's model applies only when the marker names this session.
-        model = args.model or (marker.get("model") if marker.get("session") == args.session else None)
-        proc = run_codex_resume(codex_bin, args.session, model, msg, work_dir, args.effort)
+        # The marker's model and sandbox apply only when the marker names this session.
+        own = marker.get("session") == args.session
+        model = args.model or (marker.get("model") if own else None)
+        sandbox = args.sandbox or (marker.get("sandbox") if own else None)
+        proc = run_codex_resume(codex_bin, args.session, model, msg, work_dir, args.effort, sandbox)
         started_new = False
     elif args.new or not has_active_session(work_dir):
         model = args.model
-        proc = run_codex_new(codex_bin, model, args.sandbox, msg, work_dir, args.effort)
+        sandbox = args.sandbox or "read-only"
+        proc = run_codex_new(codex_bin, model, sandbox, msg, work_dir, args.effort)
         started_new = True
     else:
-        # A resume without --model keeps the model the session was started with,
-        # which codex itself would replace with the config default.
+        # A resume without --model or --sandbox keeps what the session was started
+        # with, which codex itself would replace with the config's.
         model = args.model or marker.get("model")
+        sandbox = args.sandbox or marker.get("sandbox")
         proc, started_new = run_codex_resume_or_new(
-            codex_bin, marker.get("session"), model, args.sandbox, msg, work_dir, args.effort
+            codex_bin, marker.get("session"), model, sandbox, msg, work_dir, args.effort
         )
+        if started_new:
+            sandbox = sandbox or "read-only"
 
     # The marker names the last session codex opened here, failed run or not: it
     # holds the brief and the work so far (a usage limit part-way through a build).
     # A run that opened nothing (an id with no rollout) leaves the marker alone.
     session = reported_session(proc)
     if session:
-        mark_active(work_dir, model, session)
+        mark_active(work_dir, model, session, sandbox)
     elif proc.returncode == 0:
         # Success with no header to read (an older codex): --session's id, or none,
         # so the next resume falls back on --last.
-        mark_active(work_dir, model, args.session)
+        mark_active(work_dir, model, args.session, sandbox)
     if proc.returncode != 0:
         if session:
             sys.stderr.write(f"[codex.py] session {session} failed; the marker names it, so the "
@@ -493,7 +531,8 @@ def main() -> None:
         _exit_on_failure(proc)
 
     reported = reported_model(proc)
-    out = proc.stdout if args.raw else strip_header(proc.stdout)
+    ran_under = reported_sandbox(proc)
+    out =proc.stdout if args.raw else strip_header(proc.stdout)
 
     sys.stdout.write(out)
     if not out.endswith("\n"):
@@ -502,10 +541,17 @@ def main() -> None:
     sys.stderr.write(f"[codex.py] {'new session' if started_new else 'resumed session'} "
                      f"{session or '(id not reported by codex)'}; "
                      f"model: {reported or 'not reported by codex'}"
-                     f"{f' (requested {model})' if model else ''}\n")
+                     f"{f' (requested {model})' if model else ''}; "
+                     f"sandbox: {ran_under or 'not reported by codex'}\n")
     if model and reported and reported != model:
         sys.stderr.write(f"[codex.py] warning: requested {model} but codex ran on {reported}. "
                          "Do not trust this round as one on the requested model.\n")
+    if not sandbox:
+        sys.stderr.write("[codex.py] no sandbox is recorded for this session, so it ran on the "
+                         "config default; pass --sandbox to set it.\n")
+    elif ran_under and ran_under != sandbox:
+        sys.stderr.write(f"[codex.py] warning: requested sandbox {sandbox} but codex ran under "
+                         f"{ran_under}. A build turn may have changed nothing: check git status.\n")
 
 
 if __name__ == "__main__":
