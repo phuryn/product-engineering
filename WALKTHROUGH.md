@@ -53,7 +53,7 @@ A stage that offers options stops until you pick, such as two design directions.
 
 ## 4. Build
 
-By default, every stage lands end-to-end tests of its changed journeys. The coordinator runs touched and new tests, reads the diff and corrected docs, and briefly checks running screens. Use phone and desktop widths and both themes when two exist; the builder never substitutes for this look. A stage needs no mandatory full gate, fresh review or docs check.
+By default, every stage lands end-to-end tests of its changed journeys. The coordinator runs touched and new tests, reads the diff and corrected docs, and briefly checks running screens. The read of the diff runs the router rows it matches; an edited test, gate script or instruction file needs its reason. Use phone and desktop widths and both themes when two exist; the builder never substitutes for this look. A stage needs no mandatory full gate, fresh review or docs check.
 
 One session coordinates. Another builds when one is available: Codex through `codex-agents`, or a Claude subagent briefed through `delegation`. No session reviews its own work. A fresh reviewer that never saw the build reviews each completed phase and every deploying push. It reviews again after each fix to what a round found, until the bar holds.
 
