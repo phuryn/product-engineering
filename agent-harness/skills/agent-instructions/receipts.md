@@ -46,3 +46,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Keep must-follow rules within Codex’s entry-file context budget.
 
 - `2026-11-16`, Codex CLI 0.169.0 on Windows logged a 32,768-byte project-document budget. A 104,297-byte instruction file lost its role table. Keep required rules in the first 32 KiB or raise `project_doc_max_bytes`; explicitly open needed sections beyond the budget.
+
+## Name each row's moment as a diff shows it.
+
+- `2026-11-17`, the Claude Code team's account of how it verifies changes (Addy Osmani, "How the Claude Code team thinks about verification", claude.dev, 2026-11-16, read `2026-11-17`): a change runs only the reliability checks whose trigger its diff matches, usually 3 to 10 of 39, and each check names the incidents behind it.

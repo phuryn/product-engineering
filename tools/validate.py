@@ -14,6 +14,7 @@
   leaves the description in the other agent's context.
 - The descriptions of the skills an agent can load on its own total at most MAX_LISTED characters,
   each at most MAX_LISTED_EACH: those are always in context, and both agents cut them to a budget.
+- The SKILL.md files total at most MAX_SKILL_BYTES_TOTAL bytes, and none exceeds MAX_SKILL_BYTES_EACH.
 - Every "the `x` skill" names a skill in the collection, and none names a user-invoked one: an
   agent cannot load those, so other skills name their command instead.
 - A count of the skills stated in README.md or the marketplace's description is the count: the
@@ -47,6 +48,10 @@ MAX_DESCRIPTION = 1024
 # Always-loaded descriptions (AGENTS.md, rule 7). 6,200 characters, names included, is about 2,700 tokens.
 MAX_LISTED = 6200
 MAX_LISTED_EACH = 300
+# SKILL.md bodies (AGENTS.md, rule 10): a skill loads its whole body when it starts, so the files only grow by a
+# cut elsewhere or the owner's raise. Today's sizes, 2026-11-18, rounded up to the next thousand bytes.
+MAX_SKILL_BYTES_TOTAL = 624_000
+MAX_SKILL_BYTES_EACH = 37_000
 
 # Names that must never reach the repository outside their allowed places (AGENTS.md, rule 1).
 # Matched case-insensitively. Private names are not listed here: this file is public, so they
@@ -246,6 +251,13 @@ def check_listing():
                 if not (s["dir"] / f).exists() and not any(
                         o in line and (t["dir"] / f).exists() for o, t in skills.items()):
                     errors.append(f"{s['rel']}:{n}: names {f}, which is not in the skill's folder")
+    sizes = {s["rel"]: len((s["dir"] / "SKILL.md").read_bytes().replace(b"\r\n", b"\n")) for s in skills.values()}
+    if sum(sizes.values()) > MAX_SKILL_BYTES_TOTAL:
+        errors.append(f"SKILL.md files total {sum(sizes.values())} bytes (max {MAX_SKILL_BYTES_TOTAL}): "
+                      "cut before adding, or ask the owner to raise it")
+    for rel, size in sizes.items():
+        if size > MAX_SKILL_BYTES_EACH:
+            errors.append(f"{rel}: {size} bytes (max {MAX_SKILL_BYTES_EACH} for one SKILL.md)")
     named = re.compile(r"the `([a-z0-9-]+)` skill")
     for p in ROOT.glob("*/skills/*/**/*.md"):
         own = p.relative_to(ROOT).parts[2]

@@ -44,3 +44,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Python hook output is in the ANSI code page unless you say otherwise.
 
 - `2026-10-24`, Python 3.13 on Windows 11: A hook's `§` reached the transcript as `�`.
+
+## Start a new blocking hook in observe mode when what it stops can be undone.
+
+- `2026-11-17`, the Claude Code team's account of how it verifies changes (Addy Osmani, "How the Claude Code team thinks about verification", claude.dev, 2026-11-16, read `2026-11-17`): a commit gate has off, observe and enforce modes, and observe logs what would have been blocked, to find false positives before anyone is affected. The one-way-door exception is this collection's: there a miss is the incident itself.

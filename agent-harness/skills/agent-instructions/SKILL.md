@@ -64,6 +64,7 @@ entry file (loaded every session)   — routes; holds only what every session ne
 - **Put the rule that is easy to miss in the rule column.** Keep it to one or two lines; the file holds the depth.
 - **The open column names the file — and the section — to read before acting.** Several rows can hold at once; open every one that matches.
 - **Every new task opens its rows again.** Find the moment and reread every file its rows open, even one read earlier in the session. After compaction or a long session, that earlier read is gone or stale.
+- **Name each row's moment as a diff shows it.** “touching sign-in, roles or a permission” can be read off a diff; “being careful with data” cannot. The coordinator's stage-end read of the diff runs every row it matches (`independent-review` § When), which catches a row the task missed at its start.
 - **Give every rule placed in a doc a row, with one exception.** It needs none if it lives in the file the agent is already editing when it applies.
 - **File a rule at the fire point, not at its topic home.** Put it in the task's chain where it must change a decision. The topically natural file keeps the durable record and a pointer. Reachable in the wrong task is unreachable.
 - **Index material with no moment in the docs' own index.** Worked examples and release history belong there, not in the router.

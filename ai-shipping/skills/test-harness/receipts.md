@@ -71,3 +71,15 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## A generated file can arrive rewritten by the tooling that wrote it.
 
 - `Undated`: a commit landed reading "Grok sends , so".
+
+## When a rule must hold for every input, test it as a property.
+
+- `2026-11-17`, the Claude Code team's account of how it verifies changes (Addy Osmani, "How the Claude Code team thinks about verification", claude.dev, 2026-11-16, read `2026-11-17`): property tests pick edge cases without the bias of the agent that wrote the code; the four kinds named are round trips, invariants, idempotency and equivalence.
+
+## When a rewrite must not change behaviour, run old and new on the same inputs.
+
+- `2026-11-17`, the Claude Code team's account of how it verifies changes (Addy Osmani, "How the Claude Code team thinks about verification", claude.dev, 2026-11-16, read `2026-11-17`): for large migrations, old and new systems run on the same inputs, with irrelevant differences normalized and a list of approved ones.
+
+## A green run that flakes is not a pass.
+
+- `2026-11-17`, the Claude Code team's account of how it verifies changes (Addy Osmani, "How the Claude Code team thinks about verification", claude.dev, 2026-11-16, read `2026-11-17`): flaky tests teach an agent to rerun instead of fixing, so its agent may not skip one, add sleeps or retry until green.
