@@ -78,6 +78,10 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 - `2026-09-16`, a migration that could not have applied cleanly was moved out of the migrations directory for exactly this reason.
 - `2026-10-22`, a review found a migration revoking two worker boxes' table grants sitting in the migrations directory while both still ran the build that needed them, so the routine push would have applied it early.
 
+## Weigh how often a finding happens before fixing it, and prefer a simpler assumption.
+
+- `2026-11-18`, rounds 160 to 162 on GPT-6.2 Sol rated Medium a second worker starting the same operation of a single-user tool, storage filling between two writes, two reviewers' accounts running out together, and a reviewer searching for a literal secret while stderr went to a shared log. Fixes for the first two went in, and a short-report mechanism grew a new hole each round. The owner asked for the claim and the priority to be checked against how often the case happens, and for simplicity over serving every case: the two fixes became a stated assumption and the mechanism was removed. The rule already stood in this section, but not where the loop says to fix.
+
 ## does anything cross a line the person cares about?
 
 - `2026-09-03`, a costly fix was reverted after the owner rejected its claimed High severity.

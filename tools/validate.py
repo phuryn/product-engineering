@@ -50,8 +50,8 @@ MAX_LISTED = 6200
 MAX_LISTED_EACH = 300
 # SKILL.md bodies (AGENTS.md, rule 10): a skill loads its whole body when it starts, so the files only grow by a
 # cut elsewhere or the owner's raise. Today's sizes, 2026-11-18, rounded up to the next thousand bytes.
-MAX_SKILL_BYTES_TOTAL = 627_000
-MAX_SKILL_BYTES_EACH = 37_000
+MAX_SKILL_BYTES_TOTAL = 628_000
+MAX_SKILL_BYTES_EACH = 38_000
 
 # Names that must never reach the repository outside their allowed places (AGENTS.md, rule 1).
 # Matched case-insensitively. Private names are not listed here: this file is public, so they

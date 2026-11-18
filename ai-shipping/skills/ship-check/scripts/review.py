@@ -34,9 +34,7 @@ This wrapper closes that gap in three ways:
 
   1. The flags that make a round real are applied here, not remembered.
   2. A round whose output is too short to be a real round FAILS LOUDLY
-     (exit 2) instead of printing a few lines and returning 0. For a short Codex
-     round it lists the successful commands that named the subject or a changed
-     file, so the coordinator can judge it by hand.
+     (exit 2) instead of printing a few lines and returning 0.
   3. Codex's event stream proves commands succeeded and checks tool isolation.
 
 A round that comes back genuinely empty
@@ -714,7 +712,6 @@ class CodexEvents:
         self.report = ""
         self.has_report = False
         self.failed_commands: list[str] = []
-        self.read_commands: list[str] = []
         self.mcp_calls: list[str] = []
         self.outside_calls: list[str] = []
         self.listing_calls: list[str] = []
@@ -765,7 +762,6 @@ class CodexEvents:
             elif kind == "command_execution":
                 if item.get("status") == "completed" and item.get("exit_code") == 0:
                     self.succeeded += 1
-                    self.read_commands.append(str(item.get("command", "")))
                 else:
                     command = str(item.get("command", "(command not recorded)"))
                     self.failed_commands.append(f"exit {item.get('exit_code')}, {item.get('status')}: {command}")
@@ -812,22 +808,8 @@ class CodexEvents:
         return ""
 
 
-def subject_reads(events: "CodexEvents", subject: Path | None) -> list[str]:
-    """The successful commands that named the subject file or a path it changes: evidence
-    for the coordinator, who accepts a short round by hand after reading them (2026-11-18:
-    a hung round ran 0 commands and returned 123 characters; four valid short rounds each
-    read the subject, which only their events showed)."""
-    if not subject:
-        return []
-    text = subject.read_text(encoding="utf-8", errors="replace")
-    names = {subject.name, *re.findall(r"^diff --git a/(\S+) b/", text, re.MULTILINE),
-             *re.findall(r"^# Untracked file: (.+)$", text, re.MULTILINE)}
-    slash = lambda s: s.replace(chr(92), "/")
-    return [c for c in events.read_commands if any(n in slash(c) for n in names)]
-
-
 def finish_codex_round(raw: str, stderr: str, args: argparse.Namespace, elapsed: float,
-                       returncode: int, timed_out: bool = False, subject: Path | None = None) -> None:
+                       returncode: int, timed_out: bool = False) -> None:
     events = CodexEvents(raw)
     summary = (f"[review.py] {len(events.report.strip())} chars in {elapsed:.0f}s; "
                f"Codex events: {events.parsed} parsed, {events.skipped} non-object/non-JSON lines skipped; "
@@ -883,21 +865,14 @@ def finish_codex_round(raw: str, stderr: str, args: argparse.Namespace, elapsed:
     if failure:
         sys.stderr.write(f"[review.py] FAILED ROUND — {failure}\n")
         sys.exit(2)
-    length = len(events.report.strip())
-    if length >= args.min_chars:
-        sys.stderr.write(f"[review.py] passed: the report is at least --min-chars {args.min_chars}.\n")
-        return
-    if not args.allow_short:
-        reads = subject_reads(events, subject)
-        sys.stderr.write(f"[review.py] FAILED ROUND — {length} chars is below --min-chars {args.min_chars}.\n"
-                         "  A real round argues its conclusion over paragraphs. Accept a short one by hand only "
-                         "when its successful commands printed the subject's or a changed file's content and the "
-                         "report names what it read"
-                         + (": the commands that named them follow.\n    " + "\n    ".join(reads[:20]) + "\n"
-                            if reads else "; no successful command named the subject or a changed file.\n"))
+    if len(events.report.strip()) < args.min_chars and not args.allow_short:
+        sys.stderr.write(f"[review.py] FAILED ROUND — {len(events.report.strip())} chars is below "
+                         f"--min-chars {args.min_chars}.\n"
+                         "  A real round argues its conclusion over paragraphs; read the report before using --allow-short.\n")
         sys.exit(2)
-    sys.stderr.write("[review.py] warning: short round accepted by --allow-short; "
-                     "confirm it reasoned its way to a conclusion and could read the files.\n")
+    if len(events.report.strip()) < args.min_chars:
+        sys.stderr.write("[review.py] warning: short round accepted by --allow-short; "
+                         "confirm it reasoned its way to a conclusion and could read the files.\n")
 
 
 # Grok's own isolation, per process: its memory, its managed MCP configs and gateway tools, every Claude and
@@ -1230,14 +1205,14 @@ def main() -> None:
         if reviewer == "codex":
             raw = err.stdout.decode("utf-8", "replace") if isinstance(err.stdout, bytes) else (err.stdout or "")
             stderr = err.stderr.decode("utf-8", "replace") if isinstance(err.stderr, bytes) else (err.stderr or "")
-            finish_codex_round(raw, stderr, args, time.time() - started, 1, timed_out=True, subject=subject)
+            finish_codex_round(raw, stderr, args, time.time() - started, 1, timed_out=True)
         sys.exit(f"[review.py] round exceeded --timeout {args.timeout}s. Nothing to read.")
     except OSError as err:
         sys.exit(f"[review.py] could not start {reviewer}: {err}. The round did not run.")
 
     elapsed = time.time() - started
     if reviewer == "codex":
-        finish_codex_round(proc.stdout or "", proc.stderr or "", args, elapsed, proc.returncode, subject=subject)
+        finish_codex_round(proc.stdout or "", proc.stderr or "", args, elapsed, proc.returncode)
         return
     out = proc.stdout or ""
     body = out.strip()

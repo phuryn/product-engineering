@@ -198,27 +198,5 @@ class SubjectTests(GitRepo):
             self.assertIn("Left out by --exclude: notes/**", body)
 
 
-class ShortReportTests(GitRepo):
-    def round(self, *commands):
-        events = [{"type": "item.completed", "item": {"type": "command_execution", "command": c,
-                                                      "status": "completed", "exit_code": 0}}
-                  for c in commands]
-        events.append({"type": "item.completed", "item": {"type": "agent_message", "text": "No findings."}})
-        return review.CodexEvents("\n".join(json.dumps(e) for e in events))
-
-    def setUp(self):
-        super().setUp()
-        self.write("src/app.py", "print('hello review')")
-        self.commit("change")
-        self.path, _ = self.subject("HEAD~1..HEAD")
-
-    def test_a_hung_round_has_no_evidence(self):
-        self.assertEqual(review.subject_reads(self.round(), self.path), [])
-
-    def test_commands_naming_the_subject_or_a_changed_file_are_listed_for_the_coordinator(self):
-        events = self.round(f"cat {self.path}", "nl -ba src/app.py", "cat README.md")
-        self.assertEqual(review.subject_reads(events, self.path), [f"cat {self.path}", "nl -ba src/app.py"])
-
-
 if __name__ == "__main__":
     unittest.main()

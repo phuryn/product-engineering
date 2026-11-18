@@ -94,7 +94,7 @@ Record the actual reviewer in the packet's Independent Review section. Say why i
 **Use the carried review wrapper when the repo names no reviewer.** This skill carries the `independent-review` skill's wrapper as `scripts/review.py` so it works on its own:
 
 ```
-python <skill dir>/scripts/review.py --brief <scratch>/brief.md --cwd <repo> --subject <range> --out <scratch>/round-N.md --model <review model> --effort <high|xhigh> < /dev/null
+python <skill dir>/scripts/review.py --brief <scratch>/brief.md --cwd <repo> --subject <range> --out <scratch>/round-N.md --model <review model> < /dev/null
 ```
 
 For Codex, `--out` also keeps `<out>.events.jsonl`; treat it like the report and never commit it. Keep the brief, report and any events file outside the repository; one left in the checkout enters the next round's subject. When the wrapper warns about untracked files, keep every file that belongs to the change, step 2's edits included, and step 1's docs as context. For the rest, delete only what this session generated; otherwise gitignore it or ask the owner. Exit 2 means a failed round, such as a short report without qualifying evidence, missing Codex events or failed tool isolation. The wrapper starts a fresh session with the first installed of Codex, headless Claude Code and Grok. Use `--reviewer grok` for another family when needed. A fresh session of the builder's family is independent because it never saw the build. Apply `independent-review` for what each run switches off and what still loads.
