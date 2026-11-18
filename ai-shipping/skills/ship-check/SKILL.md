@@ -30,7 +30,7 @@ $ai-shipping:ship-check supabase/functions       Codex, plugin installed
 
 - With an upstream: `git log --oneline 'HEAD..@{u}'`.
 - Without an upstream: `git log --oneline HEAD..origin/HEAD`. If that ref is missing, `git remote set-head origin --auto` sets it. A repository with no remote has nothing there.
-- Once something is released, record its commit (`git rev-parse <last release>`), then run `git log --oneline HEAD..<that commit>`. Step 6 defines the last release.
+- Once something is released, record its commit (`git rev-parse '<last release>^{commit}'`), then run `git log --oneline HEAD..<that commit>`. Step 6 defines the last release.
 
 **Stop when any of these lists a commit.** Name the newer ref and ask the owner which checkout to review. Never pull or merge as part of this pass.
 
