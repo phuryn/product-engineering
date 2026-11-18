@@ -91,7 +91,7 @@ Use `--reviewer` to select a CLI explicitly. Record the actual reviewer in the p
 
 #### Compute the subject from releases and the working tree
 
-**Define the subject mechanically, not in prose.** Run `git fetch` and the current-checkout check's three lists again, and stop if any lists a commit. Then run `git log --oneline <last release>..HEAD` and `git status --porcelain -uall` to include every change, committed or not. Before any release, use the whole history. Keep the checkout still during the round.
+**Define the subject mechanically, not in prose.** Use the baseline the current-checkout check confirmed before Step 1. Run `git log --oneline <last release>..HEAD` and `git status --porcelain -uall` to include every change, committed or not. Before any release, use the whole history. Keep the checkout still during the round. A promotion while the pass runs is not seen; when one happens, run the pass again.
 
 **Take the last release from what production serves.** Use what the release doc, a tag or the production branch says production serves. On `release-gate`'s branches, that is `origin/<product>-prod`. Never use a branch that only deploys development, nor, before go-live, the product branch the host deploys (`release-gate`). Where nothing says, ask the owner. Never infer that nothing is live from a missing tag.
 
