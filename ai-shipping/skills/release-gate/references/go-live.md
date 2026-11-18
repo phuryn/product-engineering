@@ -10,7 +10,7 @@ The first promotion to production, once: the product moves from a URL shared wit
    - the domain, set up in its order (where one site still deploys the product branch, it goes on the host in step 3), and the agent's provider tokens scoped and recorded (`environments`, `references/domain-and-provider-access.md`);
    - an identity provider **production** instance with its own keys, its email DNS records, and express consent to the legal documents required at sign-up (on Clerk, *Require express consent to legal documents* — `clerk-production`);
    - a real payment account connected to the billing provider when the product bills;
-   - a production database project, with all migrations applied through its own connection string and the ledger read back. Use the unlinked CLI with `supabase-production`'s production commands. No build reads it yet, so no window opens and this first apply needs no go. From the first release on, a production migration waits for the go (checklist § 3);
+   - a production database project, created empty. Its migrations wait for the go, like every production migration, and are applied in step 3 (checklist § 3);
    - the production values ready for the host, with **generated secrets generated afresh, never copied from development** (`environments`, `references/variables.md`). They go into the host's production environment only in step 3, after the product branch is pinned to development values and the production branch exists: until then the host deploys the product branch to production, so values set early make its next push read and write the production database.
 
    Each dashboard change gets its screenshot.
@@ -19,7 +19,7 @@ The first promotion to production, once: the product moves from a URL shared wit
    Run the paid-launch check on the exact commit before production billing exists (§ The paid-launch check).
 3. **On the owner's go, creating the production branch is the promotion.** In this order, from a clean checkout at `<cleared>`, the commit the round cleared:
 
-   1. **Apply what is pending**, checklist § 3's apply, and read the ledger again. Step 1 applied what existed then; the review may have added more.
+   1. **Apply every migration**, checklist § 3's apply, and read the ledger again. A new project takes every file in one push.
    2. **Pin the product branch to development values** — on Netlify, its branch deploy-context values, or a development site of its own that builds only that branch (`netlify.md § The site`). From here it never builds with production's values, or it starts writing to production.
    3. **Create the production branch**, a push of `<cleared>` and nothing else, and point the host's production deploys at it:
 
