@@ -32,7 +32,7 @@ The how of each lives in its own skill: `supabase-production`, `clerk-production
 The default workspace model. Membership is required (Clerk *Membership required*); a solo user is an organization of one and never has to know the word.
 
 - **Reason:** one workspace kind, one role set, one billing tab. The cost is an onboarding task in front of the app, and headless sign-in must land test accounts past it.
-- **Reopen:** a product for individual users declares the **individual** shape: the workspace row is keyed to the user instead of an organization. That keeps the product keyed on its own row, so a later move to organizations changes that row's key rather than every domain table, and it needs no organization management, no second role and no onboarding task. A product with teams stays an organization; a solo product may too. The individual shape has been built once, without billing (`product-shapes.md`).
+- **Reopen:** a product for individual users declares the **individual** shape: the workspace row is keyed to the user instead of an organization. That keeps the product keyed on its own row, so a later move to organizations changes that row's key rather than every domain table, and it needs no organization management, no second role and no onboarding task. A product with teams stays an organization; a solo product may too. The individual shape has been built once, without billing, so a product that charges stays an organization until a product proves user plans (`product-shapes.md`).
 
 ## Organization management is the identity provider's own modal
 

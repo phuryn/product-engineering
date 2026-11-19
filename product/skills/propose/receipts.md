@@ -57,3 +57,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Mark every requirement by its evidence: seen in use, asked for by a named person, or assumed.
 
 - `2026-11-19`, an agent product (an editor extension, a desktop app and a web relay): a release approval was specified to end up right after every restart, deletion and failed load of its conversation, for a feature nobody outside the build had used. One sentence would have served a first version: restarting a release chat asks for the approval again. The owner, on another new product that validated every automated judge against human labels before real use: "did we really need validated evaluators at this point?"
+
+## A product charges its first real users unless the owner makes it free.
+
+- `2026-11-19`, owner, asked when first users can upgrade: "Plus real billing from the beginning. 100% free products are an exception". Until then `app-lifecycle` let billing wait until the product was worth it, with no price on a public page, so a first version learned whether people stayed and never whether they paid.

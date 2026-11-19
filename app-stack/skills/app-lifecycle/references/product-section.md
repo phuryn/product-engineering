@@ -29,7 +29,7 @@ This section holds only what every session needs about the product. The brief be
 ## 2.3 Product shape and reopened defaults
 
 - **Workspace model:** <organization (the default — every workspace is an organization, roles inside it) | individual (the workspace row keyed to one user; no organization management, no second role)>
-- **Billing:** <the identity provider's billing (the default — the workspace pays) | none>. <In the individual shape, none until a product has built and proven user plans.>
+- **Billing:** <the identity provider's billing (the default — the workspace pays) | none, because the owner makes the product free>. <A product that charges takes the organization shape until a product has built and proven user plans.>
 - **Anonymous public:** <yes | no> — visitors who act without an account.
 - **Embedded agents:** <yes | no>
 - **Member home:** <the route sign-in lands on — /dashboard, or the product's own noun>

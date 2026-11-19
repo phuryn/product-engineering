@@ -51,13 +51,13 @@ Each stage in depth — what doing it well looks like, the owner's part, the tra
 
 **For a new product, optimize the time to learn, not completeness.** Apply `propose` § 5: the fewest key jobs, polished on their common path, in front of real users as soon as they work.
 
-**Order every stage and phase by visible value against cost.** Weigh what the owner and first users will see. **The visible, cheap first versions come early.** Start with landing, placeholder legal pages, displayed pricing and example data filling every screen. **Hard logic comes once the product is worth it.** This includes concurrency-safe billing, adaptive sampling and work taking repeated review rounds.
+**Order every stage and phase by visible value against cost.** Weigh what the owner and first users will see. **The visible, cheap first versions come early.** Start with landing, placeholder legal pages, displayed pricing and example data filling every screen. **Hard logic comes once the product is worth it.** This includes concurrency-safe limits, adaptive sampling and work taking repeated review rounds.
 
 **Plan for the cases people meet, and state the rest as assumptions.** Before designing for a case, ask how often it happens and who meets it. Narrow the assumption where you can (one worker per operation, one currency, one owner) and write it in the plan, or refuse the case with a clear message. Build for a rare case only when missing it would cross a line the owner cares about: lost data, a leaked secret, the wrong environment, money. Apply `independent-review` § Triage for the same weighing of findings.
 
 **Build front-door screens with the first screens on sample data.** From the first click-through, the owner judges the whole product: landing, pricing, legal pages and footer. Make the landing and legal pages true in stage 8, block C, before any further feature phase.
 
-**Split stage 8 when needed without delaying its front-door block C.** Billing, its pricing page and concurrency-safe limits may wait until the product is worth it. Until then, public pages name no price: sample prices never reach a stranger. When the owner already runs a product on the same stack, look for its front door first and start from it.
+**Split stage 8 when needed without delaying its front-door block C.** Billing and its pricing page come before go-live, because a product charges its first real users unless the owner makes it free (`propose` § 5). Only concurrency-safe limits wait until the product is worth it. Real payments need production's instance and payment account, so the first paying users arrive at go-live. Until billing lands, public pages name no price: sample prices never reach a stranger. When the owner already runs a product on the same stack, look for its front door first and start from it.
 
 ## Group stages into phases the owner can try
 
@@ -91,7 +91,7 @@ Each stage in depth — what doing it well looks like, the owner's part, the tra
 **Declare four shape switches and the member-home route before building.** Put them in the product section at the brief stage; every later stage reads them (`references/product-shapes.md`):
 
 - **Choose the organization or individual workspace model.** Use *organization* (the default: every workspace is an organization, a solo user an organization of one, roles inside it) or *individual* (the workspace row keyed to one user: no organizations, no second role).
-- **Declare identity-provider billing or none.** Use *the identity provider's billing* (the default; on this stack Clerk Billing, the workspace pays) or *none*. Billing in the individual shape has not been built and proven yet, so an individual product declares *none* until a product writes and proves that recipe.
+- **Declare identity-provider billing or none.** Use *the identity provider's billing* (the default; on this stack Clerk Billing, the workspace pays) or *none*, for a product the owner makes free. Billing in the individual shape has not been built and proven yet, so a product that charges takes the organization shape until a product writes and proves that recipe.
 - **Declare whether visitors can act without an account.** Set anonymous public to yes or no.
 - **Declare whether the product embeds agents.** Set embedded agents to yes or no.
 - **Declare the member-home route where sign-in lands.** Use `/dashboard`, or the product's own noun.
