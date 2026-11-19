@@ -133,11 +133,20 @@ Do not include earlier findings, suspected files, your argument for the design, 
 
 **Weigh how often a finding happens before fixing it, and prefer a simpler assumption.** A reviewer reports what the code permits, not what people hit, and its severity is a claim like the rest; check both, whichever model it is. A failure seen in real use outranks a finding read out of code. A trigger that needs two uncommon conditions at once is Low unless it crosses a line below. When a fix would add machinery for a case almost nobody meets and no such line is crossed, state the limit, drop the case or refuse it with a clear message instead, and tell the owner. A system most people can understand beats one that serves every case.
 
-**A trigger that needs a rare precondition is Low.** The usual ones: two people or apps on the same work at once, a failure at the instant of an act, a same-second race, an unsupported device or width. The exception is crossing one of the lines below, such as lost work or an external write that cannot be taken back. A stated limit is safe when the case stops loudly, with a refusal or a state the person can see and repair, and never produces a wrong result silently. Write each limit where the product keeps its assumptions, so a later round's report of the same case is matched against it rather than fixed.
+**A trigger that needs a rare precondition is Low.** The usual ones:
 
-**Record each finding's harm, who hits it and how often, and the line it crosses.** Write one sentence for each before the verdict, which follows from them; the reviewer's label is one more claim. A principle with no place to write it down gets skipped under time pressure.
+- two people, apps or views of one app acting on the same work at once;
+- a system or environment failure, at the instant of an act or lasting;
+- two acts within the same second;
+- the person removing what running work stands on, such as deleting or restarting it mid-run;
+- state that only an unreleased build could have written;
+- a device or width the product does not support.
 
-**does anything cross a line the person cares about?** Examples are another tenant's data, private data on a public surface, another user's private content, disappearing work, lost writes, an external write that cannot be taken back, or anonymous access to a member capability. If everything already belongs to the person and stays visible, it is a surprise; a surprise is polish. Distrust a real mechanism with a scary label and speculative harm. Ask whether the person can see where they are. Builder reports and reviewer priorities are both claims; neither model decides.
+The exception is crossing one of the lines below, such as lost work or an irreversible external write the person did not approve or had stopped. A stated limit is safe when the case stops loudly, with a refusal or a state the person can see and repair, and never produces a wrong result silently. Refusing at the door while the work runs is often the cheapest. Write each limit where the product keeps its assumptions, so a later round's report of the same case is matched against it rather than fixed.
+
+**Record each finding's harm, who hits it and how often, and the line it crosses.** Write one sentence for each before the verdict, which follows from them; the reviewer's label is one more claim. Judge them by the usage model the brief gave the reviewer (§ Writing the brief). A finding a later round reports again keeps its recorded verdict unless new evidence changes it. A principle with no place to write it down gets skipped under time pressure.
+
+**does anything cross a line the person cares about?** Examples are another tenant's data, private data on a public surface, another user's private content, disappearing work, lost writes, an irreversible external write the person did not approve or had stopped, or anonymous access to a member capability. If everything already belongs to the person and stays visible, it is a surprise; a surprise is polish. Distrust a real mechanism with a scary label and speculative harm. Ask whether the person can see where they are. Builder reports and reviewer priorities are both claims; neither model decides.
 
 **Require literal steps, permitted execution and a person with a reason.** A finding that cannot answer these three questions is not a finding:
 

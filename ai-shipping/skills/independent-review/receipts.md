@@ -137,6 +137,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## A Low goes to the owner's list, not into the loop.
 
 - `2026-11-13`, owner: "We review till nothing > Low. Low is acceptable."
+- `2026-11-19`, an agent product's stage: two of round 7's findings were created by the fix for a Low found in round 6.
 
 ## When one mechanism draws findings two rounds running, stop patching it.
 
@@ -149,6 +150,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 - `2026-08-20`: a liveness probe that deleted a timeout no value could make right.
 - `2026-11-19`, the stage above: the redesign at round 6 added machinery, one more function and a property test of 19,440 cases, and the mechanism drew findings again in rounds 7, 8 and 9. Hence no third design.
+- `2026-11-19`, tested against the same rounds: the rule above, read on time, fires at round 5; no third design stops the loop at round 7 and saves rounds 8 and 9, 5 to 7 hours (2 rounds at 2.5 to 3.5 hours).
 
 ## Budget for a fix commit's own round in ingest, queue and concurrency code.
 
@@ -165,7 +167,9 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## A trigger that needs a rare precondition is Low.
 
 - `2026-11-19`, a coordinator's report on one stage of an agent product (an editor extension, a desktop app and a web relay): one mechanism, what happens to a release approval when its conversation is restarted, deleted or fails to load, drew INTRODUCED Mediums by the reviewer's label six rounds running (4, 2, 2, 4, 1 and 2). The late triggers needed two apps acting on the same work at once, or a failure at the instant of a click. Each round's answer was a fuller rule, and its property test grew from 36 shapes to 20,952 cases. The owner: "Overall, remember to simplify assumptions where possible. We do not have to support every bizarre edge case." The product now says that two apps acting on one release at once is not supported, with one test documenting today's behaviour. The external-write exception is `test-harness`'s receipt of `2026-11-18`: recovery after a lost reply or a crash was 16 of 41 findings above Low for a tool that writes to an external API.
+- `2026-11-19`, the same coordinator, testing this rule against rounds 4 to 9: the 15 findings labelled INTRODUCED Medium became 6 to 8 that gate. Four of the 15 were the person's own act removing what running work stood on, and that class ended once a correction refused the act at the door while the work ran. "An older install" findings came back in rounds 4 to 8 for a feature in no released version. A chat start failing three times showed that failures last, not only strike at an instant. The first draft gated every irreversible external write; an approved release finishing after a restart in another window crosses no line, while a push after Stop does.
 
 ## Record each finding's harm, who hits it and how often, and the line it crosses.
 
 - `2026-11-19`, the same stage: its findings table had columns for introduced or older, severity and cause, and none for how often, so nobody asked for nine rounds. The frequency rule had reached this skill the day before; the coordinator's installed copy was ten days older.
+- `2026-11-19`, the same stage: one sign-in defect was rated Low in round 6 and Medium in round 9 by the same verifier. The product's release procedure already handed the reviewer a usage model ("one workspace from one phone or a few tabs; refresh is an acceptable cure for stale state"), and nobody applied it to the findings.
