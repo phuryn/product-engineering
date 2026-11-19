@@ -199,7 +199,7 @@ The exception is crossing one of the lines below, such as lost work or an irreve
 **When one mechanism draws findings two rounds running, stop patching it.** Repeated inverse defects in one area mean the design is wrong. Before the next round, choose one option in writing:
 
 - Cut it: revert to before the first fix, then ask once what signal the design is missing.
-- **Redesign it once.** Write the redesign before building it. It earns that attempt only by removing machinery. A redesign more elaborate than what it replaces repeats the problem. There is no third design: if the redesign added machinery, or the next round finds another defect in the same mechanism, the choice goes to the owner as cut or pause.
+- **Redesign it once.** Write the redesign before building it. It earns that attempt only by removing machinery. A redesign more elaborate than what it replaces repeats the problem. There is no third design: if the redesign added machinery, or the next round finds another finding above Low in the same mechanism, the choice goes to the owner as cut or pause.
 - Pause it: when one surface keeps drawing new Highs while the rest of the change is clean, propose to the owner, at the second such round, that it ships behind a switch that is off by default, its open findings in the backlog with the trigger that reopens them, and the next round scoped to what is reachable with it off.
 
 Scale this by whether the work was requested. Apply it hardest to unrequested hardening, lightest to a feature the owner asked for by name.

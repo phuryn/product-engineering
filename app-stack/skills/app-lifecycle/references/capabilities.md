@@ -152,7 +152,7 @@ A proxy-side web application firewall and a secret-header origin check: a transf
 - **How:** the `saas-authorization` skill (origin bypass).
 
 ### Validated evaluators
-An automated judge of the product's outputs, checked against people's verdicts. Its day-one part costs almost nothing: store each human verdict beside the model's from the first real output, because it cannot be recovered later.
+An automated judge of the product's outputs, checked against people's verdicts. Its day-one part costs almost nothing: store each human verdict on a real output from the first one, because it cannot be recovered later, and the judge's verdict beside it once a judge exists.
 - **When:** enough human labels on real outputs to measure agreement, and a decision rests on the judge; track agreement over time from the judge's second version. Before real use there are few labels, and validating on sample data measures the sample (owner, `2026-11-19`, on a new product that validated every judge first: "did we really need validated evaluators at this point?").
 - **Owner:** label real outputs, or name who does.
 - **How:** read real failures first, write a judge for a failure that keeps occurring, and validate it when something rests on it.
