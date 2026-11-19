@@ -49,3 +49,11 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Show rough builder-hour size and lasting obligations beside every option.
 
 - `2026-11-16`, a live Q&A product: plan options omitted their size. The build then added about 1,500 TypeScript lines, 800 SQL lines and 2,250 test lines. Owner: "that’s too complex". Documents moved to an existing accounting tool while the product kept its page. Asked whether options should show rough sizes, the owner answered "Yes".
+
+## For a new product, optimize the time to learn, not completeness.
+
+- `2026-11-19`, owner: "Overall, with new products we want to optimize time to learn rather than making the product perfect. Still we want to have a product that will convince the first users enough to stay and possibly upgrade. But we don't get there by implementing 50 feature." Said after a seven-stage build of an agent product spent nine review rounds on one stage before anyone used it.
+
+## Mark every requirement by its evidence: seen in use, asked for by a named person, or assumed.
+
+- `2026-11-19`, an agent product (an editor extension, a desktop app and a web relay): a release approval was specified to end up right after every restart, deletion and failed load of its conversation, for a feature nobody outside the build had used. One sentence would have served a first version: restarting a release chat asks for the approval again. The owner, on another new product that validated every automated judge against human labels before real use: "did we really need validated evaluators at this point?"

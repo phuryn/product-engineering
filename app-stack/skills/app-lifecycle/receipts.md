@@ -52,3 +52,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Plan for the cases people meet, and state the rest as assumptions.
 
 - `2026-11-18`, the owner, after one release's review rounds rated rare triggers Medium and two fixes added machinery that was later replaced by a stated assumption, asked for this weighing in planning and in fixing bugs, not only in review triage.
+
+## Recommend stopping to use the product once it does its key job.
+
+- `2026-11-19`, an agent product (an editor extension, a desktop app and a web relay): a build doing the feature's key job existed from stage 4 of 7. The coordinator never recommended using it, because the owner had said he would test at the end and this skill said early previews require the owner's request. Stage 5 then took nine review rounds, about 22 to 31 hours (9 rounds at the builder logs' 2.5 to 3.5 hours each), without one observation from use.

@@ -120,7 +120,7 @@ When reviewing released code, say it is already live: findings in it are PRE-EXI
 
 **Verify every finding against the code by hand before it enters the packet.** Unsteered reviewers can report confident findings that the code already prevents. Apply the `code-review` skill's keep/drop rule. A finding survives only with a supported obligation, feasible execution, concrete contradiction, observable consequence and a counterargument you actually checked.
 
-**Distinguish defects the change introduced from those it merely revealed.** Both belong in the packet. Only introduced defects block the change itself, except High or Critical findings, which block regardless of age and go in Launch Blockers. On a release pass, repeat until a round surfaces no introduced findings above Low and no High or Critical of any age remains open.
+**Distinguish defects the change introduced from those it merely revealed.** Both belong in the packet. Only introduced defects block the change itself, except High or Critical findings, which block regardless of age and go in Launch Blockers. On a release pass, repeat until a round surfaces no introduced findings above Low after `independent-review` § Triage, and no High or Critical of any age remains open.
 
 ### Step 7: Derive the test-coverage map
 

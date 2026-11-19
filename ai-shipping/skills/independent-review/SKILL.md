@@ -131,9 +131,13 @@ Do not include earlier findings, suspected files, your argument for the design, 
 
 **Question zero, before any other: say in ONE SENTENCE what actually goes wrong for the person.** If it does not sound bad read aloud, there is nothing to fix. "You land on one of your own items that a filter was hiding" dies unaided. The reviewer's severity label is part of its claim, and taking one at face value is how a clean release grows two invented P1s.
 
-**Weigh how often a finding happens before fixing it, and prefer a simpler assumption.** A reviewer reports what the code permits, not what people hit, and its severity is a claim like the rest; check both, whichever model it is. A trigger that needs two uncommon conditions at once is Low unless it crosses a line below. When a fix would add machinery for a case almost nobody meets and no such line is crossed, state the limit, drop the case or refuse it with a clear message instead, and tell the owner. A system most people can understand beats one that serves every case.
+**Weigh how often a finding happens before fixing it, and prefer a simpler assumption.** A reviewer reports what the code permits, not what people hit, and its severity is a claim like the rest; check both, whichever model it is. A failure seen in real use outranks a finding read out of code. A trigger that needs two uncommon conditions at once is Low unless it crosses a line below. When a fix would add machinery for a case almost nobody meets and no such line is crossed, state the limit, drop the case or refuse it with a clear message instead, and tell the owner. A system most people can understand beats one that serves every case.
 
-**does anything cross a line the person cares about?** Examples are another tenant's data, private data on a public surface, another user's private content, disappearing work, lost writes or anonymous access to a member capability. If everything already belongs to the person and stays visible, it is a surprise; a surprise is polish. Distrust a real mechanism with a scary label and speculative harm. Ask whether the person can see where they are. Builder reports and reviewer priorities are both claims; neither model decides.
+**A trigger that needs a rare precondition is Low.** The usual ones: two people or apps on the same work at once, a failure at the instant of an act, a same-second race, an unsupported device or width. The exception is crossing one of the lines below, such as lost work or an external write that cannot be taken back. A stated limit is safe when the case stops loudly, with a refusal or a state the person can see and repair, and never produces a wrong result silently. Write each limit where the product keeps its assumptions, so a later round's report of the same case is matched against it rather than fixed.
+
+**Record each finding's harm, who hits it and how often, and the line it crosses.** Write one sentence for each before the verdict, which follows from them; the reviewer's label is one more claim. A principle with no place to write it down gets skipped under time pressure.
+
+**does anything cross a line the person cares about?** Examples are another tenant's data, private data on a public surface, another user's private content, disappearing work, lost writes, an external write that cannot be taken back, or anonymous access to a member capability. If everything already belongs to the person and stays visible, it is a surprise; a surprise is polish. Distrust a real mechanism with a scary label and speculative harm. Ask whether the person can see where they are. Builder reports and reviewer priorities are both claims; neither model decides.
 
 **Require literal steps, permitted execution and a person with a reason.** A finding that cannot answer these three questions is not a finding:
 
@@ -179,14 +183,14 @@ Do not include earlier findings, suspected files, your argument for the design, 
 
 ## The stopping rule
 
-**Stop at no INTRODUCED finding above Low and no High or Critical of any age.** Fix High and Critical now, regardless of age. Small releases reach that bar fastest; later releases review only their own commits.
+**Stop at no INTRODUCED finding above Low and no High or Critical of any age.** A finding's level is the one Triage gives it, not the reviewer's label. Fix High and Critical now, regardless of age. Small releases reach that bar fastest; later releases review only their own commits.
 
 **A Low goes to the owner's list, not into the loop.** An introduced Low needs no fix and opens no round. Record it with its round number where pre-existing findings are recorded, and name it in the summary to the owner. Fix one only in a batch that already needs another round, or when the owner asks. Any fix is new code and gets a round.
 
 **When one mechanism draws findings two rounds running, stop patching it.** Repeated inverse defects in one area mean the design is wrong. Before the next round, choose one option in writing:
 
 - Cut it: revert to before the first fix, then ask once what signal the design is missing.
-- **Redesign it once.** Write the redesign before building it. It earns that attempt only by removing machinery. A redesign more elaborate than what it replaces repeats the problem.
+- **Redesign it once.** Write the redesign before building it. It earns that attempt only by removing machinery. A redesign more elaborate than what it replaces repeats the problem. There is no third design: if the redesign added machinery, or the next round finds another defect in the same mechanism, the choice goes to the owner as cut or pause.
 - Pause it: when one surface keeps drawing new Highs while the rest of the change is clean, propose to the owner, at the second such round, that it ships behind a switch that is off by default, its open findings in the backlog with the trigger that reopens them, and the next round scoped to what is reachable with it off.
 
 Scale this by whether the work was requested. Apply it hardest to unrequested hardening, lightest to a feature the owner asked for by name.
@@ -197,7 +201,7 @@ Scale this by whether the work was requested. Apply it hardest to unrequested ha
 
 **Number rounds in one sequence per repository.** Cite the number wherever the outcome lands: fix commit, backlog row, merge and release record.
 
-**Verify every finding against code by hand before acting.** Cited line numbers are claims too. Rerun the tests the fix touches yourself after every fix; "it says it passes" is a claim, never a result. Record disproved findings as wrong beside confirmed ones, making the next round's hit rate legible.
+**Verify every finding against code by hand before acting.** Cited line numbers are claims too, and so is the INTRODUCED label: check it against the released text (`git show <release>:<file>`). Rerun the tests the fix touches yourself after every fix; "it says it passes" is a claim, never a result. Record disproved findings as wrong beside confirmed ones, making the next round's hit rate legible.
 
 Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 

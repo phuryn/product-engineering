@@ -8,6 +8,7 @@ The default stages carry a product to its first release. From there, **the agent
 - **A prerequisite can fire during the first stages.** Legal pages do not wait for release.
 - **A row is not a claim of implementation.** Nothing is connected until a product builds it, and each product records what is actually connected as it builds — the error tracker stays named and unwired until its trigger fires.
 - **The owner's part is named up front**, because most rows need an account, a dashboard setting or a decision only the owner can make. A proposal that hides it stalls halfway.
+- **Record now, automate later.** What is cheap to store and impossible to recover goes in the first version: people's verdicts, what they did. The machinery that consumes it waits for its trigger.
 - **When the how below is not enough**, read a product that already shipped the row, and fold what it learned back into the skill that holds the how.
 
 ## What a proposal looks like
@@ -42,6 +43,7 @@ Default stages reach the first release. The rest is proposed, not pasted. Prereq
 | Remote MCP server with OAuth | an outside agent should act as a member and a pasted token is the friction, or a directory requires OAuth |
 | Public companion repository | the first public page that needs a place to report a bug, or the MCP package |
 | Realtime | when polling's delay is the complaint, not before |
+| Validated evaluators | enough human labels on real outputs to measure agreement, and a decision rests on the judge |
 | Embedded agent deployed | the first agent that must leave localhost |
 | Proxy WAF + origin seal | blocked until a host that accepts a proxy is chosen |
 
@@ -148,3 +150,9 @@ A proxy-side web application firewall and a secret-header origin check: a transf
 - **When:** blocked until a host that accepts a proxy in front of it is chosen; on Netlify the DNS stays DNS-only.
 - **Owner:** choose that host; configure the proxy, the WAF and the transform rule; supply account access. The agent generates the seal secret.
 - **How:** the `saas-authorization` skill (origin bypass).
+
+### Validated evaluators
+An automated judge of the product's outputs, checked against people's verdicts. Its day-one part costs almost nothing: store each human verdict beside the model's from the first real output, because it cannot be recovered later.
+- **When:** enough human labels on real outputs to measure agreement, and a decision rests on the judge; track agreement over time from the judge's second version. Before real use there are few labels, and validating on sample data measures the sample (owner, `2026-11-19`, on a new product that validated every judge first: "did we really need validated evaluators at this point?").
+- **Owner:** label real outputs, or name who does.
+- **How:** read real failures first, write a judge for a failure that keeps occurring, and validate it when something rests on it.

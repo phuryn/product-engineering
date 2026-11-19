@@ -148,6 +148,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Redesign it once.
 
 - `2026-08-20`: a liveness probe that deleted a timeout no value could make right.
+- `2026-11-19`, the stage above: the redesign at round 6 added machinery, one more function and a property test of 19,440 cases, and the mechanism drew findings again in rounds 7, 8 and 9. Hence no third design.
 
 ## Budget for a fix commit's own round in ingest, queue and concurrency code.
 
@@ -160,3 +161,11 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Number rounds in one sequence per repository.
 
 - `2026-10-22`, three sequences ran on one day, so "round 3" named three different rounds; with one sequence from then on, over a hundred rounds stayed citable.
+
+## A trigger that needs a rare precondition is Low.
+
+- `2026-11-19`, a coordinator's report on one stage of an agent product (an editor extension, a desktop app and a web relay): one mechanism, what happens to a release approval when its conversation is restarted, deleted or fails to load, drew INTRODUCED Mediums by the reviewer's label six rounds running (4, 2, 2, 4, 1 and 2). The late triggers needed two apps acting on the same work at once, or a failure at the instant of a click. Each round's answer was a fuller rule, and its property test grew from 36 shapes to 20,952 cases. The owner: "Overall, remember to simplify assumptions where possible. We do not have to support every bizarre edge case." The product now says that two apps acting on one release at once is not supported, with one test documenting today's behaviour. The external-write exception is `test-harness`'s receipt of `2026-11-18`: recovery after a lost reply or a crash was 16 of 41 findings above Low for a tool that writes to an external API.
+
+## Record each finding's harm, who hits it and how often, and the line it crosses.
+
+- `2026-11-19`, the same stage: its findings table had columns for introduced or older, severity and cause, and none for how often, so nobody asked for nine rounds. The frequency rule had reached this skill the day before; the coordinator's installed copy was ten days older.

@@ -87,3 +87,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## A green run that flakes is not a pass.
 
 - `2026-11-17`, the Claude Code team's account of how it verifies changes (Addy Osmani, "How the Claude Code team thinks about verification", claude.dev, 2026-11-16, read `2026-11-17`): flaky tests teach an agent to rerun instead of fixing, so its agent may not skip one, add sleeps or retry until green.
+
+## A check that covers a class names who can reach the state.
+
+- `2026-11-19`, an agent product (an editor extension, a desktop app and a web relay): after one real overflow finding, the coordinator added a check to every scene that nothing spills its box at 260 and 320 pixels wide. It failed 11 of 12 runs on non-defects and cost about a day; 372 of the frames were desktop windows that cannot be made that narrow. The owner: "But who uses such screens?" The product now keeps a table of supported widths.

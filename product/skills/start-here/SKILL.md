@@ -97,7 +97,7 @@ $product:start-here we have a bug in sign-in      Codex, plugin installed
 **Ask for a plan every time a change is complex.** The agent writes it; you review it without going deep. Use this prompt:
 
 ```
-<the change, in your words>. Create a plan. Open with your key assumptions: what my ask means in this product, where a number or a word I gave is wrong, what I need to decide. Then what to implement, each part with a rough size in builder hours, and the total; the phases, and when the full checks and reviews run; how to test it (a test that would touch production, its users or its data runs only with my go); acceptance criteria.
+<the change, in your words>. Create a plan. Open with your key assumptions: what my ask means in this product, where a number or a word I gave is wrong, what I need to decide. Then what to implement, each part with a rough size in builder hours, and the total, marking each requirement seen in use, asked for or assumed; the phases, when the full checks and reviews run, and the earliest point I can use it for real; how to test it (a test that would touch production, its users or its data runs only with my go); acceptance criteria.
 ```
 
 **Review the plan's key assumptions first.** Models plan well when asked; the ask gets skipped. Review what your ask means in this product, where a number or word you gave is wrong, and what needs a person to decide. The prompt moves what needs a person to decide up from the end, where the model plan has it (`app-lifecycle`, `references/capabilities.md` § What a proposal looks like).
@@ -129,6 +129,8 @@ Apply the `delegation`, `codex-agents`, `test-harness`, `code-review` and `indep
 
 **The agent gives you a link and flows to try with expected results.** Each flow is an action and what should happen. Spend fifteen to twenty minutes for a mid-size app, every time. Feedback becomes stages of the phase in flight and is reviewed like any other change. The agent may start the next phase while your preview waits. Apply `release-gate` § The owner's preview.
 
+**The agent recommends stopping to use the product once it does its key job.** It says what the remaining phases cost and which questions real use would settle, and you may decline in a word (`app-lifecycle`).
+
 **Ask for an early preview for taste, whether it's the right thing, or whenever you want one.** The agent uses a development tunnel or a named push and says which phase review has not run. Every deploying push still needs review first. Skip the click-through when only code behind a screen changed. Agents taking screenshots miss what moves and what is visible only for a moment.
 
 ### 6. Release review
@@ -139,7 +141,7 @@ Apply the `delegation`, `codex-agents`, `test-harness`, `code-review` and `indep
 - Tests: what is missing, and whether each test would fail if the behaviour broke. Apply `derive-tests` in `check` mode; it reports and writes nothing. Where a test, the coverage map and a doc disagree, you decide which moves.
 - Security and performance: apply `security-audit-static` and `performance-audit-static` only when asked. Propose them, never run them unasked.
 
-**Review everything unreleased again until the release bar holds.** The fresh reviewer already ran during the build, along with `code-review` where you or the plan asked for it. At release, `release-gate` reviews everything unreleased, round after round. Stop when one finds nothing introduced above low and nothing high or critical of any age.
+**Review everything unreleased again until the release bar holds.** The fresh reviewer already ran during the build, along with `code-review` where you or the plan asked for it. At release, `release-gate` reviews everything unreleased, round after round. Stop when one finds nothing introduced above low after `independent-review` § Triage, and nothing high or critical of any age.
 
 **For an app built without docs, type `/ai-shipping:ship-check` (Codex: `$ai-shipping:ship-check`).** It runs all of this in one long pass, writing docs from code, agent instructions and the coverage map as it goes. Where docs already say what the product should do, or whoever runs the gate keeps the coverage map, it lists overwrites and asks first.
 
@@ -149,7 +151,7 @@ Apply the `delegation`, `codex-agents`, `test-harness`, `code-review` and `indep
 
 ### 8. Real users, then the next round
 
-**Bring what people did and paid for back into step 1.** Include what they returned to and abandoned. Apply `propose` § Running it again. When nothing measures what people do yet, apply `product-analytics`.
+**Bring what people did and paid for back into step 1.** Include what they returned to and abandoned. For a new product, real use starts at § 5's stop, before the release. Apply `propose` § Running it again. When nothing measures what people do yet, apply `product-analytics`.
 
 For a SaaS on Next.js, Supabase and Clerk, `app-lifecycle` gives the same path in detail, stage by stage, each with its done-when.
 

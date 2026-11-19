@@ -15,3 +15,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 - `2026-10-22`, a monitoring product: its review came back clean overnight; ten minutes of its owner using a preview that morning found six problems no review had, and each fix went back through review.
 
 - `2026-11-16`, owner: phase previews follow the checks, while owner absence should not block the next phase. Early previews remain available when requested.
+
+## The agent recommends stopping to use the product once it does its key job.
+
+- `2026-11-19`: see `app-lifecycle`'s receipt of the same rule. The owner: "So maybe it's not about reviews, but also analyzing requirements and ordering requirements, which go to which phase and when you suggest me to stop and test it with the users early".
