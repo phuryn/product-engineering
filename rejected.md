@@ -149,3 +149,27 @@ Each entry: the date, the request, **rejected** or **deferred**, the reason, the
 - **Reason** — The proposal was lower impact than the other lessons and came from a design choice.
 - **Evidence** — A live Q&A product chose separate keys during design. The feedback records the choice.
 - **Decided by** — The maintaining session, under the owner's rule of 2026-11-18 to take universal mechanisms; reopen on a defect it would have prevented.
+
+## Manual walks in place of end-to-end tests before first real use
+
+- **2026-11-19 · rejected.**
+- **Request:** from the coordinator of a seven-stage build of an agent product: before first real use, automate only the key jobs and the lines that must hold, and list a manual walk for journeys still likely to change.
+- **Reason:** it would reverse the owner's rule that every phase ends with implemented end-to-end tests of the journeys it changed. Nothing in the feedback showed that journey tests were the cost; the rounds were.
+- **Evidence:** the rule came from `2026-11-14`, when a build went two weeks and nine development deploys with no browser test of the running app. The coordinator withdrew the proposal on reading this.
+- **Decided by:** the owner, who picked the release without it, on the maintaining session's recommendation.
+
+## A separate review bar inside a stage
+
+- **2026-11-19 · rejected.**
+- **Request:** from the same build: within a stage, count convergence only on findings the last correction caused, and put older real findings on a list fixed before production.
+- **Reason:** it adds a second list and changes what "introduced" means inside a series. The triage alone ended the loop it was meant to end.
+- **Evidence:** the stage had run nine rounds on reviewer labels. Its tenth, the first with `independent-review` § Triage applied, found 11 findings, none above Low, and the stage closed with no correction. Six of the eleven were settled by an earlier round's recorded verdict.
+- **Reopen when:** a stage with the triage applied still fails to close because of real findings in older code of the same stage.
+- **Decided by:** the maintaining session, on the coordinator's count; the owner picked the release without it.
+
+## Review-round keywords in `independent-review`'s description
+
+- **2026-11-19 · rejected.**
+- **Request:** from the same build: add "review round", "review series", "verifying findings" and "severity" to the description, and say in `delegation` who triages when a builder verifies and a coordinator decides.
+- **Reason:** the descriptions that load on their own total 6,155 of 6,200 characters, and `delegation` already says the coordinator accepts findings and treats severity as a claim. The build missed the skill because it was not installed, not because of its words.
+- **Decided by:** the owner, who picked the release without it, on the maintaining session's recommendation.
