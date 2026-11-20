@@ -211,13 +211,13 @@ def check_skill(skill_md):
     check_receipts(rel, text, skill_md.parent / "receipts.md")
 
 
-STORY = re.compile(r"\((?:(?:the )?owner,\s*)?`?20\d\d-\d\d(?:-\d\d)?\b|^[ \t]*[-*][ \t]+`?20\d\d-\d\d(?:-\d\d)?\b", re.I | re.M)
+STORY = re.compile(r"\((?:(?:the )?owner,\s*)?`?20\d\d-\d\d(?:-\d\d)?\b|^- `20\d\d-\d\d(?:-\d\d)?`", re.I | re.M)
 WORKED = "\n## How you can tell it worked\n"
 
 
 def check_receipts(rel, text, receipts):
     """AGENTS.md rule 2. No story stays in a SKILL.md, whether or not a receipts.md sits beside it: a story
-    opens its parenthetical, or a receipts entry its list item, with its date ("(`2026-09-16`, a review round
+    opens its parenthetical, or a receipts entry its line, with its date ("(`2026-09-16`, a review round
     found ...)", "(owner, `2026-11-05`: ...)", "- `2026-11-20`, ..."); a platform fact kept under rule 3
     names its verb first ("observed `2026-11-07`", "`grok-4.7` on `2026-11-02`") and passes. Where a
     receipts.md exists, every heading there is a rule the skill states in bold, and the last line before
