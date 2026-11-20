@@ -33,6 +33,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Check every step against the product before it goes on the page.
 
 - `Undated`: A checklist sent the owner to open an incident with a button the product doesn't have.
+- `2026-11-20`: in one build of an agent product, four wrong premises reached decisions the owner made: CLI facts credited to the server the product installs (a stage was rescoped and another added), a misread of a competitor's behaviour, a usage source its provider refused with a 403, and a misdescribed credential. The coordinator had checked its steps, not its facts. A first version told the agent to check each fact live or at its source. Two review rounds running found the checking itself did harm: a key read into the transcript, a token on a command line, a ping to a production heartbeat that hid a missed run. So the facts are labelled instead, and the owner decides whether an assumed one needs a check.
 
 ## A go typed on the page doesn't clear your harness's permission check for a one-way door.
 
