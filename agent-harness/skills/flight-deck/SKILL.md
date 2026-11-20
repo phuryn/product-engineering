@@ -86,6 +86,8 @@ description: "'What's the status', 'where were we', a progress report or status 
 
 **Record measurements with their numbers and verdict, not the conclusion alone.** The highest-value lines are probe results, benchmark numbers, verdicts, costs, and "we tested X and it does not work". Losing task state costs a re-read; losing evidence costs money and credibility. You might re-run a paid experiment or restate a number from a summary and get it wrong.
 
+**Record each phase's hours, review rounds, findings and added lines.** For a build, add them to `LOG.md` when the phase closes, counting fixed and listed findings apart, and the AI usage where the harness records it. The next plan estimates from them (the `app-lifecycle` skill), and drift shows in them long before it shows in a calendar.
+
 ## Where to put them
 
 **Keep one pair per area of work, not per repository.** A repository with three unrelated efforts wants three pairs; three repositories serving one effort want one. The area is the unit someone would ask a status question about.
@@ -97,6 +99,8 @@ description: "'What's the status', 'where were we', a progress report or status 
 **Read `STATUS.md` first, then skim the last few decisions in `LOG.md`.** Verify that a process listed as running is actually running.
 
 **Do not trust the file over reality.** Reconcile, then fix the file. A stale status caught early is a small problem. Trusting it blindly is how you report a job finished when it crashed an hour ago.
+
+**Start each phase of a long build in a fresh session.** Every turn re-reads the session's whole context, so a session that runs for days pays for those days on every turn. Rewrite `STATUS.md` when the phase closes; the fresh session reads it first, as after a compaction.
 
 ## When NOT to use this
 

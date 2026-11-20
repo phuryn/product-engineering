@@ -58,3 +58,11 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 ## Keep files needed after a restart outside scratchpads and system temp.
 
 - `2026-11-11`, an evals product's owner asked to verify key flows when built without repeating costly screenshot reviews. The session kept one-off scripts in its scratchpad. A `2026-11-14` restart deleted them, every evidence file the status cited, and a kept development token. The durable response is a committed flow test rerun by the gate, with status and evidence stored where a restart cannot delete them.
+
+## Record each phase's hours, review rounds, findings and added lines.
+
+- `2026-11-20`, an agent product (an editor extension, its relay and a phone client): none of these numbers existed until a review of build speed computed them from git, the build logs and the session transcripts. One stage's round count was first questioned at its ninth round.
+
+## Start each phase of a long build in a fresh session.
+
+- `2026-11-20`, the same product: re-reading context was 55%, 71% and 85% of three sessions' usage. A builder's turn cost 39.5k input-token equivalents on a day at 347k tokens of context and 23.1k at 178k, and the context alone accounts for 88% of that gap (computed from the transcripts, a cache read weighted at a tenth of an input token). Whether a fresh session needs more turns for the same work was not measured.

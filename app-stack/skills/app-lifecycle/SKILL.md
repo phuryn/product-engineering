@@ -75,6 +75,7 @@ Each stage in depth — what doing it well looks like, the owner's part, the tra
 
 **Close each stage from coordinator evidence while keeping phase checks together.** These rules apply during the build, never as a separate later task:
 
+- **Prove an untested premise live before a stage builds on it.** A wrong premise found in review costs a redesign and another round. When the design rests on something nobody has seen work, run a probe of a few minutes first and keep its output. For example: an id that survives a restart, or a provider that accepts a call.
 - **Tests and docs land with the change.** Each stage implements end-to-end tests of journeys it adds or changes; the gate reruns older journeys. Apply `test-harness` for suite placement, including live or operator steps costing money or needing an inbox. A bug fix lands with a test failing before the fix; correct every doc line the change made false. Exceptions need the owner's recorded choice in the plan.
 - **Core docs arrive with the first real slice by default.** Apply `shipping-artifacts` for architecture, flows, permissions, variables and the coverage map at stage 5. End-to-end tests start with the first real slice: stages 0–4 owe none; stage 3 uses the owner's click-through and kit tests. Docs describe what is built now; stage deltas go in the log or release history.
 - **A stage closes when its done-when holds on the coordinator's evidence.** Record evidence from a light stage check or say what keeps the plan line open. Apply `release-gate` § Stage and phase close for the checks.

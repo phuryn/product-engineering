@@ -173,3 +173,12 @@ Each entry: the date, the request, **rejected** or **deferred**, the reason, the
 - **Request:** from the same build: add "review round", "review series", "verifying findings" and "severity" to the description, and say in `delegation` who triages when a builder verifies and a coordinator decides.
 - **Reason:** the descriptions that load on their own total 6,155 of 6,200 characters, and `delegation` already says the coordinator accepts findings and treats severity as a claim. The build missed the skill because it was not installed, not because of its words.
 - **Decided by:** the owner, who picked the release without it, on the maintaining session's recommendation.
+
+## Build-speed rules from one pair of builds
+
+- **2026-11-20 · rejected.**
+- **Request:** from a comparison of a large and a small build of one agent product: stages of about 2,000 added lines, the owner's hand test as the default proof for simple features, a reviewer brief asking only for introduced defects with no severity labels, a budget of three rounds per stage, and one coordinating layer.
+- **Reason:** the skills already size a phase by a few hours of builder turns, which the large build's stages (14,297 and 12,973 added lines, 12 and 10 rounds of about 2.3 hours) far exceeded. The hand test as the default reverses the rule that every stage lands end-to-end tests; it stays the owner's exception, recorded in the plan. A pre-existing High still blocks a release, and a reviewer's label is already a claim that triage judges. A round budget would let real Mediums through, and two rounds on one mechanism already go to the owner as cut or pause. The skills never recommend a second coordinating layer, and its re-verification has no measured value.
+- **Evidence:** the proposing session conceded the first four. The large build's rounds ran on the reviewer's labels; its first round with triage applied closed its stage. No stage between 2,191 and 12,973 added lines was measured.
+- **Reopen when:** a stage reviewed with triage from its first round still runs past its estimate on round count.
+- **Decided by:** the owner, picking the maintaining session's recommendation; the same review's fresh-session, phase-numbers, like-for-like estimate and live-premise rules were taken.
