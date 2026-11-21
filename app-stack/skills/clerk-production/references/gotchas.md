@@ -147,12 +147,12 @@ Clerk's components define their own CSS custom properties. Pass `appearance.vari
 
 ## Clerk fades the border colour it is given, and leaves dark logos black
 
-Clerk paints its resting borders and input rings from `colorBorder` (`colorNeutral` when that is unset) at 7 to 11 % of its strength: a social button's edge and an input's ring at 11 % (read in clerk-js 5.128.3 on `2026-11-21`). Focus and error rings take their own colours. It expects a full-strength colour, which is what its own themes pass: `colorNeutral: "white"` in the dark theme, the foreground in the shadcn one (read in `@clerk/themes` 2.4.57 the same day). A kit's edge or hairline token is already faint, so Clerk fades it a second time.
+Clerk paints its resting borders and input rings from `colorBorder` (`colorNeutral` when that is unset) at 7 to 11 % of its strength (read in clerk-js 5.128.3 on `2026-11-21`). It expects a full-strength colour, which is what its own themes pass: `colorNeutral: "white"` in the dark theme, the foreground in the shadcn one (read in `@clerk/themes` 2.4.57 the same day). A kit's edge or hairline token is already faint, so Clerk fades it a second time.
 
 - Pass the kit's text colour as `colorBorder`, never an edge or hairline token.
-- Even at full strength, an input's resting ring is about 1.3:1 on a white card and 1.4:1 on Clerk's dark one (computed from those fractions). Where the kit holds control edges to 3:1 (WCAG 2.2 SC 1.4.11), set the edge from the kit's edge token, aliased as the entry above says, on the element that paints it: `formFieldInput` for a plain field, the wrapper for a composite one (the phone field's is `phoneInputBox`). Clerk draws an input's ring as a `boxShadow`, not a border, so check hover and focus after.
+- No variable brings a resting edge to 3:1: at full strength an input's is about 1.3:1 on a white card and 1.4:1 on Clerk's dark one (computed from those fractions). Where the kit holds control edges to 3:1 (WCAG 2.2 SC 1.4.11), reaching it means overriding Clerk's own styles; confirm any override by the computed edge on the rendered page, at rest and in focus.
 - Measure each edge on the rendered sign-in page, in each mode the product has, against the card it sits on.
-- Clerk serves the GitHub and X logos as dark images (read at `img.clerk.com` on `2026-11-21`), and only its dark and shadcn themes invert any: GitHub, Apple, Vercel and OKX Wallet, through `providerIcon__<provider>`, but not X. Invert each logo that still renders dark the same way, in dark mode only.
+- Clerk serves the GitHub and X logos as dark images (read at `img.clerk.com` on `2026-11-21`). Some of its themes invert GitHub, Apple, Vercel and OKX Wallet through `providerIcon__<provider>`, none of them X (read in `@clerk/themes` 2.4.57). Invert each logo that still renders dark the same way, in dark mode only.
 
 (`2026-11-21`, three live products had passed their kit's edge or hairline token. On their production sign-in pages the social buttons and the email field measured 1.02 to 1.11:1 against the card, and on one the field showed no box at all.)
 
