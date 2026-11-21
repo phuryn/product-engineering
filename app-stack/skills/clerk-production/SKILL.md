@@ -67,6 +67,7 @@ Those decisions are here.
     - a secret key in the publishable variable;
     - a provider-less surface linking into one that needs Clerk;
     - Clerk's menus opening behind a modal dialog, and a design token that loops through Clerk's own variable;
+    - the border colour Clerk fades itself, and the dark logos it leaves black in dark mode;
     - the plan tab that must match the workspace model;
     - the organization profile's navigation, hidden rather than unmounted below its breakpoint;
     - a dashboard feature's slug derived from its name, and a billing patch that moves features to Free;

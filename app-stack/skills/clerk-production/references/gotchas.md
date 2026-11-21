@@ -18,6 +18,7 @@ Read these before touching Clerk. Each one failed silently, or looked like a dif
 - A surface that skips `ClerkProvider` cannot link into one that needs it, in the same tab
 - Clerk's menus open behind a modal `<dialog>`
 - A design token named like one of Clerk's variables loops
+- Clerk fades the border colour it is given, and leaves dark logos black
 - The plan's tab must match the workspace model
 - A dashboard feature's slug is derived from its display name; a features-only patch moves features to Free
 - A subscription read carries only a plan's visible features
@@ -143,6 +144,17 @@ Clerk portals its menus (the organization switcher's, the user button's) to `<bo
 ## A design token named like one of Clerk's variables loops
 
 Clerk's components define their own CSS custom properties. Pass `appearance.variables.colorPrimary: "var(--accent)"` while Clerk also defines `--accent`, and the value refers to itself: the primary button turned transparent. Alias the kit's token through a name of the product's own (`--clerk-primary: var(--accent)`) and pass that. (`2026-10-22`.)
+
+## Clerk fades the border colour it is given, and leaves dark logos black
+
+Clerk paints every border and input ring from `colorBorder` (`colorNeutral` when that is unset) at 7 to 11 % of its strength: a social button's edge and an input's resting ring at 11 % (read in clerk-js 5.128.3 on `2026-11-21`). It expects a full-strength colour, which is what its own themes pass: `colorNeutral: "white"` in the dark theme, the foreground in the shadcn one (read in `@clerk/themes` 2.4.57 the same day). A kit's edge or hairline token is already faint, so Clerk fades it a second time.
+
+- Pass the kit's text colour as `colorBorder`, never an edge or hairline token.
+- Even at full strength, an input's resting ring is about 1.3:1 on a white card and 1.4:1 on Clerk's dark one (computed from those fractions). Where the kit holds control edges to 3:1 (WCAG 2.2 SC 1.4.11), set the ring on the element (`elements.formFieldInput`) from the kit's edge token, aliased as the entry above says. Clerk draws that ring as a `boxShadow`, not a border, so check hover and focus after.
+- Measure each edge on the rendered sign-in page, in each mode the product has, against the card it sits on.
+- Clerk serves the GitHub and X logos as dark images (read at `img.clerk.com` on `2026-11-21`), and only its dark theme inverts any: GitHub, Apple, Vercel and OKX Wallet, through `providerIcon__<provider>`, but not X. Invert each dark logo the product offers the same way, in dark mode only.
+
+(`2026-11-21`, three live products had passed their kit's edge or hairline token. On their production sign-in pages the social buttons and the email field measured 1.02 to 1.11:1 against the card, and on one the field showed no box at all.)
 
 ## The plan's tab must match the workspace model
 

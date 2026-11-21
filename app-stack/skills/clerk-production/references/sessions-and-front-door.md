@@ -25,7 +25,7 @@
 ## The sign-in surface and redirects
 
 - **Clerk's own components are the sign-in surface**, never rebuilt: `<SignIn />`, `<SignUp />`, `<UserButton />`. As the shape uses them, so are `<OrganizationSwitcher />`, `<PricingTable />` and Clerk's organization modal.
-  - They are dressed through `appearance.variables`, referencing the design kit's tokens.
+  - They are dressed through `appearance.variables`, referencing the design kit's tokens. `colorBorder` takes the kit's text colour, because Clerk fades it itself (`gotchas.md`).
   - The authenticated browser suite signs in through `<SignIn />` itself, so that it notices when the component stops working (`authenticated-mile.md`).
 - **Sign-in lands on the member home, never on `/`.**
   - `signInFallbackRedirectUrl` and `signUpFallbackRedirectUrl` name the member home (`/dashboard` unless the product names another route).
