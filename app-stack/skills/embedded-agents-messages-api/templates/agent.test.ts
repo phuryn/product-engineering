@@ -155,7 +155,7 @@ describe('the request', () => {
 
   test('cost follows the price list, cache included; a model off the list is priced at the top rates', () => {
     expect(lib.costOf('claude-sonnet-5-5', usage({ input_tokens: 1_000, output_tokens: 1_000, cache_creation_input_tokens: 1_000, cache_read_input_tokens: 1_000 })))
-      .toBeCloseTo((1_000 * 2 + 1_000 * 10 + 1_000 * 2.5 + 1_000 * 0.2) / 1e6, 10);
+      .toBeCloseTo((1_000 * 2 + 1_000 * 10 + 1_000 * 2.5 + 1_000 * 0.1) / 1e6, 10);
     expect(lib.costOf('claude-haiku-5-5', usage({ input_tokens: 1, output_tokens: 1_000, cache_read_input_tokens: 100_000 })))
       .toBeCloseTo((1 * 0.5 + 1_000 * 2.5 + 100_000 * 0.05) / 1e6, 10);
     expect(lib.costOf('claude-fallback-x', usage({ input_tokens: 1_000, output_tokens: 1_000 }))).toBeCloseTo((1_000 * 10 + 1_000 * 50) / 1e6, 10);

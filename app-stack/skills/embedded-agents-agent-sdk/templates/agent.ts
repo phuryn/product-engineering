@@ -2,13 +2,18 @@ import 'server-only';
 import { resolve, join, relative, isAbsolute } from 'node:path';
 import { readdirSync, existsSync, readFileSync } from 'node:fs';
 import {
+  createSdkMcpServer,
   query,
+  tool,
   type HookCallback,
+  type InferShape,
   type McpServerConfig,
   type Options,
   type PostToolUseHookInput,
   type PreToolUseHookInput,
+  type SdkMcpToolDefinition,
 } from '@anthropic-ai/claude-agent-sdk';
+import type { z } from 'zod';
 
 // Embedded agents: one directory per agent under .claude/agents/<name>/, each with its
 // own AGENTS.md, optional knowledge/, agent-local skills and .mcp.json. No agent names
@@ -89,6 +94,30 @@ function discoverMcp(agentDir: string): DiscoveredMcp | undefined {
   return { servers, allowedTools };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- the SDK's type for a mixed list
+export type AgentTool = SdkMcpToolDefinition<any>;
+
+export class ToolError extends Error {}
+
+export const TOOL_FAILED = "The tool failed before it could answer. Say so plainly; don't guess what it would have returned.";
+
+/** One of the app's tools. The in-process MCP server validates input before calling the handler. */
+export function agentTool<S extends z.ZodRawShape>(spec: {
+  name: string;
+  description: string;
+  input: S;
+  run: (input: InferShape<S>) => Promise<string>;
+}): AgentTool {
+  return tool(spec.name, spec.description, spec.input, async (input) => {
+    try {
+      return { content: [{ type: 'text', text: await spec.run(input) }] };
+    } catch (error) {
+      const text = error instanceof ToolError ? error.message : TOOL_FAILED;
+      return { isError: true, content: [{ type: 'text', text }] };
+    }
+  }) as AgentTool;
+}
+
 export interface AskAgentOptions {
   agent: string;
   prompt: string;
@@ -97,6 +126,10 @@ export interface AskAgentOptions {
   maxBudgetUsd?: number;
   maxTurns?: number;
   allowedTools?: string[];
+  /** The caller's own tools for this run, built per request so they close over the caller. */
+  tools?: AgentTool[];
+  /** Extra instructions appended after AGENTS.md for this run (never user text). */
+  context?: string;
 }
 
 export interface AgentMetadata {
@@ -112,7 +145,7 @@ export type AgentEvent =
   // The run stopped without an answer: max turns, max budget, or an execution error.
   | { type: 'error'; text: string; subtype: string; metadata: AgentMetadata };
 
-// A tool may touch only files inside the agent's own directory, and never an env file.
+// The path guard confines file access to the agent's own directory and blocks env files.
 // Checking for `..` alone is not enough: an absolute path walks straight out.
 export function isBlockedPath(agentDir: string, toolName: string, input: Record<string, unknown> | undefined): boolean {
   const candidates = [input?.file_path, input?.path, input?.glob, toolName === 'Glob' ? input?.pattern : undefined];
@@ -136,20 +169,32 @@ export function agentOptions(opts: Omit<AskAgentOptions, 'prompt' | 'history'>, 
   const cwd = agentCwd(opts.agent);
   const mcp = discoverMcp(cwd);
   const allowedTools = opts.allowedTools ?? ['Read', 'Glob', 'Grep', ...(mcp?.allowedTools ?? [])];
+  let mcpServers = mcp?.servers;
+  const appToolNames: string[] = [];
+  if (opts.tools?.length) {
+    if (mcpServers?.app) throw new Error(`Agent "${opts.agent}" already has an MCP server named "app"`);
+    const names = opts.tools.map((t) => t.name);
+    const duplicate = names.find((name, i) => names.indexOf(name) !== i);
+    if (duplicate !== undefined) throw new Error(`Agent "${opts.agent}" has two tools named "${duplicate}"`);
+    appToolNames.push(...names.map((name) => `mcp__app__${name}`));
+    mcpServers = { ...mcpServers, app: createSdkMcpServer({ name: 'app', tools: opts.tools }) };
+  }
+  const instructions = readFileSync(join(cwd, INSTRUCTIONS), 'utf8');
+  const append = opts.context ? `${instructions}\n\n${opts.context}` : instructions;
   return {
     cwd,
     // 'project' is what discovers agent-local skills; the SDK does not load AGENTS.md itself.
     settingSources: ['project'],
     // The agent's AGENTS.md is appended to the preset, which is what makes it authoritative.
-    systemPrompt: { type: 'preset', preset: 'claude_code', append: readFileSync(join(cwd, INSTRUCTIONS), 'utf8') },
+    systemPrompt: { type: 'preset', preset: 'claude_code', append },
     skills: discoverSkills(cwd),
     strictMcpConfig: true,
-    mcpServers: mcp?.servers,
+    mcpServers,
     // `allowedTools` only auto-approves. `tools` is what makes every other built-in tool
     // (Bash, Write, Edit, WebFetch…) unavailable, and 'dontAsk' denies anything not approved —
     // including an MCP tool the agent's .mcp.json did not list.
     tools: allowedTools.filter((t) => !t.startsWith('mcp__')),
-    allowedTools,
+    allowedTools: appToolNames.length ? [...allowedTools, ...appToolNames] : allowedTools,
     permissionMode: 'dontAsk',
     model: opts.model ?? DEFAULT_MODEL,
     maxTurns: opts.maxTurns ?? 10,
@@ -160,7 +205,7 @@ export function agentOptions(opts: Omit<AskAgentOptions, 'prompt' | 'history'>, 
           hooks: [
             (async (input) => {
               const i = input as PreToolUseHookInput;
-              if (isBlockedPath(cwd, i.tool_name, i.tool_input as Record<string, unknown> | undefined)) {
+              if (!appToolNames.includes(i.tool_name) && isBlockedPath(cwd, i.tool_name, i.tool_input as Record<string, unknown> | undefined)) {
                 return { decision: 'block' as const, reason: "Access denied: outside the agent's directory, or an env file" };
               }
               return {};

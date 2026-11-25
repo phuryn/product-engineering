@@ -37,10 +37,10 @@ query({
   options: {
     cwd: '.claude/agents/<agent-name>',
     settingSources: ['project'],
-    systemPrompt: { type: 'preset', preset: 'claude_code', append: agentsMd },
+    systemPrompt: { type: 'preset', preset: 'claude_code', append: context ? `${agentsMd}\n\n${context}` : agentsMd },
     skills: ['<skill-name>'],
     strictMcpConfig: true,
-    mcpServers: { /* only this agent's */ },
+    mcpServers: { /* directory servers and the optional in-process app server */ },
     tools: ['Read', 'Glob', 'Grep'],
     allowedTools: ['Read', 'Glob', 'Grep', 'mcp__<server>__<tool>'],
     permissionMode: 'dontAsk',
@@ -55,16 +55,18 @@ query({
 |---|---|
 | `cwd` | The agent's directory. A multi-agent app picks it per request — which is why the wrapper accepts only a plain directory name (§ 5). |
 | `settingSources: ['project']` | Discovers the agent-local skills. Measured: with `[]` the agent's own skill is not discovered at all. |
-| `systemPrompt` preset + `append` | **Load-bearing.** The SDK does not load `AGENTS.md` by itself (measured: an agent whose only instruction file was `AGENTS.md` answered with no identity and no sign-off). Appended to the `claude_code` preset, it is authoritative: the same agent quoted its instructions and signed off. Without the preset, instructions are treated as soft background and identity rules are routinely ignored (earlier measurement). |
+| `systemPrompt` preset + `append` | **Load-bearing.** The SDK does not load `AGENTS.md` by itself (measured: an agent whose only instruction file was `AGENTS.md` answered with no identity and no sign-off). Appended to the `claude_code` preset, it is authoritative: the same agent quoted its instructions and signed off. Without the preset, instructions are treated as soft background and identity rules are routinely ignored (earlier measurement). The wrapper appends code-supplied `context` after `AGENTS.md`. |
 | `skills` | The allowlist of skills the model is shown. Without it, repo-root and bundled skills are listed too (§ 3). |
 | `strictMcpConfig: true` | Only the servers passed in `mcpServers` load — nothing from the developer's or the server's user config (§ 3.5). |
-| `mcpServers` | This agent's servers, read from its `.mcp.json` by the wrapper. |
+| `mcpServers` | The directory's `.mcp.json` servers and one in-process `app` server when the caller supplies tools. The wrapper refuses a directory server named `app` on such a run and refuses duplicate caller tool names. |
 | `tools` | **The actual tool boundary.** `allowedTools` only auto-approves; `tools` decides which built-in tools exist. Measured: with `allowedTools: ['Read','Glob','Grep']` alone, the agent ran `Bash` and read an env file through it. |
-| `allowedTools` + `permissionMode: 'dontAsk'` | `dontAsk` denies anything not pre-approved, so an MCP tool runs only if its server's `allowedTools` in `.mcp.json` lists it (measured: an unlisted tool was denied, a listed one ran). MCP names need the exact `mcp__<server>__<tool>`. |
+| `allowedTools` + `permissionMode: 'dontAsk'` | `dontAsk` denies tools without approval (measured: an unlisted directory MCP tool was denied, a listed one ran). Approve directory tools by `mcp__<server>__<tool>` and caller tools by `mcp__app__<tool>`. |
 | `model` | A current Sonnet by default; Haiku for latency-sensitive routes, Opus for harder reasoning. Per call. |
 | `hooks` | The path guard (PreToolUse) and the files-read list (PostToolUse). § 6. |
 
-**Defaults vs. overrides.** `maxTurns` defaults to `10` to stop runaway loops. `maxBudgetUsd` has no default and is passed through: set it where you know the workload. A caller may pass its own `allowedTools`; the built-in names in it become the `tools` set, so an override widens or narrows both together.
+**Defaults vs. overrides.** `maxTurns` defaults to `10` to stop runaway loops. `maxBudgetUsd` has no default and is passed through: set it where you know the workload. A caller may pass its own `allowedTools`; the built-in names in it become the `tools` set, so an override widens or narrows both together. Caller tools stay allowed either way.
+
+**Keep tool credentials in the app process.** `createSdkMcpServer` runs caller tools inside the app. The subprocess can call them without their credentials, though it inherits the app's environment unless `env` replaces it (§ 7). Tested `2026-11-25` with SDK 0.3.332. A unit test connects an in-memory MCP client to the real SDK server and checks that valid input reaches `run` in the test process and invalid input never reaches it. The live test (§ 8) has the model call it through the subprocess.
 
 ---
 
@@ -140,6 +142,7 @@ for await (const ev of askAgent({ agent: 'knowledge-agent', prompt })) {
 | Resolve the agent | Accepts only a plain directory name (`^[a-z0-9][a-z0-9-]*$`) under `.claude/agents/` that holds an `AGENTS.md`. The name arrives in a request body; the earlier wrapper joined it onto a path, so `../..` resolved to the repo root and its instruction file. |
 | `listAgents()` | Every such directory, sorted — what the route's `GET` returns and the UI's picker shows. |
 | Skills, MCP, `${VAR}` | Discovered from the agent directory (§ 3, § 3.5). |
+| Caller tools and context | Build `tools` per request and append optional code-supplied `context` after `AGENTS.md` (see `SKILL.md` § 3 and § 2 of this playbook). |
 | Enforce the contract | `agentOptions()` always sets the isolation options; a call site cannot drop them. It is exported so the unit test pins it without a model call. |
 | History | `history?: { role, content }[]` becomes a `Previous conversation:` preamble — no database shape baked in. |
 | Events | `text` per assistant chunk; then `done` with metadata, or `error` with the result's subtype. After a non-success result the SDK also throws; the wrapper absorbs that, so the caller gets one signal. `filesRead` holds paths relative to the agent, because the list reaches the browser. |
@@ -174,7 +177,7 @@ while (true) {
 
 ## 6. Hooks — the path guard and live metadata
 
-- **PreToolUse — confine the agent to its directory.** Every path a tool receives (`file_path`, `path`, Grep's `glob`, Glob's `pattern`) is resolved against the agent directory and blocked if it lands outside it, or names an env file anywhere. The earlier guard blocked only paths containing `..` or `.env`; measured, an absolute path walked straight past it and returned another file's contents.
+- **PreToolUse — confine the agent to its directory.** Every path a built-in or directory MCP tool receives (`file_path`, `path`, Grep's `glob`, Glob's `pattern`) is resolved against the agent directory and blocked if it lands outside it, or names an env file anywhere. The earlier guard blocked only paths containing `..` or `.env`; measured, an absolute path walked straight past it and returned another file's contents. The run's own caller tools are exempt: an input named `path` there is the app's own word, and the tool enforces its own access.
 - **PostToolUse — capture metadata.** Each `Read` path is recorded for the "files read" row under an answer.
 
 Same hook surface as Claude Code: a dev-time permission hook works as a production guardrail.
@@ -196,8 +199,8 @@ Same hook surface as Claude Code: a dev-time permission hook works as a producti
 
 | File | Runs | What it pins |
 |---|---|---|
-| `templates/agent.test.ts` → `tests/unit/` | inside `npm test`, no model call | the contract of `agentOptions()`: `AGENTS.md` appended, `tools` and `dontAsk`, `strictMcpConfig`, skills and MCP discovery, `${VAR}` expansion, name validation, the path guard and its wiring, history. Mutation-checked: restoring the earlier guard or dropping `dontAsk` turns three of its tests red. |
-| `templates/agents.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | for every agent: its MCP servers are exactly its `.mcp.json`'s and connected, only its allowed built-in tools exist, and it answers. |
+| `templates/agent.test.ts` → `tests/unit/` | inside `npm test`, no model call | `agentOptions()` including prompt context, `tools` and `dontAsk`, isolation, skills and MCP discovery, `${VAR}` expansion, names, the path guard and caller tool exemption, and history. An in-memory MCP client checks input validation. The tool handler tests planned and unexpected errors. Mutation-checked: restoring the earlier guard or dropping `dontAsk` turns three of its tests red. |
+| `templates/agents.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | for every agent: its directory MCP servers connect, only its allowed built-in tools exist, and it answers. One run with the first agent checks that the model returns a one-time code from a caller tool. |
 | `examples/*.live.test.ts` | with the examples | knowledge-agent signs off, answers the OKR target from `knowledge/okrs.md` with a citation, and refuses a topic its files do not cover; research-agent signs off and cites a source. |
 
 Live tests hit the real model and cost cents per run; the research test also spends Perplexity credits.
