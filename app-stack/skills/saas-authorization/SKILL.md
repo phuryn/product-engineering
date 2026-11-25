@@ -48,7 +48,7 @@ Read `references/model.md` for each full rule, reason and receipt.
 | Secrets | Never in the repo, a URL, a log line or a client bundle. `server-only` on every module that imports one. A leaked key is rotated before anything else; a planned rotation reaches every holder before the old value is revoked | `§ Secrets` |
 | Calls to customer-supplied addresses | Only `https`, resolved once and refused unless public (no loopback, private, link-local or metadata address), connected to the address checked, every redirect checked again, time and size capped, nothing of yours sent | `§ Calls to customer-supplied addresses` |
 | Customer secrets | Encrypted before they reach the database, under a key held outside it, bound to their row; decrypted only where used; never shown back, logged or returned | `§ Customer secrets at rest` |
-| Embedded agents | What an agent can do is bounded by its tools, never by its prompt. Each run and each actor has a cost ceiling | `§ Embedded agents` |
+| Embedded agents | What an agent can do is bounded by its tools, never by its prompt. What can't be taken back is only proposed, and a person's click runs it. Each run and each actor has a cost ceiling | `§ Embedded agents` |
 
 ## Order of work
 

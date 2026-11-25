@@ -71,6 +71,7 @@ Finish by marking every claim by kind (step 3); standalone research ends there.
 - **A product charges its first real users unless the owner makes it free.** Whether people pay is part of what the first version learns, and a free product is an exception the owner names.
 - **Mark every requirement by its evidence: seen in use, asked for by a named person, or assumed.** The first version holds the key jobs and the value proposition. An assumed requirement beyond them goes on the leave-out list with the trigger that brings it back. The same test applies to detail inside a requirement that stays.
 - **Weigh each part of the first version by what people will see against what it costs.** Put visible, cheap parts early: a landing, displayed pricing and example data filling every screen. Add hard logic once the product is worth it.
+- **Show each agent a direction includes as a card, never as one word.** "An assistant" hides the decision the owner has to make. The card names the agent's job, every tool by what it does, what it must never do, what code enforces rather than its instructions ask, and what waits for a person's click. An action that can't be taken back, such as a charge, a sent message or a deletion, waits for a click. Apply the `embedded-agents-design` skill, with `app-stack` installed, or write those parts without it.
 - **Name the weakest consequential assumption.** Choose the one that, if wrong, changes the recommendation. A shaky detail that changes nothing can wait, even if it is the weakest overall.
 - **Recommend one direction and give the reason.** Make the choice explicit in the artifact.
 
@@ -82,13 +83,13 @@ Finish by marking every claim by kind (step 3); standalone research ends there.
 2. Alternatives.
 3. Segment.
 4. Value proposition and value curve.
-5. Recommendation (§ 5), with its impact-and-effort grid.
+5. Recommendation (§ 5), with each agent's card and the impact-and-effort grid.
 6. Jobs map.
 7. Key screens.
 8. Open decisions.
 9. Hypotheses, including the weakest consequential assumption and its experiment.
 
-- **Map jobs before drawing one high-fidelity screen per key job.** Number each job in the user's words, naming its screen, the question that screen answers and its primary action. Each screen shows its job's number and realistic sample data labelled as such. When replacing a familiar tool, start from its structure and justify departures.
+- **Map jobs before drawing one high-fidelity screen per key job.** Number each job in the user's words, naming its screen, the question that screen answers and its primary action. Each screen shows its job's number and realistic sample data labelled as such. When replacing a familiar tool, start from its structure and justify departures. Where an agent waits for a click, the screen carrying that button is a key screen.
 - **Apply the `ui-design` skill.** Read the method first, with `app-stack` installed, or use the jobs map, `frontend-design` direction, token values and a checked screenshot without it. Embed and compose an existing kit's CSS inside the HTML. For new products, choose one subject-grounded direction and keep values in tokens. Where the method is present, check screenshots against it before the owner sees them.
 - **Agree on static or clickable screens and build no separate prototype.** The person and agent choose together. The first working version takes hours and tests the full flow.
 - **Charts follow `dataviz`'s rules in any agent.** In Claude Code, apply the built-in `dataviz` skill (read `2026-11-07`). In any other agent, follow its rules:

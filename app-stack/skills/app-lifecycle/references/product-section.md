@@ -31,7 +31,7 @@ This section holds only what every session needs about the product. The brief be
 - **Workspace model:** <organization (the default — every workspace is an organization, roles inside it) | individual (the workspace row keyed to one user; no organization management, no second role)>
 - **Billing:** <the identity provider's billing (the default — the workspace pays) | none, because the owner makes the product free>. <A product that charges takes the organization shape until a product has built and proven user plans.>
 - **Anonymous public:** <yes | no> — visitors who act without an account.
-- **Embedded agents:** <yes | no>
+- **Embedded agents:** <no | each agent's name and job, the actions it may only propose, and where its card is: the automation doc>
 - **Member home:** <the route sign-in lands on — /dashboard, or the product's own noun>
 
 Reopened defaults: <for every default choice this product changes — the choice, the trigger that fired, what replaces it, and the dated decision-log entry that holds the options and the reasoning. If it changes none: "None.">

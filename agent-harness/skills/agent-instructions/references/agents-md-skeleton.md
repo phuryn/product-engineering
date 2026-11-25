@@ -119,7 +119,7 @@ At the start of every new task, find the moment you are in — several can hold 
 | writing or checking a core doc — architecture, permissions, flows, variables, the coverage map | The definition is the minimum; this file wins where they differ | the `shipping-artifacts` skill · `docs/README.md` |
 | adding email, a scheduled job, automation or search | Document only what exists; unimplemented scope is a backlog row | the conditional doc once the capability exists |
 | adding a fail-closed guard or hosted CI | Never in the same change as the product it guards | the `release-gate` skill |
-| embedding an agent | <only when § 2.3 says so> | the `embedded-agents-messages-api` skill |
+| adding or changing an embedded agent | <only when § 2.3 says so> Its card first, updated in the same change | the `embedded-agents-design` skill, then `embedded-agents-messages-api` |
 | adding an MCP server | Every call authenticated unless a decision chose otherwise and named the cost | the `mcp-server` skill |
 | writing one of this repository's own skills, or adding a lesson to one | General guidance: a product appears only as an example, named by kind; what is true of one product goes in its own repository; date what a platform did | the skill's own `SKILL.md` |
 | learning a lesson for the shared collection | Keep the product's incident in its docs; send only the general lesson to the collection | type `/agent-harness:retro` (Codex: `$agent-harness:retro`) |
@@ -138,7 +138,7 @@ The principle is **progressive disclosure**: this file is the entry point every 
 
 ## 1.10 Embedded agents (only when the product has them)
 
-<Delete when § 2.3 says no.> The agent proposes; deterministic code decides. Everything a model reads or writes is untrusted text. Cost has two ceilings — per run and per actor. Model ids are pinned in code. The depth: the `embedded-agents-messages-api` skill (or `embedded-agents-agent-sdk`).
+<Delete when § 2.3 says no.> The agent proposes; deterministic code decides. No agent is built or changed without its card. Everything a model reads or writes is untrusted text. Cost has two ceilings — per run and per actor. Model ids are pinned in code. The depth: the `embedded-agents-design` skill, then `embedded-agents-messages-api` (or `embedded-agents-agent-sdk`, `embedded-agents-managed`).
 
 ---
 
@@ -159,7 +159,7 @@ This section holds only what every session needs about the product. The brief be
 - **Workspace model:** <organization | individual>
 - **Billing:** <the identity provider's billing | none>
 - **Anonymous public:** <yes | no>
-- **Embedded agents:** <yes | no>
+- **Embedded agents:** <no | each agent's name and job, the actions it may only propose, and where its card is>
 - **Member home:** <the route sign-in lands on>
 
 Reopened defaults: <each § 1.3 choice this product changes — the choice, the trigger that fired, what replaces it, the dated entry in `docs/product/decisions.md`. Or: none.>

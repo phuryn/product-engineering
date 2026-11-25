@@ -11,7 +11,7 @@ claude plugin install app-stack@product-engineering
 
 Codex, Cursor and other agents: see the collection's root `README.md`.
 
-## Skills (14)
+## Skills (16)
 
 - **app-lifecycle** — The detailed path for a SaaS from idea to production, stage by stage: what each produces, when it is done, what each product shape skips, and which capability to propose next when its trigger fires. It takes the accepted artifact from the `product` pack's `propose` as its first stages.
 - **saas-authorization** — Who may do what in a multi-tenant app: workspaces, the three functions every route goes through, permissions vs roles vs entitlements, invariants as database constraints, and the threat model every app has.
@@ -21,8 +21,10 @@ Codex, Cursor and other agents: see the collection's root `README.md`.
 - **ui-design** — How product UI is designed, built and judged: the method every kit and screen satisfies, which design skill collection leads at each stage, what a screen may claim, and reviewing the look with its owner.
 - **mcp-server** — Ship an authenticated hosted MCP endpoint, test its tool surface, and prove it with one client. Choose a companion package or listings when you want them.
 - **chatgpt-plugin** — Getting a plugin into OpenAI's plugin directory through review the first time, on any stack: the authentication decided before the first upload, the package and a script that checks it, ChatGPT's OAuth client and request metadata, the data and annotation rules review enforces, the reviewer account, the portal's traps, rejection, and what changes after publication.
+- **embedded-agents-design** — What an agent in the app may do, decided before it is built: its card (job, tools by kind, what code enforces, what its instructions ask, what is left to it), and the code and tests for an action that only a person's click runs.
 - **embedded-agents-messages-api** — Embedding Claude agents in the app on the Claude API — the default: one wrapper, agents as directories, exactly the tools the app gives them, streamed to a chat UI.
 - **embedded-agents-agent-sdk** — The same agent directories on the Claude Agent SDK, for an agent that needs Claude Code's built-in tools.
+- **embedded-agents-managed** — The same agent directories on Claude Managed Agents: Anthropic runs the loop and the app runs its own functions when the agent calls them, with hosted code execution or web search when an agent needs one.
 - **transactional-email** — Sending email from the app through a provider: an outbox, durable receipts and reconciliation instead of a promise of exactly-once, one-click unsubscribe, and a provider server per environment.
 - **uptime-monitoring** — Knowing the app is down before its users do, on any monitoring service: content checks instead of status codes, confirmation from a second location, heartbeats for scheduled jobs, monitoring that doesn't run on what it monitors, and an alert route proven by a controlled failure. The default service is Staygreen, made by this collection's author, and its adapter is included; a service you already use stays.
 - **product-analytics** — What people did, without analytics cookies: session recordings and heatmaps from Microsoft Clarity with cookies off by default, PostHog for events on the landing page, the data read back by the agent through each vendor's MCP server, and what changes (a banner, a policy line, the owner's dashboard steps) when a cookie comes in.

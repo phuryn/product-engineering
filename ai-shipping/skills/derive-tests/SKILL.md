@@ -45,7 +45,7 @@ $ai-shipping:derive-tests supabase/functions     Codex
 - fail-closed defaults: error, timeout, cache-miss, and flag paths that must deny, not allow;
 - side-effect conditions: exactly when an email sends, a write commits, or a paid action fires;
 - public-data-only constraints on public or bot routes;
-- output-contract and tool-surface limits of any agent in `automation.md`.
+- output-contract and tool-surface limits of any agent in `automation.md`, with a test for each line its card marks as enforced in code.
 
 **Skip cosmetic behavior; test rules whose failure harms someone other than the actor.**
 

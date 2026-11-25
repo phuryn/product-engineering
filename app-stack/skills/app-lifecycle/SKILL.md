@@ -94,7 +94,7 @@ Each stage in depth — what doing it well looks like, the owner's part, the tra
 - **Choose the organization or individual workspace model.** Use *organization* (the default: every workspace is an organization, a solo user an organization of one, roles inside it) or *individual* (the workspace row keyed to one user: no organizations, no second role).
 - **Declare identity-provider billing or none.** Use *the identity provider's billing* (the default; on this stack Clerk Billing, the workspace pays) or *none*, for a product the owner makes free. Billing in the individual shape has not been built and proven yet, so a product that charges takes the organization shape until a product writes and proves that recipe.
 - **Declare whether visitors can act without an account.** Set anonymous public to yes or no.
-- **Declare whether the product embeds agents.** Set embedded agents to yes or no.
+- **Declare whether the product embeds agents, and name each one.** Set embedded agents to no, or to each agent's name, job and the actions it may only propose. Write its card before building it (`embedded-agents-design`).
 - **Declare the member-home route where sign-in lands.** Use `/dashboard`, or the product's own noun.
 
 **Record every reopened default and the trigger that fired.** Name its replacement and the dated decision-log entry with options and reasoning. If none changed, say so in one line.

@@ -45,7 +45,7 @@ $ai-shipping:document-app the backend            Codex
 - `emails.md` — notification path, templates, retry/backoff, failure visibility.
 - `cron.md` — scheduled-work inventory, idempotency, internal-call auth.
 - `seo.md` — SPA preview approach, route coverage, metadata sanitization.
-- `automation.md` — embedded agents/automations: trigger, tool surface, steering vs. hard guardrails, output contract, app-owned side effects, approval gates.
+- `automation.md` — embedded agents/automations, each agent as its card (`embedded-agents-design`): trigger, tool surface, steering vs. hard guardrails, output contract, app-owned side effects, approval gates.
 
 **Describe the current state honestly, without being paranoid.** Skip conditional documents that do not apply and say so. Add a "Related Documents" reference in `architecture.md` for each doc produced. The test-coverage map, `tests.md`, is produced separately by the `derive-tests` skill.
 

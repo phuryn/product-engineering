@@ -44,6 +44,8 @@ Updated <YYYY-MM-DD>. Status: <draft | reviewed by the owner on <date> | accepte
 
 <One direction, or two or three when the choice is real: who it is for, the value proposition, what the first version does and deliberately doesn't do, the trade-off, its rough size in builder hours and what it adds to run. Then the one recommended, and why. Rewritten, never appended to.>
 
+<For each agent in the recommended direction, its card: the job, who talks to it, what it sees; its tools, each marked reads, shows, writes or proposes; what it must never do; what code enforces, what its instructions ask and what is left to it; what waits for a person's click, and for how long; its limits. Leave this out when there is no agent.>
+
 <The first version's parts and the next builds on a labelled 3×3 impact-and-effort grid with a legend, "do first" marked (`SKILL.md` §§ 5–6).>
 
 ## Jobs map
@@ -56,7 +58,7 @@ Updated <YYYY-MM-DD>. Status: <draft | reviewed by the owner on <date> | accepte
 
 ## Key screens
 
-<One high-fidelity screen per key job, with matching job number and realistic sample data labelled. Static or clickable as agreed.>
+<One high-fidelity screen per key job, with matching job number and realistic sample data labelled, the screen carrying an agent's button included. Static or clickable as agreed.>
 
 **The owner's preview:** <each key screen and what to inspect on it, before any plan>.
 

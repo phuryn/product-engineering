@@ -228,4 +228,4 @@ Only when the product has them.
 - **The agent proposes; deterministic code decides** (`model.md § Deterministic code decides`). A tool takes its identity from the session's caller, resolved by the three functions, never from an id the model supplies. Whatever a tool must refuse, it refuses in code. A conversation history the client sends is a claim too.
 - **Everything a model reads or writes is untrusted text**, rendered as plain text or sanitized markdown.
 - **Cost has two ceilings**: a turn limit and a budget on every run, and a per-actor budget on the route before anyone but the developer can reach it.
-- The mechanics are in `embedded-agents-messages-api` and `embedded-agents-agent-sdk`.
+- What each agent may do is decided on its card, and the code for an action that waits for a click is in the `embedded-agents-design` skill. The mechanics of a run are in `embedded-agents-messages-api`, `embedded-agents-agent-sdk` and `embedded-agents-managed`.

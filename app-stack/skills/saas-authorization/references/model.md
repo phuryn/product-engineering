@@ -61,7 +61,7 @@ A screen, a client, a prompt or a model may propose an action. Whenever the acti
   - A tool takes its identity from the session's caller, resolved by the three functions, never from an id the model supplies.
   - Whatever a tool must refuse, it refuses in code.
   - A conversation history the client sends is a claim too.
-  - The mechanics: `embedded-agents-messages-api`, `embedded-agents-agent-sdk`.
+  - The card that decides it, and the code for proposing: `embedded-agents-design`. The mechanics of a run: `embedded-agents-messages-api`, `embedded-agents-agent-sdk`, `embedded-agents-managed`.
 
 ## The three functions
 

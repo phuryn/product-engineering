@@ -19,6 +19,7 @@
   agent cannot load those, so other skills name their command instead.
 - A count of the skills stated in README.md or the marketplace's description is the count: the
   description opens with it, and nothing else moves it when a skill is added.
+- Code two skills share stays the same in both: a whole file (COPIES) or a marked block (SHARED_BLOCKS).
 - No generated clutter (__pycache__, .pyc) in the tree.
 - The shared planning prompt in start-here and WALKTHROUGH stays identical from "Create a plan." on.
 - The wrappers' regression tests (tools/test_review.py, tools/test_codex.py) pass.
@@ -45,8 +46,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 MAX_DESCRIPTION = 1024
-# Always-loaded descriptions (AGENTS.md, rule 7). 6,200 characters, names included, is about 2,700 tokens.
-MAX_LISTED = 6200
+# Always-loaded descriptions (AGENTS.md, rule 7). 6,600 characters, names included, is about 2,900 tokens.
+MAX_LISTED = 6600
 MAX_LISTED_EACH = 300
 # SKILL.md bodies (AGENTS.md, rule 10): a skill loads its whole body when it starts, so the files only grow by a
 # cut elsewhere or the owner's raise. Today's sizes, 2026-11-18, rounded up to the next thousand bytes.
@@ -84,7 +85,14 @@ UNRESOLVED = [r"\bthe template\b", r"\btemplate's\b", r"AGENTS\.md\s*§\s*\d", r
 
 errors, warnings = [], []
 # A script a skill carries so it works on its own (AGENTS.md, rule 5), and the one it copies.
-COPIES = {"ai-shipping/skills/ship-check/scripts/review.py": "ai-shipping/skills/independent-review/scripts/review.py"}
+COPIES = {"ai-shipping/skills/ship-check/scripts/review.py": "ai-shipping/skills/independent-review/scripts/review.py",
+          "app-stack/skills/embedded-agents-managed/scripts/new-agent.mjs":
+              "app-stack/skills/embedded-agents-messages-api/scripts/new-agent.mjs"}
+# A block two files share, from the line holding the first marker to the line before the second: (copy, source,
+# first, second). The file tools decide what an agent may read, so a fix in one wrapper must reach the other.
+SHARED_BLOCKS = [("app-stack/skills/embedded-agents-managed/templates/agent.ts",
+                  "app-stack/skills/embedded-agents-messages-api/templates/agent.ts",
+                  "// ── Files the agent may read", "// ── The request and the run")]
 
 
 def frontmatter(text):
@@ -303,8 +311,8 @@ def check_tree():
     for p in files:
         rel = p.relative_to(ROOT).as_posix()
         readme = re.fullmatch(r"[^/]+/README\.md", rel) is not None
-        if not p.is_file() or p.suffix not in (".md", ".py", ".mjs", ".ts", ".json", ".sh", ".ps1", ".txt",
-                                               ".html", ".yaml", ".yml"):
+        if not p.is_file() or p.suffix not in (".md", ".py", ".mjs", ".cjs", ".ts", ".tsx", ".sql", ".json", ".sh",
+                                               ".ps1", ".txt", ".html", ".yaml", ".yml"):
             continue
         allowed = [pat for pat, places in LEAK_EXCEPTIONS.items()
                    if any(re.fullmatch(pl, rel) for pl in places)]
@@ -323,6 +331,16 @@ def check_copies():
             errors.append(f"{source}: missing, and {copy} is its copy")
         elif not (ROOT / copy).is_file() or (ROOT / copy).read_bytes() != (ROOT / source).read_bytes():
             errors.append(f"{copy}: not the same as {source}; copy it again")
+    for copy, source, first, second in SHARED_BLOCKS:
+        blocks = []
+        for rel in (copy, source):
+            text = (ROOT / rel).read_text(encoding="utf-8") if (ROOT / rel).is_file() else ""
+            if text.count(first) != 1 or text.count(second) != 1 or text.index(first) > text.index(second):
+                errors.append(f"{rel}: the block from {first!r} to {second!r} is not there once")
+            else:
+                blocks.append(text[text.index(first):text.index(second)])
+        if len(blocks) == 2 and blocks[0] != blocks[1]:
+            errors.append(f"{copy}: its block from {first!r} differs from {source}; copy it again")
 
 
 def check_review_tests():
