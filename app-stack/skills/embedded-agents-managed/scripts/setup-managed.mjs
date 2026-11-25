@@ -20,7 +20,8 @@ async function main() {
   }
   const name = values.name?.trim();
   if (!name || !values.model.trim()) throw new Error('Supply --name <app> and a nonempty model.');
-  // From the file and never the shell: an exported key would create these in another workspace.
+  // From the file and never the shell: an exported key, address or header would send these elsewhere.
+  for (const key of Object.keys(process.env)) if (/^ANTHROPIC_/i.test(key)) delete process.env[key];
   const env = parseEnv(readFileSync(values.env, 'utf8'));
   if (!env.ANTHROPIC_API_KEY) throw new Error(`Set ANTHROPIC_API_KEY in ${values.env}.`);
   const hosts = values['search-hosts']?.split(',').map((host) => host.trim().toLowerCase());
@@ -33,9 +34,7 @@ async function main() {
   if (!hosts && env.CLAUDE_AGENT_ID && env.CLAUDE_ENVIRONMENT_ID) throw new Error(`Nothing to create: ${values.env} has its IDs.`);
 
   const Anthropic = createRequire(resolve('package.json'))('@anthropic-ai/sdk').default;
-  const client = new Anthropic({
-    apiKey: env.ANTHROPIC_API_KEY, authToken: null, baseURL: 'https://api.anthropic.com', maxRetries: 0, logLevel: 'off',
-  });
+  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY, maxRetries: 0, logLevel: 'off' });
   const environment = (suffix, allowed_hosts) => client.beta.environments.create({
     name: `${name} ${suffix}`,
     config: {

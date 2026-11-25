@@ -22,7 +22,7 @@ const APP = 'embedded-agents-managed'; // Set to a stable app identifier if shar
 export const DEFAULT_MODEL = 'claude-sonnet-5-5';
 
 let client: Anthropic | undefined;
-const agentClient = () => (client ??= new Anthropic({ baseURL: 'https://api.anthropic.com', timeout: DEFAULT_TIMEOUT_MS, logLevel: 'off' }));
+const agentClient = () => (client ??= new Anthropic({ timeout: DEFAULT_TIMEOUT_MS, logLevel: 'off' }));
 
 export function listAgents(): string[] {
   if (!existsSync(AGENTS_ROOT)) return [];

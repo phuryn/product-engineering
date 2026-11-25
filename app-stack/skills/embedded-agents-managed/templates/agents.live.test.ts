@@ -10,7 +10,7 @@ vi.mock('server-only', () => ({}));
 
 // Real model, real workspace, and real local tools. Run against a development workspace
 // with the separate agents:live command. Every session is deleted in afterEach.
-const client = new Anthropic({ baseURL: 'https://api.anthropic.com', maxRetries: 0, logLevel: 'off' });
+const client = new Anthropic({ maxRetries: 0, logLevel: 'off' });
 const owner = `agent-test-${randomUUID()}`;
 const sessions = new Set<string>();
 afterEach(async () => {
