@@ -27,10 +27,10 @@ create or replace function public.agent_proposal_propose(
   values (p_owner_id, p_scope, p_action, p_subject, p_args, p_card,
           pg_catalog.clock_timestamp() + pg_catalog.make_interval(secs => p_ttl_seconds))
   on conflict (owner_id, action, subject) where state in ('pending', 'running') do update set
-    -- The id is what a click approves, so it lives only while the arguments and the card stay what was shown.
-    id = case when proposal.args = excluded.args and proposal.card = excluded.card
+    -- The id is what a click approves, so it lives only while the chat, the arguments and the card stay what was shown.
+    id = case when proposal.scope = excluded.scope and proposal.args = excluded.args and proposal.card = excluded.card
       then proposal.id else pg_catalog.gen_random_uuid() end,
-    created_at = case when proposal.args = excluded.args and proposal.card = excluded.card
+    created_at = case when proposal.scope = excluded.scope and proposal.args = excluded.args and proposal.card = excluded.card
       then proposal.created_at else pg_catalog.clock_timestamp() end,
     scope = excluded.scope,
     args = excluded.args,

@@ -49,9 +49,10 @@ export function proposalStoreContract(fixture: () => StoreFixture | Promise<Stor
       expect(await store.pending('first', 'chat-b')).toMatchObject([{ id: b }]);
       expect(await store.pending('second', 'chat-a')).toMatchObject([{ id: c }]);
       expect(await store.recent('third', 'chat-a')).toEqual([]);
-      expect(await propose({ ...draft, scope: 'chat-b' })).toBe(a);
+      const moved = await propose({ ...draft, scope: 'chat-b' });
+      expect(await store.consume(a, 'first')).toEqual({ state: 'gone' });
       expect((await store.pending('first', 'chat-a')).map(({ id }) => id).sort()).toEqual([d, e].sort());
-      expect((await store.pending('first', 'chat-b')).map(({ id }) => id).sort()).toEqual([a, b].sort());
+      expect((await store.pending('first', 'chat-b')).map(({ id }) => id).sort()).toEqual([moved, b].sort());
     });
 
     test('the same click can claim a row only once, including during a race', async () => {

@@ -23,8 +23,8 @@ function memoryFixture(): StoreFixture {
           && row.ownerId === draft.ownerId && row.action === draft.action && row.subject === draft.subject);
         if (previous?.state === 'running') return null;
         const expires = Date.now() + PROPOSAL_TTL_SECONDS * 1000;
-        if (previous && isDeepStrictEqual([previous.args, previous.card], [draft.args, draft.card])) {
-          Object.assign(previous, { expires, scope: draft.scope });
+        if (previous && isDeepStrictEqual([previous.scope, previous.args, previous.card], [draft.scope, draft.args, draft.card])) {
+          previous.expires = expires;
           return previous.id;
         }
         if (previous) rows.splice(rows.indexOf(previous), 1);

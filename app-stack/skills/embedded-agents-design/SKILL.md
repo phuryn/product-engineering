@@ -91,7 +91,7 @@ Limits: 8 steps per run (assumption), $0.20 per run (assumption), 6 runs per per
 
 **Require a separate click by the same person before the proposal expires.** A typed "yes" runs nothing; the agent points to the button. The click is its own request: it uses the proposal up, checks permission and the current state again, then acts. `proposal_status` tells the agent what happened.
 
-**Treat a used proposal as used even when its outcome is unknown.** Each one runs at most once. A crash or an error while it runs, a timeout included, leaves it `running`, shown as "Check before trying again" with no button, and that person can't propose the same subject again. Whoever checks closes it with `agent_proposal_finish`. Throw `Refused` only for a failure that certainly did nothing. Pass the proposal's id as the outside call's idempotency key.
+**Treat a used proposal as used even when its outcome is unknown.** Each one runs at most once. A crash or an error while it runs, a timeout included, leaves it `running`, shown as "Check before trying again" with no button, and that person can't propose the same subject again. Whoever checks finds it in `agent_proposals` and closes it with `agent_proposal_finish`. Throw `Refused` only for a failure that certainly did nothing. Pass the proposal's id as the outside call's idempotency key.
 
 **Keep one scope per chat, and reuse it everywhere.** A proposal belongs to a person and a scope: the conversation's id, or the agent's name where there is one chat. The tools, the stream and the page load use the same one.
 
@@ -143,7 +143,7 @@ for await (const ev of withCards(askAgent({ ...turn, tools }), () => readCards(c
 }
 ```
 
-**One subject has one open confirm card.** The same proposal again keeps its id and gets a fresh 10 minutes (an assumption, `PROPOSAL_TTL_SECONDS`). Changed arguments or a changed card retire the old id, so a click approves exactly what was shown. Proposed again in another chat, the card moves there. The subject defaults to a hash of the arguments; name it where reworded arguments would be the same act.
+**One subject has one open confirm card.** The same proposal again keeps its id and gets a fresh 10 minutes (an assumption, `PROPOSAL_TTL_SECONDS`). Changed arguments, a changed card or another chat retire the old id, so a click approves exactly what was shown. The subject defaults to a hash of the arguments; name it where reworded arguments would be the same act.
 
 **Refresh the open confirm cards after a click or a dismissal.** On `/api/agents/proposals`, `POST { id }` confirms, `DELETE { id }` dismisses and `GET ?scope=…` lists.
 

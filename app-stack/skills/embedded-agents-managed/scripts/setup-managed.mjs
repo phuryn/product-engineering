@@ -33,7 +33,9 @@ async function main() {
   if (!hosts && env.CLAUDE_AGENT_ID && env.CLAUDE_ENVIRONMENT_ID) throw new Error(`Nothing to create: ${values.env} has its IDs.`);
 
   const Anthropic = createRequire(resolve('package.json'))('@anthropic-ai/sdk').default;
-  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY, authToken: null, maxRetries: 0, logLevel: 'off' });
+  const client = new Anthropic({
+    apiKey: env.ANTHROPIC_API_KEY, authToken: null, baseURL: 'https://api.anthropic.com', maxRetries: 0, logLevel: 'off',
+  });
   const environment = (suffix, allowed_hosts) => client.beta.environments.create({
     name: `${name} ${suffix}`,
     config: {
