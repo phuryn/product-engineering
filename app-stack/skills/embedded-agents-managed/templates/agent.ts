@@ -86,7 +86,7 @@ export function inside(root: string, path: string): string | null {
     const base = realpathSync(root);
     const real = realpathSync(resolve(base, path));
     const rel = relative(base, real);
-    const env = rel.split(/[\\/]/).some((part) => part.startsWith('.env'));
+    const env = rel.split(/[\\/]/).some((part) => /^\.env/i.test(part)); // Windows and macOS open .ENV as .env.
     return rel && !env && !rel.startsWith('..') && !isAbsolute(rel) ? real : null;
   } catch {
     return null;

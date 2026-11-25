@@ -151,7 +151,7 @@ export function isBlockedPath(agentDir: string, toolName: string, input: Record<
   const candidates = [input?.file_path, input?.path, input?.glob, toolName === 'Glob' ? input?.pattern : undefined];
   return candidates.some((c) => {
     if (typeof c !== 'string' || c === '') return false;
-    if (c.includes('.env')) return true;
+    if (/\.env/i.test(c)) return true; // Windows and macOS open .ENV as .env.
     const rel = relative(agentDir, resolve(agentDir, c));
     return rel.startsWith('..') || isAbsolute(rel);
   });

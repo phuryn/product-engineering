@@ -179,6 +179,7 @@ describe('path guard', () => {
     expect(lib.isBlockedPath(dir, 'Glob', { pattern: join(root, '**', '*.md') })).toBe(true);
     expect(lib.isBlockedPath(dir, 'Grep', { pattern: 'x', path: '..' })).toBe(true);
     expect(lib.isBlockedPath(dir, 'Read', { file_path: '.env' })).toBe(true);
+    expect(lib.isBlockedPath(dir, 'Read', { file_path: '.ENV' })).toBe(true);
   });
 
   test('is wired into PreToolUse', async () => {

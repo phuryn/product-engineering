@@ -460,7 +460,7 @@ describe('local tools', () => {
         call('list', 'list_files'), call('search', 'search_files', { query: 'Score' }),
         call('okrs', 'read_file', { path: 'knowledge/okrs.md' }), call('skill', 'load_skill', { name: 'cite' }),
         call('format', 'read_skill_file', { name: 'cite', path: 'format.md' }),
-        ...['../AGENTS.md', join(agents, 'plain', 'AGENTS.md'), '.env-fixture', 'escape/plain/AGENTS.md']
+        ...['../AGENTS.md', join(agents, 'plain', 'AGENTS.md'), '.env-fixture', '.ENV-fixture', 'escape/plain/AGENTS.md']
           .map((path, i) => call(`refuse${i}`, 'read_file', { path })),
         call('skill-escape', 'read_skill_file', { name: 'cite', path: '../../../AGENTS.md' }),
         call('other-skill', 'load_skill', { name: 'other' }),
@@ -479,7 +479,7 @@ describe('local tools', () => {
       expect(result('list')).toMatchObject({ content: [block('knowledge/deep/jtbd.md\nknowledge/okrs.md')] });
       expect(result('search')).toMatchObject({ content: [block('knowledge/okrs.md:2: Score from 0 to 1.')] });
       expect(result('skill')).toMatchObject({ content: [expect.objectContaining({ text: expect.stringContaining('format.md') })] });
-      for (const id of ['refuse0', 'refuse1', 'refuse2', 'refuse3', 'skill-escape', 'other-skill']) {
+      for (const id of ['refuse0', 'refuse1', 'refuse2', 'refuse3', 'refuse4', 'skill-escape', 'other-skill']) {
         expect(result(id)).toMatchObject({ is_error: true });
       }
       expect(JSON.stringify(s.sent)).not.toContain('PRIVATE_FIXTURE');

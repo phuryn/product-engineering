@@ -175,7 +175,7 @@ describe('knowledge files', () => {
 
   test('refuses the agent directory, the repo, absolute paths and env files', async () => {
     const tools = lib.agentRequest({ agent: 'tooled' }).tools;
-    for (const path of ['../AGENTS.md', '../../../../AGENTS.md', join(root, 'AGENTS.md'), '.env', 'knowledge/.env', '../.mcp.json', 'knowledge/']) {
+    for (const path of ['../AGENTS.md', '../../../../AGENTS.md', join(root, 'AGENTS.md'), '.env', '.ENV', 'knowledge/.env', '../.mcp.json', 'knowledge/']) {
       expect(await callTool(tools, 'read_file', { path }), path).toMatchObject({ error: true });
     }
     expect((await callTool(tools, 'search_files', { query: 'SECRET' })).text).not.toContain('SECRET=');
