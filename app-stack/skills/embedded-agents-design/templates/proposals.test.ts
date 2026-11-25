@@ -19,12 +19,12 @@ function memoryFixture(): StoreFixture {
     async expire(id) { rows.find((row) => row.id === id)!.expires = 0; },
     store: {
       async propose(draft) {
-        const previous = scoped(draft.ownerId, draft.scope).find((row) =>
-          (row.state === 'pending' || row.state === 'running') && row.action === draft.action && row.subject === draft.subject);
+        const previous = rows.find((row) => (row.state === 'pending' || row.state === 'running')
+          && row.ownerId === draft.ownerId && row.action === draft.action && row.subject === draft.subject);
         if (previous?.state === 'running') return null;
         const expires = Date.now() + PROPOSAL_TTL_SECONDS * 1000;
         if (previous && isDeepStrictEqual([previous.args, previous.card], [draft.args, draft.card])) {
-          previous.expires = expires;
+          Object.assign(previous, { expires, scope: draft.scope });
           return previous.id;
         }
         if (previous) rows.splice(rows.indexOf(previous), 1);
@@ -143,16 +143,7 @@ describe('proposal tools and confirmation', () => {
     expect(await propose({ note: z.string().trim(), copies: z.number().default(1), on: z.coerce.date() }, { note: ' hello ', on: '2026-01-01' })).toContain('It has not run.');
   });
 
-  test('a clicked action with no recorded outcome cannot be proposed again', async () => {
-    const f = actionFixture();
-    await f.tool.run(args);
-    const [{ id }] = await f.store.pending(owner.id, f.scope);
-    await f.store.consume(id, owner.id);
-    expect(await f.tool.run(args)).toContain('Nothing was proposed');
-    expect(await f.store.pending(owner.id, f.scope)).toMatchObject([{ id, state: 'running' }]);
-  });
-
-  test('an unplanned action error records a fixed sentence and logs only the proposal id', async () => {
+  test('an action error may have acted: it stays unresolved, cannot be proposed again and logs only the proposal id', async () => {
     const f = actionFixture();
     const log = vi.spyOn(console, 'error').mockImplementation(() => {});
     f.act.mockRejectedValueOnce(new Error('private provider detail'));
@@ -160,7 +151,9 @@ describe('proposal tools and confirmation', () => {
     const [{ id }] = await f.store.pending(owner.id, f.scope);
     const message = 'The action could not be confirmed. Check before trying again.';
     expect(await f.confirm(id)).toEqual({ state: 'failed', message });
-    expect(await f.store.recent(owner.id, f.scope)).toMatchObject([{ state: 'failed', note: message }]);
+    expect(await f.store.recent(owner.id, f.scope)).toMatchObject([{ state: 'running', note: null }]);
+    expect(await readCards(owner, f)).toMatchObject([{ id, state: 'running', message: 'Check before trying again.' }]);
+    expect(await f.tool.run(args)).toContain('Nothing was proposed');
     expect(log).toHaveBeenCalledExactlyOnceWith('Proposal confirmation failed', { id });
   });
 });

@@ -104,14 +104,18 @@ export async function confirmProposal<C extends Caller>({ id, caller, actions, s
   try {
     const proposal = await store.consume(id, caller.id);
     if (proposal.state !== 'ok') return { state: proposal.state, message: unavailable[proposal.state] };
+    const action = Object.hasOwn(actions, proposal.action) ? actions[proposal.action] : undefined;
+    const args = action && z.strictObject(action.input).safeParse(proposal.args);
     let result: { state: Outcome; message: string };
-    try {
-      if (!Object.hasOwn(actions, proposal.action)) throw new Error('Missing action');
-      const action = actions[proposal.action];
-      const args = z.strictObject(action.input).parse(proposal.args);
-      result = { state: 'done', message: await action.run(args, caller, { idempotencyKey: id }) };
-    } catch (error) {
-      result = error instanceof Refused ? { state: 'refused', message: error.message } : failed();
+    if (!action || !args?.success) result = failed();
+    else {
+      try {
+        result = { state: 'done', message: await action.run(args.data, caller, { idempotencyKey: id }) };
+      } catch (error) {
+        // Only a refusal is known to have done nothing. Anything else, a timeout included, may have acted, so it stays running.
+        if (!(error instanceof Refused)) return failed();
+        result = { state: 'refused', message: error.message };
+      }
     }
     await store.finish(id, caller.id, result.state, result.message);
     return result;

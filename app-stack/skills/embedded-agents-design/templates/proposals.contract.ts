@@ -38,9 +38,9 @@ export function proposalStoreContract(fixture: () => StoreFixture | Promise<Stor
       expect(await store.pending('first', 'chat-a')).toEqual([{ id: shown, card, state: 'pending' }]);
     });
 
-    test('owner, scope, action and subject keep their own pending slots', async () => {
+    test('owner, action and subject keep their own slots, and a new chat takes the card', async () => {
       const a = await propose(draft);
-      const b = await propose({ ...draft, scope: 'chat-b' });
+      const b = await propose({ ...draft, scope: 'chat-b', subject: 'invoice-3' });
       const c = await propose({ ...draft, ownerId: 'second' });
       const d = await propose({ ...draft, action: 'other' });
       const e = await propose({ ...draft, subject: 'invoice-2' });
@@ -49,6 +49,9 @@ export function proposalStoreContract(fixture: () => StoreFixture | Promise<Stor
       expect(await store.pending('first', 'chat-b')).toMatchObject([{ id: b }]);
       expect(await store.pending('second', 'chat-a')).toMatchObject([{ id: c }]);
       expect(await store.recent('third', 'chat-a')).toEqual([]);
+      expect(await propose({ ...draft, scope: 'chat-b' })).toBe(a);
+      expect((await store.pending('first', 'chat-a')).map(({ id }) => id).sort()).toEqual([d, e].sort());
+      expect((await store.pending('first', 'chat-b')).map(({ id }) => id).sort()).toEqual([a, b].sort());
     });
 
     test('the same click can claim a row only once, including during a race', async () => {
@@ -66,6 +69,7 @@ export function proposalStoreContract(fixture: () => StoreFixture | Promise<Stor
       expect(await store.recent('first', 'chat-a')).toMatchObject([{ state: 'running', note: null }]);
       // Until somebody records the outcome, a second button could run the same act twice.
       expect(await store.propose(draft)).toBeNull();
+      expect(await store.propose({ ...draft, scope: 'chat-b' })).toBeNull();
       expect(await store.propose({ ...draft, args: { ...draft.args, amount: 5 } })).toBeNull();
       expect(await store.pending('first', 'chat-a')).toMatchObject([{ id, state: 'running' }]);
       await store.finish(id, 'first', 'done', 'Refunded.');
