@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import { parseArgs } from 'node:util';
+import { readFileSync } from 'node:fs';
+import { parseArgs, parseEnv } from 'node:util';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 
@@ -8,29 +9,31 @@ async function main() {
     options: {
       name: { type: 'string' },
       model: { type: 'string', default: 'claude-sonnet-5-5' },
+      env: { type: 'string', default: '.env' },
       'search-hosts': { type: 'string' },
-      again: { type: 'boolean' },
       help: { type: 'boolean' },
     },
   });
   if (values.help) {
-    console.log('Usage: setup-managed.mjs --name <app> [--model <model>] [--search-hosts a.com,b.com] [--again]');
+    console.log('Usage: setup-managed.mjs --name <app> [--env .env] [--model <model>] [--search-hosts a.com,b.com]');
     return;
   }
   const name = values.name?.trim();
   if (!name || !values.model.trim()) throw new Error('Supply --name <app> and a nonempty model.');
-  const ids = ['CLAUDE_AGENT_ID', 'CLAUDE_ENVIRONMENT_ID', 'CLAUDE_SEARCH_ENVIRONMENT_ID'];
-  if (!values.again && ids.some((id) => process.env[id])) {
-    throw new Error('A Managed Agents ID is already set. Use --again only to create a separate set of resources.');
-  }
+  // From the file and never the shell: an exported key would create these in another workspace.
+  const env = parseEnv(readFileSync(values.env, 'utf8'));
+  if (!env.ANTHROPIC_API_KEY) throw new Error(`Set ANTHROPIC_API_KEY in ${values.env}.`);
   const hosts = values['search-hosts']?.split(',').map((host) => host.trim().toLowerCase());
   const hostname = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
   if (hosts?.some((host) => host.length > 253 || !hostname.test(host))) {
     throw new Error('--search-hosts takes comma-separated bare host names such as example.org.');
   }
 
+  if (hosts && env.CLAUDE_SEARCH_ENVIRONMENT_ID) throw new Error(`${values.env} already has CLAUDE_SEARCH_ENVIRONMENT_ID. Change its hosts in the Console.`);
+  if (!hosts && env.CLAUDE_AGENT_ID && env.CLAUDE_ENVIRONMENT_ID) throw new Error(`Nothing to create: ${values.env} has its IDs.`);
+
   const Anthropic = createRequire(resolve('package.json'))('@anthropic-ai/sdk').default;
-  const client = new Anthropic({ maxRetries: 0, logLevel: 'off' });
+  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY, authToken: null, maxRetries: 0, logLevel: 'off' });
   const environment = (suffix, allowed_hosts) => client.beta.environments.create({
     name: `${name} ${suffix}`,
     config: {
@@ -41,16 +44,20 @@ async function main() {
 
   let stage = 'base agent';
   try {
-    const agent = await client.beta.agents.create({
-      name,
-      model: { id: values.model, effort: 'medium' },
-      system: 'Use the instructions and tools supplied when each session starts.',
-      tools: [],
-    });
-    console.log(`CLAUDE_AGENT_ID=${agent.id}`);
-    stage = 'main environment';
-    const main = await environment('local tools', []);
-    console.log(`CLAUDE_ENVIRONMENT_ID=${main.id}`);
+    if (!env.CLAUDE_AGENT_ID) {
+      const agent = await client.beta.agents.create({
+        name,
+        model: { id: values.model, effort: 'medium' },
+        system: 'Use the instructions and tools supplied when each session starts.',
+        tools: [],
+      });
+      console.log(`CLAUDE_AGENT_ID=${agent.id}`);
+    }
+    if (!env.CLAUDE_ENVIRONMENT_ID) {
+      stage = 'main environment';
+      const main = await environment('local tools', []);
+      console.log(`CLAUDE_ENVIRONMENT_ID=${main.id}`);
+    }
     if (hosts) {
       stage = 'search environment';
       const search = await environment('search', [...new Set(hosts)]);

@@ -190,10 +190,15 @@ describe('knowledge files', () => {
     expect(lib.inside(dir, '.')).toBeNull();
     // A link inside knowledge/ that points out of it ('junction' needs no privileges on Windows; elsewhere it is ignored).
     symlinkSync(root, join(dir, 'escape'), 'junction');
+    // A link with a plain name to an env directory inside it.
+    write(join(dir, '.env.d', 'keys.md'), 'SECRET=3');
+    symlinkSync(join(dir, '.env.d'), join(dir, 'keys'), 'junction');
     try {
       expect(lib.inside(dir, 'escape/AGENTS.md')).toBeNull();
+      expect(lib.inside(dir, 'keys/keys.md')).toBeNull();
     } finally {
-      rmSync(join(dir, 'escape'), { recursive: false, force: true });
+      for (const link of ['escape', 'keys']) rmSync(join(dir, link), { recursive: false, force: true });
+      rmSync(join(dir, '.env.d'), { recursive: true, force: true });
     }
   });
 });

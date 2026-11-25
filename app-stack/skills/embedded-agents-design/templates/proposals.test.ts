@@ -20,7 +20,8 @@ function memoryFixture(): StoreFixture {
     store: {
       async propose(draft) {
         const previous = scoped(draft.ownerId, draft.scope).find((row) =>
-          row.state === 'pending' && row.action === draft.action && row.subject === draft.subject);
+          (row.state === 'pending' || row.state === 'running') && row.action === draft.action && row.subject === draft.subject);
+        if (previous?.state === 'running') return null;
         const expires = Date.now() + PROPOSAL_TTL_SECONDS * 1000;
         if (previous && isDeepStrictEqual([previous.args, previous.card], [draft.args, draft.card])) {
           previous.expires = expires;
@@ -123,10 +124,32 @@ describe('proposal tools and confirmation', () => {
     const f = actionFixture();
     const log = vi.spyOn(console, 'error').mockImplementation(() => {});
     const id = await f.store.propose({ ownerId: owner.id, scope: f.scope, action: 'refund', subject: 'invoice-1', args: { invoiceId: 7 }, card });
-    expect(await f.confirm(id)).toMatchObject({ state: 'failed' });
+    expect(await f.confirm(id!)).toMatchObject({ state: 'failed' });
     expect(f.act).not.toHaveBeenCalled();
     expect(log).toHaveBeenCalledExactlyOnceWith('Proposal confirmation failed', { id });
     expect(await f.store.recent(owner.id, f.scope)).toMatchObject([{ state: 'failed' }]);
+  });
+
+  test('input that a second parse would change is refused before a card exists', async () => {
+    const { store, scope } = actionFixture();
+    const prepare = vi.fn(async () => card);
+    const propose = (input: z.ZodRawShape, value: unknown) => proposeTool(
+      defineAction<typeof owner>()({ name: 'refund', description: 'Propose a refund.', input, prepare, run: async () => 'Refunded.' }), owner, { store, scope },
+    ).run(z.object(input).parse(value));
+    const cents = { dollars: z.number().transform((dollars) => dollars * 100) };
+    await expect(propose(cents, { dollars: 5 })).rejects.toThrow('must parse to itself');
+    await expect(propose({ dollars: z.string().transform(Number) }, { dollars: '5' })).rejects.toThrow('must parse to itself');
+    expect(prepare).not.toHaveBeenCalled();
+    expect(await propose({ note: z.string().trim(), copies: z.number().default(1), on: z.coerce.date() }, { note: ' hello ', on: '2026-01-01' })).toContain('It has not run.');
+  });
+
+  test('a clicked action with no recorded outcome cannot be proposed again', async () => {
+    const f = actionFixture();
+    await f.tool.run(args);
+    const [{ id }] = await f.store.pending(owner.id, f.scope);
+    await f.store.consume(id, owner.id);
+    expect(await f.tool.run(args)).toContain('Nothing was proposed');
+    expect(await f.store.pending(owner.id, f.scope)).toMatchObject([{ id, state: 'running' }]);
   });
 
   test('an unplanned action error records a fixed sentence and logs only the proposal id', async () => {

@@ -30,6 +30,20 @@ function toolRows(doc: string, agent: string) {
   });
 }
 
+/** Tools the agent's own files switch on, each with the names its row may use. */
+function configuredTools(agent: string): string[][] {
+  const read = (file: string) => {
+    const path = join(ROOT, agent, file);
+    return existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : undefined;
+  };
+  const hosted: string[] = read('hosted.json') ?? [];
+  const servers: Record<string, { allowedTools?: string[] }> = read('.mcp.json')?.mcpServers ?? {};
+  return [
+    ...hosted.map((mode) => [mode === 'code' ? 'bash' : mode === 'search' ? 'web_search' : mode]),
+    ...Object.entries(servers).flatMap(([server, { allowedTools = [] }]) => allowedTools.map((tool) => [tool, `mcp__${server}__${tool}`])),
+  ];
+}
+
 function identityFields(schema: unknown, path = '$'): string[] {
   if (!schema || typeof schema !== 'object') return [];
   return Object.entries(schema).flatMap(([key, value]) => {
@@ -62,6 +76,10 @@ test('each agent card matches its registered tools and keeps identity out of the
     const tools = AGENT_TOOLS[name]({ id: 'agent-card-test-caller' }, 'agent-card-test');
     const appRows = rows.filter((row) => row.kind !== 'wrapper');
     expect(tools.map((tool) => tool.name).sort(), `Make ${name}'s app tools match the non-wrapper rows in ${DOC}.`).toEqual(appRows.map((row) => row.name).sort());
+    const wrapperRows = rows.filter((row) => row.kind === 'wrapper').map((row) => row.name);
+    for (const names of configuredTools(name)) {
+      expect(names.some((tool) => wrapperRows.includes(tool)), `Add a wrapper row for ${names[0]} to ${name}'s agent card in ${DOC}.`).toBe(true);
+    }
     for (const row of rows) {
       expect(kinds, `Use a supported tool kind for ${name}/${row.name}.`).toContain(row.kind);
       expect(row.kind === 'proposes', `Use kind proposes exactly for propose_* tools in ${name}'s agent card (${row.name}).`).toBe(row.name.startsWith('propose_'));

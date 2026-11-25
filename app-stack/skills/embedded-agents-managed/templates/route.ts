@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
-import { deleteSession, listAgents, NoSuchSession, openSession, transcript } from '@/lib/agent';
+import { deleteSession, listAgents, NoSuchSession, openSession, transcript, type AgentEvent } from '@/lib/agent';
 import { getCaller } from '@/lib/caller';
 
 export const runtime = 'nodejs';
@@ -78,7 +78,8 @@ export async function POST(req: Request) {
   // Apply the app's per-person limit here, and build the caller's tools here, so they close over caller.
   const disconnect = new AbortController();
   const signal = AbortSignal.any([req.signal, disconnect.signal]);
-  let run: Awaited<ReturnType<typeof openSession>>;
+  // `withCards(run, …)` from the embedded-agents-design skill adds the confirm cards as a last event.
+  let run: AsyncGenerator<AgentEvent | { type: 'cards'; cards: unknown[] }, void>;
   try {
     run = await openSession({ agent, prompt, sessionId, owner: caller.id, signal });
   } catch (error) {
@@ -98,6 +99,7 @@ export async function POST(req: Request) {
           sessionId = value.sessionId;
           send({ sessionId });
         } else if (value.type === 'text') send({ text: value.text });
+        else if (value.type === 'cards') send({ cards: value.cards });
         else if (value.type === 'done') send({ done: true, agent, sessionId, metadata: value.metadata });
         else send({ error: value.subtype, agent, sessionId });
       } catch (error) {

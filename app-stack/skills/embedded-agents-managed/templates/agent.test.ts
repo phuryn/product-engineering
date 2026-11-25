@@ -515,4 +515,25 @@ describe('the HTTP boundary', () => {
     expect((await DELETE(new Request(`${endpoint}?sessionId=bad`, { method: 'DELETE' }))).status).toBe(400);
     expect(await (await GET(new Request(endpoint))).json()).toEqual({ agents: lib.listAgents() });
   });
+
+  test('streams every event in its wire shape, the confirm cards after the end included', async () => {
+    vi.resetModules();
+    vi.doMock('@/lib/agent', () => ({ ...lib, openSession: async () => (async function* () {
+      yield { type: 'session', sessionId: sid };
+      yield { type: 'text', text: 'Proposed.' };
+      yield { type: 'done', text: 'Proposed.', sessionId: sid, metadata: {} };
+      yield { type: 'cards', cards: [{ id: 'card-1' }] };
+    })() }));
+    try {
+      const { POST } = await import('@/app/api/agents/route');
+      getCaller.mockResolvedValue({ id: opts.owner });
+      const body = await (await POST(request({ agent: opts.agent, prompt: opts.prompt }))).text();
+      expect(body.trim().split('\n\n').map((line) => JSON.parse(line.slice('data: '.length)))).toEqual([
+        { sessionId: sid }, { text: 'Proposed.' }, { done: true, agent: opts.agent, sessionId: sid, metadata: {} }, { cards: [{ id: 'card-1' }] },
+      ]);
+    } finally {
+      vi.doUnmock('@/lib/agent');
+      vi.resetModules();
+    }
+  });
 });

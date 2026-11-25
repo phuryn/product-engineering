@@ -22,7 +22,7 @@ description: "'Add an agent', 'an AI assistant in the app', 'what may it do': be
 - `shows` has the app draw something, such as a checked row or a link.
 - `writes` changes something the person can undo, and its row says how.
 - `proposes` stores a request that only a click runs.
-- `wrapper` is a tool the runtime adds, such as the file tools.
+- `wrapper` is a tool the runtime adds: file, hosted and MCP tools.
 
 ```md
 ### Agent card: <agent directory name>
@@ -36,7 +36,7 @@ What it sees: <what is in front of it before any tool call>
 | `<tool_name>` | <reads / shows / writes / proposes / wrapper> | <effect and scope> |
 
 Never: <actions or data outside its job>
-Limits: <steps per run, money per run, runs per person per hour, specialist runs per message if several agents, kill switch>
+Limits: <steps per run, money per run (per conversation on Managed Agents), runs per person per hour, specialist runs per message if several agents, kill switch>
 
 | Enforced in code | Asked in the instructions | Left to the agent |
 | --- | --- | --- |
@@ -91,13 +91,13 @@ Limits: 8 steps per run (assumption), $0.20 per run (assumption), 6 runs per per
 
 **Require a separate click by the same person before the proposal expires.** A typed "yes" runs nothing; the agent points to the button. The click is its own request: it uses the proposal up, checks permission and the current state again, then acts. `proposal_status` tells the agent what happened.
 
-**Treat a used proposal as used even when its outcome is unknown.** Each one runs at most once. A crash between the click and the outcome leaves it `running`, shown as "Check before trying again" with no button. Whoever checks closes it with `agent_proposal_finish`. Pass the proposal's id as the outside call's idempotency key.
+**Treat a used proposal as used even when its outcome is unknown.** Each one runs at most once. A crash between the click and the outcome leaves it `running`, shown as "Check before trying again" with no button, and the same subject can't be proposed again. Whoever checks closes it with `agent_proposal_finish`. Pass the proposal's id as the outside call's idempotency key.
 
 **Keep one scope per chat, and reuse it everywhere.** A proposal belongs to a person and a scope: the conversation's id, or the agent's name where there is one chat. The tools, the stream and the page load use the same one.
 
 ## Wire the app
 
-**Copy the files and supply the app's caller, actions and store.** The app's modules are `getCaller(request)` in `src/lib/caller.ts`, resolved from the session; `ACTIONS` in `src/lib/agent-actions.ts`; and `store` in `src/lib/proposal-store.ts`. The code needs Zod 4, `server-only` and the Node runtime.
+**Copy the files and supply the app's caller, actions and store.** The app's modules are `getCaller(request)` in `src/lib/caller.ts`, resolved from the session; `ACTIONS` in `src/lib/agent-actions.ts`; and `store` in `src/lib/proposal-store.ts`. Where people belong to workspaces, the caller's `id` names the workspace and the person, and `getCaller` returns `null` once they lose access; otherwise a former member still reads their cards. The code needs Zod 4, `server-only` and the Node runtime.
 
 **Apply the proposal SQL as an app migration before serving requests.** It denies the browser roles its table and functions. Apply the `supabase-production` skill on Supabase. Give `sqlStore` the app's server client:
 
@@ -106,7 +106,7 @@ const store = sqlStore(async (fn, args) => { const { data, error } = await supab
 const pgStore = sqlStore(async (fn, args) => (await pool.query(`select * from public.${fn}(${Object.values(args).map((_, i) => `$${i + 1}`).join(', ')})`, Object.values(args))).rows);
 ```
 
-**Write each action once, for preparing it and for the click.** The input is a zod shape that survives JSON, because the click parses the saved arguments again. Where the terms can change between the card and the click, show the agent a revision, take it as an argument and refuse a stale one.
+**Write each action once, for preparing it and for the click.** The input is a zod shape that parses to itself: the click parses the saved arguments again, so a transform belongs in `prepare` and `run`. Where the terms can change between the card and the click, show the agent a revision, take it as an argument and refuse a stale one.
 
 ```ts
 const refund = defineAction<Caller>()({
@@ -129,6 +129,8 @@ export const ACTIONS = { refund }; // src/lib/agent-actions.ts
 export const AGENT_TOOLS: Record<string, (caller: Caller, scope: string) => ToolSpec[]> = {
   support: (caller, scope) => [
     listInvoices(caller),
+    showInvoice(caller),
+    saveDraftNote(caller),
     proposeTool(ACTIONS.refund, caller, { store, scope }),
     statusTool(caller, { store, scope }),
   ],
@@ -136,16 +138,18 @@ export const AGENT_TOOLS: Record<string, (caller: Caller, scope: string) => Tool
 
 // the turn route, once the caller, the scope and the limits are resolved
 const tools = AGENT_TOOLS[agent](caller, scope).map((spec) => agentTool(spec));
-for await (const event of withCards(askAgent({ ...turn, tools }), () => readCards(caller, { store, scope }))) send(event);
+for await (const ev of withCards(askAgent({ ...turn, tools }), () => readCards(caller, { store, scope }))) {
+  if (ev.type === 'cards') send({ cards: ev.cards }); // beside the copied route's own branches
+}
 ```
 
-**One subject has one open confirm card.** The same proposal again keeps its id and gets a fresh 10 minutes (an assumption, `PROPOSAL_TTL_SECONDS`). Changed arguments or a changed card retire the old id, so a click approves exactly what was shown. The subject defaults to a hash of the arguments.
+**One subject has one open confirm card.** The same proposal again keeps its id and gets a fresh 10 minutes (an assumption, `PROPOSAL_TTL_SECONDS`). Changed arguments or a changed card retire the old id, so a click approves exactly what was shown. The subject defaults to a hash of the arguments; name it where reworded arguments would be the same act.
 
 **Refresh the open confirm cards after a click or a dismissal.** On `/api/agents/proposals`, `POST { id }` confirms, `DELETE { id }` dismisses and `GET ?scope=…` lists.
 
 ## Tests and files
 
-**Test each agent card against the tools the route passes.** `agent-card.test.ts` reads the cards in `docs/automation.md` by their heading, and fails on a missing, extra or misnamed tool and on an input that names a person. Wrapper rows are the runtime's own tests.
+**Test each agent card against the tools the route passes.** `agent-card.test.ts` reads the cards in `docs/automation.md` by their heading, and fails on a missing, extra or misnamed tool, a hosted or MCP tool with no row, and an input that names a person. The file and skill tools' rows are the runtime's own tests.
 
 **Give each line enforced in code a test that fails without it.** Apply the `derive-tests` skill. For the refund, take the permission away after preparing, and assert that the click leaves the payment unchanged.
 

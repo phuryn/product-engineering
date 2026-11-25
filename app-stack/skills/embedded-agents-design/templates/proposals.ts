@@ -1,5 +1,6 @@
 import 'server-only';
 import { createHash } from 'node:crypto';
+import { isDeepStrictEqual } from 'node:util';
 import { z } from 'zod';
 
 type Caller = { id: string };
@@ -36,7 +37,8 @@ export const PROPOSAL_TTL_SECONDS = 10 * 60;
 const CHECK_FIRST = 'Check before trying again.';
 
 export interface ProposalStore {
-  propose(proposal: NewProposal): Promise<string>;
+  // The proposal's id, or null while a clicked one for the same subject has no recorded outcome.
+  propose(proposal: NewProposal): Promise<string | null>;
   // Open confirm cards: live pending rows and running rows awaiting an outcome.
   pending(ownerId: string, scope: string): Promise<OpenProposal[]>;
   consume(id: string, ownerId: string): Promise<Consumed>;
@@ -53,6 +55,9 @@ export function proposeTool<C extends Caller, S extends z.ZodRawShape>(action: A
     description: action.description,
     input: action.input,
     async run(args) {
+      // The click parses the saved arguments again. Input that parsing would change twice would run something the card never showed.
+      const again = z.strictObject(action.input).safeParse(JSON.parse(JSON.stringify(args)));
+      if (!again.success || !isDeepStrictEqual(again.data, args)) throw new Error(`The input of ${action.name} must parse to itself: move the transform into prepare and run.`);
       try {
         const card = await action.prepare(args, caller);
         // Hash stable JSON so object key order alone cannot change the default subject.
@@ -61,7 +66,8 @@ export function proposeTool<C extends Caller, S extends z.ZodRawShape>(action: A
             ? Object.fromEntries(Object.entries(value).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0))
             : value,
         )).digest('hex');
-        await store.propose({ ownerId: caller.id, scope, action: action.name, subject, args, card });
+        const id = await store.propose({ ownerId: caller.id, scope, action: action.name, subject, args, card });
+        if (!id) return `Nothing was proposed: the person already clicked this, and its outcome is not recorded. ${CHECK_FIRST}`;
         return `The action is proposed. It has not run. The app shows the person a confirm card with the button "${card.confirmLabel}".`;
       } catch (error) {
         if (error instanceof Refused) return error.message;
@@ -139,11 +145,11 @@ export function sqlStore(rpc: (fn: string, args: Record<string, unknown>) => Pro
   const ownedId = (id: string, ownerId: string) => ({ p_id: id, p_owner_id: ownerId });
   return {
     async propose({ ownerId, scope, action, subject, args, card }) {
-      const [row] = await rows<{ id: string }>('propose', {
+      const [row] = await rows<{ id: string } | undefined>('propose', {
         ...ownerScope(ownerId, scope), p_action: action, p_subject: subject, p_args: args, p_card: card,
         p_ttl_seconds: PROPOSAL_TTL_SECONDS,
       });
-      return row.id;
+      return row?.id ?? null;
     },
     pending: (ownerId, scope) => rows<OpenProposal>('pending', ownerScope(ownerId, scope)),
     async consume(id, ownerId) {

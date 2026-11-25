@@ -143,12 +143,12 @@ export type AgentEvent =
 
 /** `path` inside `root`, symlinks resolved, or null. Never an env file, never `root` itself. */
 export function inside(root: string, path: string): string | null {
-  if (path.split(/[\\/]/).some((part) => part.startsWith('.env'))) return null;
   try {
     const base = realpathSync(root);
     const real = realpathSync(resolve(base, path));
     const rel = relative(base, real);
-    return rel && !rel.startsWith('..') && !isAbsolute(rel) ? real : null;
+    const env = rel.split(/[\\/]/).some((part) => part.startsWith('.env'));
+    return rel && !env && !rel.startsWith('..') && !isAbsolute(rel) ? real : null;
   } catch {
     return null;
   }

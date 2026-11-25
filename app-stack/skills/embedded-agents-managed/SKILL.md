@@ -28,8 +28,8 @@ description: "Only when Managed Agents is asked for, or an agent needs a hosted 
    | `templates/agents.live.test.ts` | `tests/live/agents.live.test.ts`: every agent against the real model |
 
    Vitest needs the same `@` alias as `tsconfig.json`. The live test gets its own Vitest config (include `tests/live/**/*.live.test.ts`, `testTimeout: 180_000`, `fileParallelism: false`, and `process.loadEnvFile('.env')` in a `try`) and a script, `agents:live`. It costs money, so it stays out of the gate.
-3. **Supply `getCaller(request)` from `src/lib/caller.ts`, even on localhost.** It returns `{ id }` from the session, or `null`. The id is the app's own opaque id, because it names the owner of each conversation.
-4. **Create the Console resources once per workspace.** Run `node --env-file=.env <skill dir>/scripts/setup-managed.mjs --name <app>` and save the lines it prints: `CLAUDE_AGENT_ID`, `CLAUDE_ENVIRONMENT_ID`, and `CLAUDE_SEARCH_ENVIRONMENT_ID` with `--search-hosts`. Development and production use separate workspaces and keys; apply the `environments` skill.
+3. **Supply `getCaller(request)` from `src/lib/caller.ts`, even on localhost.** It returns `{ id }` from the session, or `null`. The id is the app's own opaque id, because it names the owner of each conversation. Where people belong to workspaces, it names the workspace and the person, and `getCaller` returns `null` once they lose access; otherwise a former member still reads the conversation.
+4. **Create the Console resources once per workspace.** Run `node <skill dir>/scripts/setup-managed.mjs --name <app>` and save the lines it prints: `CLAUDE_AGENT_ID`, `CLAUDE_ENVIRONMENT_ID`, and `CLAUDE_SEARCH_ENVIRONMENT_ID` with `--search-hosts`. It takes the key from `.env`, or from the file `--env` names, and never from the shell. Development and production use separate workspaces and keys; apply the `environments` skill.
 
 **Instructions and tools stay in the repository.** The Console holds one placeholder agent. Each new conversation is created with its own model, instructions and tools, so nothing drifts from the code.
 
@@ -68,7 +68,7 @@ const run = await openSession({ agent, prompt, sessionId, owner: caller.id, tool
 **Turn on code or search for one agent in its `hosted.json`, never both.** Write `["code"]` or `["search"]`. Code that can reach the network is a way out for data, so the wrapper refuses the pair. List the tool on the agent card as a `wrapper` row.
 
 - **Code runs `bash` in a sandbox with no network.** The setup script makes that environment: no allowed hosts, MCP servers or package managers. Put no credential and no app file in it.
-- **Search reaches only the hosts you name.** It needs its own environment: run the setup script with `--search-hosts a.com,b.com`, bare names with no protocol. With no hosts named, search refuses.
+- **Search reaches only the hosts you name.** It needs its own environment: run the setup script again with `--search-hosts a.com,b.com`, bare names with no protocol. With no hosts named, search refuses.
 - **Keep search off for an agent that sees a person's private data.** The query leaves.
 - **Start new conversations after removing a hosted tool.** An open one keeps what it started with.
 
@@ -83,7 +83,7 @@ const run = await openSession({ agent, prompt, sessionId, owner: caller.id, tool
 | `GET /api/agents?sessionId=…` | Returns `{ messages: [{ role, text }] }` |
 | `DELETE /api/agents?sessionId=…` | Deletes the conversation, stopping a running turn first |
 
-- **Read `{ sessionId }`, then `{ text }` chunks, then one last event.** Append chunks as they arrive. `{ done, agent, sessionId, metadata }` ends the reply; `{ error, agent, sessionId }` ends it too, so show it.
+- **Read `{ sessionId }`, then `{ text }` chunks, then one last event.** Append chunks as they arrive. `{ done, agent, sessionId, metadata }` ends the reply; `{ error, agent, sessionId }` ends it too, so show it. Where the agent proposes, `{ cards }` comes as well, so read until the stream closes.
 - **Start a new conversation on `error_max_budget_usd`.** A conversation whose budget is spent accepts no more messages.
 - **Reload the transcript after `error_disconnected` and on page load.** The answer may have finished after the stream broke.
 - **Send one message at a time per conversation.** A second one interrupts a tool call the first is waiting on.
@@ -102,8 +102,8 @@ const run = await openSession({ agent, prompt, sessionId, owner: caller.id, tool
 
 ## 7. Before it leaves localhost
 
-- **Set a per-person limit on new conversations and messages.** `maxBudgetUsd`, $1 by default (an assumption), caps one whole conversation, not one message. Anthropic checks it between model requests, so one request can pass it: a 1-cent cap ended at 2 cents.
-- **Delete conversations when the person asks and when the account closes.** They stay in Anthropic's workspace until then. Call `deleteSession` and `deleteOwnerSessions`, and stop new messages for that account first.
+- **Set a per-person limit on new conversations and messages.** `maxBudgetUsd`, $1 by default (an assumption), caps one whole conversation, not one message. Anthropic checks it between model requests, so one request can pass it: a 1-cent cap ended at 2 cents. No money cap covers one message in an open conversation; an agent whose card needs one belongs on another runtime.
+- **Delete conversations when the person asks and when the account closes.** They stay in Anthropic's workspace until then. Call `deleteSession` and `deleteOwnerSessions`, once for each id the person has, and stop new messages for that account first.
 - **Say on the privacy page that Anthropic holds the conversation and the tool results.** Apply the `legal-pages` skill.
 - **Log ids, never content.** The route logs the agent, the session, the status and the vendor's request id.
 - **Prove a full run streams on the real host.** The app holds the stream while a run lasts, so the host's time limit must cover it. Run a slow tool and a closed tab there, and include the agents' files in the deployment's trace. Only localhost has been tested.
@@ -127,4 +127,4 @@ A signed-in person finishes a turn that calls a local tool, and reloads its tran
 
 ## Running the scripts
 
-**Run both scripts from the app's repository root.** `<skill dir>` is this skill's installation location. `new-agent.mjs` writes the agent's directory there. `setup-managed.mjs` creates Console resources and prints their ids; it edits no file, deletes nothing, and refuses when an id is already set, unless you pass `--again`. Archiving a base agent is permanent, so it never does.
+**Run both scripts from the app's repository root.** `<skill dir>` is this skill's installation location. `new-agent.mjs` writes the agent's directory there. `setup-managed.mjs` creates the Console resources whose ids the env file lacks and prints those ids; it edits no file and deletes nothing. A new base agent starts over: conversations made with the old one answer 404. Archiving one is permanent, so the script never does.
