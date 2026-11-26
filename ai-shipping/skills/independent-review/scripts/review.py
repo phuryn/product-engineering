@@ -174,8 +174,9 @@ CLAUDE_REVIEW_FLAGS = [
     "--no-session-persistence", "--output-format", "text",
 ]
 
-# The command in codex-agents § Reviewer. User config alone does not exclude
-# account tools (Codex CLI 0.166.0, macOS, observed 2026-11-14: 546 tools before,
+# The Reviewer section of references/codex.md in the delegation skill gives
+# this command. User config alone does not exclude account tools (Codex CLI
+# 0.166.0, macOS, observed 2026-11-14: 546 tools before,
 # 22 after the feature flags and web_search setting). Hooks are disabled by
 # flag; their absence was not measured. AGENTS.md, bundled skills and agent
 # tools remain; administrator system/managed/cloud layers were not observable.
@@ -240,7 +241,10 @@ def find_claude_bin() -> str | None:
 
 
 def native_of_npm_shim(shim: str) -> str | None:
-    """The native binary behind an npm shim, copied from codex-agents for standalone use."""
+    """Find the native binary behind an npm shim.
+
+    Copied from scripts/codex.py in the delegation skill for standalone use.
+    """
     res = Path(shim).resolve()
     roots = [res.parent / "node_modules" / "@openai" / "codex"]
     roots += [p for p in res.parents if p.name == "codex" and p.parent.name == "@openai"]

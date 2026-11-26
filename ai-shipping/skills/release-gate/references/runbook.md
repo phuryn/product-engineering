@@ -12,6 +12,12 @@ How to run a release that is more than one web deploy — a package, an editor e
 - **Who decides.** The owner decides *that* a release happens — explicitly; an authorization is spent by the release it authorizes — and any version beyond a patch. Everything else in the list is procedure and runs without asking. **Never infer a go** from an ambiguous reply ("ok", a thumbs-up, silence); when it is unclear, ask, even for "it's only the website".
 - **The version is a patch unless the owner said otherwise.** The test for a minor is whether users gain something they could not do before, not how large or visible the diff is: spending a minor on a refinement makes the next real one say less. (`2026-08-24`, a minor was spent on a running count added to an existing indicator.)
 
+### Scripts
+
+Reinventing a step can change what ships. On the first manual release, record commands and evidence in the release doc. On the second, script them and route the command from the entry file; apply `agent-instructions`. Run the script only after the owner's clear go, authorizing that one release. The doc names the steps the owner keeps.
+
+- **A release script refuses every option it does not read.** Name no target by default. Never echo a flag's value. An ignored `--dry-run` deploys for real.
+
 ## A. The candidate is finished
 
 1. **Trees clean and pushed, read rather than assumed.** Read `git status --short` and `git ls-files --others --exclude-standard` before staging; never `git add -A` blind. Anything machine-specific or agent-local that is not ignored (local tool permissions, an agent's scratch output) goes into `.gitignore` in the same commit — in a public repository a stray file is published, not just committed. A generated or vendored copy is compared with its source by hash, never by eye.
@@ -33,6 +39,12 @@ How to run a release that is more than one web deploy — a package, an editor e
 6. **Changelog section and version**, terse.
 7. **Backlog sweep: close every entry the release resolved.** Strike the heading with the version it shipped in, say what shipped and where it lives, **keep the original diagnosis** underneath, and never delete the entry. **Check its premises, not only its status**: a stale premise survives the fix and sends the next reader to plan against a world that no longer exists. Better still, close the entry in the commit that fixes it; the sweep is the backstop. (`2026-08-22`, three entries found stale in one morning, one of them a fix that came within a brief of being re-implemented.) **An entry whose revisit trigger this release fires is acted on, or re-set with a new trigger and the reason** — a trigger left firing is a deferral nobody decided (`checklist.md § 1`, with its receipt).
 
+### Publishing copy and authorship
+
+- **A leak check runs on the outgoing ref.** When public repositories must exclude content, check the whole ref rather than a bare diff. Then read what you push.
+- **A generated listing is never hand-edited.** Make changes through the generator, and use a test to hold the listing equal to it.
+- **A contributor's commits keep their authorship.** Preserve it through the release.
+
 ## C. The backend first, whenever the client needs anything new from it
 
 - **A client build that relies on new backend behaviour is not published until the backend carrying it is in production** — not merely on the main branch or a development deploy. A backend that predates a new message drops it silently: no error anywhere, the data simply never arrives.
@@ -42,6 +54,8 @@ How to run a release that is more than one web deploy — a package, an editor e
 - **An unauthenticated smoke cannot see the authenticated mile.** After a deploy that touches sign-in, sessions, ownership, entitlements or connection admission, run the authenticated canary too, with dedicated canary credentials (`test-harness`).
 - **A development environment on a different identity instance is not evidence about production's sign-in.** Say so rather than implying that green on development means green on production.
 
+- **The backend ships first.** Publish a client relying on new backend behaviour only once that backend is in production. Keep every backend release usable with the last published client. When sessions in separate repositories share a contract, keep its file byte-identical and pin its version with a test in each repository. Every contract change bumps the version and requires explicit agreement from each session before builds start. Probe each published client's parser before widening a response. If a client would reject it, ship client tolerance before the backend widens the response.
+
 ## D. The client release
 
 - **A leak check on the outgoing range, when a public repository must not carry something** — a private sibling's name, commercial plans, a surface not yet announced. Run it on a ref (`git grep -inE "<terms>" <ref>`) or on `--cached`, never on a bare `git diff`, which cannot see an untracked file. **The pattern is a backstop; read what you are about to push** — the rule is not a word list. (`2026-08-11`, a new untracked fixture carrying a private repository's name passed a pre-staging diff check and sat in public history until the next commit's check caught it. `2026-08-22`, the pattern of the day passed a commit naming an unannounced surface in merchandising language.)
@@ -49,6 +63,9 @@ How to run a release that is more than one web deploy — a package, an editor e
 - **The release script** runs the gate (integration and live suites included), packages, commits, pushes, **waits for CI on the pushed SHA before tagging** — without that, a release can be tagged and published before a second CI job goes red — tags, and **attaches the artifact this run just produced, never a leftover.**
 - **A release with several artifacts is finished only when every one is attached.** Read the release's asset list; a dispatched build that "read like the job was done" is not evidence. (`2026-08-09`, a release shipped with only the extension package attached, because the first of two installer dispatches had run.) Build release artifacts **from the tag**, so they are exactly the released code; test the branch-built artifacts **before** tagging — the tag build is not a substitute for testing. A build matrix whose release step needs every leg attaches all or nothing, so a download page never offers two versions at once.
 - **Publishing is not availability.** A registry may scan a new version before listing it, and a store may take minutes to show it. (As observed on 2026-09-02: the VS Code Marketplace took about ten minutes to show a publish, and its `lastUpdated` did not move meanwhile, so an agent reported a successful publish as failed; Open VSX scans new versions before listing them.) **Poll for the version; never infer from a timestamp**, and check that the query itself does not exclude a version still validating. **Never announce a listing as live**; say when it should appear.
+
+- **A release is finished only when every artifact is attached.** Read the asset list.
+- **Publishing is not availability.** Poll the store for the version. A publishing timestamp is insufficient, so describe a listing as live only once it serves the version.
 
 ## E. After the stores
 
@@ -59,4 +76,9 @@ How to run a release that is more than one web deploy — a package, an editor e
 - **A public comment describes nothing unreleased in the present tense.** Committed is not done: say "will be in <version>", in the future tense. (`2026-09-25`, a comment said a defect "is fixed" while the fix was committed and unreleased; the reporter tested the release they had, still saw it, and from their side it was the third claimed fix that was not there.)
 - **A reopened issue means the fix addressed a different cause.** Confirm a diagnosis against the reporter's configuration, not against a reproduction you built. (`2026-09-16`, a fix for a setting that "snapped back" was right for a cause the reporter did not have.)
 - **A contributor stays visible as a contributor.** Merge so their commit survives with their identity; adjust with commits on top; if history must be collapsed, carry `Co-authored-by:` with the address on their commits; never re-implement a pull request as your own change, however much of it you rewrite. **When merging a contributor branch, read the diff — never take `--theirs` wholesale on shared docs.** (One merge reverted three sections of the test and architecture docs, each fix clobbered again by the next conflict resolution.)
+- **An issue is done only once its fix is installable.** The fix must be installable from the reporter's store before its issue is done.
 - **Close the log.**
+
+## The marketplace branch
+
+- **The branch a plugin or skill marketplace serves is production.** When a pack source names a folder without a ref, installs read the branch's head (Claude Code, observed `2026-11-07`). Pushing there is a release regardless of tags. Keep next-release work on another branch. Move the served branch to the reviewed commit only at the go, with the tag naming its head.
