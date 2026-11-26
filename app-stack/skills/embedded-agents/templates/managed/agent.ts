@@ -5,7 +5,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import Anthropic from '@anthropic-ai/sdk';
 import { betaZodTool } from '@anthropic-ai/sdk/helpers/beta/zod';
 import { ToolError } from '@anthropic-ai/sdk/lib/tools/ToolError';
-import type { BetaRunnableTool } from '@anthropic-ai/sdk/lib/tools/BetaRunnableTool';
+import type { BetaRunnableTool, BetaToolRunContext } from '@anthropic-ai/sdk/lib/tools/BetaRunnableTool';
 import type { BetaManagedAgentsAgentWithOverridesParams, SessionCreateParams } from '@anthropic-ai/sdk/resources/beta/sessions/sessions';
 import type { BetaManagedAgentsAgentCustomToolUseEvent, BetaManagedAgentsSessionUsageSnapshot } from '@anthropic-ai/sdk/resources/beta/sessions/events';
 import { z } from 'zod';
@@ -72,7 +72,7 @@ export function agentTool<S extends z.ZodRawShape>(spec: {
   name: string;
   description: string;
   input: S;
-  run: (input: z.infer<z.ZodObject<S>>) => Promise<string>;
+  run: (input: z.infer<z.ZodObject<S>>, context?: BetaToolRunContext) => Promise<string>;
 }): AgentTool {
   return guarded(betaZodTool({ name: spec.name, description: spec.description, inputSchema: z.object(spec.input), run: spec.run }));
 }
@@ -415,7 +415,7 @@ async function sendMessage(events: SessionEvents, id: string, prompt: string, si
   return echo.id;
 }
 
-async function toolResult(tool: AgentTool | undefined, call: BetaManagedAgentsAgentCustomToolUseEvent) {
+async function toolResult(tool: AgentTool | undefined, call: BetaManagedAgentsAgentCustomToolUseEvent, signal: AbortSignal) {
   if (!tool) return { text: `There is no tool ${call.name}.`, is_error: true };
   let input: unknown;
   try {
@@ -428,7 +428,7 @@ async function toolResult(tool: AgentTool | undefined, call: BetaManagedAgentsAg
     return { text: TOOL_FAILED, is_error: true };
   }
   try {
-    const output = await tool.run(input, { toolUse: call, toolUseBlock: call });
+    const output = await tool.run(input, { toolUse: call, toolUseBlock: call, signal });
     return { text: typeof output === 'string' ? output : textOf(output), is_error: false };
   } catch (error) {
     return { text: error instanceof ToolError ? error.message : TOOL_FAILED, is_error: true };
@@ -517,7 +517,7 @@ async function* runSession(
         if (turns >= (opts.maxTurns ?? 10)) { stop = 'error_max_turns'; break; }
         if (event.type === 'agent.custom_tool_use') {
           const tool = !advertised || advertised.has(event.name) ? tools.get(event.name) : undefined;
-          void toolResult(tool, event).then(async (result) => {
+          void toolResult(tool, event, signal).then(async (result) => {
             if (signal.aborted) return;
             await events.send(sessionId, {
               events: [{
@@ -617,13 +617,16 @@ export function askSpecialist({ agent, description, tools, runs, owner, context,
     name: `ask_${agent.replace(/-/g, '_')}`,
     description,
     input: { question: z.string().min(1) },
-    async run({ question }: { question: string }) {
+    async run({ question }: { question: string }, toolContext?: BetaToolRunContext) {
+      const leadSignal = toolContext?.signal;
+      const consultationSignal = signal && leadSignal ? AbortSignal.any([signal, leadSignal]) : leadSignal ?? signal;
+      consultationSignal?.throwIfAborted();
       runs.take(); // Reserve the slot before any await: the runner can call several tools at once.
       const sessionClient = client ?? agentClient();
       let sessionId: string | undefined;
       try {
         const events = await openSession({
-          agent, prompt: question, tools, owner, context, model, maxTurns, maxBudgetUsd, timeoutMs, signal,
+          agent, prompt: question, tools, owner, context, model, maxTurns, maxBudgetUsd, timeoutMs, signal: consultationSignal,
         }, sessionClient);
         for await (const event of events) {
           if (event.type === 'session') {

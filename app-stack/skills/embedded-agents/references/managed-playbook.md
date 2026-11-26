@@ -50,7 +50,7 @@ An idle stream closed on its own after about ten minutes, with no error; a resul
 | What | How it works |
 |---|---|
 | Specialist request | `openSession` creates a fresh session on the same placeholder agent, with the specialist's instructions, own tools, app-written `context`, model and limits. It sends one user message with the lead's question. |
-| Owner and lifetime | The specialist has the same `owner` and gets the lead request's `signal`. Its own `timeoutMs` and `maxTurns` bound the run, and a whole-cent budget covers that session. The helper attempts deletion on every exit. `deleteOwnerSessions` finds any remaining specialist sessions by owner. |
+| Owner and lifetime | The specialist has the same `owner` and gets the lead turn's `signal`, which includes request cancellation. Its own `timeoutMs` and `maxTurns` bound the run, and a whole-cent budget covers that session. The helper attempts deletion on every exit. `deleteOwnerSessions` finds any remaining specialist sessions by owner. |
 | Counter and result | Every consult tool reserves from one `specialistRuns(max)` synchronously. Terminal events record `{ agent, metadata }`. A non-empty answer goes back as a tool result. A cap refusal, stop or empty answer goes back as a tool error. |
 | Cards | Proposal tools close over the same caller, store and app-issued scope as the lead's card stream. That scope exists before either session opens. |
 

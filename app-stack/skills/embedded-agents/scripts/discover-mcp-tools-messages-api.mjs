@@ -6,16 +6,30 @@
 //   node --env-file=.env <skill dir>/scripts/discover-mcp-tools-messages-api.mjs <agent>
 // It writes nothing: grant only the tools the agent's job needs, by editing `allowedTools`.
 import { existsSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { join, resolve } from 'node:path';
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import { pathToFileURL } from 'node:url';
 
 const agent = process.argv[2];
 if (!agent || !/^[a-z0-9][a-z0-9-]*$/.test(agent)) {
   console.error('Usage: discover-mcp-tools-messages-api.mjs <agent>');
   process.exit(2);
 }
+
+const requireFromApp = createRequire(join(process.cwd(), 'package.json'));
+let clientPaths;
+try {
+  // Resolve all three with the same export conditions so the SDK builds do not mix.
+  clientPaths = ['index', 'stdio', 'streamableHttp'].map((name) => requireFromApp.resolve(`@modelcontextprotocol/sdk/client/${name}.js`));
+} catch (error) {
+  if (error.code !== 'MODULE_NOT_FOUND') throw error;
+  console.error('Run npm install @modelcontextprotocol/sdk in the app before discovering MCP tools.');
+  process.exit(2);
+}
+const [{ Client }, { StdioClientTransport }, { StreamableHTTPClientTransport }] = await Promise.all(
+  clientPaths.map((path) => import(pathToFileURL(path).href)),
+);
+
 const file = join(resolve(process.cwd(), '.claude', 'agents', agent), '.mcp.json');
 if (!existsSync(file)) {
   console.log(`${agent} has no .mcp.json: nothing to discover.`);

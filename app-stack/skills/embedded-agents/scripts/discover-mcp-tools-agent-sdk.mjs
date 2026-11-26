@@ -4,15 +4,28 @@
 // Run from the repo root, with the agent's secrets in the environment:
 //   node --env-file=.env <skill dir>/scripts/discover-mcp-tools-agent-sdk.mjs <agent>
 // It writes nothing: grant only the tools the agent's job needs, by editing `allowedTools`.
-import { query } from '@anthropic-ai/claude-agent-sdk';
 import { existsSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const agent = process.argv[2];
 if (!agent || !/^[a-z0-9][a-z0-9-]*$/.test(agent)) {
   console.error('Usage: discover-mcp-tools-agent-sdk.mjs <agent>');
   process.exit(2);
 }
+
+const requireFromApp = createRequire(join(process.cwd(), 'package.json'));
+let sdkPath;
+try {
+  sdkPath = requireFromApp.resolve('@anthropic-ai/claude-agent-sdk');
+} catch (error) {
+  if (error.code !== 'MODULE_NOT_FOUND') throw error;
+  console.error('Run npm install @anthropic-ai/claude-agent-sdk in the app before discovering MCP tools.');
+  process.exit(2);
+}
+const { query } = await import(pathToFileURL(sdkPath).href);
+
 const dir = resolve(process.cwd(), '.claude', 'agents', agent);
 const file = join(dir, '.mcp.json');
 if (!existsSync(file)) {

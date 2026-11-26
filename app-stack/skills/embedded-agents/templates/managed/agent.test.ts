@@ -575,7 +575,9 @@ describe('specialist consultations', () => {
       agent: { id: 'agent_base', system: 'You are Vault.\n\nThe caller is on the annual plan.', model: { id: 'claude-haiku-5-5' } },
       metadata: { agent, owner: opts.owner }, budget: { max_list_cost: { amount: '10', currency: 'USD' } },
     });
-    expect(create.mock.calls[1][1]).toMatchObject({ signal, timeout: 2000 });
+    expect(create.mock.calls[1][1]).toMatchObject({ signal: expect.any(AbortSignal), timeout: 2000 });
+    expect(create.mock.calls[1][1]?.signal?.aborted).toBe(true);
+    expect(signal.aborted).toBe(false);
     expect(vault.sent.filter((event) => event.type === 'user.message')).toEqual([{ type: 'user.message', content: [block(question)] }]);
     expect(vault.sent).toContainEqual(toolResultEvent('outside', 'There is no tool lookup_hours.', true));
     expect(vault.sent).toContainEqual(toolResultEvent('read', 'Code from the vault.'));
@@ -653,6 +655,41 @@ describe('specialist consultations', () => {
     const consult = lib.askSpecialist({ agent, description, tools: [], runs: lib.specialistRuns(1), owner: opts.owner }, client);
     await expect(consult.run({ question })).resolves.toBe('Answer.');
     expect(vault.requests.at(-1)?.method).toBe('DELETE');
+  });
+
+  test('a stopped lead prevents a new proposal from an in-flight consultation', async () => {
+    const request = new AbortController();
+    let stopLead!: () => void;
+    let proposeLate!: () => void;
+    let markDeleted!: () => void;
+    const deleted = new Promise<void>((resolve) => { markDeleted = resolve; });
+    const lead = scripted({ onMessage(send) {
+      stopLead = () => send(idle('budget_reached'));
+      send(user());
+      send(call('consult', 'ask_vault', { question }));
+    } });
+    const vault = scripted({
+      onMessage(send) {
+        send(user());
+        proposeLate = () => { send(call('late', 'propose_change')); send(idle()); };
+        stopLead();
+      },
+      onDelete() { markDeleted(); return undefined; },
+    });
+    const { client } = consultationScript(lead, vault);
+    const propose = vi.fn(async () => 'Change proposed.');
+    const proposal = lib.agentTool({ name: 'propose_change', description: 'Propose a change.', input: {}, run: propose });
+    const consult = lib.agentTool(lib.askSpecialist({
+      agent, description, tools: [proposal], runs: lib.specialistRuns(1), owner: opts.owner, signal: request.signal,
+    }, client));
+
+    const events = await run(client, { tools: [consult], signal: request.signal });
+    expect(events.at(-1)).toMatchObject({ type: 'error', subtype: 'error_max_budget_usd' });
+    expect(request.signal.aborted).toBe(false);
+    if (!vault.streamClosed()) proposeLate(); // The server can deliver another call only while the stream is open.
+    await deleted;
+    expect(propose).not.toHaveBeenCalled();
+    expect(vault.sent).toContainEqual({ type: 'user.interrupt' });
   });
 
   test('a cancelled request interrupts and deletes an in-flight consultation', async () => {

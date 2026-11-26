@@ -22,7 +22,8 @@
 - Code two skills share stays the same in both: a whole file (COPIES) or a marked block (SHARED_BLOCKS).
 - No generated clutter (__pycache__, .pyc) in the tree.
 - The shared planning prompt in start-here and WALKTHROUGH stays identical from "Create a plan." on.
-- The wrappers' regression tests (tools/test_review.py, tools/test_codex.py) pass.
+- The wrappers' regression tests (tools/test_review.py, tools/test_codex.py) pass, and so does
+  tools/test_discover_mcp.mjs, which runs the MCP discovery scripts from outside the app.
 - Every script a skill carries parses as Python 3.9, and one that writes `X | Y` in an annotation
   imports `annotations` from __future__: macOS ships Python 3.9 as python3.
 - No leaks into any tracked file: local paths, the author's names outside their allowed places, and
@@ -411,6 +412,13 @@ def check_review_tests():
                              capture_output=True, text=True, cwd=ROOT)
         if run.returncode != 0:
             errors.append(f"{test} failed: " + (run.stderr or run.stdout)[-2000:])
+    node = shutil.which("node")
+    if not node:
+        (errors if STRICT else warnings).append("node not found; skipped tools/test_discover_mcp.mjs")
+        return
+    run = subprocess.run([node, str(ROOT / "tools/test_discover_mcp.mjs")], capture_output=True, text=True, cwd=ROOT)
+    if run.returncode != 0:
+        errors.append("tools/test_discover_mcp.mjs failed: " + (run.stdout + run.stderr)[-2000:])
 
 
 def check_plan_prompt_copies():

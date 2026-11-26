@@ -349,12 +349,11 @@ describe('specialist consultations', () => {
     expect(runs.runs).toEqual([{ agent, metadata: expect.objectContaining({ cost: 0.02 }) }]);
   });
 
-  test('neither native subagent name enters the tools or allowlist with or without consultations', () => {
+  test.each(['Agent', 'Task'])('rejects native %s in an explicit allowlist', (name) => {
     const consult = lib.agentTool(lib.askSpecialist({ agent, description, tools: [], runs: lib.specialistRuns(1) }));
     for (const tools of [[], [consult]]) {
-      const options = lib.agentOptions({ agent: 'plain', tools, allowedTools: ['Read', 'Agent', 'Task'] });
-      expect(options.tools).toEqual(['Read']);
-      expect(options.allowedTools).toEqual(tools.length ? ['Read', 'mcp__app__ask_vault'] : ['Read']);
+      expect(() => lib.agentOptions({ agent: 'plain', tools, allowedTools: ['Read', name] }))
+        .toThrow(`Agent "plain" cannot allow "${name}". Use askSpecialist for consultations.`);
     }
   });
 });

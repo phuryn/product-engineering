@@ -177,7 +177,7 @@ while (true) {
 
 **Start a new `query()` for a specialist that needs its own boundary.** The [Agent SDK subagent docs](https://code.claude.com/docs/en/agent-sdk/subagents) and [Claude Code subagent docs](https://code.claude.com/docs/en/sub-agents), read `2026-11-26`, put native subagents inside the lead's engine. A native subagent inherits built-in and MCP tools unless its definition lists a subset, and reads the lead project's `CLAUDE.md` and skills. The wrapper sets the directory, path guard, skills list and `strictMcpConfig` per query. The native `maxBudgetUsd` counts subagents in the query total.
 
-Native defaults also include a `general-purpose` subagent for an `Agent` call without a type, removed only by `CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1`. `Agent(fork)` copies the conversation, `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` defaults to three, and background results come back in a later turn. The wrapper leaves `Agent` and `Task` out of both tool lists. A separate query starts a new engine and gets its own `maxTurns` and `maxBudgetUsd`.
+Native defaults also include a `general-purpose` subagent for an `Agent` call without a type, removed only by `CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1`. `Agent(fork)` copies the conversation, `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` defaults to three, and background results come back in a later turn. The wrapper rejects `Agent` and `Task` in `allowedTools` and directs the caller to `askSpecialist`. A separate query starts a new engine and gets its own `maxTurns` and `maxBudgetUsd`.
 
 | What | How it works |
 |---|---|

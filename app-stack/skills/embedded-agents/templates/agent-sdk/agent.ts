@@ -169,8 +169,9 @@ export function agentOptions(opts: Omit<AskAgentOptions, 'prompt' | 'history'>, 
   const cwd = agentCwd(opts.agent);
   const mcp = discoverMcp(cwd);
   // Consultations use their own query. Reserve both names of the native subagent tool.
-  const allowedTools = (opts.allowedTools ?? ['Read', 'Glob', 'Grep', ...(mcp?.allowedTools ?? [])])
-    .filter((name) => name !== 'Agent' && name !== 'Task');
+  const nativeSubagent = opts.allowedTools?.find((name) => name === 'Agent' || name === 'Task');
+  if (nativeSubagent) throw new Error(`Agent "${opts.agent}" cannot allow "${nativeSubagent}". Use askSpecialist for consultations.`);
+  const allowedTools = opts.allowedTools ?? ['Read', 'Glob', 'Grep', ...(mcp?.allowedTools ?? [])];
   let mcpServers = mcp?.servers;
   const appToolNames: string[] = [];
   if (opts.tools?.length) {
