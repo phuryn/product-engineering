@@ -111,7 +111,7 @@ support: (caller, scope) => {
 | `GET /api/agents` | Lists the agents people may open, for the picker |
 | `POST /api/agents` `{ agent, prompt, sessionId? }` | Streams one turn; no id starts a conversation |
 | `GET /api/agents?sessionId=…` | Returns the Anthropic session transcript as `{ messages: [{ role, text }] }` |
-| `DELETE /api/agents?sessionId=…` | Deletes the Anthropic session, stopping a running turn first. Add deletion of the caller's copy (§ 7), on a 404 too: a retry after a failed delete finds the session gone. |
+| `DELETE /api/agents?sessionId=…` | Deletes the Anthropic session, stopping a running turn first. Add deletion of the app's copy (§ 7). |
 
 - **Read `{ sessionId }`, then `{ text }` chunks, then one last event.** Append chunks as they arrive. `{ done, agent, sessionId, metadata }` ends the reply; `{ error, agent, sessionId }` ends it too, so show it. Where the agent proposes, `{ cards }` comes as well, so read until the stream closes.
 - **Start a new conversation on `error_max_budget_usd`.** A conversation whose budget is spent accepts no more messages.
