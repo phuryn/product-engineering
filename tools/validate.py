@@ -282,7 +282,8 @@ def check_listing():
     listed = sum(len(s["description"]) for s in skills.values() if s["listed"])
     if listed > MAX_LISTED:
         errors.append(f"always-loaded descriptions total {listed} characters (max {MAX_LISTED})")
-    own_file = re.compile(r"`((?:references|reference|scripts|assets|templates|examples)/[A-Za-z0-9_./-]+)`")
+    # A bare path in backticks, or one after `<skill dir>/` inside a command line.
+    own_file = re.compile(r"(?:`|<skill dir>/)((?:references|reference|scripts|assets|templates|examples)/[A-Za-z0-9_./-]*[A-Za-z0-9_-])")
     for name, s in skills.items():
         # A merged skill's procedures live under its references, so their paths are held too (round 205).
         # ui-design's collections.md quotes other collections' own files, which this skill doesn't carry.

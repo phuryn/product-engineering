@@ -98,7 +98,7 @@ support: (caller, scope) => {
 
 **Build the chat UI for this product and its agent flow.** There is no template. It must do the following:
 
-- **Fill the picker from `GET /api/agents` when users choose agents.** A product may run one front agent and show no picker; the route still checks the name against `listAgents()`.
+- **Fill the picker from `GET /api/agents` when users choose agents.** A product may run one front agent and show no picker; the route still checks the name against `listAgents()`, less any specialist only agents talk to (§ 3).
 - **Send the conversation to the route and read server-sent events.** `POST { agent, prompt, history }` to `/api/agents` and read: `{ text }` chunks, then `{ done, agent, metadata }` or `{ error, agent }`. The parser is in playbook § 5.
 - **Store the agent on every message; identify replies with several agents.** When there is more than one agent, show it on each reply, so the reader always knows which agent answered. History is the conversation so far, kept in client state unless the product asks to persist it or passes caller tools (§ 3).
 - **Render agent output as plain text or sanitized markdown.** Never render raw HTML: it is untrusted text, like anything a user typed. Show an `error` event instead of spinning forever.

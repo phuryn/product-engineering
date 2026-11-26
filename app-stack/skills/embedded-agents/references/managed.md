@@ -111,11 +111,11 @@ support: (caller, scope) => {
 | `GET /api/agents` | Lists the agents people may open, for the picker |
 | `POST /api/agents` `{ agent, prompt, sessionId? }` | Streams one turn; no id starts a conversation |
 | `GET /api/agents?sessionId=…` | Returns the Anthropic session transcript as `{ messages: [{ role, text }] }` |
-| `DELETE /api/agents?sessionId=…` | Deletes the Anthropic session, stopping a running turn first. Add deletion of the app's copy (§ 7). |
+| `DELETE /api/agents?sessionId=…` | Deletes the Anthropic session, stopping a running turn first. Add deletion of the caller's copy (§ 7), on a 404 too: a retry after a failed delete finds the session gone. |
 
 - **Read `{ sessionId }`, then `{ text }` chunks, then one last event.** Append chunks as they arrive. `{ done, agent, sessionId, metadata }` ends the reply; `{ error, agent, sessionId }` ends it too, so show it. Where the agent proposes, `{ cards }` comes as well, so read until the stream closes.
 - **Start a new conversation on `error_max_budget_usd`.** A conversation whose budget is spent accepts no more messages.
-- **Reload the transcript after `error_disconnected` and on page load.** The answer may have finished after the stream broke.
+- **Reload the transcript after `error_disconnected` and on page load.** The answer may have finished after the stream broke. The transcript holds no links or cards the app drew, so a reload doesn't redraw them.
 - **Send one message at a time per conversation.** A second one interrupts a tool call the first is waiting on.
 - **Render agent output as plain text or sanitized markdown.** Never raw HTML: it is untrusted text, like anything a user typed.
 
