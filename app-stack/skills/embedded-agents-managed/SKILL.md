@@ -92,7 +92,7 @@ support: (caller, scope) => {
 - **Share one counter per message and reserve each slot before starting.** The app can run several tool calls in parallel. Once full, the tool says “This message has reached its specialist run limit.” A stopped run returns a tool error naming the specialist and reason. An empty answer returns an error too. To log a message's whole cost, create the counter where the route can read it and add the costs in `runs.runs` to the lead's spend for that turn. On a resumed lead session, subtract its prior cumulative spend first.
 - **Delete each specialist session when its consultation ends.** The helper attempts deletion on every exit, and account cleanup finds any session left behind by its owner metadata. Its `timeoutMs` bounds a consultation the lead stopped waiting for. Where the registry can reach the request's `signal`, pass it too, so a closed tab stops the specialist at once.
 - **Send links and confirm cards to the page through app code.** `showInvoice(caller, links)` uses the same per-request collector the route reads. Use `proposeTool(refund, caller, { store, scope })` with the lead's app-owned scope, which exists before either session. `withCards` and `readCards` use that same store and scope. Apply the `embedded-agents-design` skill for the card flow. Only the lead's text streams to the page. The specialist's answer is a tool result.
-- **Refuse a specialist at the route when only agents talk to it.** `listAgents()` finds every directory, so the copied route and its picker would offer the specialist to people too. Check the posted name against the agents people may open directly, as each card's "Who talks to it" says. Return that same list from `GET /api/agents`, so the picker never offers a specialist.
+- **Refuse a specialist at the route when only agents talk to it.** `listAgents()` finds every directory, so the copied route and its picker would offer the specialist to people too. Check the posted name against the agents people may open directly, as each card's "Who talks to it" says. Return that same list from `GET /api/agents`, so the picker never offers a specialist, and change the route test in `agent.test.ts` that expects every directory.
 - **Keep consultations one level deep.** Each hop adds a run's time and cost, and a specialist that could ask could ask the lead back. A specialist's card has no `ask_` row, and `askSpecialist` rejects that prefix in its tool list.
 - **Test the boundary with scripted sessions and a live consultation.** `agent.test.ts` checks both tool lists, the specialist's message and owner, cleanup, the parallel cap and the error results. `specialists.live.test.ts` records each session's tool offers while the lead retrieves a fresh code word. See `reference/playbook.md`.
 
@@ -111,7 +111,7 @@ support: (caller, scope) => {
 
 | Call | Does |
 |---|---|
-| `GET /api/agents` | Lists the agents, for the picker |
+| `GET /api/agents` | Lists the agents people may open, for the picker |
 | `POST /api/agents` `{ agent, prompt, sessionId? }` | Streams one turn; no id starts a conversation |
 | `GET /api/agents?sessionId=…` | Returns `{ messages: [{ role, text }] }` |
 | `DELETE /api/agents?sessionId=…` | Deletes the conversation, stopping a running turn first |
