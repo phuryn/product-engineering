@@ -41,3 +41,7 @@ When the next phase builds during review, separate the checkouts. For a serial r
 **Push the snapshot, not the branch.** Once pushes deploy, the branch tip can ship unreviewed commits made by the next phase during review. Those commits belong to the next round's subject.
 
 **The worktree is the load-bearing part.** Committing alone isolates nothing. The reviewer deliberately reads the working tree and diff because a diff cannot show interactions. Pointing it at the builder's tree produces findings about half-written code that no longer exists that way.
+
+## The whole-range release round
+
+Parallel review finds issues against code that has moved; fixes land on a changed tree. A structural finding can cost the newer work. That trade is fair at a phase boundary with a settled foundation, never at the end. The whole-range round must see everything together.
