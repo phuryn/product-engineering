@@ -3,7 +3,7 @@
 // `allowedTools` grants today. Connects to each server the way the wrapper does (src/lib/agent-mcp.ts)
 // and asks it for its tools — no model call, no cost. Run from the repo root, with the agent's
 // secrets in the environment:
-//   node --env-file=.env <skill dir>/scripts/discover-mcp-tools.mjs <agent>
+//   node --env-file=.env <skill dir>/scripts/discover-mcp-tools-messages-api.mjs <agent>
 // It writes nothing: grant only the tools the agent's job needs, by editing `allowedTools`.
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -13,7 +13,7 @@ import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/
 
 const agent = process.argv[2];
 if (!agent || !/^[a-z0-9][a-z0-9-]*$/.test(agent)) {
-  console.error('Usage: discover-mcp-tools.mjs <agent>');
+  console.error('Usage: discover-mcp-tools-messages-api.mjs <agent>');
   process.exit(2);
 }
 const file = join(resolve(process.cwd(), '.claude', 'agents', agent), '.mcp.json');

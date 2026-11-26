@@ -183,7 +183,7 @@ Most start themselves when the work matches what they're for. You start four, ma
 <details>
 <summary>What the skills cost your agent</summary>
 
-Your agent always carries the descriptions of the 34 skills that start themselves: 5,530 characters, about 2,500 tokens in Claude Code. A skill's full text loads only when it runs. `tools/validate.py` holds the descriptions to 6,600 characters in total and 300 each, because a crowded agent setup cuts descriptions short, and the cut falls on the words that say when to use a skill.
+Your agent always carries the descriptions of the 34 skills that start themselves: 5,530 characters, about 2,350 tokens in Claude Code. A skill's full text loads only when it runs. `tools/validate.py` holds the descriptions to 6,600 characters in total and 300 each, because a crowded agent setup cuts descriptions short, and the cut falls on the words that say when to use a skill.
 
 </details>
 

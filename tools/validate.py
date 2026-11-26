@@ -284,12 +284,20 @@ def check_listing():
         errors.append(f"always-loaded descriptions total {listed} characters (max {MAX_LISTED})")
     own_file = re.compile(r"`((?:references|reference|scripts|assets|templates|examples)/[A-Za-z0-9_./-]+)`")
     for name, s in skills.items():
-        for n, line in enumerate((s["dir"] / "SKILL.md").read_text(encoding="utf-8").splitlines(), 1):
-            for f in own_file.findall(line):
-                f = f.rstrip(".")
-                if not (s["dir"] / f).exists() and not any(
-                        o in line and (t["dir"] / f).exists() for o, t in skills.items()):
-                    errors.append(f"{s['rel']}:{n}: names {f}, which is not in the skill's folder")
+        # A merged skill's procedures live under its references, so their paths are held too (round 205).
+        # ui-design's collections.md quotes other collections' own files, which this skill doesn't carry.
+        docs = [s["dir"] / "SKILL.md"] + sorted(p for d in ("references", "reference")
+                                                 for p in (s["dir"] / d).glob("*.md")
+                                                 if p.relative_to(ROOT).as_posix()
+                                                 != "app-stack/skills/ui-design/references/collections.md")
+        for doc in docs:
+            for n, line in enumerate(doc.read_text(encoding="utf-8").splitlines(), 1):
+                for f in own_file.findall(line):
+                    f = f.rstrip(".")
+                    if not (s["dir"] / f).exists() and not any(
+                            o in line and (t["dir"] / f).exists() for o, t in skills.items()):
+                        errors.append(f"{doc.relative_to(ROOT).as_posix()}:{n}: names {f}, "
+                                      "which is not in the skill's folder")
     sizes = {s["rel"]: len((s["dir"] / "SKILL.md").read_bytes().replace(b"\r\n", b"\n")) for s in skills.values()}
     if sum(sizes.values()) > MAX_SKILL_BYTES_TOTAL:
         errors.append(f"SKILL.md files total {sum(sizes.values())} bytes (max {MAX_SKILL_BYTES_TOTAL}): "
