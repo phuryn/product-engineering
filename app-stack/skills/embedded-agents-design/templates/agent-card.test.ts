@@ -9,7 +9,7 @@ vi.mock('server-only', () => ({}));
 const ROOT = '.claude/agents';
 const DOC = 'docs/automation.md';
 const HEADER = /^\|\s*Tool\s*\|\s*Kind\s*\|\s*What it does\s*\|$/m;
-const kinds = ['reads', 'shows', 'writes', 'proposes', 'wrapper'];
+const kinds = ['reads', 'shows', 'writes', 'proposes', 'asks', 'wrapper'];
 const identity = /^(email|person|user|member|customer|account|owner|workspace|tenant|org|organization)(?:_?id)?$/i;
 
 function toolRows(doc: string, agent: string) {
@@ -71,6 +71,16 @@ test('each agent card matches its registered tools and keeps identity out of the
   expect(agents.length, `No agent directories with AGENTS.md found in ${ROOT}.`).toBeGreaterThan(0);
   for (const { name } of agents) {
     const rows = toolRows(doc, name);
+    for (const row of rows) {
+      expect(kinds, `Use a supported tool kind for ${name}/${row.name}.`).toContain(row.kind);
+      expect(row.kind === 'proposes', `Use kind proposes exactly for propose_* tools in ${name}'s agent card (${row.name}).`).toBe(row.name.startsWith('propose_'));
+      expect(row.kind === 'asks', `Use kind asks exactly for ask_* tools in ${name}'s agent card (${row.name}).`).toBe(row.name.startsWith('ask_'));
+      if (row.kind === 'asks') {
+        const target = row.name.slice('ask_'.length).replace(/_/g, '-');
+        expect(agents.some((agent) => agent.name === target), `Add ${ROOT}/${target}/AGENTS.md for ${name}/${row.name}.`).toBe(true);
+        expect(toolRows(doc, target).some((tool) => tool.name.startsWith('ask_')), `Remove ask_* tools from the ${target} specialist's agent card.`).toBe(false);
+      }
+    }
     expect(Object.hasOwn(AGENT_TOOLS, name), `Register ${name} in AGENT_TOOLS, returning [] if it has no app tools.`).toBe(true);
     expect(new Set(rows.map((row) => row.name)).size, `Remove duplicate tool names from ${name}'s agent card.`).toBe(rows.length);
     const tools = AGENT_TOOLS[name]({ id: 'agent-card-test-caller' }, 'agent-card-test');
@@ -79,10 +89,6 @@ test('each agent card matches its registered tools and keeps identity out of the
     const wrapperRows = new Set(rows.filter((row) => row.kind === 'wrapper').map((row) => row.name));
     for (const names of configuredTools(name)) {
       expect(names.some((tool) => wrapperRows.delete(tool)), `Add a wrapper row for ${names.join(' or ')} to ${name}'s agent card in ${DOC}.`).toBe(true);
-    }
-    for (const row of rows) {
-      expect(kinds, `Use a supported tool kind for ${name}/${row.name}.`).toContain(row.kind);
-      expect(row.kind === 'proposes', `Use kind proposes exactly for propose_* tools in ${name}'s agent card (${row.name}).`).toBe(row.name.startsWith('propose_'));
     }
     for (const tool of tools) {
       const schema = z.toJSONSchema(z.object(tool.input), { io: 'input', cycles: 'ref', unrepresentable: 'any' });

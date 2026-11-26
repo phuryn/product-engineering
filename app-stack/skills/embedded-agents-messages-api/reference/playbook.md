@@ -96,6 +96,17 @@ Every tool is wrapped the same way (`guarded`):
 - `run` returns the text the model reads. A `ToolError` is a planned failure the model reads as an error result.
 - **Any other exception reaches the model as a fixed sentence (`TOOL_FAILED`).** Left alone, the runner sends `Error: <message>` — measured — and a database or vendor message can carry a host name, a query or a credential, which the model might repeat to the user.
 
+### Specialist consultations
+
+**Treat a consultation as a fresh run within the lead's tool call.** The app wraps the spec from `askSpecialist` with `agentTool` and adds it to the lead's tool list.
+
+| What | How it works |
+|---|---|
+| Specialist request | The specialist's `AGENTS.md`, an optional app-written `context` line, and one user message containing the lead's question. The run gets the specialist's own model, limits and closing tools. |
+| Specialist tools | The app builds the specialist's own tools for the same caller. The wrapper adds only tools from the specialist's directory. The specialist card cannot list an `ask_` tool. |
+| Counter | All consult tools share a `specialistRuns(max)` counter for the message. They reserve synchronously before starting, and each terminal event records `{ agent, metadata }` for cost logging. |
+| Tool result | Only a non-empty `done` answer reaches the lead as a successful result. A cap refusal, an `error` stop or an empty answer reaches it as a `ToolError`. |
+
 ---
 
 ## 5. Knowledge files and skills
@@ -202,8 +213,12 @@ while (true) {
 | File | Runs | What it pins |
 |---|---|---|
 | `templates/agent.test.ts` → `tests/unit/` | inside `npm test`, no model call | directory resolution and name validation; the request (system prompt, caching, model, effort, fallbacks per model, tools, duplicate names, the price list); history as turns; the file and skill tools and their confinement; `.mcp.json` parsing and secret expansion; and the run itself — the SDK's real tool runner against a scripted `fetch`: tools run, events, cost, closing tools end the run only when the response has text and calls nothing else, both ceilings stop before tools run, refusal and cut-off are errors, `ToolError` and the fixed sentence, retries exhausted throws. |
+| `templates/agent.test.ts` consultations | inside `npm test`, no model call | The two tool lists, an unoffered tool refused, the specialist's fresh prompt, its own run settings, a shared cap under parallel calls, stop and empty-answer errors, and run metadata. |
 | `templates/agents.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | for every agent: each MCP server starts and still offers every allowed tool; the model is shown only its own tools; it answers with a positive cost. |
+| `templates/specialists.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | The lead gets a fresh code word from the specialist, and recorded requests show exactly each agent's tool list. |
 | `examples/*.live.test.ts` | with the examples | knowledge-agent signs off, answers the OKR target from `knowledge/okrs.md` with a citation, and refuses a topic its files do not cover; research-agent signs off and cites a source. |
+
+**A consultation, observed `2026-11-26`** (Sonnet 5.5, `@anthropic-ai/sdk` 1.14.0, `specialists.live.test.ts`, 6 of 6 runs passed): the lead called `ask_vault` once and returned the specialist's fresh code word. Every recorded request offered the lead exactly `lookup_hours` and `ask_vault`, and the specialist exactly `read_code`. Median of five runs: 2.97 s for the message, 1.35 s of it the consultation; $0.0011 for the lead's run and $0.0022 for the specialist's.
 
 **Mutation-checked** (2026-10-24): removing the turn ceiling, the exception guard, the `realpath` resolution, the `.env` rule, the hidden-file filter, the closing branch, its text condition, `every` (as `some`), or the call that runs the closing tools each turns at least one unit test red.
 

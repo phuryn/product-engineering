@@ -384,3 +384,56 @@ export async function* askAgent(opts: AskAgentOptions, client: Anthropic = agent
     await mcp?.close();
   }
 }
+
+export interface SpecialistRuns {
+  readonly max: number;
+  readonly started: number;
+  readonly runs: { agent: string; metadata: AgentMetadata }[];
+  take(): void;
+}
+
+/** One counter per message, shared by all of the lead's consult tools. */
+export function specialistRuns(max: number): SpecialistRuns {
+  if (!Number.isSafeInteger(max) || max < 0) throw new RangeError('The specialist run limit must be a non-negative integer.');
+  let started = 0;
+  return {
+    max,
+    get started() { return started; },
+    runs: [],
+    take() {
+      if (started >= max) throw new ToolError('This message has reached its specialist run limit.');
+      started += 1;
+    },
+  };
+}
+
+/** A caller tool spec for the lead. Wrap it with agentTool like any other spec. */
+export function askSpecialist({ agent, description, tools, runs, context, model, maxTurns, maxBudgetUsd, closingTools }: {
+  agent: string;
+  description: string;
+  tools: AgentTool[];
+  runs: SpecialistRuns;
+  context?: string;
+  model?: string;
+  maxTurns?: number;
+  maxBudgetUsd?: number;
+  closingTools?: string[];
+}, client?: Anthropic) {
+  agentDir(agent);
+  if (tools.some((tool) => tool.name.startsWith('ask_'))) throw new Error(`Remove consult tools from the ${agent} specialist.`);
+  return {
+    name: `ask_${agent.replace(/-/g, '_')}`,
+    description,
+    input: { question: z.string().min(1) },
+    async run({ question }: { question: string }) {
+      runs.take(); // Reserve the slot before any await: the runner can call several tools at once.
+      for await (const event of askAgent({ agent, prompt: question, tools, context, model, maxTurns, maxBudgetUsd, closingTools }, client)) {
+        if (event.type === 'text') continue;
+        runs.runs.push({ agent, metadata: event.metadata });
+        if (event.type === 'error') throw new ToolError(`The ${agent} specialist stopped before answering (${event.subtype}).`);
+        if (event.text.trim()) return event.text;
+      }
+      throw new ToolError(`The ${agent} specialist finished without an answer.`);
+    },
+  };
+}

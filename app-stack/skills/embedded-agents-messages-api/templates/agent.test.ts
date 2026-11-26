@@ -19,7 +19,9 @@ function write(path: string, body: string) {
 }
 write(join(root, 'AGENTS.md'), 'The repository instructions: never readable by an agent.');
 write(join(root, '.env'), 'SECRET=1');
+write(join(agentsDir, 'billing-help', 'AGENTS.md'), 'You are Billing Help.');
 write(join(agentsDir, 'plain', 'AGENTS.md'), 'You are Plain.');
+write(join(agentsDir, 'policy', 'AGENTS.md'), 'You are Policy.');
 write(join(agentsDir, 'tooled', 'AGENTS.md'), 'You are Tooled.');
 write(join(agentsDir, 'tooled', 'knowledge', 'okrs.md'), '# OKRs\nScore OKRs from 0 to 1.\nAim for 0.7.');
 write(join(agentsDir, 'tooled', 'knowledge', 'deep', 'jtbd.md'), 'Jobs to be done.');
@@ -94,7 +96,7 @@ function lookup(seen: string[] = []) {
 
 describe('agents are directories', () => {
   test('lists only directories that hold an AGENTS.md', () => {
-    expect(lib.listAgents()).toEqual(['plain', 'tooled']);
+    expect(lib.listAgents()).toEqual(['billing-help', 'plain', 'policy', 'tooled']);
   });
 
   test('refuses a name that is a path, so a request body cannot pick the repo root', () => {
@@ -323,5 +325,128 @@ describe('the run', () => {
 
   test('a request that still fails after retries throws, for the caller to report', async () => {
     await expect(run({}, scripted(500).client)).rejects.toThrow();
+  });
+});
+
+describe('specialist consultations', () => {
+  const agent = 'billing-help';
+  const description = 'Ask for help with a billing question.';
+
+  test('each agent gets its own tools and the specialist gets only the new question and its context', async () => {
+    const question = 'Which billing rule applies?';
+    const context = 'The caller is on the annual plan.';
+    const leadRun = vi.fn(async () => 'Lead data.');
+    const readPolicy = vi.fn(async () => 'Policy attached.');
+    const leadTool = lib.agentTool({ name: 'lead_lookup', description: 'Get lead data.', input: {}, run: leadRun });
+    const specialistTool = lib.agentTool({ name: 'read_policy', description: 'Attach the policy.', input: {}, run: readPolicy });
+    const { client, sent } = scripted(
+      { ...reply([call('ask_billing_help', { question })], 'tool_use'), id: 'msg_lead' },
+      { ...reply([call('lead_lookup', {}, 'toolu_outside')], 'tool_use'), id: 'msg_specialist' },
+      reply([text('The annual rule applies.'), call('read_policy', {})], 'tool_use'),
+      reply([text('Use the annual rule.')], 'end_turn'),
+    );
+    const runs = lib.specialistRuns(1);
+    const consult = lib.askSpecialist({
+      agent, description, runs, context, tools: [specialistTool], model: 'claude-haiku-5-5', closingTools: ['read_policy'],
+    }, client);
+    const events = await run({
+      tools: [leadTool, lib.agentTool(consult)], context: 'Lead-only context.',
+      history: [{ role: 'user', content: 'Lead-only history.' }],
+    }, client);
+
+    expect(sent).toHaveLength(4);
+    expect(sent[0].tools.map(({ name }) => name).sort()).toEqual(['ask_billing_help', 'lead_lookup']);
+    expect(sent[1].tools.map(({ name }) => name)).toEqual(['read_policy']);
+    for (const [request, names, previous] of [
+      [sent[2], ['read_policy'], 'msg_specialist'], [sent[3], ['ask_billing_help', 'lead_lookup'], 'msg_lead'],
+    ] as const) {
+      if (request.tools) expect(request.tools.map(({ name }) => name).sort()).toEqual(names);
+      else expect(request.thread).toEqual({ type: 'continue', previous_message_id: previous });
+    }
+    expect(sent[1].system).toEqual([
+      { type: 'text', text: 'You are Billing Help.', cache_control: { type: 'ephemeral' } },
+      { type: 'text', text: context },
+    ]);
+    expect(sent[1].messages).toEqual([{ role: 'user', content: question }]);
+    expect(sent[1].model).toBe('claude-haiku-5-5');
+    expect(sent[2].messages.at(-1)?.content).toEqual([
+      expect.objectContaining({ type: 'tool_result', tool_use_id: 'toolu_outside', is_error: true }),
+    ]);
+    expect(leadRun).not.toHaveBeenCalled();
+    expect(readPolicy).toHaveBeenCalledOnce();
+    expect(sent[3].messages.at(-1)?.content).toEqual([
+      { type: 'tool_result', tool_use_id: 'toolu_1', content: 'The annual rule applies.' },
+    ]);
+    expect(events).toEqual([
+      { type: 'text', text: 'Use the annual rule.' },
+      expect.objectContaining({ type: 'done', text: 'Use the annual rule.' }),
+    ]);
+    expect(runs.runs).toEqual([{ agent, metadata: expect.objectContaining({ tokens: 300, cost: expect.any(Number) }) }]);
+  });
+
+  test('three parallel calls through two consult tools start only two runs', async () => {
+    const { client, sent } = scripted(
+      reply([
+        call('ask_billing_help', { question: 'First?' }, 'toolu_first'),
+        call('ask_policy', { question: 'Second?' }, 'toolu_second'),
+        call('ask_billing_help', { question: 'Third?' }, 'toolu_third'),
+      ], 'tool_use'),
+      reply([text('Done.')], 'end_turn'),
+    );
+    const specialists = scripted(reply([text('First answer.')], 'end_turn'), reply([text('Second answer.')], 'end_turn'));
+    const runs = lib.specialistRuns(2);
+    const tools = [agent, 'policy'].map((agent) => lib.agentTool(lib.askSpecialist({ agent, description, tools: [], runs }, specialists.client)));
+
+    await run({ tools }, client);
+    expect(specialists.sent.map(({ messages }) => messages)).toEqual([
+      [{ role: 'user', content: 'First?' }], [{ role: 'user', content: 'Second?' }],
+    ]);
+    expect(sent[1].messages.at(-1)?.content).toEqual([
+      { type: 'tool_result', tool_use_id: 'toolu_first', content: 'First answer.' },
+      { type: 'tool_result', tool_use_id: 'toolu_second', content: 'Second answer.' },
+      { type: 'tool_result', tool_use_id: 'toolu_third', content: 'This message has reached its specialist run limit.', is_error: true },
+    ]);
+    expect(runs.started).toBe(2);
+    expect(runs.runs.map(({ agent }) => agent).sort()).toEqual(['billing-help', 'policy']);
+  });
+
+  test('reserves a slot synchronously before a specialist run can finish', async () => {
+    const runs = lib.specialistRuns(1);
+    const { client } = scripted(reply([text('Answer.')], 'end_turn'));
+    const consult = lib.askSpecialist({ agent, description, tools: [], runs }, client);
+    const answer = consult.run({ question: 'Question?' });
+    expect(runs.started).toBe(1);
+    expect(runs.runs).toEqual([]);
+    await expect(answer).resolves.toBe('Answer.');
+  });
+
+  test.each([
+    [{ maxTurns: 1 }, reply([call('lookup', { key: 'alpha' })], 'tool_use'), 'The billing-help specialist stopped before answering (error_max_turns).'],
+    [{ maxBudgetUsd: 0.0001 }, reply([call('lookup', { key: 'alpha' })], 'tool_use'), 'The billing-help specialist stopped before answering (error_max_budget_usd).'],
+    [{}, reply([text('   ')], 'end_turn'), 'The billing-help specialist finished without an answer.'],
+  ])('sends a stopped or empty specialist reply to the lead as an error (%j)', async (limits, response, error) => {
+    const seen: string[] = [];
+    const { client, sent } = scripted(
+      reply([call('ask_billing_help', { question: 'Question?' })], 'tool_use'),
+      response,
+      reply([text('I could not get an answer.')], 'end_turn'),
+    );
+    const runs = lib.specialistRuns(1);
+    const consult = lib.askSpecialist({ agent, description, tools: [lookup(seen)], runs, ...limits }, client);
+    await run({ tools: [lib.agentTool(consult)] }, client);
+
+    expect(seen).toEqual([]);
+    expect(sent[2].messages.at(-1)?.content).toEqual([
+      { type: 'tool_result', tool_use_id: 'toolu_1', content: error, is_error: true },
+    ]);
+    expect(runs.runs).toEqual([{ agent, metadata: expect.objectContaining({ tokens: 150, cost: expect.any(Number) }) }]);
+  });
+
+  test('validates the specialist directory and rules out nested consult tools when building the spec', () => {
+    const spec = { agent, description, tools: [], runs: lib.specialistRuns(1) };
+    expect(() => lib.askSpecialist({ ...spec, agent: '../..' })).toThrow(/Invalid agent name/);
+    expect(() => lib.askSpecialist({ ...spec, agent: 'not-an-agent' })).toThrow(/missing AGENTS\.md/);
+    const nested = lib.agentTool(lib.askSpecialist({ ...spec, agent: 'policy' }));
+    expect(() => lib.askSpecialist({ ...spec, tools: [nested] })).toThrow('Remove consult tools from the billing-help specialist.');
   });
 });

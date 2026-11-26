@@ -1,6 +1,6 @@
 ---
 name: embedded-agents-design
-description: "'Add an agent', 'an AI assistant in the app', 'what may it do': before proposing, planning, building or changing a product's agent: its job, tools, what code enforces, what waits for a click."
+description: "'Add an agent', 'an AI assistant in the app', 'what may it do', 'agents that call agents': before proposing, planning, building or changing a product's agent: its job, tools, what code enforces, what waits for a click."
 ---
 
 # Design an embedded agent
@@ -22,6 +22,7 @@ description: "'Add an agent', 'an AI assistant in the app', 'what may it do': be
 - `shows` has the app draw something, such as a checked row or a link.
 - `writes` changes something the person can undo, and its row says how.
 - `proposes` stores a request that only a click runs.
+- `asks` runs another agent, which has its own card. It is named `ask_<agent>`, with the directory name's hyphens as underscores.
 - `wrapper` is a tool the runtime adds: file, hosted and MCP tools.
 
 ```md
@@ -33,7 +34,7 @@ What it sees: <what is in front of it before any tool call>
 
 | Tool | Kind | What it does |
 | --- | --- | --- |
-| `<tool_name>` | <reads / shows / writes / proposes / wrapper> | <effect and scope> |
+| `<tool_name>` | <reads / shows / writes / proposes / asks / wrapper> | <effect and scope> |
 
 Never: <actions or data outside its job>
 Limits: <steps per run, money per run (per conversation on Managed Agents), runs per person per hour, specialist runs per message if several agents, kill switch>
@@ -149,7 +150,7 @@ for await (const ev of withCards(askAgent({ ...turn, tools }), () => readCards(c
 
 ## Tests and files
 
-**Test each agent card against the tools the route passes.** `agent-card.test.ts` reads the cards in `docs/automation.md` by their heading, and fails on a missing, extra or misnamed tool, a hosted or MCP tool with no row, and an input that names a person. The file and skill tools' rows are the runtime's own tests.
+**Test each agent card against the tools the route passes.** `agent-card.test.ts` reads the cards in `docs/automation.md` by their headings. It fails on missing, extra or misnamed tools, hosted or MCP tools with no row, and inputs that name a person. It also fails when `asks` and `ask_` disagree, a target lacks its directory or card, or a specialist lists an `ask_` tool. The runtime tests cover file and skill tools.
 
 **Give each line enforced in code a test that fails without it.** Apply the `derive-tests` skill. For the refund, take the permission away after preparing, and assert that the click leaves the payment unchanged.
 
@@ -163,7 +164,7 @@ The tests need Vitest, `@electric-sql/pglite` and the app's `@/` alias.
 | `templates/proposals.test.ts` | `tests/unit/` | Proposal, route and stream tests |
 | `templates/proposals.contract.ts` | `tests/unit/` | What any store must do |
 | `templates/proposals.sql.test.ts` | `tests/unit/` | The same on PGlite; point it at the copied migration |
-| `templates/agent-card.test.ts` | `tests/unit/` | Agent cards against registered tools |
+| `templates/agent-card.test.ts` | `tests/unit/` | Agent cards against registered tools, `asks` names and target cards, no nested consultations |
 
 Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 

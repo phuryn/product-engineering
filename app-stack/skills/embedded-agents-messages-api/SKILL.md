@@ -11,7 +11,7 @@ description: "Building, adding or wiring up an agent or an agent chat inside a N
 
 **Read the product's own agent instructions before changing its embedded agents.** Start with its root `AGENTS.md` or `CLAUDE.md`, and tell any subagent spawned for this work to read it too. Its rules on secrets, environment variables, validation, callers, tests and release apply here. Read `reference/playbook.md` before changing the wrapper's contract or explaining it in depth. It holds the full playbook and the measurement behind every choice.
 
-**Keep request, caller, storage and UI ownership in the app.** The agent owns reasoning and tool choice. An agent is a directory, `.claude/agents/<name>/`, with `AGENTS.md` as its whole system prompt. It may also hold `knowledge/`, agent-local skills in `.claude/skills/`, and `.mcp.json`. One wrapper function, `askAgent`, runs any agent. No agent name appears in code.
+**Keep request, caller, storage and UI ownership in the app.** The agent owns reasoning and tool choice. An agent is a directory, `.claude/agents/<name>/`, with `AGENTS.md` as its whole system prompt. It may also hold `knowledge/`, agent-local skills in `.claude/skills/`, and `.mcp.json`. One wrapper function, `askAgent`, runs any agent. The wrapper hardcodes no agent names.
 
 ## 1. First use: install the wrapper
 
@@ -28,8 +28,9 @@ description: "Building, adding or wiring up an agent or an agent chat inside a N
    | `templates/route.ts` | `src/app/api/agents/route.ts` — `GET` lists agents, `POST` streams one |
    | `templates/agent.test.ts` | `tests/unit/agent.test.ts` — the contract, inside `npm test`, no model call |
    | `templates/agents.live.test.ts` | `tests/live/agents.live.test.ts` — every agent against the real model |
+   | `templates/specialists.live.test.ts` | `tests/live/specialists.live.test.ts` — a lead consulting a specialist against the real model |
 
-   The tests import `@/lib/agent` and `@/lib/agent-mcp`, so Vitest needs the same `@` alias as `tsconfig.json`. The live test gets its own Vitest config (include `tests/live/**/*.live.test.ts`, `testTimeout: 180_000`, `fileParallelism: false`, and `process.loadEnvFile('.env')` in a `try`) and a script, `agents:live`. It costs money, so it stays out of `npm test` and the gate.
+   The tests import `@/lib/agent` and `@/lib/agent-mcp`, so Vitest needs the same `@` alias as `tsconfig.json`. The live tests share a Vitest config (include `tests/live/**/*.live.test.ts`, `testTimeout: 180_000`, `fileParallelism: false`, and `process.loadEnvFile('.env')` in a `try`) and a script, `agents:live`. They cost money, so they stay out of `npm test` and the gate.
 4. **Set each required secret per environment and never commit it.** Set `ANTHROPIC_API_KEY` and every secret referenced by an agent's `.mcp.json`; apply `environments`. On a developer's machine the SDK also reads a profile from `ant auth login`; a deployed product always uses the key.
 5. **Keep the contract.** Every choice in `agentRequest()` and `askAgent()` is pinned by the unit test and explained in the playbook (§ 3, § 7). Change one only after re-measuring it.
 
@@ -62,6 +63,34 @@ const tools = [
 - **End the run after tools that only attach to a reply.** Put a link or a list the app draws in `askAgent({ …, closingTools: ['share_link'] })`: when a response that already has text calls only such tools, they run and the run ends. Otherwise the model, asked again, may write its reply a second time (playbook § 7).
 - **Have code decide risky or one-way actions proposed by tools.** A model may propose but never decide what cannot be taken back (`saas-authorization`): the tool stores a proposal, the app shows a button, the click runs it. The `embedded-agents-design` skill has the code and its tests. Links and buttons travel through the app, not through model text.
 - **Put per-run facts in `context`, never user text.** It supplies facts such as the caller's identity to the system prompt after `AGENTS.md`.
+
+### One agent consults another
+
+**Give the lead an `ask_<specialist>` tool built for each request.** `askSpecialist` returns a tool spec, named with the directory name's hyphens as underscores. Put it in the app's per-request tool registry (`AGENT_TOOLS` in the `embedded-agents-design` skill) and wrap it with `agentTool` like the lead's other specs. Its description says when to ask and what the question must carry, because the specialist sees nothing else.
+
+```ts
+support: (caller, scope) => {
+  const runs = specialistRuns(4); // assumption on the card: specialist runs per message
+  return [
+    listInvoices(caller),
+    askSpecialist({
+      agent: 'billing',
+      description: 'Ask about billing policy. Include the charge type and the policy question.',
+      runs, maxTurns: 6, maxBudgetUsd: 0.1,
+      tools: AGENT_TOOLS.billing(caller, scope).map((spec) => agentTool(spec)),
+      context: `The caller's plan: ${caller.plan}.`,
+    }),
+  ];
+},
+```
+
+- **Give each agent exactly the tools listed on its own card.** Build both lists around the same signed-in caller so identity stays in the app. The lead holds the consult tool, and the specialist holds its own tools.
+- **Start the specialist with the question and an app-written context line.** The specialist gets its own `AGENTS.md` and a fresh conversation containing just the question. Use `context` for caller facts and pass neither user text there nor conversation history.
+- **Set each specialist's limits and compute the budget for the whole message.** Pass its `maxTurns`, `maxBudgetUsd`, `model` and `closingTools` to `askSpecialist`. Compute the message ceiling as the lead's budget plus the run cap times the largest specialist budget. Checks happen between responses, so a response can cross its run's budget (§ 7 in the playbook).
+- **Share one counter per message and reserve each slot before starting.** The reservation is synchronous because a single response can call several consult tools in parallel. Once full, the tool says “This message has reached its specialist run limit.” A stopped run returns an error with the specialist's name and reason. An empty answer also returns an error. The counter keeps each finished run's metadata in `runs.runs`: to log a message's whole cost, create the counter where the route can read it and add those costs to the lead's.
+- **Send links and confirm cards to the page through app code.** For example, `showInvoice(caller, links)` uses the same per-request collector the route reads. `proposeTool(refund, caller, { store, scope })` uses the same store and scope as `withCards` and `readCards`. Apply the `embedded-agents-design` skill for the card flow. The lead receives the specialist's answer as a tool result, and only the lead's text streams to the page.
+- **Keep consultations one level deep.** Each hop adds a run's time and cost, and a specialist that could ask could ask the lead back. A specialist's card has no `ask_` row, and `askSpecialist` rejects an `ask_` tool in its specialist tool list.
+- **Test the boundary with scripted requests and a live consultation.** `agent.test.ts` checks both tool lists, the fresh conversation, the parallel cap and the error results. `specialists.live.test.ts` checks both tool lists while the lead retrieves a fresh code word. A support product built this way, a lead consulting two specialists, measured its move here from the Agent SDK: `reference/playbook.md` § 9.
 
 ## 4. Examples — only when asked
 
