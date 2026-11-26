@@ -8,7 +8,7 @@ You don't need to remember any of this. `/product:start-here` names the next ste
 
 1. **Open your agent in a folder**: an empty one for a new idea (the agent runs `git init` there), or the repository of a product you already have.
 2. **Install the packs from that folder** ([Install](README.md#install)); in Claude Code the one-prompt install turns them on for that folder only; in Codex they install for your user, in every project. For this walkthrough: `product`, `ai-shipping`, `agent-teams` and `agent-harness`, plus `app-stack`: its `ui-design` and `uptime-monitoring` apply to any product with screens and a URL, and the rest mostly assumes a SaaS on Next.js, Supabase, Clerk and Netlify.
-3. **Optional, and worth it:** the Codex CLI as a second builder and peer (`codex-agents`) and the default reviewer (`independent-review`). The Grok CLI offers another model family (`--reviewer grok`), and `grok-agents` drives it in any role. Without Codex, the session you work in builds the change itself or briefs a Claude subagent. The review starts fresh with the first installed of Codex, Claude Code and Grok. With none of the three CLIs, use a fresh read-only session of your agent. The wrappers that drive them need Python 3.9 or later.
+3. **Optional, and worth it:** the Codex CLI as a second builder and peer (`delegation`, its Codex reference) and the default reviewer (`independent-review`). The Grok CLI offers another model family (`--reviewer grok`), and `delegation`'s Grok reference drives it in any role. Without Codex, the session you work in builds the change itself or briefs a Claude subagent. The review starts fresh with the first installed of Codex, Claude Code and Grok. With none of the three CLIs, use a fresh read-only session of your agent. The wrappers that drive them need Python 3.9 or later.
 
 ## 1. Say what you have
 
@@ -55,7 +55,7 @@ A stage that offers options stops until you pick, such as two design directions.
 
 By default, every stage lands end-to-end tests of its changed journeys. The coordinator runs touched and new tests, reads the diff and corrected docs, and briefly checks running screens. The read of the diff runs the router rows it matches; an edited test, gate script or instruction file needs its reason. Use phone and desktop widths and both themes when two exist; the builder never substitutes for this look. A stage needs no mandatory full gate, fresh review or docs check.
 
-One session coordinates. Another builds when one is available: Codex through `codex-agents`, or a Claude subagent briefed through `delegation`. No session reviews its own work. A fresh reviewer that never saw the build reviews each completed phase and every deploying push. It reviews again after each fix to what a round found, until the bar holds.
+One session coordinates. Another builds when one is available: Codex through `delegation`'s Codex reference, or a Claude subagent briefed through `delegation`. No session reviews its own work. A fresh reviewer that never saw the build reviews each completed phase and every deploying push. It reviews again after each fix to what a round found, until the bar holds.
 
 The coordinator chooses phases containing related stages, sized for a few hours of builder turns and one state you can try. Two to four usually fit a first version; the plan message gives the split, cadence and rough builder-hour estimate. For the SaaS stages, 0–3, 4–7 and 8–9 are a suggested grouping. Stage 3 keeps its sample-data click-through done-when; the first deploy closes the next phase, and go-live reviews the whole product.
 
@@ -87,7 +87,7 @@ Before a release, the agent proposes the deeper checks, and you pick what runs. 
 
 1. **Are the docs right?** Say "check our docs against the code": `document-app` in check mode, with `intended-vs-implemented` reading the docs and the legal pages as intent.
 2. **Are the tests right?** Say "is our coverage map current?": `derive-tests` in check mode.
-3. **Security and performance?** Say "audit this release": `security-audit-static` and `performance-audit-static`, on the release's changes.
+3. **Security and performance?** Say "audit this release for security and performance": `static-audit` runs both on the release's changes.
 
 The check modes and the audits only report. Where a doc, a test and the code disagree about what the product should do, you decide which one moves, because a doc rewritten to match faulty code blesses the bug. At the release, "ship it" also reviews everything unreleased again, round after round until one finds nothing introduced above low and nothing high or critical of any age. Older high and critical findings are fixed too.
 
@@ -154,7 +154,7 @@ A product in use plus new evidence means `propose` runs again. It adds each date
 
 A typical setup:
 - **Claude Code coordinates.**
-- **Codex builds** what is worth handing off (`codex-agents`). The test is size: if the brief would be nearly as long as the change, the coordinator writes the change itself.
+- **Codex builds** what is worth handing off (`delegation`, its Codex reference). The test is size: if the brief would be nearly as long as the change, the coordinator writes the change itself.
 - **A fresh Codex session reviews.** Apply `independent-review` for the brief, scope and fallbacks.
 
 The coordinator needs the skills, and so does a builder whose brief names one: install `app-stack` in Codex too, so a brief for screens or an MCP server names `$app-stack:ui-design` or `$app-stack:mcp-server`. The product keeps no copy of either. The reviewer starts without them on purpose. If you also work in Codex directly, install the other packs there too, since each agent reads skills from its own place. `agent-instructions` shows how to route to a skill from the product's agent instructions.

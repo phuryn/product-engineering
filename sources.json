@@ -55,7 +55,7 @@
       "paths": [
         "pm-ai-shipping/commands/ship-check.md"
       ],
-      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:",
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:; merged with the other static audit into static-audit on 2026-11-26, its body now a file under references/",
       "skipped": {
         "53f3494": "upstream replaced the skill with a pointer to this repository (2026-10-29); this repository is its only master now, so nothing upstream is ported back"
       }
@@ -68,7 +68,7 @@
       "paths": [
         "pm-ai-shipping/commands/document-app.md"
       ],
-      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:",
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:; merged with the other static audit into static-audit on 2026-11-26, its body now a file under references/",
       "skipped": {
         "53f3494": "upstream replaced the skill with a pointer to this repository (2026-10-29); this repository is its only master now, so nothing upstream is ported back"
       }
@@ -81,44 +81,46 @@
       "paths": [
         "pm-ai-shipping/commands/derive-tests.md"
       ],
-      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:",
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:; merged with the other static audit into static-audit on 2026-11-26, its body now a file under references/",
       "skipped": {
         "53f3494": "upstream replaced the skill with a pointer to this repository (2026-10-29); this repository is its only master now, so nothing upstream is ported back"
       }
     },
     {
-      "skill": "ai-shipping/skills/security-audit-static",
+      "skill": "ai-shipping/skills/static-audit",
       "mode": "copy",
       "upstream": "pm-skills",
       "ref": "07b34f6",
       "paths": [
         "pm-ai-shipping/commands/security-audit-static.md"
       ],
-      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:",
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:; merged with the other static audit into static-audit on 2026-11-26, its body now a file under references/",
       "skipped": {
         "53f3494": "upstream replaced the skill with a pointer to this repository (2026-10-29); this repository is its only master now, so nothing upstream is ported back"
       }
     },
     {
-      "skill": "ai-shipping/skills/performance-audit-static",
+      "skill": "ai-shipping/skills/static-audit",
       "mode": "copy",
       "upstream": "pm-skills",
       "ref": "07b34f6",
       "paths": [
         "pm-ai-shipping/commands/performance-audit-static.md"
       ],
-      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:",
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:; merged with the other static audit into static-audit on 2026-11-26, its body now a file under references/",
       "skipped": {
         "53f3494": "upstream replaced the skill with a pointer to this repository (2026-10-29); this repository is its only master now, so nothing upstream is ported back"
       }
     },
     {
-      "skill": "agent-teams/skills/claude-agents",
-      "mode": "new"
+      "skill": "agent-teams/skills/delegation",
+      "mode": "new",
+      "notes": "was the claude-agents skill until 2026-11-26; now references/claude.md, references/claude-troubleshooting.md and scripts/claude_agent.py"
     },
     {
-      "skill": "agent-teams/skills/gemini-agents",
-      "mode": "new"
+      "skill": "agent-teams/skills/delegation",
+      "mode": "new",
+      "notes": "was the gemini-agents skill until 2026-11-26; now references/gemini.md, scripts/agy.py and scripts/test_agy.py"
     },
     {
       "skill": "agent-harness/skills/windows-agent-shell",

@@ -296,6 +296,26 @@ def check_counts():
                     errors.append(f"{rel}:{n}: says {m.group(1) or m.group(2)} skills; the collection has {want}{kind}")
 
 
+RETIRED = ("codex-agents", "claude-agents", "grok-agents", "gemini-agents", "chatgpt-plugin",
+           "security-audit-static", "performance-audit-static")
+
+
+def check_retired():
+    """A skill merged into another is named by its new home, never its old name (2026-11-26: seven skills
+    became references of `delegation`, `mcp-server` and `static-audit`). Receipts keep their history."""
+    old = re.compile(r"\b(" + "|".join(RETIRED) + r")\b(?!\.md)")
+    places = [*ROOT.glob("*/skills/**/*"), *ROOT.glob("*/README.md"), *ROOT.glob("*/.claude-plugin/plugin.json"),
+              *(ROOT / f for f in ("README.md", "AGENTS.md", "WALKTHROUGH.md", "CASE-STUDIES.md",
+                                   ".claude-plugin/marketplace.json"))]
+    for p in places:
+        if not p.is_file() or p.name == "receipts.md" or p.suffix not in (".md", ".py", ".json", ".yaml", ".yml"):
+            continue
+        for n, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
+            if m := old.search(line):
+                errors.append(f"{p.relative_to(ROOT).as_posix()}:{n}: names {m.group(1)!r}, a skill that was merged "
+                              "into another; name its new home (AGENTS.md, rule 4)")
+
+
 def check_tree():
     for p in ROOT.rglob("*"):
         if ".git" in p.parts:
@@ -419,6 +439,7 @@ def main():
     check_plugins()
     listed = check_listing()
     check_counts()
+    check_retired()
     check_tree()
     check_copies()
     check_plan_prompt_copies()

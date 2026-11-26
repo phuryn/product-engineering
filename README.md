@@ -4,7 +4,7 @@
 
 # Product Engineering
 
-47 agent skills from shipping three live products: decide what to build, build it with Claude Code or Codex, have a second model review it, release it.
+41 agent skills from shipping three live products: decide what to build, build it with Claude Code or Codex, have a second model review it, release it.
 
 **Lost at any point?** Type `/product:start-here` (Codex: `$product:start-here`) and say what you have. It tells you where the work stands and what's next. [Install](#install) first.
 
@@ -97,7 +97,7 @@ Or copy skill folders by hand into the folder your agent reads (`.agents/skills/
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/lifecycle-dark.png">
-  <img src="assets/lifecycle-light.png" width="800" alt="The process in eight steps, in three phases (discover what to build, build and check, ship and learn), with what you do at each step and the skills agents use there. 1 Start: you say what you have; start-here, which you start. 2 Proposal: you review the proposal and its key screens, and decide; propose, competitor-analysis, market-segments, beachhead-segment, value-proposition, value-curve, growth-loops, ui-design. 3 Plan: you review its key assumptions and screens; app-lifecycle. 4 Build: you don't read the code; delegation, codex-agents, claude-agents, grok-agents, test-harness, code-review, independent-review, ui-design, legal-pages. 5 Click-through: after the reviews, you click through the key user flows; what you find goes back to the build. 6 Release review: you settle where they disagree; proposed at a release, you pick what runs; document-app, derive-tests, intended-vs-implemented, security-audit-static, performance-audit-static. 7 Release: you review the evidence and approve the release; release-gate. 8 Real users: you bring what people did; environments, supabase-production, clerk-production, saas-authorization, transactional-email, product-analytics, uptime-monitoring. Then the next round goes back to step 1.">
+  <img src="assets/lifecycle-light.png" width="800" alt="The process in eight steps, in three phases (discover what to build, build and check, ship and learn), with what you do at each step and the skills agents use there. 1 Start: you say what you have; start-here, which you start. 2 Proposal: you review the proposal and its key screens, and decide; propose, competitor-analysis, market-segments, beachhead-segment, value-proposition, value-curve, growth-loops, ui-design. 3 Plan: you review its key assumptions and screens; app-lifecycle. 4 Build: you don't read the code; delegation, test-harness, code-review, independent-review, ui-design, legal-pages. 5 Click-through: after the reviews, you click through the key user flows; what you find goes back to the build. 6 Release review: you settle where they disagree; proposed at a release, you pick what runs; document-app, derive-tests, intended-vs-implemented, static-audit. 7 Release: you review the evidence and approve the release; release-gate. 8 Real users: you bring what people did; environments, supabase-production, clerk-production, saas-authorization, transactional-email, product-analytics, uptime-monitoring. Then the next round goes back to step 1.">
 </picture>
 
 A change you can check in a minute skips to step 4. Each step with an example, from the first prompt to the next round: [WALKTHROUGH.md](WALKTHROUGH.md).
@@ -110,9 +110,9 @@ A change you can check in a minute skips to step 4. Each step with an example, f
 | **1. Start** | Say what you have: an idea, evidence from users, an agreed change, a bug or a release. | Read the request and the repository, and name the next step. | `start-here` |
 | **2. Proposal** | Look at the key screens first. Then read the research, make the open decisions, and accept or say what to change. | Research what you didn't share: the alternatives people use and, while it's open, the segment. Propose a direction with every claim's source, in one artifact: the jobs map, a high-fidelity screen per key job on sample data, and the open decisions, each with a recommendation. | `propose`, with `competitor-analysis`, `market-segments`, `beachhead-segment`, `value-proposition`, `value-curve`, `growth-loops`; `ui-design` for the screens |
 | **3. Plan**, complex changes only | Review its key assumptions (how it read your ask, where it disagrees with you, what it needs you to decide) and, when screens change, the new screens and choices in the artifact. Question the ones that look wrong, and say "build it". | Open with the key assumptions, then plan whatever the build needs: phases and releases, a rough size in builder hours, the files and modules to change, how to test it, the acceptance criteria. Screens that change and choices left open go in the artifact. | `start-here` carries the prompt; `app-lifecycle` for a SaaS |
-| **4. Build** | Pick when a stage offers options, such as a design direction. When the app needs accounts, keys or a domain, set them up as the agent walks you through: keys go where the agent asks, never into the chat, and production's only when it asks for them. You don't review the code line by line. | One session coordinates and another builds; no session reviews its own work. Tests and docs land with the change, and every fix with a test that failed before it. A fresh reviewer that never saw the build reviews each completed phase and every push that deploys, and again after fixing what a round found, until the bar holds. Use the reviewer your instructions name. By default the wrapper starts a fresh session with the first installed of Codex, Claude Code and Grok. Before the first stranger is asked for anything, the legal pages are drafted from the code for you to approve. | `delegation`, `codex-agents`, `claude-agents`, `grok-agents`, `test-harness`, `code-review`, `independent-review`, `ui-design`, `legal-pages` |
+| **4. Build** | Pick when a stage offers options, such as a design direction. When the app needs accounts, keys or a domain, set them up as the agent walks you through: keys go where the agent asks, never into the chat, and production's only when it asks for them. You don't review the code line by line. | One session coordinates and another builds; no session reviews its own work. Tests and docs land with the change, and every fix with a test that failed before it. A fresh reviewer that never saw the build reviews each completed phase and every push that deploys, and again after fixing what a round found, until the bar holds. Use the reviewer your instructions name. By default the wrapper starts a fresh session with the first installed of Codex, Claude Code and Grok. Before the first stranger is asked for anything, the legal pages are drafted from the code for you to approve. | `delegation` (with Codex, Claude Code and Grok as partners), `test-harness`, `code-review`, `independent-review`, `ui-design`, `legal-pages` |
 | **5. Click-through** | After the phase checks, click through the key user flows on a link. Allow 15 to 20 minutes for a mid-size app. You can ask for an early preview, and the agent suggests stopping to use the product once it does its key job. | After phase close and any closing deploy, send a link, actions and expected results. Use rendered checks for routine screen changes. Run the full visual checks for new or materially changed journeys and kit changes. Record unbuilt work and turn feedback into stages of the phase in flight. The next phase can start while you try the preview. | `start-here`, `release-gate` § Stage and phase close, `ui-design` |
-| **6. Release review** | Pick which deeper checks run, and decide where a doc, the coverage map and the code disagree, because a doc rewritten to match faulty code blesses the bug. | Before a release, propose the deeper checks: the docs and the legal pages against the code, the coverage map, security and performance. Run the ones you pick. | `document-app` and `derive-tests` in check mode; `intended-vs-implemented`, `security-audit-static`, `performance-audit-static` |
+| **6. Release review** | Pick which deeper checks run, and decide where a doc, the coverage map and the code disagree, because a doc rewritten to match faulty code blesses the bug. | Before a release, propose the deeper checks: the docs and the legal pages against the code, the coverage map, security and performance. Run the ones you pick. | `document-app` and `derive-tests` in check mode; `intended-vs-implemented`, `static-audit` |
 | **7. Release** | Check what the stage promised. Explore changed screens and shared surfaces, with a full sweep at go-live and for broad UI changes, then say go. Silence is not go. | Review everything unreleased again until a round finds nothing introduced above Low and nothing High or Critical of any age. Collect the evidence for every precondition, promote and verify that the reviewed build is serving. | `release-gate` |
 | **8. Real users** | Bring what people did: analytics, payments, support notes. | Run production: data, sign-in, payments, email, monitoring, and analytics that read back what people did without cookies. Weigh the new evidence against each hypothesis and propose the next round. | `product-analytics`, `environments`, `supabase-production`, `clerk-production`, `saas-authorization`, `transactional-email`, `uptime-monitoring`; `propose` |
 
@@ -144,16 +144,11 @@ Most start themselves when the work matches what they're for. You start four, ma
 - `test-harness`: Tests where green means something
 - `document-app`: System docs written from the code
 - `derive-tests`: The docs turned into a test-coverage map
-- `security-audit-static`: Security risks backed by evidence
-- `performance-audit-static`: N+1 queries, over-fetching, missing indexes
+- `static-audit`: Security risks backed by evidence; N+1 queries, over-fetching, missing indexes
 
 **agent-teams**: Other agents as partners
 
-- `delegation`: The brief, and what never delegates
-- `codex-agents`: Codex as a peer, builder or reviewer
-- `grok-agents`: Grok as a peer, builder or reviewer
-- `claude-agents`: Claude Code as a peer, builder or reviewer
-- `gemini-agents`: Gemini through Google's Antigravity CLI, only when you ask and agree first. Google doesn't support this on consumer plans (FAQ read 2026-11-13) and says it can lead to suspension
+- `delegation`: The brief, what never delegates, and Codex, Claude Code or Grok as a peer, builder or reviewer. Gemini, through Google's Antigravity CLI, only when you ask and agree first: Google doesn't support this on consumer plans (FAQ read 2026-11-13) and says it can lead to suspension
 
 **agent-harness**: A reliable agent setup, with you in the loop
 
@@ -176,8 +171,7 @@ Most start themselves when the work matches what they're for. You start four, ma
 - `legal-pages`: Terms, privacy policy and consent that match the code
 - `product-analytics`: Cookieless recordings and heatmaps your agents read back
 - `uptime-monitoring`: Knowing it's down before users do; Staygreen, made by the author, by default
-- `mcp-server`: A remote MCP server, right the first time
-- `chatgpt-plugin`: Through OpenAI's plugin review
+- `mcp-server`: A remote MCP server, right the first time, and a ChatGPT plugin through OpenAI's review
 - `embedded-agents-design`: What an agent in your app may do, and what waits for a click
 - `embedded-agents-messages-api`: Claude agents in your app, on the API
 - `embedded-agents-agent-sdk`: The same, on the Agent SDK
@@ -187,12 +181,12 @@ Most start themselves when the work matches what they're for. You start four, ma
 
 - `work-humanizer`: Edits AI-sounding text, or interviews you
 
-29 of the 47 skills were learned on real products built with Claude Code, Codex and Grok; 14 are established methods (the strategy frameworks in `product`, the documentation and review methods in `ai-shipping`); `product-analytics` rests on its vendors' docs and `work-humanizer` on a detector test; `gemini-agents` rests on one day of CLI runs and Google's documentation, and `embedded-agents-managed` on one day of live API runs and Anthropic's documentation. Each pack's `README.md` says more about every skill.
+25 of the 41 skills were learned on real products built with Claude Code, Codex and Grok; 13 are established methods (the strategy frameworks in `product`, the documentation and review methods in `ai-shipping`); `product-analytics` rests on its vendors' docs and `work-humanizer` on a detector test; `embedded-agents-managed` rests on one day of live API runs and Anthropic's documentation, and `delegation`'s Gemini reference on one day of CLI runs and Google's documentation. Each pack's `README.md` says more about every skill.
 
 <details>
 <summary>What the skills cost your agent</summary>
 
-Your agent always carries the descriptions of the 43 skills that start themselves: about 6,500 characters, about 2,800 tokens in Claude Code. A skill's full text loads only when it runs. `tools/validate.py` holds the descriptions to 6,600 characters in total and 300 each, because a crowded agent setup cuts descriptions short, and the cut falls on the words that say when to use a skill.
+Your agent always carries the descriptions of the 37 skills that start themselves: about 5,900 characters, about 2,500 tokens in Claude Code. A skill's full text loads only when it runs. `tools/validate.py` holds the descriptions to 6,600 characters in total and 300 each, because a crowded agent setup cuts descriptions short, and the cut falls on the words that say when to use a skill.
 
 </details>
 
