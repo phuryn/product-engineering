@@ -37,7 +37,7 @@ This method works only when intent has been written down first. Apply the `shipp
 
 **The legal pages are intent too.** A provider the privacy policy does not name crosses a data boundary. So does a cookie it says is not set, or a retention or deletion promise no job performs. People's data reaches someone, or stays somewhere, contrary to the page they agreed to. Apply the `legal-pages` skill for this intent.
 
-**An agent's card is intent too.** Compare each embedded agent's tools, limits and confirm step in code with its card in the automation doc. Three mismatches matter: a tool the card does not list, a line marked as enforced in code that only the prompt asks for, and an action the card says waits for a click that runs without one. The `embedded-agents-design` skill has the card's shape.
+**An agent's card is intent too.** Compare each embedded agent's tools, limits and confirm step in code with its card in the automation doc. Three mismatches matter: a tool the card does not list, a line marked as enforced in code that only the prompt asks for, and an action the card says waits for a click that runs without one. The `embedded-agents` skill has the card's shape.
 
 ## How you can tell it worked
 

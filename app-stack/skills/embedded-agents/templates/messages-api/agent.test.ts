@@ -9,7 +9,7 @@ vi.mock('server-only', () => ({}));
 
 // The embedded-agent contract on the Claude API, pinned without a model call: what each request
 // sends, which files an agent can read, and how a run ends. The loop is the SDK's real tool
-// runner; only the network is scripted. See the embedded-agents-messages-api skill, reference/playbook.md.
+// runner; only the network is scripted. See the embedded-agents skill, references/messages-api-playbook.md.
 
 const root = mkdtempSync(join(tmpdir(), 'agents-'));
 const agentsDir = join(root, '.claude', 'agents');

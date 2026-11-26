@@ -18,7 +18,7 @@ import { z } from 'zod';
 // Embedded agents: one directory per agent under .claude/agents/<name>/, each with its
 // own AGENTS.md, optional knowledge/, agent-local skills and .mcp.json. The wrapper
 // hardcodes no agent names. Every option below is explained, with the
-// measurement behind it, in the embedded-agents-agent-sdk skill (reference/playbook.md).
+// measurement behind it, in the embedded-agents skill (references/agent-sdk-playbook.md).
 
 const AGENTS_ROOT = resolve(process.cwd(), '.claude', 'agents');
 const INSTRUCTIONS = 'AGENTS.md';

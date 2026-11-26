@@ -78,7 +78,7 @@ export async function POST(req: Request) {
   // Apply the app's per-person limit here, and build the caller's tools here, so they close over caller.
   const disconnect = new AbortController();
   const signal = AbortSignal.any([req.signal, disconnect.signal]);
-  // `withCards(run, …)` from the embedded-agents-design skill adds the confirm cards as a last event.
+  // `withCards(run, …)` from the embedded-agents skill adds the confirm cards as a last event.
   let run: AsyncGenerator<AgentEvent | { type: 'cards'; cards: unknown[] }, void>;
   try {
     run = await openSession({ agent, prompt, sessionId, owner: caller.id, signal });

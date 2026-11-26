@@ -26,7 +26,7 @@ One base agent and one environment per Console workspace, made by `scripts/setup
 - `environment_id` is required, even with no hosted tool.
 - `system` is `AGENTS.md`, the list of the agent's skills, then `context`. An open session's `system` cannot change (400); its tools can, but the wrapper leaves them alone.
 - Facts about the caller sent later as `system.message` were disowned by the model three times out of three, so they go in `system`.
-- `metadata` comes back unchanged, and `sessions.list` filters by `agent_id`. Ownership lives there, so there is no table. Use an opaque id, never an email.
+- `metadata` comes back unchanged, and `sessions.list` filters by `agent_id`. The wrapper checks ownership there, so it needs no separate ownership table. Use an opaque id, never an email.
 - A client cannot write the agent's side: sending `agent.message` answered 400.
 - An unknown session id answers 404; a malformed one 400, so the route checks the shape first.
 
@@ -56,8 +56,8 @@ An idle stream closed on its own after about ten minutes, with no error; a resul
 
 | File | Runs | What it pins |
 |---|---|---|
-| `templates/agent.test.ts` consultations | inside `npm test`, no model call | Both sessions' tool offers, an unoffered tool refused, question and caller scope, run options, session deletion, the cap under parallel calls, and specialist tool errors. |
-| `templates/specialists.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | The lead retrieves a fresh code word. Recorded create requests have exact tool offers, the specialist session is deleted, and the lead's session can be retrieved. |
+| `templates/managed/agent.test.ts` consultations | inside `npm test`, no model call | Both sessions' tool offers, an unoffered tool refused, question and caller scope, run options, session deletion, the cap under parallel calls, and specialist tool errors. |
+| `templates/managed/specialists.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | The lead retrieves a fresh code word. Recorded create requests have exact tool offers, the specialist session is deleted, and the lead's session can be retrieved. |
 
 **A consultation, observed `2026-11-26`** (Sonnet 5.5, `@anthropic-ai/sdk` 1.14.0, `specialists.live.test.ts`, 6 of 6 runs passed): the lead called `ask_vault` and returned the specialist's fresh code word. The two `sessions.create` requests offered the lead exactly `ask_vault` and `lookup_hours` and the specialist exactly `read_code`. The specialist's session answered 404 afterwards, and the lead's session kept its owner and tools. Median of five runs: 7.6 s for the message, 4.1 s of it the consultation, about 2,550 tokens for the lead's session and 2,210 for the specialist's. Each session reported a list cost of 0, which is in whole cents.
 

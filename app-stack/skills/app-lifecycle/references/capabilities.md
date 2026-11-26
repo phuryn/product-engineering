@@ -143,7 +143,7 @@ A named production branch, the migration-ledger check, the local gate, the indep
 A Claude agent reachable by someone other than the developer. On the Claude API it runs wherever the app runs, a serverless function included, when the slowest live run fits the function's time limit — measure it, don't assume it; through the Agent SDK it needs a long-lived host, because the SDK spawns a subprocess no serverless function can host. On Managed Agents the loop runs at Anthropic, but the app still runs the tools and holds the stream, so the function's time limit still applies.
 - **When:** the first agent that must leave localhost.
 - **Owner:** create a model-provider key with a spend limit and supply it to the deployment; for the Agent SDK, or a run too long for a function, also create the long-lived host's project and approve what moves there.
-- **How:** the `embedded-agents-design` skill first, for the agent's card; then `embedded-agents-messages-api` (the default), `embedded-agents-agent-sdk` or `embedded-agents-managed`.
+- **How:** the `embedded-agents` skill first for the agent's card, then its Messages API reference (the default), Agent SDK reference or Managed Agents reference.
 
 ### Proxy WAF + origin seal
 A proxy-side web application firewall and a secret-header origin check: a transform rule adds a secret header, the app rejects production requests without it (health check exempt), and only then trusts the proxy's client-IP header.

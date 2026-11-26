@@ -13,8 +13,8 @@ vi.mock('@anthropic-ai/claude-agent-sdk', async (importOriginal) => ({
   query: vi.fn(),
 }));
 
-// The embedded-agent contract, pinned without a model call. See the embedded-agents-agent-sdk
-// skill, reference/playbook.md, for the SDK measurements and what the tests cover.
+// The embedded-agent contract, pinned without a model call. See the embedded-agents
+// skill, references/agent-sdk-playbook.md, for the SDK measurements and what the tests cover.
 
 const root = mkdtempSync(join(tmpdir(), 'agents-'));
 const agentsDir = join(root, '.claude', 'agents');

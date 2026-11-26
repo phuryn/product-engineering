@@ -35,7 +35,7 @@ On the stack these were learned on, *the identity provider* is Clerk, *the datab
 **Doing it well**
 
 - **Keep the options panel in the artifact:** every open decision a screen can show, plus other choices found while drawing it. With the `product` pack, `propose` § 7 says how picks come back. Without it, the person picks on the page where the host saves picks, or answers in the chat, and each pick goes into the page's file and the decision log in the same turn.
-- **Show the behaviour a screen hides.** Where relevant, keep an actor-permissions panel in the artifact: who may do what and what is refused. For embedded agents, show each agent's card and the screen its person clicks on: what the agent reads, what it may do, what waits for the click and what is refused (the `embedded-agents-design` skill).
+- **Show the behaviour a screen hides.** Where relevant, keep an actor-permissions panel in the artifact: who may do what and what is refused. For embedded agents, show each agent's card and the screen its person clicks on: what the agent reads, what it may do, what waits for the click and what is refused (the `embedded-agents` skill).
 - **Before the owner sees it, screenshot and check it** under the `ui-design` skill; then the owner picks. Record each pick, its options, reason and reopen trigger; update the product section and brief where needed.
 - **Keep screens high fidelity in the same artifact.** Embed and compose existing kit CSS, or keep a new product's values in tokens. The next stage builds the kit from the picks.
 

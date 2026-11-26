@@ -110,7 +110,7 @@ Measured 2026-09-26: with `strictMcpConfig` and the agent's forwarded `.mcp.json
 }
 ```
 
-`allowedTools` here is ours, not the SDK's: the wrapper strips it, prefixes each name as `mcp__<server>__<tool>` and approves exactly those. Granting a tool is a config edit, not a code edit. `scripts/discover-mcp-tools.mjs <agent>` lists what each server offers (from the init message — no model call); grant only what the agent's job needs.
+`allowedTools` here is ours, not the SDK's: the wrapper strips it, prefixes each name as `mcp__<server>__<tool>` and approves exactly those. Granting a tool is a config edit, not a code edit. `scripts/discover-mcp-tools-agent-sdk.mjs <agent>` lists what each server offers (from the init message — no model call); grant only what the agent's job needs.
 
 ---
 
@@ -125,7 +125,7 @@ An agent has exactly one instruction file, `AGENTS.md`, and the wrapper loads it
 
 ---
 
-## 5. The wrapper (`templates/agent.ts` → `src/lib/agent.ts`)
+## 5. The wrapper (`templates/agent-sdk/agent.ts` → `src/lib/agent.ts`)
 
 One async generator, `askAgent({ agent, prompt, history, … })`, runs any agent. The wrapper hardcodes no agent names.
 
@@ -140,16 +140,16 @@ for await (const ev of askAgent({ agent: 'knowledge-agent', prompt })) {
 | Step | Behaviour |
 |---|---|
 | Resolve the agent | Accepts only a plain directory name (`^[a-z0-9][a-z0-9-]*$`) under `.claude/agents/` that holds an `AGENTS.md`. The name arrives in a request body; the earlier wrapper joined it onto a path, so `../..` resolved to the repo root and its instruction file. |
-| `listAgents()` | Every such directory, sorted, specialists included. The route's `GET` returns it less any specialist only agents talk to (`SKILL.md` § 3), and the UI's picker shows that. |
+| `listAgents()` | Every such directory, sorted, specialists included. The route's `GET` returns it less any specialist only agents talk to (`references/agent-sdk.md` § 3), and the UI's picker shows that. |
 | Skills, MCP, `${VAR}` | Discovered from the agent directory (§ 3, § 3.5). |
-| Caller tools and context | Build `tools` per request and append optional code-supplied `context` after `AGENTS.md` (see `SKILL.md` § 3 and § 2 of this playbook). |
+| Caller tools and context | Build `tools` per request and append optional code-supplied `context` after `AGENTS.md` (see `references/agent-sdk.md` § 3 and § 2 of this playbook). |
 | Enforce the contract | `agentOptions()` always sets the isolation options; a call site cannot drop them. It is exported so the unit test pins it without a model call. |
 | History | `history?: { role, content }[]` becomes a `Previous conversation:` preamble — no database shape baked in. |
 | Events | `text` per assistant chunk; then `done` with metadata, or `error` with the result's subtype. After a non-success result the SDK also throws; the wrapper absorbs that, so the caller gets one signal. `filesRead` holds paths relative to the agent, because the list reaches the browser. |
 
 **Adding an agent:** `scripts/new-agent.mjs <name> [--knowledge] [--mcp]`, fill in `AGENTS.md`, add knowledge, skills or `.mcp.json` as needed. No registry, no enum, no wrapper edit, no UI edit.
 
-**Wire format** (`templates/route.ts` → `src/app/api/agents/route.ts`): server-sent events, `data: <json>\n\n` — `{ text }`, then `{ done, agent, metadata }` or `{ error, agent }`. A client parser:
+**Wire format** (`templates/agent-sdk/route.ts` → `src/app/api/agents/route.ts`): server-sent events, `data: <json>\n\n` — `{ text }`, then `{ done, agent, metadata }` or `{ error, agent }`. A client parser:
 
 ```ts
 const reader = response.body!.getReader();
@@ -211,11 +211,11 @@ Same hook surface as Claude Code: a dev-time permission hook works as a producti
 
 | File | Runs | What it pins |
 |---|---|---|
-| `templates/agent.test.ts` → `tests/unit/` | inside `npm test`, no model call | `agentOptions()` including prompt context, `tools` and `dontAsk`, isolation, skills and MCP discovery, `${VAR}` expansion, names, the path guard and caller tool exemption, and history. An in-memory MCP client checks input validation. The tool handler tests planned and unexpected errors. Mutation-checked: restoring the earlier guard or dropping `dontAsk` turns three of its tests red. |
-| `templates/agent.test.ts` consultations | inside `npm test`, no model call | Both queries' allowed tools, each real in-process MCP server, an unoffered tool refused, the specialist's prompt and settings, a synchronous cap under parallel calls, and specialist tool errors. Both native subagent names are excluded with and without consult tools. |
-| `templates/agents.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | for every agent: its directory MCP servers connect, only its allowed built-in tools exist, and it answers. One run with the first agent checks that the model returns a one-time code from a caller tool. |
-| `templates/specialists.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | The lead retrieves a fresh code word. Each real query's `system:init` reports its exact tool list. |
-| `examples/*.live.test.ts` | with the examples | knowledge-agent signs off, answers the OKR target from `knowledge/okrs.md` with a citation, and refuses a topic its files do not cover; research-agent signs off and cites a source. |
+| `templates/agent-sdk/agent.test.ts` → `tests/unit/` | inside `npm test`, no model call | `agentOptions()` including prompt context, `tools` and `dontAsk`, isolation, skills and MCP discovery, `${VAR}` expansion, names, the path guard and caller tool exemption, and history. An in-memory MCP client checks input validation. The tool handler tests planned and unexpected errors. Mutation-checked: restoring the earlier guard or dropping `dontAsk` turns three of its tests red. |
+| `templates/agent-sdk/agent.test.ts` consultations | inside `npm test`, no model call | Both queries' allowed tools, each real in-process MCP server, an unoffered tool refused, the specialist's prompt and settings, a synchronous cap under parallel calls, and specialist tool errors. Both native subagent names are excluded with and without consult tools. |
+| `templates/agent-sdk/agents.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | for every agent: its directory MCP servers connect, only its allowed built-in tools exist, and it answers. One run with the first agent checks that the model returns a one-time code from a caller tool. |
+| `templates/agent-sdk/specialists.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | The lead retrieves a fresh code word. Each real query's `system:init` reports its exact tool list. |
+| `examples/agent-sdk/knowledge-agent.live.test.ts` and `examples/agent-sdk/research-agent.live.test.ts` | with the examples | knowledge-agent signs off, answers the OKR target from `knowledge/okrs.md` with a citation, and refuses a topic its files do not cover; research-agent signs off and cites a source. |
 
 **A consultation, observed `2026-11-26`** (Sonnet 5.5, SDK 0.3.332, `specialists.live.test.ts`, 6 of 6 runs passed): the lead called `mcp__app__ask_vault` and returned the specialist's fresh code word. Each query's `system:init` listed exactly its own tools: the lead `mcp__app__ask_vault` and `mcp__app__lookup_hours`, the specialist `mcp__app__read_code`. Median of five runs: 8.9 s for the message, and $0.021 for the lead's run and $0.020 for the specialist's, about $0.041 a message. The same check on the Messages API wrapper took 3.0 s and $0.003: each engine start carries Claude Code's own system prompt and tool definitions.
 
@@ -239,4 +239,4 @@ Measured 2026-09-26, SDK 0.3.283, Claude Code 2.1.281, `claude-sonnet-5`, on a f
 | Error event, no rethrow | `error_max_turns` event, then an exception | one `error` event |
 | `filesRead` relative | absolute server paths sent to the browser | paths relative to the agent |
 | No build-time deletion of root instruction files | — | repo instructions did not leak on this SDK (§ 4) |
-| `perplexity-mcp` tool names | `search`, `reason`, `deep_research` | unchanged — confirmed by `discover-mcp-tools.mjs` |
+| `perplexity-mcp` tool names | `search`, `reason`, `deep_research` | unchanged — confirmed by `scripts/discover-mcp-tools-agent-sdk.mjs` |

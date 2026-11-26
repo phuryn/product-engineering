@@ -4,7 +4,7 @@
 
 # Product Engineering
 
-41 agent skills from shipping three live products: decide what to build, build it with Claude Code or Codex, have a second model review it, release it.
+38 agent skills from shipping three live products: decide what to build, build it with Claude Code or Codex, have a second model review it, release it.
 
 **Lost at any point?** Type `/product:start-here` (Codex: `$product:start-here`) and say what you have. It tells you where the work stands and what's next. [Install](#install) first.
 
@@ -172,21 +172,18 @@ Most start themselves when the work matches what they're for. You start four, ma
 - `product-analytics`: Cookieless recordings and heatmaps your agents read back
 - `uptime-monitoring`: Knowing it's down before users do; Staygreen, made by the author, by default
 - `mcp-server`: A remote MCP server, right the first time, and a ChatGPT plugin through OpenAI's review
-- `embedded-agents-design`: What an agent in your app may do, and what waits for a click
-- `embedded-agents-messages-api`: Claude agents in your app, on the API
-- `embedded-agents-agent-sdk`: The same, on the Agent SDK
-- `embedded-agents-managed`: The same, with Claude running the loop in the cloud
+- `embedded-agents`: Claude agents in your app, with an agent card, confirmation for irreversible actions and a reference for each runtime
 
 **work-humanizer**: Work writing that doesn't read as AI
 
 - `work-humanizer`: Edits AI-sounding text, or interviews you
 
-25 of the 41 skills were learned on real products built with Claude Code, Codex and Grok; 13 are established methods (the strategy frameworks in `product`, the documentation and review methods in `ai-shipping`); `product-analytics` rests on its vendors' docs and `work-humanizer` on a detector test; `embedded-agents-managed` rests on one day of live API runs and Anthropic's documentation, and `delegation`'s Gemini reference on one day of CLI runs and Google's documentation. Each pack's `README.md` says more about every skill.
+23 of the 38 skills were learned on real products built with Claude Code, Codex and Grok; 13 are established methods (the strategy frameworks in `product`, the documentation and review methods in `ai-shipping`); `product-analytics` rests on its vendors' docs and `work-humanizer` on a detector test. The `embedded-agents` skill's Managed Agents reference rests on one day of live API runs and Anthropic's documentation, and `delegation`'s Gemini reference on one day of CLI runs and Google's documentation. Each pack's `README.md` says more about every skill.
 
 <details>
 <summary>What the skills cost your agent</summary>
 
-Your agent always carries the descriptions of the 37 skills that start themselves: about 5,900 characters, about 2,500 tokens in Claude Code. A skill's full text loads only when it runs. `tools/validate.py` holds the descriptions to 6,600 characters in total and 300 each, because a crowded agent setup cuts descriptions short, and the cut falls on the words that say when to use a skill.
+Your agent always carries the descriptions of the 34 skills that start themselves: 5,530 characters, about 2,500 tokens in Claude Code. A skill's full text loads only when it runs. `tools/validate.py` holds the descriptions to 6,600 characters in total and 300 each, because a crowded agent setup cuts descriptions short, and the cut falls on the words that say when to use a skill.
 
 </details>
 

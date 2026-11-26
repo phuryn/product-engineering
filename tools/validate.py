@@ -84,21 +84,40 @@ LEAK_EXCEPTIONS = {
 UNRESOLVED = [r"\bthe template\b", r"\btemplate's\b", r"AGENTS\.md\s*§\s*\d", r"names in these files"]
 
 errors, warnings = [], []
-# A script a skill carries so it works on its own (AGENTS.md, rule 5), and the one it copies.
-COPIES = {"ai-shipping/skills/ship-check/scripts/review.py": "ai-shipping/skills/independent-review/scripts/review.py",
-          "app-stack/skills/embedded-agents-managed/scripts/new-agent.mjs":
-              "app-stack/skills/embedded-agents-messages-api/scripts/new-agent.mjs"}
+# A file a skill carries so a skill or example works on its own (AGENTS.md, rule 5), and the one it copies.
+COPIES = {
+    "ai-shipping/skills/ship-check/scripts/review.py": "ai-shipping/skills/independent-review/scripts/review.py",
+    # Each runtime's example can be copied as a directory. Only the knowledge agent's instructions differ.
+    "app-stack/skills/embedded-agents/examples/agent-sdk/knowledge-agent/knowledge/jtbd.md":
+        "app-stack/skills/embedded-agents/examples/messages-api/knowledge-agent/knowledge/jtbd.md",
+    "app-stack/skills/embedded-agents/examples/agent-sdk/knowledge-agent/knowledge/llms.md":
+        "app-stack/skills/embedded-agents/examples/messages-api/knowledge-agent/knowledge/llms.md",
+    "app-stack/skills/embedded-agents/examples/agent-sdk/knowledge-agent/knowledge/okrs.md":
+        "app-stack/skills/embedded-agents/examples/messages-api/knowledge-agent/knowledge/okrs.md",
+    "app-stack/skills/embedded-agents/examples/agent-sdk/knowledge-agent/knowledge/product-strategy.md":
+        "app-stack/skills/embedded-agents/examples/messages-api/knowledge-agent/knowledge/product-strategy.md",
+    "app-stack/skills/embedded-agents/examples/agent-sdk/knowledge-agent/knowledge/product-vision.md":
+        "app-stack/skills/embedded-agents/examples/messages-api/knowledge-agent/knowledge/product-vision.md",
+    "app-stack/skills/embedded-agents/examples/agent-sdk/knowledge-agent.live.test.ts":
+        "app-stack/skills/embedded-agents/examples/messages-api/knowledge-agent.live.test.ts",
+    "app-stack/skills/embedded-agents/examples/agent-sdk/research-agent/.mcp.json":
+        "app-stack/skills/embedded-agents/examples/messages-api/research-agent/.mcp.json",
+    "app-stack/skills/embedded-agents/examples/agent-sdk/research-agent/AGENTS.md":
+        "app-stack/skills/embedded-agents/examples/messages-api/research-agent/AGENTS.md",
+    "app-stack/skills/embedded-agents/examples/agent-sdk/research-agent.live.test.ts":
+        "app-stack/skills/embedded-agents/examples/messages-api/research-agent.live.test.ts",
+}
 # A block two files share, from the line holding the first marker to the line before the second: (copy, source,
 # first, second). The file tools decide what an agent may read, so a fix in one wrapper must reach the other.
-SHARED_BLOCKS = [("app-stack/skills/embedded-agents-managed/templates/agent.ts",
-                  "app-stack/skills/embedded-agents-messages-api/templates/agent.ts",
+SHARED_BLOCKS = [("app-stack/skills/embedded-agents/templates/managed/agent.ts",
+                  "app-stack/skills/embedded-agents/templates/messages-api/agent.ts",
                   "// ── Files the agent may read", "// ── The request and the run"),
-                 ("app-stack/skills/embedded-agents-agent-sdk/templates/agent.ts",
-                  "app-stack/skills/embedded-agents-messages-api/templates/agent.ts",
+                 ("app-stack/skills/embedded-agents/templates/agent-sdk/agent.ts",
+                  "app-stack/skills/embedded-agents/templates/messages-api/agent.ts",
                   "/** One counter per message, shared by all of the lead's consult tools. */",
                   "/** A caller tool spec for the lead. Wrap it with agentTool like any other spec. */"),
-                 ("app-stack/skills/embedded-agents-managed/templates/agent.ts",
-                  "app-stack/skills/embedded-agents-messages-api/templates/agent.ts",
+                 ("app-stack/skills/embedded-agents/templates/managed/agent.ts",
+                  "app-stack/skills/embedded-agents/templates/messages-api/agent.ts",
                   "/** One counter per message, shared by all of the lead's consult tools. */",
                   "/** A caller tool spec for the lead. Wrap it with agentTool like any other spec. */")]
 
@@ -305,7 +324,9 @@ def check_counts():
 
 
 RETIRED = ("codex-agents", "claude-agents", "grok-agents", "gemini-agents", "chatgpt-plugin",
-           "security-audit-static", "performance-audit-static")
+           "security-audit-static", "performance-audit-static",
+           "embedded-agents-design", "embedded-agents-messages-api", "embedded-agents-agent-sdk",
+           "embedded-agents-managed")
 
 
 def check_retired():

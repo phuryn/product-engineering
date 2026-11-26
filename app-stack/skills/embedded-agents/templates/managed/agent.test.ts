@@ -190,7 +190,7 @@ describe('session configuration', () => {
     expect(lib.listAgents()).toEqual(['bad', 'both', 'code', 'files', 'malformed', 'mcp', 'plain', 'search', 'vault']);
     expect(() => lib.sessionRequest({ ...opts, agent: '../..' })).toThrow(/Invalid agent name/);
     expect(() => lib.sessionRequest({ ...opts, agent: 'missing' })).toThrow(/missing AGENTS/);
-    expect(() => lib.sessionRequest({ ...opts, agent: 'mcp' })).toThrow(/\.mcp\.json.*embedded-agents-messages-api.*embedded-agents-agent-sdk/);
+    expect(() => lib.sessionRequest({ ...opts, agent: 'mcp' })).toThrow(/\.mcp\.json.*Messages API.*Agent SDK/);
     expect(() => lib.sessionRequest({ ...opts, tools: [lookup(), lookup()] })).toThrow(/two tools named "lookup"/);
   });
 

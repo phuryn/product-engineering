@@ -10,7 +10,7 @@ Built and measured on `2026-10-24` against `@anthropic-ai/sdk` 0.133.0 and `@mod
 
 ## 1. Which variant
 
-| | This skill (Claude API) | `embedded-agents-agent-sdk` |
+| | Messages API | Agent SDK |
 |---|---|---|
 | Loop | the SDK's tool runner, in the app's process | the Claude Code engine, a subprocess per run |
 | Tools | exactly the wrapper's: the caller's, file and skill tools, allowed MCP tools | built-ins (allowlisted to Read/Glob/Grep) + MCP |
@@ -77,7 +77,7 @@ The layout is the Agent SDK variant's, on purpose: a directory runs under either
 
 **History** is sent as the conversation it was: `conversation()` drops empty turns and any assistant turn before the first user turn (the API requires the conversation to open with the user), then appends the prompt. The Agent SDK variant flattened it into a "Previous conversation" preamble; turns are what the model is trained on.
 
-**One model call, not an agent.** A feature that asks the model once and acts on a structured answer (pick a brand colour from candidates code found, propose checks for an endpoint) needs no wrapper and no tool loop. It keeps the rules of this skill that fit one call: the model pinned; a live run, outside the gate, before the model, the prompt or the schema changes, with its time and tokens recorded; a per-actor cost ceiling; and code that checks every answer before anyone sees it. Caching is the rule that does not carry over. A run here reads its own cache on every request after the first, but calls minutes apart pay the 1.25x write for a five-minute entry nobody reads: leave it off (`2026-10-22`, a monitoring product: about 1,200 tokens in and $0.00016 a call on Haiku 5.5, where a cache hit would have saved under a hundredth of a cent).
+**One model call, not an agent.** A feature that asks the model once and acts on a structured answer (pick a brand colour from candidates code found, propose checks for an endpoint) needs no wrapper and no tool loop. It keeps the rules of the Messages API reference that fit one call: the model pinned; a live run, outside the gate, before the model, the prompt or the schema changes, with its time and tokens recorded; a per-actor cost ceiling; and code that checks every answer before anyone sees it. Caching is the rule that does not carry over. A run here reads its own cache on every request after the first, but calls minutes apart pay the 1.25x write for a five-minute entry nobody reads: leave it off (`2026-10-22`, a monitoring product: about 1,200 tokens in and $0.00016 a call on Haiku 5.5, where a cache hit would have saved under a hundredth of a cent).
 
 ---
 
@@ -85,7 +85,7 @@ The layout is the Agent SDK variant's, on purpose: a directory runs under either
 
 There is nothing to switch off: the model can call only what is in `tools`, and the runner answers any other name with an error result. The boundary is therefore what `agentRequest()` adds:
 
-- **The caller's tools** (`opts.tools`), built per request so they close over the caller. Identity is never a parameter (SKILL.md § 3).
+- **The caller's tools** (`opts.tools`), built per request so they close over the caller. Identity is never a parameter (`references/messages-api.md` § 3).
 - **Knowledge tools** — only when `knowledge/` exists (§ 5).
 - **Skill tools** — only when the agent has skills (§ 5).
 - **MCP tools** — only those a server's `allowedTools` lists (§ 6).
@@ -148,7 +148,7 @@ A small, stable `knowledge/` could instead be pasted into the cached system prom
 `agent-mcp.ts` opens each server with the official MCP client — `stdio` (a child process) or `http` (Streamable HTTP, `url` and `headers`) — lists its tools, keeps only those `allowedTools` names, and hands them to the runner through the SDK's `mcpTools()` helper. The model never talks to a server; the runner calls it through this client.
 
 - **Secrets stay in the app.** `${VAR}` is expanded from the app's environment, and a missing variable fails by name before any server starts (the Agent SDK variant replaced it with an empty string). A stdio server starts with the MCP SDK's short allowlist of variables (`PATH`, `HOME`, `APPDATA`, …) plus its own `env` — measured: the test server's `printEnv` showed `PATH` and no `ANTHROPIC_API_KEY`. That replaces the Agent SDK variant's `agentEnv` stripping.
-- **A server's own error output is discarded at runtime** (it can carry what the server was asked; the app's logs stay ids, never bodies) and shown by `discover-mcp-tools.mjs`, where it is the clue to a server that won't start.
+- **A server's own error output is discarded at runtime** (it can carry what the server was asked; the app's logs stay ids, never bodies) and shown by `scripts/discover-mcp-tools-messages-api.mjs`, where it is the clue to a server that won't start.
 - **Lifetime: one run.** Servers open before the run and close in a `finally`, however it ends. A stdio server started through `npx` costs a cold start every run (measured below: ~4 s of a 7.5 s run). An agent that answers often should get a pooled connection instead — not built here.
 - **Remote servers** can also be called by the API itself (`mcp_servers` plus an `mcp_toolset` tool, beta `mcp-client-2025-11-20`). That needs a public URL and sends the server's token to Anthropic with every request; the client here keeps both in the app.
 
@@ -174,7 +174,7 @@ for await (const ev of askAgent({ agent: 'knowledge-agent', prompt, history })) 
 | Ends | `end_turn` → `done`; `refusal`, `max_tokens` and anything else → `error` with the stop reason. A request that still fails after the SDK's two retries throws, and the caller reports it. |
 | Leaving early | A caller that stops reading (a closed browser tab) ends the generator at its next event; the MCP servers close in its `finally`. A request already in flight finishes first. |
 
-**Wire format** (`templates/route.ts`): server-sent events, `data: <json>\n\n` — `{ text }`, then `{ done, agent, metadata }` or `{ error, agent }`. A client parser:
+**Wire format** (`templates/messages-api/route.ts`): server-sent events, `data: <json>\n\n` — `{ text }`, then `{ done, agent, metadata }` or `{ error, agent }`. A client parser:
 
 ```ts
 const reader = response.body!.getReader();
@@ -194,7 +194,7 @@ while (true) {
 }
 ```
 
-**Token streaming** is one option away: the runner takes `stream: true`, each iteration is then a stream whose `text_delta` events can be forwarded as they arrive (`await stream.finalMessage()` gives the response for the ceilings). This skill's wrapper stays per-response so its events match the Agent SDK variant's; a caller that joins chunks expecting whole responses would need to change.
+**Token streaming** is one option away: the runner takes `stream: true`, each iteration is then a stream whose `text_delta` events can be forwarded as they arrive (`await stream.finalMessage()` gives the response for the ceilings). The Messages API wrapper stays per-response so its events match the Agent SDK variant's; a caller that joins chunks expecting whole responses would need to change.
 
 ---
 
@@ -212,11 +212,11 @@ while (true) {
 
 | File | Runs | What it pins |
 |---|---|---|
-| `templates/agent.test.ts` → `tests/unit/` | inside `npm test`, no model call | directory resolution and name validation; the request (system prompt, caching, model, effort, fallbacks per model, tools, duplicate names, the price list); history as turns; the file and skill tools and their confinement; `.mcp.json` parsing and secret expansion; and the run itself — the SDK's real tool runner against a scripted `fetch`: tools run, events, cost, closing tools end the run only when the response has text and calls nothing else, both ceilings stop before tools run, refusal and cut-off are errors, `ToolError` and the fixed sentence, retries exhausted throws. |
-| `templates/agent.test.ts` consultations | inside `npm test`, no model call | The two tool lists, an unoffered tool refused, the specialist's fresh prompt, its own run settings, a shared cap under parallel calls, stop and empty-answer errors, and run metadata. |
-| `templates/agents.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | for every agent: each MCP server starts and still offers every allowed tool; the model is shown only its own tools; it answers with a positive cost. |
-| `templates/specialists.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | The lead gets a fresh code word from the specialist, and recorded requests show exactly each agent's tool list. |
-| `examples/*.live.test.ts` | with the examples | knowledge-agent signs off, answers the OKR target from `knowledge/okrs.md` with a citation, and refuses a topic its files do not cover; research-agent signs off and cites a source. |
+| `templates/messages-api/agent.test.ts` → `tests/unit/` | inside `npm test`, no model call | directory resolution and name validation; the request (system prompt, caching, model, effort, fallbacks per model, tools, duplicate names, the price list); history as turns; the file and skill tools and their confinement; `.mcp.json` parsing and secret expansion; and the run itself — the SDK's real tool runner against a scripted `fetch`: tools run, events, cost, closing tools end the run only when the response has text and calls nothing else, both ceilings stop before tools run, refusal and cut-off are errors, `ToolError` and the fixed sentence, retries exhausted throws. |
+| `templates/messages-api/agent.test.ts` consultations | inside `npm test`, no model call | The two tool lists, an unoffered tool refused, the specialist's fresh prompt, its own run settings, a shared cap under parallel calls, stop and empty-answer errors, and run metadata. |
+| `templates/messages-api/agents.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | for every agent: each MCP server starts and still offers every allowed tool; the model is shown only its own tools; it answers with a positive cost. |
+| `templates/messages-api/specialists.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | The lead gets a fresh code word from the specialist, and recorded requests show exactly each agent's tool list. |
+| `examples/messages-api/knowledge-agent.live.test.ts` and `examples/messages-api/research-agent.live.test.ts` | with the examples | knowledge-agent signs off, answers the OKR target from `knowledge/okrs.md` with a citation, and refuses a topic its files do not cover; research-agent signs off and cites a source. |
 
 **A consultation, observed `2026-11-26`** (Sonnet 5.5, `@anthropic-ai/sdk` 1.14.0, `specialists.live.test.ts`, 6 of 6 runs passed): the lead called `ask_vault` once and returned the specialist's fresh code word. Every recorded request offered the lead exactly `lookup_hours` and `ask_vault`, and the specialist exactly `read_code`. Median of five runs: 2.97 s for the message, 1.35 s of it the consultation; $0.0011 for the lead's run and $0.0022 for the specialist's.
 

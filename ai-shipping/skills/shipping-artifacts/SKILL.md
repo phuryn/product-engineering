@@ -149,7 +149,7 @@ Reviewers use it to catch public-data-only violations and metadata injection on 
 
 ### `automation.md`
 
-**Document automation only if the app embeds one of these capabilities.** Include it only if the app embeds AI agents, LLM workflows, tool-calling, webhooks, or external automation. Cover embedded agents and other automation paths. An agent's entry is its card, written before the agent is built and updated in the same change as a tool, a prompt or a limit (the `embedded-agents-design` skill has its shape). For every automation or agent, capture:
+**Document automation only if the app embeds one of these capabilities.** Include it only if the app embeds AI agents, LLM workflows, tool-calling, webhooks, or external automation. Cover embedded agents and other automation paths. An agent's entry is its card, written before the agent is built and updated in the same change as a tool, a prompt or a limit (the `embedded-agents` skill has its shape). For every automation or agent, capture:
 
 - trigger, owner, and whether it runs automatically or only after approval;
 - inputs it may read and the exact tools/APIs it may call; the tool surface is itself a hard guardrail;

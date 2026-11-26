@@ -1,6 +1,6 @@
 ---
-name: embedded-agents-design
-description: "'Add an agent', 'an AI assistant in the app', 'what may it do', 'agents that call agents': before proposing, planning, building or changing a product's agent: its job, tools, what code enforces, what waits for a click."
+name: embedded-agents
+description: "'Add an agent', 'an AI assistant in the app', 'what may it do', 'agents that call agents', building, adding or wiring up an agent or agent chat in Next.js, 'Agent SDK', 'Managed Agents', 'hosted sandbox': design and build embedded Claude agents."
 ---
 
 # Design an embedded agent
@@ -11,7 +11,7 @@ description: "'Add an agent', 'an AI assistant in the app', 'what may it do', 'a
 
 - **Put a draft agent card in the proposal or the discussion itself.** "The assistant handles billing" hides the decision. List the exact tools. For an action that waits for a click, say who clicks, how long the confirm card lives, that it works once, and that only the same person can use it.
 - **Agree on the agent card before planning the work.** Keep it in the automation doc, the record of what each agent may do; apply the `shipping-artifacts` skill for that doc.
-- **Choose the runtime after the agent card.** Apply the `embedded-agents-messages-api` skill by default, or `embedded-agents-agent-sdk` or `embedded-agents-managed` where their own conditions hold. Everything here works on all three.
+- **Choose the runtime after the agent card.** Follow Choose the runtime below. Everything here works on all three.
 - **Change the agent card first when a tool, a prompt or a limit changes.** It goes in the same change, and a new power is agreed before it is coded. A wording fix in a prompt that changes no rule needs no card change.
 
 ## The agent card
@@ -148,13 +148,27 @@ for await (const ev of withCards(askAgent({ ...turn, tools }), () => readCards(c
 
 **Refresh the open confirm cards after a click or a dismissal.** On `/api/agents/proposals`, `POST { id }` confirms, `DELETE { id }` dismisses and `GET ?scope=…` lists.
 
-## Tests and files
+## Tests
 
 **Test each agent card against the tools the route passes.** `agent-card.test.ts` reads the cards in `docs/automation.md` by their headings. It fails on missing, extra or misnamed tools, hosted or MCP tools with no row, and inputs that name a person. It also fails when `asks` and `ask_` disagree, a target lacks its directory or card, or a specialist lists an `ask_` tool. The runtime tests cover file and skill tools.
 
 **Give each line enforced in code a test that fails without it.** Apply the `derive-tests` skill. For the refund, take the permission away after preparing, and assert that the click leaves the payment unchanged.
 
 The tests need Vitest, `@electric-sql/pglite` and the app's `@/` alias.
+
+## Choose the runtime
+
+**Read the chosen runtime's reference before writing any code.** It holds the whole procedure for that runtime. Use the matching playbook for the wrapper's contract and the evidence behind it.
+
+| Runtime | When to use it | Read first | When to open the playbook |
+| --- | --- | --- | --- |
+| Messages API | The default, including for a new product. | `references/messages-api.md` | Read `references/messages-api-playbook.md` before changing the wrapper's contract or explaining it in depth, or when migrating from the Agent SDK. |
+| Agent SDK | Only when the owner asks for the Agent SDK, the agent needs Claude Code's own tools, or the app already runs it. | `references/agent-sdk.md` | Read `references/agent-sdk-playbook.md` before changing the wrapper's contract or explaining it in depth. |
+| Managed Agents | Only when the owner asks for Managed Agents or the agent needs a hosted sandbox to run code. | `references/managed.md` | Read `references/managed-playbook.md` before changing the wrapper's contract. |
+
+## Files
+
+**Use the design files for proposals and agent-card checks on every runtime.** The runtime references list the wrapper, route and tests to copy for each implementation.
 
 | From `<skill dir>` | Copy to | Holds |
 | --- | --- | --- |
@@ -170,4 +184,4 @@ Each rule's origin, the case that taught it, is in `receipts.md` beside this fil
 
 ## How you can tell it worked
 
-The owner agreed to a card whose tools match the route's, by test. A confirm card survives a failed turn, and two racing clicks run the action once.
+The owner agreed to a card whose tools match the route's, by test. A confirm card survives a failed turn, two racing clicks run the action once, and the agent meets the checks in the chosen runtime's “How you can tell it worked”.

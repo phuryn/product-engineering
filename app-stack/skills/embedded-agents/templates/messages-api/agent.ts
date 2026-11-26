@@ -13,7 +13,7 @@ import { openMcpTools } from './agent-mcp';
 // with its own AGENTS.md, optional knowledge/, agent-local skills and .mcp.json. No agent names
 // live in code: an agent is a directory. The loop is the Anthropic SDK's tool runner, in this
 // process, and an agent has exactly the tools this file gives it. Every choice below is explained,
-// with the measurement behind it, in the embedded-agents-messages-api skill (reference/playbook.md).
+// with the measurement behind it, in the embedded-agents skill (references/messages-api-playbook.md).
 
 const AGENTS_ROOT = resolve(process.cwd(), '.claude', 'agents');
 const INSTRUCTIONS = 'AGENTS.md';

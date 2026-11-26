@@ -249,7 +249,7 @@ function required(name: string): string {
 function agentTools(opts: Pick<AskAgentOptions, 'agent' | 'tools'>, filesRead: string[]) {
   const dir = agentDir(opts.agent);
   if (existsSync(join(dir, '.mcp.json'))) {
-    throw new Error('Managed Agents refuses .mcp.json. Use the embedded-agents-messages-api or embedded-agents-agent-sdk skill for MCP.');
+    throw new Error('Managed Agents refuses .mcp.json. Use the Messages API or Agent SDK runtime of the embedded-agents skill for MCP.');
   }
   const skills = discoverSkills(dir);
   const tools = [...(opts.tools ?? []), ...knowledgeTools(dir, filesRead), ...skillTools(skills, filesRead)];
