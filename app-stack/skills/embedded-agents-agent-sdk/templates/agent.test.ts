@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
+import { query, type Options, type SDKMessage, type SDKResultError } from '@anthropic-ai/claude-agent-sdk';
 import { z } from 'zod';
 
 vi.mock('server-only', () => ({}));
@@ -22,6 +23,7 @@ function write(path: string, body: string) {
   writeFileSync(path, body);
 }
 write(join(agentsDir, 'plain', 'AGENTS.md'), 'You are Plain.');
+write(join(agentsDir, 'vault', 'AGENTS.md'), 'You are Vault.');
 write(join(agentsDir, 'tooled', 'AGENTS.md'), 'You are Tooled.');
 write(join(agentsDir, 'tooled', '.claude', 'skills', 'cite', 'SKILL.md'), '---\nname: cite\ndescription: Cite sources.\n---\n');
 write(join(agentsDir, 'tooled', '.mcp.json'), JSON.stringify({
@@ -49,9 +51,24 @@ function lookup(run = async ({ path }: { path: string }) => `Found ${path}`) {
   });
 }
 
+async function withAppTools(options: Options | undefined, use: (client: Client) => Promise<void>) {
+  const server = options?.mcpServers?.app;
+  if (server?.type !== 'sdk') throw new Error('Expected an in-process app server');
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  const client = new Client({ name: 'caller-tool-test', version: '1.0.0' });
+  await server.instance.connect(serverTransport);
+  try {
+    await client.connect(clientTransport);
+    await use(client);
+  } finally {
+    await client.close();
+    await server.instance.close();
+  }
+}
+
 describe('agents are directories', () => {
   test('lists only directories that hold an AGENTS.md', () => {
-    expect(lib.listAgents()).toEqual(['app-server', 'plain', 'tooled']);
+    expect(lib.listAgents()).toEqual(['app-server', 'plain', 'tooled', 'vault']);
   });
 
   test('refuses a name that is a path, so a request body cannot pick the repo root', () => {
@@ -142,13 +159,7 @@ describe('caller tools', () => {
 
   test('the app server rejects bad input before run and passes valid input through the schema', async () => {
     const run = vi.fn(async ({ path }: { path: string }) => `Found ${path}`);
-    const server = lib.agentOptions({ agent: 'plain', tools: [lookup(run)] }).mcpServers?.app;
-    if (server?.type !== 'sdk') throw new Error('Expected an in-process app server');
-    const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
-    const client = new Client({ name: 'caller-tool-test', version: '1.0.0' });
-    await server.instance.connect(serverTransport);
-    try {
-      await client.connect(clientTransport);
+    await withAppTools(lib.agentOptions({ agent: 'plain', tools: [lookup(run)] }), async (client) => {
       const bad = await client.callTool({ name: 'lookup', arguments: { path: ' ' } });
       expect(bad.isError).toBe(true);
       expect(run).not.toHaveBeenCalled();
@@ -156,10 +167,7 @@ describe('caller tools', () => {
         content: [{ type: 'text', text: 'Found invoices' }],
       });
       expect(run).toHaveBeenCalledExactlyOnceWith({ path: 'invoices' });
-    } finally {
-      await client.close();
-      await server.instance.close();
-    }
+    });
   });
 });
 
@@ -208,4 +216,145 @@ test('history is carried as a preamble, not a database shape', () => {
   expect(lib.composePrompt('Next?', [{ role: 'user', content: 'Hi' }, { role: 'assistant', content: 'Hello' }]))
     .toBe('Previous conversation:\nUser: Hi\nAssistant: Hello\n\nNew question: Next?');
   expect(lib.composePrompt('Only this')).toBe('Only this');
+});
+
+const assistant = (text: string) => ({ type: 'assistant', message: { content: [{ type: 'text', text }] } }) as SDKMessage;
+const result = (subtype: 'success' | SDKResultError['subtype'] = 'success') => ({
+  type: 'result', subtype, total_cost_usd: 0.02, duration_ms: 100, usage: { input_tokens: 30, output_tokens: 20 },
+}) as SDKMessage;
+
+function scriptQuery(script: (request: Parameters<typeof query>[0]) => AsyncGenerator<SDKMessage, void>) {
+  return vi.mocked(query).mockReset().mockImplementation((request) => script(request) as ReturnType<typeof query>);
+}
+
+async function run(overrides: Partial<import('@/lib/agent').AskAgentOptions>) {
+  const events: import('@/lib/agent').AgentEvent[] = [];
+  for await (const event of lib.askAgent({ agent: 'plain', prompt: 'Find the code.', ...overrides })) events.push(event);
+  return events;
+}
+
+describe('specialist consultations', () => {
+  const agent = 'vault';
+  const description = 'Ask the vault for its code.';
+
+  test('runs each agent with its own tool server and gives the specialist only the question and context', async () => {
+    const question = 'What is the current code?';
+    const context = 'The caller is on the annual plan.';
+    const leadRun = vi.fn(async () => 'Lead data.');
+    const readCode = vi.fn(async () => 'Code from the vault.');
+    const leadTool = lib.agentTool({ name: 'lookup_hours', description: 'Read opening hours.', input: {}, run: leadRun });
+    const specialistTool = lib.agentTool({ name: 'read_code', description: 'Read the code.', input: {}, run: readCode });
+    const runs = lib.specialistRuns(1);
+    const consult = lib.agentTool(lib.askSpecialist({
+      agent, description, runs, context, tools: [specialistTool], model: 'claude-haiku-5-5', maxTurns: 3, maxBudgetUsd: 0.1,
+    }));
+    const calls = scriptQuery(async function* ({ options }) {
+      if (options?.cwd === join(agentsDir, 'vault')) {
+        await withAppTools(options, async (client) => {
+          expect((await client.listTools()).tools.map(({ name }) => name)).toEqual(['read_code']);
+          expect(await client.callTool({ name: 'lookup_hours', arguments: {} })).toMatchObject({ isError: true });
+          expect(await client.callTool({ name: 'read_code', arguments: {} })).toEqual({ content: [{ type: 'text', text: 'Code from the vault.' }] });
+        });
+        yield assistant('Specialist answer.');
+      } else {
+        await withAppTools(options, async (client) => {
+          expect((await client.listTools()).tools.map(({ name }) => name).sort()).toEqual(['ask_vault', 'lookup_hours']);
+          expect(await client.callTool({ name: 'ask_vault', arguments: { question } })).toEqual({ content: [{ type: 'text', text: 'Specialist answer.' }] });
+        });
+        yield assistant('Lead answer.');
+      }
+      yield result();
+    });
+
+    expect(await run({
+      tools: [leadTool, consult], allowedTools: ['Grep'], context: 'Lead-only context.',
+      history: [{ role: 'user', content: 'Lead-only history.' }],
+    })).toEqual([{ type: 'text', text: 'Lead answer.' }, expect.objectContaining({ type: 'done', text: 'Lead answer.' })]);
+    expect(calls.mock.calls).toHaveLength(2);
+    const [lead, vault] = calls.mock.calls.map(([request]) => request);
+    expect(lead.options).toMatchObject({ cwd: join(agentsDir, 'plain'), allowedTools: ['Grep', 'mcp__app__lookup_hours', 'mcp__app__ask_vault'] });
+    expect(vault).toMatchObject({
+      prompt: question,
+      options: {
+        cwd: join(agentsDir, 'vault'), strictMcpConfig: true, skills: [],
+        tools: ['Read', 'Glob', 'Grep'], allowedTools: ['Read', 'Glob', 'Grep', 'mcp__app__read_code'],
+        systemPrompt: { type: 'preset', preset: 'claude_code', append: `You are Vault.\n\n${context}` },
+        model: 'claude-haiku-5-5', maxTurns: 3, maxBudgetUsd: 0.1,
+      },
+    });
+    expect(leadRun).not.toHaveBeenCalled();
+    expect(readCode).toHaveBeenCalledOnce();
+    expect(runs.runs).toEqual([{ agent, metadata: { cost: 0.02, duration_ms: 100, filesRead: [], tokens: 50 } }]);
+  });
+
+  test('three parallel consult calls start only two runs', async () => {
+    const runs = lib.specialistRuns(2);
+    const consult = lib.agentTool(lib.askSpecialist({ agent, description, tools: [], runs }));
+    const calls = scriptQuery(async function* ({ options, prompt }) {
+      if (options?.cwd === join(agentsDir, 'vault')) {
+        yield assistant(`Answer to ${prompt}`);
+      } else {
+        await withAppTools(options, async (client) => {
+          const answers = await Promise.all(['First?', 'Second?', 'Third?'].map((question) =>
+            client.callTool({ name: 'ask_vault', arguments: { question } })));
+          expect(answers).toEqual([
+            { content: [{ type: 'text', text: 'Answer to First?' }] },
+            { content: [{ type: 'text', text: 'Answer to Second?' }] },
+            { isError: true, content: [{ type: 'text', text: 'This message has reached its specialist run limit.' }] },
+          ]);
+        });
+        yield assistant('Done.');
+      }
+      yield result();
+    });
+
+    await run({ tools: [consult] });
+    expect(calls.mock.calls.slice(1).map(([request]) => request.prompt)).toEqual(['First?', 'Second?']);
+    expect(runs.started).toBe(2);
+    expect(runs.runs.map(({ agent }) => agent)).toEqual(['vault', 'vault']);
+  });
+
+  test('reserves the slot synchronously before starting the query', async () => {
+    const calls = scriptQuery(async function* () { yield assistant('Answer.'); yield result(); });
+    const runs = lib.specialistRuns(1);
+    const consult = lib.askSpecialist({ agent, description, tools: [], runs });
+    const answer = consult.run({ question: 'Question?' });
+    expect(runs.started).toBe(1);
+    expect(calls).toHaveBeenCalledOnce();
+    await expect(answer).resolves.toBe('Answer.');
+  });
+
+  test.each([
+    ['error_max_budget_usd', 'The vault specialist stopped before answering (error_max_budget_usd).'],
+    ['success', 'The vault specialist finished without an answer.'],
+  ] as const)('reports specialist %s to the lead as a tool error when it has no answer', async (subtype, error) => {
+    const runs = lib.specialistRuns(1);
+    const consult = lib.agentTool(lib.askSpecialist({ agent, description, tools: [], runs }));
+    const calls = scriptQuery(async function* ({ options }) {
+      if (options?.cwd === join(agentsDir, 'vault')) {
+        yield result(subtype);
+      } else {
+        await withAppTools(options, async (client) => {
+          expect(await client.callTool({ name: 'ask_vault', arguments: { question: 'Question?' } })).toEqual({
+            isError: true, content: [{ type: 'text', text: error }],
+          });
+        });
+        yield assistant('The vault could not answer.');
+        yield result();
+      }
+    });
+
+    expect((await run({ tools: [consult] })).at(-1)).toMatchObject({ type: 'done', text: 'The vault could not answer.' });
+    expect(calls).toHaveBeenCalledTimes(2);
+    expect(runs.runs).toEqual([{ agent, metadata: expect.objectContaining({ cost: 0.02 }) }]);
+  });
+
+  test('neither native subagent name enters the tools or allowlist with or without consultations', () => {
+    const consult = lib.agentTool(lib.askSpecialist({ agent, description, tools: [], runs: lib.specialistRuns(1) }));
+    for (const tools of [[], [consult]]) {
+      const options = lib.agentOptions({ agent: 'plain', tools, allowedTools: ['Read', 'Agent', 'Task'] });
+      expect(options.tools).toEqual(['Read']);
+      expect(options.allowedTools).toEqual(tools.length ? ['Read', 'mcp__app__ask_vault'] : ['Read']);
+    }
+  });
 });

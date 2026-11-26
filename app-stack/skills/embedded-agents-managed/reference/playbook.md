@@ -43,6 +43,24 @@ One base agent and one environment per Console workspace, made by `scripts/setup
 
 An idle stream closed on its own after about ten minutes, with no error; a result posted 16 minutes after the call was still accepted. The wrapper's 120-second deadline comes first.
 
+## Specialist consultations
+
+**Give each consultation its own session so the app controls each run.** Anthropic's Managed Agents multiagent guide and session-override reference, read `2026-11-26`, place `multiagent` on the stored agent. Session overrides do not reach roster agents, which use their as-created instructions and tools. One session budget covers every thread. In the guide's flow the coordinator starts delegates through platform tools, without an app step to check the cap first.
+
+| What | How it works |
+|---|---|
+| Specialist request | `openSession` creates a fresh session on the same placeholder agent, with the specialist's instructions, own tools, app-written `context`, model and limits. It sends one user message with the lead's question. |
+| Owner and lifetime | The specialist has the same `owner` and gets the lead request's `signal`. Its own `timeoutMs` and `maxTurns` bound the run, and a whole-cent budget covers that session. The helper attempts deletion on every exit. `deleteOwnerSessions` finds any remaining specialist sessions by owner. |
+| Counter and result | Every consult tool reserves from one `specialistRuns(max)` synchronously. Terminal events record `{ agent, metadata }`. A non-empty answer goes back as a tool result. A cap refusal, stop or empty answer goes back as a tool error. |
+| Cards | Proposal tools close over the same caller, store and app-issued scope as the lead's card stream. That scope exists before either session opens. |
+
+| File | Runs | What it pins |
+|---|---|---|
+| `templates/agent.test.ts` consultations | inside `npm test`, no model call | Both sessions' tool offers, an unoffered tool refused, question and caller scope, run options, session deletion, the cap under parallel calls, and specialist tool errors. |
+| `templates/specialists.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | The lead retrieves a fresh code word. Recorded create requests have exact tool offers, the specialist session is deleted, and the lead's session can be retrieved. |
+
+**A consultation, observed `2026-11-26`** (Sonnet 5.5, `@anthropic-ai/sdk` 1.14.0, `specialists.live.test.ts`, 6 of 6 runs passed): the lead called `ask_vault` and returned the specialist's fresh code word. The two `sessions.create` requests offered the lead exactly `ask_vault` and `lookup_hours` and the specialist exactly `read_code`. The specialist's session answered 404 afterwards, and the lead's session kept its owner and tools. Median of five runs: 7.6 s for the message, 4.1 s of it the consultation, about 2,550 tokens for the lead's session and 2,210 for the specialist's. Each session reported a list cost of 0, which is in whole cents.
+
 ## A call nobody answered
 
 A crash between a tool call and its result leaves the session waiting, and the next message answers 400, "waiting on responses to events". The wrapper sends `user.interrupt` alone, then the message every 400 ms, up to ten times. The second try was accepted, 1.26 s in all. The model reads "Tool execution was interrupted before completion. Please retry." An interrupt and the message in one send were refused.

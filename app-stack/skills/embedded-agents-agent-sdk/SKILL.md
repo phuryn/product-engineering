@@ -11,7 +11,7 @@ description: "Only when the Agent SDK is asked for, an agent needs Claude Code's
 
 **Read the product's own agent instructions before changing its embedded agents.** Start with its root `AGENTS.md` or `CLAUDE.md`, and tell any subagent spawned for this work to read it too. Its rules on secrets, environment variables, validation, callers, tests and release apply here. This skill adds how to run Claude agents inside the app. Read `reference/playbook.md` before changing the wrapper's contract or explaining it in depth. It holds the full playbook and the measurement behind every option.
 
-**Keep request, caller, storage and UI ownership in the app.** The agent owns reasoning and tools. An agent is a directory, `.claude/agents/<name>/`, with `AGENTS.md` as its only instruction file. It may also hold `knowledge/`, agent-local skills in `.claude/skills/`, and `.mcp.json`. One wrapper function, `askAgent`, runs any agent. No agent name appears in code.
+**Keep request, caller, storage and UI ownership in the app.** The agent owns reasoning and tools. An agent is a directory, `.claude/agents/<name>/`, with `AGENTS.md` as its only instruction file. It may also hold `knowledge/`, agent-local skills in `.claude/skills/`, and `.mcp.json`. One wrapper function, `askAgent`, runs any agent. The wrapper hardcodes no agent names.
 
 ## 1. First use: install the wrapper
 
@@ -27,8 +27,9 @@ description: "Only when the Agent SDK is asked for, an agent needs Claude Code's
    | `templates/route.ts` | `src/app/api/agents/route.ts` — `GET` lists agents, `POST` streams one |
    | `templates/agent.test.ts` | `tests/unit/agent.test.ts` — the contract, inside `npm test`, no model call |
    | `templates/agents.live.test.ts` | `tests/live/agents.live.test.ts` — every agent against the real model |
+   | `templates/specialists.live.test.ts` | `tests/live/specialists.live.test.ts` — a lead consulting a specialist against the real model |
 
-   The tests import `@/lib/agent`, so Vitest needs the same `@` alias as `tsconfig.json`. The live test gets its own Vitest config (include `tests/live/**/*.live.test.ts`, `testTimeout: 180_000`, `fileParallelism: false`) and a script, `agents:live`. It costs money, so it stays out of `npm test` and the gate.
+   The tests import `@/lib/agent`, so Vitest needs the same `@` alias as `tsconfig.json`. The live tests share a Vitest config (include `tests/live/**/*.live.test.ts`, `testTimeout: 180_000`, `fileParallelism: false`) and a script, `agents:live`. They cost money, so they stay out of `npm test` and the gate.
 4. **Set each required secret per environment and never commit it.** Set `ANTHROPIC_API_KEY` and every secret referenced by an agent's `.mcp.json`; apply `environments`. On a developer's laptop the SDK falls back to their own Claude login when the key is absent; a deployed product always uses the key.
 5. **Keep the contract.** Every isolation option in `agentOptions()` exists because an SDK default failed a measurement (playbook § 9). Change one only after re-measuring it.
 
@@ -62,6 +63,36 @@ const tools = [
 - **Put per-run facts in `context`, never user text.** It supplies facts such as the caller's identity to the system prompt after `AGENTS.md`.
 - **Move the history to the server before passing any caller tool.** The supplied route reads it from the client, who can forge earlier turns, the agent's own included (§ 7).
 - **Caller tools run in the app's process, not in the subprocess.** The wrapper serves them from one in-process MCP server named `app`, so they use the app's own clients and secrets and the subprocess needs neither (playbook § 2).
+
+### One agent consults another
+
+**Give each specialist its own query so it keeps its boundary.** Anthropic's subagent docs, read `2026-11-26`, describe native subagents using the lead's project and query budget. A separate `query()` gives the specialist its own directory, path guard, skills, MCP servers and limits. Each consultation starts another engine, with Claude Code's own system prompt: `reference/playbook.md` § 5 has the reasons and § 8 the measured time and cost.
+
+**Give the lead an `ask_<specialist>` tool built for each request.** `askSpecialist` returns a spec named with the directory name's hyphens as underscores. Put it in the app's per-request tool registry (`AGENT_TOOLS` in the `embedded-agents-design` skill) and wrap it with `agentTool`. Its description says when to ask and what the question must carry, because the specialist sees nothing else.
+
+```ts
+support: (caller, scope) => {
+  const runs = specialistRuns(4); // assumption on the card: specialist runs per message
+  return [
+    listInvoices(caller),
+    askSpecialist({
+      agent: 'billing',
+      description: 'Ask about billing policy. Include the charge type and the policy question.',
+      runs, maxTurns: 6, maxBudgetUsd: 0.1,
+      tools: AGENT_TOOLS.billing(caller, scope).map((spec) => agentTool(spec)),
+      context: `The caller's plan: ${caller.plan}.`,
+    }),
+  ];
+},
+```
+
+- **Give each agent exactly the tools listed on its own card.** Build both tool lists around the signed-in caller. The lead's in-process `app` server offers `mcp__app__ask_<specialist>`, whose handler starts the specialist's `askAgent()`. The specialist's own `app` server offers its caller tools. It also keeps the wrapper's file tools over its own directory and its own `.mcp.json` tools, the `wrapper` rows on its card. Pass `allowedTools` to narrow them where its card lists fewer.
+- **Start the specialist with the question and an app-written context line.** Its own `AGENTS.md` and `context` are appended to the preset. Its fresh prompt is the question alone. Put only app-supplied caller facts in `context`.
+- **Set each specialist's limits and compute the budget for the whole message.** Pass its `model`, `maxTurns` and `maxBudgetUsd` to `askSpecialist`. Compute the message ceiling as the lead's budget plus the run cap times the largest specialist budget.
+- **Share one counter per message and reserve each slot before starting.** A response can ask several specialists at once. Once full, the tool says “This message has reached its specialist run limit.” A stopped run returns an error naming the specialist and reason. An empty answer returns an error too. To log a message's whole cost, create the counter where the route can read it and add the costs in `runs.runs` to the lead's.
+- **Send links and confirm cards to the page through app code.** `showInvoice(caller, links)` uses the same per-request collector the route reads. `proposeTool(refund, caller, { store, scope })` uses the same store and scope as `withCards` and `readCards`. Apply the `embedded-agents-design` skill for the card flow. Only the lead's text streams to the page. The specialist's answer is a tool result.
+- **Keep consultations one level deep.** Each hop adds a run's time and cost, and a specialist that could ask could ask the lead back. The specialist's card has no `ask_` row, and `askSpecialist` rejects that prefix in its tool list. The wrapper excludes native `Agent` and `Task` from `tools` and `allowedTools`.
+- **Test the boundary with scripted queries and a live consultation.** `agent.test.ts` checks both tool lists, the specialist's question, the parallel cap, the native-tool exclusion and the error results. `specialists.live.test.ts` checks the actual tool offers and that the lead retrieves a fresh code word. See `reference/playbook.md` § 8.
 
 ## 4. Examples — only when asked
 

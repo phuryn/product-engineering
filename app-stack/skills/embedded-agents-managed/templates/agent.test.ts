@@ -3,6 +3,7 @@ import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import Anthropic from '@anthropic-ai/sdk';
+import type { SessionCreateParams } from '@anthropic-ai/sdk/resources/beta/sessions/sessions';
 import type { BetaManagedAgentsEventParams, BetaManagedAgentsStreamSessionEvents } from '@anthropic-ai/sdk/resources/beta/sessions/events';
 import { z } from 'zod';
 
@@ -24,6 +25,7 @@ for (const [dir, config] of Object.entries(configs)) {
   write(`${dir}/hosted.json`, config);
 }
 write('plain/AGENTS.md', 'You are Plain.');
+write('vault/AGENTS.md', 'You are Vault.');
 write('files/AGENTS.md', 'You answer from files.');
 write('files/knowledge/okrs.md', '# OKRs\nScore from 0 to 1.');
 write('files/knowledge/deep/jtbd.md', 'Jobs to be done.');
@@ -124,7 +126,25 @@ function scripted(config: {
     return json(config.session ? config.session(id) : own, id === 'sesn_missing' ? 404 : 200);
   };
   const client = new Anthropic({ apiKey: 'offline-test', fetch, logLevel: 'off', maxRetries: 0 });
-  return { client, sent, requests, streamClosed: () => streamSignal?.aborted };
+  return { client, fetch, sent, requests, streamClosed: () => streamSignal?.aborted };
+}
+
+function consultationScript(lead: ReturnType<typeof scripted>, ...specialists: ReturnType<typeof scripted>[]) {
+  const scripts = [lead, ...specialists];
+  const created: { id: string; params: SessionCreateParams }[] = [];
+  const fetch: typeof globalThis.fetch = async (input, init) => {
+    const path = new URL(String(input)).pathname;
+    if (path === '/v1/sessions' && init?.method === 'POST') {
+      const id = `sesn_${created.length}`;
+      created.push({ id, params: JSON.parse(String(init.body)) });
+      return created.length <= scripts.length ? json({ id }) : failed('Unexpected session create.', 500);
+    }
+    const index = created.findIndex(({ id }) => id === path.split('/')[3]);
+    if (!scripts[index]) return failed('Unexpected session.', 404);
+    return scripts[index].fetch(input, init);
+  };
+  const client = new Anthropic({ apiKey: 'offline-test', fetch, logLevel: 'off', maxRetries: 0 });
+  return { client, created };
 }
 
 async function run(client: Anthropic, overrides: Partial<Options> = {}) {
@@ -167,7 +187,7 @@ describe('session configuration', () => {
   });
 
   test('discovers instruction folders and refuses traversal, MCP and duplicate names', () => {
-    expect(lib.listAgents()).toEqual(['bad', 'both', 'code', 'files', 'malformed', 'mcp', 'plain', 'search']);
+    expect(lib.listAgents()).toEqual(['bad', 'both', 'code', 'files', 'malformed', 'mcp', 'plain', 'search', 'vault']);
     expect(() => lib.sessionRequest({ ...opts, agent: '../..' })).toThrow(/Invalid agent name/);
     expect(() => lib.sessionRequest({ ...opts, agent: 'missing' })).toThrow(/missing AGENTS/);
     expect(() => lib.sessionRequest({ ...opts, agent: 'mcp' })).toThrow(/\.mcp\.json.*embedded-agents-messages-api.*embedded-agents-agent-sdk/);
@@ -486,6 +506,171 @@ describe('local tools', () => {
     } finally {
       rmSync(join(knowledge, 'escape'), { force: true });
     }
+  });
+});
+
+describe('specialist consultations', () => {
+  const agent = 'vault';
+  const description = 'Ask the vault for its code.';
+  const question = 'What is the current code?';
+  const toolResultEvent = (id: string, text: string, is_error = false) => ({
+    type: 'user.custom_tool_result', custom_tool_use_id: id, content: [block(text)], is_error,
+  });
+  const consultationLead = (questions = [question]) => {
+    let received = 0;
+    return scripted({
+      onMessage(send) {
+        send(user());
+        send(model);
+        questions.forEach((q, i) => send(call(`consult_${i}`, 'ask_vault', { question: q })));
+      },
+      onSend(event, send) {
+        if (event.type === 'user.custom_tool_result' && ++received === questions.length) {
+          send(message('lead_reply', 'Lead answer.'));
+          send(idle());
+        }
+      },
+    });
+  };
+  const specialistAnswer = (text: string) => scripted({ onMessage(send) { send(user()); send(message('vault_reply', text)); send(idle()); } });
+
+  test('each session gets its own tools, and the specialist gets the question, context and same owner', async () => {
+    const readCode = vi.fn(async () => 'Code from the vault.');
+    const leadRun = vi.fn(async () => 'Lead data.');
+    const leadTool = lib.agentTool({ name: 'lookup_hours', description: 'Read opening hours.', input: {}, run: leadRun });
+    const vaultTool = lib.agentTool({ name: 'read_code', description: 'Read the code.', input: {}, run: readCode });
+    let received = 0;
+    const vault = scripted({
+      onMessage(send) {
+        send(user());
+        send(call('outside', 'lookup_hours'));
+        send(call('read', 'read_code'));
+      },
+      onSend(event, send) {
+        if (event.type === 'user.custom_tool_result' && ++received === 2) {
+          send(message('vault_reply', 'Specialist answer.'));
+          send(idle());
+        }
+      },
+    });
+    const lead = consultationLead();
+    const { client, created } = consultationScript(lead, vault);
+    const create = vi.spyOn(client.beta.sessions, 'create');
+    const signal = new AbortController().signal;
+    const runs = lib.specialistRuns(1);
+    const consult = lib.agentTool(lib.askSpecialist({
+      agent, description, owner: opts.owner, tools: [vaultTool], runs, signal, timeoutMs: 2000,
+      context: 'The caller is on the annual plan.', model: 'claude-haiku-5-5', maxBudgetUsd: 0.1,
+    }, client));
+
+    expect(await run(client, { tools: [leadTool, consult], context: 'Lead-only context.', signal })).toEqual([
+      { type: 'session', sessionId: 'sesn_0' }, { type: 'text', text: 'Lead answer.' },
+      expect.objectContaining({ type: 'done', sessionId: 'sesn_0', text: 'Lead answer.' }),
+    ]);
+    expect(created.map(({ params: { agent } }) => {
+      if (typeof agent !== 'object' || agent.type !== 'agent_with_overrides') throw new Error('Expected session overrides.');
+      return agent.tools?.flatMap((tool) => tool.type === 'custom' ? [tool.name] : []).sort();
+    })).toEqual([['ask_vault', 'lookup_hours'], ['read_code']]);
+    expect(created[1].params).toMatchObject({
+      agent: { id: 'agent_base', system: 'You are Vault.\n\nThe caller is on the annual plan.', model: { id: 'claude-haiku-5-5' } },
+      metadata: { agent, owner: opts.owner }, budget: { max_list_cost: { amount: '10', currency: 'USD' } },
+    });
+    expect(create.mock.calls[1][1]).toMatchObject({ signal, timeout: 2000 });
+    expect(vault.sent.filter((event) => event.type === 'user.message')).toEqual([{ type: 'user.message', content: [block(question)] }]);
+    expect(vault.sent).toContainEqual(toolResultEvent('outside', 'There is no tool lookup_hours.', true));
+    expect(vault.sent).toContainEqual(toolResultEvent('read', 'Code from the vault.'));
+    expect(lead.sent).toContainEqual(toolResultEvent('consult_0', 'Specialist answer.'));
+    expect(leadRun).not.toHaveBeenCalled();
+    expect(readCode).toHaveBeenCalledOnce();
+    expect(vault.requests.at(-1)).toMatchObject({ method: 'DELETE', url: expect.objectContaining({ pathname: '/v1/sessions/sesn_1' }) });
+    expect(lead.requests.some(({ method }) => method === 'DELETE')).toBe(false);
+    expect(runs.runs).toEqual([{ agent, metadata: expect.objectContaining({ cost: 0 }) }]);
+  });
+
+  test('three parallel consult calls open only two specialist sessions', async () => {
+    const lead = consultationLead(['First?', 'Second?', 'Third?']);
+    const first = specialistAnswer('First answer.');
+    const second = specialistAnswer('Second answer.');
+    const { client, created } = consultationScript(lead, first, second);
+    const runs = lib.specialistRuns(2);
+    const consult = lib.agentTool(lib.askSpecialist({ agent, description, tools: [], runs, owner: opts.owner }, client));
+
+    await run(client, { tools: [consult] });
+    expect(created.map(({ params }) => params.metadata?.agent)).toEqual(['plain', 'vault', 'vault']);
+    expect(first.sent).toEqual([{ type: 'user.message', content: [block('First?')] }]);
+    expect(second.sent).toEqual([{ type: 'user.message', content: [block('Second?')] }]);
+    expect(lead.sent.slice(1)).toEqual(expect.arrayContaining([
+      toolResultEvent('consult_0', 'First answer.'),
+      toolResultEvent('consult_1', 'Second answer.'),
+      toolResultEvent('consult_2', 'This message has reached its specialist run limit.', true),
+    ]));
+    expect([first, second].map((s) => s.requests.at(-1)?.method)).toEqual(['DELETE', 'DELETE']);
+    expect(runs.started).toBe(2);
+    expect(runs.runs).toHaveLength(2);
+  });
+
+  test('reserves the slot synchronously before creating the specialist session', async () => {
+    const { client } = consultationScript(specialistAnswer('Answer.'));
+    const create = vi.spyOn(client.beta.sessions, 'create');
+    const runs = lib.specialistRuns(1);
+    const consult = lib.askSpecialist({ agent, description, tools: [], runs, owner: opts.owner }, client);
+    const answer = consult.run({ question });
+    expect(runs.started).toBe(1);
+    expect(create).toHaveBeenCalledOnce();
+    await expect(answer).resolves.toBe('Answer.');
+  });
+
+  test.each([
+    ['turn limit', true, 'The vault specialist stopped before answering (error_max_turns).'],
+    ['empty answer', false, 'The vault specialist stopped before answering (error_no_response).'],
+  ] as const)('reports a specialist %s and deletes the stopped session', async (_stop, turns, error) => {
+    const lead = consultationLead();
+    const vault = scripted({ onMessage(send) {
+      send(user());
+      if (turns) { send(model); send(call('limit', 'lookup', { key: 'do not run' })); }
+      else send(idle());
+    } });
+    const { client } = consultationScript(lead, vault);
+    const runs = lib.specialistRuns(1);
+    const seen: string[] = [];
+    const consult = lib.agentTool(lib.askSpecialist({
+      agent, description, tools: [lookup(seen)], runs, owner: opts.owner, maxTurns: 1,
+    }, client));
+
+    expect((await run(client, { tools: [consult] })).at(-1)).toMatchObject({ type: 'done', text: 'Lead answer.' });
+    expect(lead.sent).toContainEqual(toolResultEvent('consult_0', error, true));
+    expect(vault.requests.at(-1)?.method).toBe('DELETE');
+    expect(seen).toEqual([]);
+    expect(runs.runs).toEqual([{ agent, metadata: expect.objectContaining({ tokens: 0 }) }]);
+  });
+
+  test('preserves the answer if best-effort deletion fails', async () => {
+    const vault = scripted({
+      onMessage(send) { send(user()); send(message('vault_reply', 'Answer.')); send(idle()); },
+      onDelete: () => failed('Cannot delete this session.'),
+    });
+    const { client } = consultationScript(vault);
+    const consult = lib.askSpecialist({ agent, description, tools: [], runs: lib.specialistRuns(1), owner: opts.owner }, client);
+    await expect(consult.run({ question })).resolves.toBe('Answer.');
+    expect(vault.requests.at(-1)?.method).toBe('DELETE');
+  });
+
+  test('a cancelled request interrupts and deletes an in-flight consultation', async () => {
+    const request = new AbortController();
+    const vault = scripted({
+      onMessage(send) { send(user()); send(call('ready', 'ready')); },
+      onSend(event) { if (event.type === 'user.custom_tool_result') request.abort(); },
+    });
+    const { client } = consultationScript(vault);
+    const readyTool = lib.agentTool({ name: 'ready', description: 'Mark the consultation as started.', input: {}, run: async () => 'Ready.' });
+    const consult = lib.askSpecialist({
+      agent, description, tools: [readyTool], runs: lib.specialistRuns(1), owner: opts.owner, signal: request.signal,
+    }, client);
+
+    await expect(consult.run({ question })).rejects.toThrow('The vault specialist stopped before answering (error_disconnected).');
+    expect(vault.sent).toContainEqual({ type: 'user.interrupt' });
+    expect(vault.streamClosed()).toBe(true);
+    expect(vault.requests.at(-1)?.method).toBe('DELETE');
   });
 });
 

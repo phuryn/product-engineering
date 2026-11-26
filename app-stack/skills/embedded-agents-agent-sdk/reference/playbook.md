@@ -127,7 +127,7 @@ An agent has exactly one instruction file, `AGENTS.md`, and the wrapper loads it
 
 ## 5. The wrapper (`templates/agent.ts` → `src/lib/agent.ts`)
 
-One async generator, `askAgent({ agent, prompt, history, … })`, runs any agent. **No agent names in code** — an agent is a directory.
+One async generator, `askAgent({ agent, prompt, history, … })`, runs any agent. The wrapper hardcodes no agent names.
 
 ```ts
 for await (const ev of askAgent({ agent: 'knowledge-agent', prompt })) {
@@ -173,6 +173,18 @@ while (true) {
 
 **TypeScript.** With SDK 0.3.283 the options type-check without casts and `msg.type` narrows the stream (verified under TypeScript 7 `strict`). Hook callbacks still need `as HookCallback`, and inputs a cast to `PreToolUseHookInput` / `PostToolUseHookInput`. A PreToolUse refusal is `{ decision: 'block', reason }` — measured to work.
 
+### Specialist consultations
+
+**Start a new `query()` for a specialist that needs its own boundary.** The [Agent SDK subagent docs](https://code.claude.com/docs/en/agent-sdk/subagents) and [Claude Code subagent docs](https://code.claude.com/docs/en/sub-agents), read `2026-11-26`, put native subagents inside the lead's engine. A native subagent inherits built-in and MCP tools unless its definition lists a subset, and reads the lead project's `CLAUDE.md` and skills. The wrapper sets the directory, path guard, skills list and `strictMcpConfig` per query. The native `maxBudgetUsd` counts subagents in the query total.
+
+Native defaults also include a `general-purpose` subagent for an `Agent` call without a type, removed only by `CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1`. `Agent(fork)` copies the conversation, `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` defaults to three, and background results come back in a later turn. The wrapper leaves `Agent` and `Task` out of both tool lists. A separate query starts a new engine and gets its own `maxTurns` and `maxBudgetUsd`.
+
+| What | How it works |
+|---|---|
+| Specialist request | Its own `AGENTS.md` and app-written `context` append to the preset. The prompt is the lead's question alone. |
+| Caller tools | The lead's `app` server offers `mcp__app__ask_<specialist>`. The specialist query's own `app` server offers just its caller tools, scoped to the same signed-in caller. |
+| Counter and result | Every consult tool reserves from one `specialistRuns(max)` before it starts. It records each terminal event's `{ agent, metadata }`. The lead gets the answer, or a tool error for a cap refusal, a stop or an empty answer. |
+
 ---
 
 ## 6. Hooks — the path guard and live metadata
@@ -200,8 +212,12 @@ Same hook surface as Claude Code: a dev-time permission hook works as a producti
 | File | Runs | What it pins |
 |---|---|---|
 | `templates/agent.test.ts` → `tests/unit/` | inside `npm test`, no model call | `agentOptions()` including prompt context, `tools` and `dontAsk`, isolation, skills and MCP discovery, `${VAR}` expansion, names, the path guard and caller tool exemption, and history. An in-memory MCP client checks input validation. The tool handler tests planned and unexpected errors. Mutation-checked: restoring the earlier guard or dropping `dontAsk` turns three of its tests red. |
+| `templates/agent.test.ts` consultations | inside `npm test`, no model call | Both queries' allowed tools, each real in-process MCP server, an unoffered tool refused, the specialist's prompt and settings, a synchronous cap under parallel calls, and specialist tool errors. Both native subagent names are excluded with and without consult tools. |
 | `templates/agents.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | for every agent: its directory MCP servers connect, only its allowed built-in tools exist, and it answers. One run with the first agent checks that the model returns a one-time code from a caller tool. |
+| `templates/specialists.live.test.ts` → `tests/live/` | `npm run agents:live`, outside the gate | The lead retrieves a fresh code word. Each real query's `system:init` reports its exact tool list. |
 | `examples/*.live.test.ts` | with the examples | knowledge-agent signs off, answers the OKR target from `knowledge/okrs.md` with a citation, and refuses a topic its files do not cover; research-agent signs off and cites a source. |
+
+**A consultation, observed `2026-11-26`** (Sonnet 5.5, SDK 0.3.332, `specialists.live.test.ts`, 6 of 6 runs passed): the lead called `mcp__app__ask_vault` and returned the specialist's fresh code word. Each query's `system:init` listed exactly its own tools: the lead `mcp__app__ask_vault` and `mcp__app__lookup_hours`, the specialist `mcp__app__read_code`. Median of five runs: 8.9 s for the message, and $0.021 for the lead's run and $0.020 for the specialist's, about $0.041 a message. The same check on the Messages API wrapper took 3.0 s and $0.003: each engine start carries Claude Code's own system prompt and tool definitions.
 
 Live tests hit the real model and cost cents per run; the research test also spends Perplexity credits.
 

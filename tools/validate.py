@@ -92,7 +92,15 @@ COPIES = {"ai-shipping/skills/ship-check/scripts/review.py": "ai-shipping/skills
 # first, second). The file tools decide what an agent may read, so a fix in one wrapper must reach the other.
 SHARED_BLOCKS = [("app-stack/skills/embedded-agents-managed/templates/agent.ts",
                   "app-stack/skills/embedded-agents-messages-api/templates/agent.ts",
-                  "// ── Files the agent may read", "// ── The request and the run")]
+                  "// ── Files the agent may read", "// ── The request and the run"),
+                 ("app-stack/skills/embedded-agents-agent-sdk/templates/agent.ts",
+                  "app-stack/skills/embedded-agents-messages-api/templates/agent.ts",
+                  "/** One counter per message, shared by all of the lead's consult tools. */",
+                  "/** A caller tool spec for the lead. Wrap it with agentTool like any other spec. */"),
+                 ("app-stack/skills/embedded-agents-managed/templates/agent.ts",
+                  "app-stack/skills/embedded-agents-messages-api/templates/agent.ts",
+                  "/** One counter per message, shared by all of the lead's consult tools. */",
+                  "/** A caller tool spec for the lead. Wrap it with agentTool like any other spec. */")]
 
 
 def frontmatter(text):
