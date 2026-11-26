@@ -115,7 +115,7 @@ support: (caller, scope) => {
 
 - **Read `{ sessionId }`, then `{ text }` chunks, then one last event.** Append chunks as they arrive. `{ done, agent, sessionId, metadata }` ends the reply; `{ error, agent, sessionId }` ends it too, so show it. Where the agent proposes, `{ cards }` comes as well, so read until the stream closes.
 - **Start a new conversation on `error_max_budget_usd`.** A conversation whose budget is spent accepts no more messages.
-- **Reload the conversation after `error_disconnected` and on page load.** The answer may have finished after the stream broke: recover it from the session transcript and add it to the app's copy. On page load, show the app's copy, which keeps what the app drew beside the text.
+- **Reload the transcript after `error_disconnected` and on page load.** The answer may have finished after the stream broke.
 - **Send one message at a time per conversation.** A second one interrupts a tool call the first is waiting on.
 - **Render agent output as plain text or sanitized markdown.** Never raw HTML: it is untrusted text, like anything a user typed.
 
