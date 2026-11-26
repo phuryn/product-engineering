@@ -13,7 +13,7 @@ description: "Adding sign-in, a role, a route that touches data, API tokens, a w
 
 1. **Declare the product's shape before the first migration.** What a workspace is (an organization, or one user), whether it bills, whether it has an anonymous public, whether it embeds agents. Everything below reads through it. Write it down before the first migration, in the product's agent instructions, where every session reads it.
 2. **Apply this skill for the model and threat classes.**
-3. **Record intended permissions as a capability-by-actor matrix.** Use the product's permissions doc (`references/documents-and-tests.md`). It is the intent an audit compares the code against (`intended-vs-implemented`, `security-audit-static`). Beside it sit the architecture doc (what exists: routes, ownership, invariants, known risks), the flows doc (the journeys where permissions, money or personal data are exercised) and the backlog (deferred work, each with the trigger that reopens it). What each must say about authorization is in the same file; `shipping-artifacts` defines the core set.
+3. **Record intended permissions as a capability-by-actor matrix.** Use the product's permissions doc (`references/documents-and-tests.md`). It is the intent an audit compares the code against (the `intended-vs-implemented` skill and the `static-audit` skill's security audit). Beside it sit the architecture doc (what exists: routes, ownership, invariants, known risks), the flows doc (the journeys where permissions, money or personal data are exercised) and the backlog (deferred work, each with the trigger that reopens it). What each must say about authorization is in the same file; `shipping-artifacts` defines the core set.
 4. **Use vendor agent skills for APIs, never for the access model.** Where their defaults contradict this skill, this skill wins. Examples: RLS policies written to match an access model, `@supabase/ssr` and a browser key, a middleware path list deciding who may see a page.
 
 ## The model on one page
@@ -56,7 +56,7 @@ Read `references/model.md` for each full rule, reason and receipt.
 - **The first real slice proves the access model with the mechanisms it uses.** Two members of different workspaces cannot see each other's data. Where there is an anonymous public, a visitor takes the public action from a phone without an account. Run the applicable tests below and land them with the permissions doc in the same change.
 - **Recheck authorization in every later identity, workspace, route or permission change.** For changes touching sign-in, workspaces, roles, a route or a permission, require the three functions, the same permission on the screen as in the action, and a cross-tenant test. The permissions doc changes in the same commit.
 - **Decide whether a role or tier answers who or how much.** Do this before writing any code. A role goes into the permission map. A feature goes into the plan module and a quota parameter, never into a permission (`references/model.md § Roles and entitlements never touch`).
-- **Propose `security-audit-static` on the release's changes before release.** It compares code against the permissions doc. The release procedure itself is `release-gate`.
+- **Propose the `static-audit` skill's security audit on the release's changes before release.** It compares code against the permissions doc. The release procedure itself is `release-gate`.
 
 ## Authorization tests for data routes
 

@@ -166,7 +166,7 @@ Test Coverage: [scope]
 - **Use derived tests to keep an audited gap from reopening.** This is the verification half of "documented == implemented": audits find today's gap, and tests stop tomorrow's edit reopening it.
 - **Never fabricate rules to manufacture coverage.** If docs are silent, the gap is in the docs; fix them first with the `document-app` skill.
 - **Let guarded-live tests gate only where the repo's policy puts them.** A flaky test of any type leaves the gate until fixed; otherwise, people start ignoring the gate.
-- **Use this skill for test derivation only.** Use the `security-audit-static` skill for the gap audit itself. For the full document → audit → test → packet sequence, use the ship check (`/ai-shipping:ship-check`, or `$ai-shipping:ship-check` in Codex).
+- **Use this skill for test derivation only.** Apply the `static-audit` skill for its security audit to check the gap itself. For the full document → audit → test → packet sequence, use the ship check (`/ai-shipping:ship-check`, or `$ai-shipping:ship-check` in Codex).
 
 Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 

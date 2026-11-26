@@ -179,4 +179,4 @@ Every finding names an execution that breaks an agreement, survived its own refu
 
 **State what is well built and the limits of static review.** A review that only accuses is easy to dismiss. Static review produces code-review findings, not confirmed exploits or measured regressions.
 
-**Apply a sub-case's mature skill when that sub-case is the whole job.** Apply `security-audit-static` for trust boundaries, sinks and the OWASP backstop, or `performance-audit-static` for over-fetching, indexes and caching. Use its reference file when it is one dimension of a broader review; this skill does not restate either. For the doc-vs-code axis, apply the `intended-vs-implemented` skill.
+**Apply a sub-case's mature skill when that sub-case is the whole job.** Apply the `static-audit` skill for its security audit of trust boundaries, sinks and the OWASP backstop or its performance audit of over-fetching, indexes and caching. Use its reference file when it is one dimension of a broader review; this skill does not restate either. For the doc-vs-code axis, apply the `intended-vs-implemented` skill.

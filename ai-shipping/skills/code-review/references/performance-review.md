@@ -31,7 +31,7 @@ Language- and stack-agnostic. Apply before any technology-specific checklist.
 
 Apply only where the underlying technology exists — do not report the absence of a database concept
 in a program that has no database. For data-backed applications (over-fetching, `SELECT *`, missing
-pagination, index definitions, caching layers), the `performance-audit-static` skill holds the detailed
+pagination, index definitions, caching layers), the `static-audit` skill's performance audit holds the detailed
 checklist; use it rather than restating it here.
 
 ## What makes a performance finding

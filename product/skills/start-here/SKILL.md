@@ -139,7 +139,7 @@ Apply the `delegation`, `codex-agents`, `test-harness`, `code-review` and `indep
 
 - Docs: where strategy, segments, roles, flows, rules, integrations and legal pages are written, and whether they match code. Apply `document-app` in `check` mode and `intended-vs-implemented`. Check mode reports without rewriting. When docs and code disagree about what the product should do, you decide. Rewriting a doc to match faulty code blesses the bug.
 - Tests: what is missing, and whether each test would fail if the behaviour broke. Apply `derive-tests` in `check` mode; it reports and writes nothing. Where a test, the coverage map and a doc disagree, you decide which moves.
-- Security and performance: apply `security-audit-static` and `performance-audit-static` only when asked. Propose them, never run them unasked.
+- Apply the `static-audit` skill for security, performance or both as requested. Propose the audits and run them only when asked.
 
 **Review everything unreleased again until the release bar holds.** The fresh reviewer already ran during the build, along with `code-review` where you or the plan asked for it. At release, `release-gate` reviews everything unreleased, round after round. Stop when one finds nothing introduced above low after `independent-review` § Triage, and nothing high or critical of any age.
 
