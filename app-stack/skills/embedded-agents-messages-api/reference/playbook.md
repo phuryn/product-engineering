@@ -20,7 +20,7 @@ Built and measured on `2026-10-24` against `@anthropic-ai/sdk` 0.133.0 and `@mod
 | Host | any Node process that lives for a run, serverless included | a long-lived Node host: a container or VM, never a serverless function |
 | Dependencies | `@anthropic-ai/sdk`, `@modelcontextprotocol/sdk` | `@anthropic-ai/claude-agent-sdk` and its platform binary |
 
-Choose the Agent SDK only when an agent needs what the engine has — a shell, Claude Code's file tools over a working directory, its subagents — or the product already runs it.
+Choose the Agent SDK only when an agent needs what the engine has — a shell, Claude Code's file tools over a working directory — or the product already runs it.
 
 ---
 
