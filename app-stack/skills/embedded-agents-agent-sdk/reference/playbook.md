@@ -140,7 +140,7 @@ for await (const ev of askAgent({ agent: 'knowledge-agent', prompt })) {
 | Step | Behaviour |
 |---|---|
 | Resolve the agent | Accepts only a plain directory name (`^[a-z0-9][a-z0-9-]*$`) under `.claude/agents/` that holds an `AGENTS.md`. The name arrives in a request body; the earlier wrapper joined it onto a path, so `../..` resolved to the repo root and its instruction file. |
-| `listAgents()` | Every such directory, sorted — what the route's `GET` returns and the UI's picker shows, less any specialist only agents talk to (`SKILL.md` § 3). |
+| `listAgents()` | Every such directory, sorted, specialists included. The route's `GET` returns it less any specialist only agents talk to (`SKILL.md` § 3), and the UI's picker shows that. |
 | Skills, MCP, `${VAR}` | Discovered from the agent directory (§ 3, § 3.5). |
 | Caller tools and context | Build `tools` per request and append optional code-supplied `context` after `AGENTS.md` (see `SKILL.md` § 3 and § 2 of this playbook). |
 | Enforce the contract | `agentOptions()` always sets the isolation options; a call site cannot drop them. It is exported so the unit test pins it without a model call. |

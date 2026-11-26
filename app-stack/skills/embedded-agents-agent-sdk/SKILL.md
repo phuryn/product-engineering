@@ -38,7 +38,7 @@ description: "Only when the Agent SDK is asked for, an agent needs Claude Code's
 1. **Create the agent directory and fill in its instructions.** Run `node <skill dir>/scripts/new-agent.mjs <name> [--knowledge] [--mcp]`, then fill in `AGENTS.md`: role, sources, output format, refusals. A fixed sign-off line is the cheapest live-test proof that the instructions are in force.
 2. **Keep knowledge and automatically discovered skills inside the agent directory.** Put knowledge in `knowledge/*.md`, and tell the agent in `AGENTS.md` to answer only from them. Agent-local skills are found automatically in `.claude/agents/<name>/.claude/skills/<skill>/SKILL.md`.
 3. **Allow only MCP tools the agent's job needs.** Put servers in `.mcp.json`, with secrets as `${VAR}`, never literal. Run `node --env-file=.env <skill dir>/scripts/discover-mcp-tools.mjs <name>` to list each server's tools, then restrict its `allowedTools`. Anything unlisted is denied. Commit the agent's `.mcp.json`, which holds no secrets. If `git check-ignore` reports it ignored, the repository's `.gitignore` has an unanchored `.mcp.json` rule meant for the root file. Anchor it as `/.mcp.json`.
-4. **Discover agents from their directories rather than hardcoding the UI list.** `listAgents()` finds the directory, `GET /api/agents` returns it, and the UI's picker shows it when users choose between agents. A specialist only agents talk to stays out of that list (§ 3). Fix a UI that hardcodes that list.
+4. **Discover agents from their directories rather than hardcoding the UI list.** `listAgents()` finds the directory, `GET /api/agents` returns it, and the UI's picker shows it when users choose between agents. `GET` leaves out a specialist only agents talk to, though `listAgents()` still finds it (§ 3). Fix a UI that hardcodes that list.
 5. **The instruction file is always `AGENTS.md`.** Asked for another name, create `AGENTS.md` and say why: the wrapper loads only `AGENTS.md`, and the SDK loads some other instruction files on its own, which would give the agent two sets of instructions.
 6. **Add a live test for each promise worth pinning.** Examples include citing, refusing and answering only from its files. Put it beside the generic test.
 
@@ -114,7 +114,7 @@ support: (caller, scope) => {
 
 1. UI
 2. `POST /api/agents { agent }`
-3. the route validates the body and requires the name to be in `listAgents()`
+3. the route validates the body and requires the name to be in `listAgents()`, less any specialist only agents talk to (§ 3)
 4. `askAgent`
 5. `agentOptions()` accepts only a plain directory name and resolves `.claude/agents/<agent>/`
 6. `query()` starts the Claude Code engine with that directory as `cwd` and its `AGENTS.md` appended to the system prompt
