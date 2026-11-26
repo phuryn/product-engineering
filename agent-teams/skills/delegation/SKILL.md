@@ -1,6 +1,6 @@
 ---
 name: delegation
-description: "'Spawn a subagent', 'delegate this build, review or research', 'can I trust its report?', 'ask Codex', 'check with Codex', 'ask Claude', 'ask Grok', 'ask Gemini', 'have them build or review this', or stuck between two framings: choose and brief the delegate, drive its CLI, and verify the handoff."
+description: "'Spawn a subagent', 'delegate this build, review or research', 'can I trust its report?', 'ask Codex, Claude, Grok or Gemini', 'check with Codex', 'have Codex build or review this', or stuck between two framings: choose and brief the delegate, drive its CLI, and verify the handoff."
 ---
 
 # Delegation — a delegate is a partner
@@ -11,7 +11,7 @@ description: "'Spawn a subagent', 'delegate this build, review or research', 'ca
 
 **Manage a delegate the way a good owner manages you.** Give it the goal and context, then trust its judgement on the means instead of prescribing steps. Push back where you disagree; its view doesn't bind you.
 
-**Read the selected CLI's reference before the first call.** Use it every time you drive the CLI as a peer, builder or reviewer; never drive one from memory. The table under Choosing the delegate lists the references. Apply the `independent-review` skill for unsteered review in fresh Codex by default, then headless Claude Code, then Grok. Use Gemini only when requested. Before a Gemini model turn, explain Google's support status and get the user's agreement for that run or rely on an informed standing preference.
+**Read the selected CLI's reference before writing the brief or making the first call.** Its rules shape the brief as well as the command. Use it every time you drive the CLI as a peer, builder or reviewer; never drive one from memory. The table under Choosing the delegate lists the references. Apply the `independent-review` skill for unsteered review in fresh Codex by default, then headless Claude Code, then Grok. Use Gemini only when requested. Before a Gemini model turn, explain Google's support status and get the user's agreement for that run or rely on an informed standing preference.
 
 ## What never delegates
 

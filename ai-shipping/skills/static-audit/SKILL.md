@@ -7,7 +7,9 @@ allowed-tools: Read, Grep, Glob, Task, Bash(git status:*), Write(reports/**)
 
 # Static audit
 
-**Run only the audit or audits the request asks for.** For security, open `references/security.md`. For performance, open `references/performance.md`. Open both when the user asks for both or the ship check calls for both. Follow each selected reference as written. If the request gives no audit type, ask which to run.
+**Open the audit's reference before reading any code: it holds the whole procedure.** For security, open `references/security.md`. For performance, open `references/performance.md`. Follow each selected reference as written; this file only chooses between them.
+
+**Run only the audit or audits the request asks for.** Open both references when the user asks for both or the ship check calls for both. If the request gives no audit type, ask which to run.
 
 **Propose static audits during a release and run them only on request.**
 
