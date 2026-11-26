@@ -55,7 +55,7 @@
       "paths": [
         "pm-ai-shipping/commands/ship-check.md"
       ],
-      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:; merged with the other static audit into static-audit on 2026-11-26, its body now a file under references/",
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:",
       "skipped": {
         "53f3494": "upstream replaced the skill with a pointer to this repository (2026-10-29); this repository is its only master now, so nothing upstream is ported back"
       }
@@ -68,7 +68,7 @@
       "paths": [
         "pm-ai-shipping/commands/document-app.md"
       ],
-      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:; merged with the other static audit into static-audit on 2026-11-26, its body now a file under references/",
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:",
       "skipped": {
         "53f3494": "upstream replaced the skill with a pointer to this repository (2026-10-29); this repository is its only master now, so nothing upstream is ported back"
       }
@@ -81,7 +81,7 @@
       "paths": [
         "pm-ai-shipping/commands/derive-tests.md"
       ],
-      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:; merged with the other static audit into static-audit on 2026-11-26, its body now a file under references/",
+      "notes": "a command upstream, a skill here so Codex runs it too (2026-10-27); namespace renamed /pm-ai-shipping: -> /ai-shipping:",
       "skipped": {
         "53f3494": "upstream replaced the skill with a pointer to this repository (2026-10-29); this repository is its only master now, so nothing upstream is ported back"
       }

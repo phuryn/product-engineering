@@ -95,6 +95,7 @@ When the owner asks for an early preview, open `references/preview.md` before sh
 - **Link deployed development or use a temporary development tunnel.** Prefer the deployed development URL when hosting exists and contains the change. When the change lacks a deployed development URL, open `references/preview.md`.
 - **Keep owner feedback in the phase currently in flight.** Add stages for it and review fixes like any other change. A pending owner preview does not block the next phase. Track whether each visible phase was tried. Stage 3's explicit sample-data click-through remains its done-when; one link and list fulfil that request.
 - **Offer owner previews after phase checks without blocking the next phase.** Design direction, artboards, options, legal text and release go remain owner decisions. The release go message names every visible phase the owner has not tried.
+- **"Ready to test" means installed on every surface the owner holds, with nothing for the owner to do first.** When the change reaches an installed app, an extension or a phone the owner uses, open `references/preview.md` § Promotion and installed surfaces before sending the link.
 - **Explore changed screens and affected shared surfaces at promotion.** For a go-live or broad UI change, or a preview on an installed app, extension or phone, open `references/preview.md`.
 
 ## Verify — the build serving is the one you reviewed
