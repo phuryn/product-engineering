@@ -1,19 +1,14 @@
----
-name: claude-agents
-description: "'Ask Claude', 'have Claude build or review this': drive Claude Code headless (claude -p) from another agent as a peer, builder or fresh reviewer."
----
-
 # Claude agents — Claude Code headless as a partner
 
-**Run headless Claude Code as a peer, builder or fresh reviewer.** Any agent can run `claude -p` for a full session: the repository's instructions, its tools and a conversation that can continue. It is a partner with the same standing as its caller. A peer argues a decision through, a builder takes a stage, and a reviewer has never seen the build. This skill covers briefs, modes and mechanics through `<skill dir>/scripts/claude_agent.py`.
+**Run headless Claude Code as a peer, builder or fresh reviewer.** Any agent can run `claude -p` for a full session: the repository's instructions, its tools and a conversation that can continue. It is a partner with the same standing as its caller. A peer argues a decision through, a builder takes a stage, and a reviewer has never seen the build. This reference covers briefs, modes and mechanics through `<skill dir>/scripts/claude_agent.py`.
 
 ## Peer discipline
 
-**Bring Claude in early, brief the goal and argue decisions through.** Give it the facts, the draft, the uncertainty, binding constraints and proof. Leave the means to its judgement and challenge it over several turns. Bring the owner one result or a clear deadlock, question of intent or missing fact. Apply `delegation` § Peer discussion for examples and convergence.
+**Bring Claude in early, brief the goal and argue decisions through.** Give it the facts, the draft, the uncertainty, binding constraints and proof. Leave the means to its judgement and challenge it over several turns. Bring the owner one result or a clear deadlock, question of intent or missing fact. See § Peer discussion in `SKILL.md` for examples and convergence.
 
 **A delegated diff is unreviewed code, and the session that wrote it never clears it.** Read it, check the disk and rerun its tests yourself. Apply `release-gate` § Stage and phase close for the checks and fresh review before a deployment.
 
-**Keep product decisions, operational changes and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep operational changes, including development deploys, applied migrations, pushes, provider settings and secrets, plus production credentials. The builder runs development suites within the brief's boundaries, one runner per shared dataset. It makes each operational step one command and names it for you to run. Apply the `delegation` skill.
+**Keep product decisions, operational changes and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep operational changes, including development deploys, applied migrations, pushes, provider settings and secrets, plus production credentials. The builder runs development suites within the brief's boundaries, one runner per shared dataset. It makes each operational step one command and names it for you to run. See § What never delegates in `SKILL.md`.
 
 **Write the diff yourself when the brief would be nearly as long.** Judge delegation by size, not time.
 
@@ -27,7 +22,7 @@ description: "'Ask Claude', 'have Claude build or review this': drive Claude Cod
 
 - **A review needs a fresh session.** Never resume or fork the building thread, or use its subagent. `--fork-session` copies the builder's beliefs with its transcript. `--mode review` always starts a fresh session and never saves it.
 - **Route reviews of commits through the `independent-review` skill's wrapper.** Review mode has no shell and cannot read a git range. The wrapper's `--reviewer claude` uses this same fresh headless session for a change before a push or a release. It writes the range's log and diffs to a file the reviewer pages through, and fails short rounds loudly. It loops until nothing introduced is above Low and no High or Critical of any age is open. Don't give review mode git commands instead: `Bash(git diff:*)` also allows `git diff --output=<file>` to write.
-- **When the caller is itself Claude, a headless Claude is the same model family.** A consult still buys fresh context and different reasoning, but blind spots are shared. For independent review, prefer another family. The `independent-review` wrapper defaults to a fresh Codex session. Without Codex it uses fresh headless Claude Code, then Grok. Choose `--reviewer grok` for another family (`grok-agents`).
+- **When the caller is itself Claude, a headless Claude is the same model family.** A consult still buys fresh context and different reasoning, but blind spots are shared. For independent review, prefer another family. The `independent-review` wrapper defaults to a fresh Codex session. Without Codex it uses fresh headless Claude Code, then Grok. Choose `--reviewer grok` for another family (see the Grok reference, `references/grok.md`).
 - **In consult and build the delegate reads what you read.** It loads the repository's `CLAUDE.md`, or `AGENTS.md` when no `CLAUDE.md` exists, and the user's `~/.claude/CLAUDE.md`. The project's auto-memory, hooks and skills load too. This suits a builder but makes it dependent on those instructions, which review mode excludes.
 
 ## The opening brief
@@ -64,7 +59,7 @@ A plain call continues the session the wrapper last opened in that directory, in
 - **An earlier session resumes by id: `--session <id>`.** The wrapper prints every run's id. Claude Code finds an id in any project on the machine and keeps transcripts 30 days by default (sessions docs, read 2026-10-24). `--session` fails rather than starting a new session.
 - **A usage limit makes the partner unavailable, as a missing CLI does.** The run fails with a non-zero exit and the limit's message, such as "You've hit your session limit · resets 3:45pm" (errors docs, read 2026-10-24). Wait if the reset is near; otherwise do the work yourself, and the independent review still applies. State keeps the session, so the next call after reset continues it.
 
-Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
+Each rule's origin, the case that taught it, is in `receipts.md` beside `SKILL.md`. Read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 
@@ -72,7 +67,7 @@ The answer came from a session that started with only your brief. You read its e
 
 ## Mechanics
 
-**Use the wrapper's absolute path and pass its repository through `--cwd`.** This skill's `<skill dir>/scripts/claude_agent.py` works from any directory and uses only the Python standard library. `--check` shows the binary, version and state file without running anything. `--dry-run` prints the exact `claude` command.
+**Use the wrapper's absolute path and pass its repository through `--cwd`.** This reference's `<skill dir>/scripts/claude_agent.py` works from any directory and uses only the Python standard library. `--check` shows the binary, version and state file without running anything. `--dry-run` prints the exact `claude` command.
 
 | Command | Effect |
 |---|---|
@@ -115,8 +110,8 @@ The answer came from a session that started with only your brief. You read its e
 
 **Use trusted repositories and check the permissions that actually ran.** Consult and build run repository hooks. Leave MCP out unless asked and keep production credentials and operational changes outside auto-mode builds. Read the actual mode in the wrapper's stderr and get the owner's go for API spend.
 
-**Open `references/troubleshooting.md` for raw `-p` calls or wrapper diagnostics.** Read it for transcript or context loading problems, sandbox setup, permission denials, binary discovery, billing, usage limits and background runs.
+**Open `references/claude-troubleshooting.md` for raw `-p` calls or wrapper diagnostics.** Read it for transcript or context loading problems, sandbox setup, permission denials, binary discovery, billing, usage limits and background runs.
 
-## Not this skill
+## Related guidance
 
-**Apply `delegation` for briefs, boundaries, parallel work and handoff verification.** Apply `independent-review` for the release-gate review loop, and `codex-agents` to drive the Codex CLI the same way.
+**Use `SKILL.md` for briefs, boundaries, parallel work and handoff verification.** Apply `independent-review` for the release-gate review loop. Open `references/codex.md` to drive the Codex CLI the same way.

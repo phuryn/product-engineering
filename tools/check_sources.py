@@ -17,7 +17,7 @@ elsewhere, e.g. PRODUCT_ENGINEERING_SOURCES="pm-skills=D:/work/pm-skills". An up
 
     python tools/check_sources.py              # fetch, then report
     python tools/check_sources.py --no-fetch   # report from what is already fetched
-    python tools/check_sources.py --skill grok-agents
+    python tools/check_sources.py --skill delegation
 
 Products built with these skills are where most lessons are learned, and they land in the
 product's own docs and commit bodies, never in its copies of the skills (2026-10-25: one

@@ -1,8 +1,3 @@
----
-name: codex-agents
-description: "'Ask Codex', 'check with Codex', handing Codex a build or review, or stuck between two framings: the Codex CLI as peer, builder or fresh reviewer."
----
-
 # Codex agents — the Codex CLI as peer, builder and reviewer
 
 **Treat Codex as a peer with the same standing as Claude.** Not a formatter, not a gate, not an authority.
@@ -17,7 +12,7 @@ description: "'Ask Codex', 'check with Codex', handing Codex a build or review, 
 
 **Bring Codex in while the framing is still open.** Invoke it for "check with Codex", "iterate with Codex", "ideate with Codex" and similar requests. Reach for it yourself when a load-bearing decision needs a peer or when different model blind spots matter. Keep routine drafting, formatting and mechanical tasks in-session.
 
-**Give Codex the goal, the facts and the decision you need to make.** Share the actual draft, alternatives and reasoning, and prescribe only binding constraints. Treat Codex's judgement as a peer's. Argue through critiques and options over several turns, then bring the human one result or a clear deadlock, question of intent or missing fact. Apply `delegation` § Peer discussion for examples and convergence.
+**Give Codex the goal, the facts and the decision you need to make.** Share the actual draft, alternatives and reasoning, and prescribe only binding constraints. Treat Codex's judgement as a peer's. Argue through critiques and options over several turns, then bring the human one result or a clear deadlock, question of intent or missing fact. See § Peer discussion in `SKILL.md` for examples and convergence.
 
 **Ask for the deliverable's actual format, including an image when needed.** Codex can write code and generate images directly through multimodal output. If the goal is a PNG, say that. Don't translate it to "an HTML file we'll screenshot."
 
@@ -33,7 +28,7 @@ python <skill dir>/scripts/codex.py --new --read <brief_file>
 
 **Pass it on every build dispatch, not only the ones you think are new sessions.** By default, use `--sandbox danger-full-access` for builds that run tests; use `workspace-write` for file-only work. Add `--cwd <repo>` to scope the session to its repository. A new session defaults to `read-only`; the wrapper records the sandbox and re-sends it on every resume, and the flag on a resume changes it. A run you expected to resume starts new when the marker names another directory, and without the flag it lands read-only. The resulting reasoned report can argue a verdict while changing nothing. Check `git status` and file mtimes before believing a build round happened.
 
-**A test-running build runs without a sandbox, bounded by its instructions.** This is the author's chosen default; the product owner can choose another boundary and record any resulting test handback. Under `danger-full-access`, the brief supplies the boundary: no deploys, applied migrations, pushes, provider-setting or secret changes, or production-credential reads. Only one agent runs suites on shared development data at a time. The builder runs its tests and fixes failures before handoff. The coordinator reruns its tests and applies `release-gate` § Stage and phase close. Observed `2026-11-14`, Codex CLI 0.166.0 on macOS with Playwright 1.64.1: `workspace-write` denied Chromium's `mach-register` and DNS failed. Under `danger-full-access`, Chromium started and the network answered. This observation does not establish other platforms' limits. The `delegation` skill's brief template states these boundaries for each dispatch.
+**A test-running build runs without a sandbox, bounded by its instructions.** This is the author's chosen default; the product owner can choose another boundary and record any resulting test handback. Under `danger-full-access`, the brief supplies the boundary: no deploys, applied migrations, pushes, provider-setting or secret changes, or production-credential reads. Only one agent runs suites on shared development data at a time. The builder runs its tests and fixes failures before handoff. The coordinator reruns its tests and applies `release-gate` § Stage and phase close. Observed `2026-11-14`, Codex CLI 0.166.0 on macOS with Playwright 1.64.1: `workspace-write` denied Chromium's `mach-register` and DNS failed. Under `danger-full-access`, Chromium started and the network answered. This observation does not establish other platforms' limits. The brief template at `references/brief-template.md` states these boundaries for each dispatch.
 
 **Leave builds uncommitted when the session agent owns the commit.** Ask for a commit-message handoff. On Codex CLI 0.159, Windows 11, `workspace-write` could neither commit nor run git in another checkout (observed 2026-10-25). All three restrictions below were reproduced in scratch repositories. Other platforms were not tested in that probe. That sandbox kept `.git` read-only: `git add` failed creating `.git/index.lock` with `Permission denied`. A linked worktree's index lives in the main checkout's `.git/worktrees/<name>/` and failed the same way. Adding that `.git` with `--add-dir` did not lift the restriction. Windows also ran sandbox commands as a separate local user, so git refused other repositories as "dubious ownership". Read the diff and commit it yourself. If a brief sends Codex to another repository for prior art, tell it to read files from disk.
 
@@ -65,9 +60,9 @@ A plain call resumes the recorded session for this directory when its id and san
 
 ## Reviewer
 
-**Apply `independent-review` for round scope, brief, triage and stopping.** Run its wrapper with the confirmed `--model` and `--reviewer codex` when selecting Codex explicitly. For a manual fallback, open `references/manual-review.md` before starting. Use a fresh session, verify successful subject reads and check isolation before accepting the round.
+**Apply `independent-review` for round scope, brief, triage and stopping.** Run its wrapper with the confirmed `--model` and `--reviewer codex` when selecting Codex explicitly. For a manual fallback, open `references/codex-manual-review.md` before starting. Use a fresh session, verify successful subject reads and check isolation before accepting the round.
 
-Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
+Each rule's origin, the case that taught it, is in `receipts.md` beside `SKILL.md`. Read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 
@@ -75,7 +70,7 @@ Codex argued at least one point you then changed or defended, and the run's head
 
 ## Mechanics
 
-**Use the script's absolute path and scope its session with `--cwd`.** This skill owns `<skill dir>/scripts/codex.py`, whether installed for the user or vendored into a repository. Its absolute path works from any working directory.
+**Use the script's absolute path and scope its session with `--cwd`.** This reference owns `<skill dir>/scripts/codex.py`, whether installed for the user or vendored into a repository. Its absolute path works from any working directory.
 
 | Command | Effect |
 |---|---|

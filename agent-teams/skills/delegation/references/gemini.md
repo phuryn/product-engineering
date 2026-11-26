@@ -1,17 +1,12 @@
----
-name: gemini-agents
-description: "'Ask Gemini', 'have Gemini build or review this': Google's Antigravity CLI as a partner. It may break Google's terms on a consumer plan, so the user agrees first."
----
-
 # Gemini agents — Google's Antigravity CLI as a partner
 
-**Get the user's clear agreement before driving Gemini through this CLI.** Consumer sign-in this way may break Google's terms. Loading this skill is not agreement. A request naming Gemini is not agreement until the user has heard the support status.
+**Get the user's clear agreement before driving Gemini through this CLI.** Consumer sign-in this way may break Google's terms. Loading this reference is not agreement. A request naming Gemini is not agreement until the user has heard the support status.
 
-Before the first run, use `--check`, say which sign-in the machine appears to use and what Google says (§ Support), and ask. A clear yes covers that run. A standing preference covers later runs only when the user clearly says it applies from now on. Keep that preference in the agent's own memory or the user's agent instructions, outside this skill. Neither this skill nor its wrapper stores agreement.
+Before the first run, use `--check`, say which sign-in the machine appears to use and what Google says (§ Support), and ask. A clear yes covers that run. A standing preference covers later runs only when the user clearly says it applies from now on. Keep that preference in the agent's own memory or the user's agent instructions, outside the `delegation` skill. Neither the skill nor its wrapper stores agreement.
 
 > “This looks like a Google sign-in; consumer use here can breach Google's terms and risk suspension. Do you agree to this run?”
 
-**Loading this skill never makes Gemini a default or recommendation.** No skill in this collection names it as a default partner, builder or reviewer. An agent does not propose it unasked. It drives Google's Antigravity CLI (`agy`) as a requested peer, builder or second reviewer through `<skill dir>/scripts/agy.py`.
+**Loading this reference never makes Gemini a default or recommendation.** No skill in this collection names it as a default partner, builder or reviewer. An agent does not propose it unasked. It drives Google's Antigravity CLI (`agy`) as a requested peer, builder or second reviewer through `<skill dir>/scripts/agy.py`.
 
 The CLI recipes were run on `2026-11-14`, Antigravity CLI 1.5.8, macOS, on a paid consumer sign-in. The collection's author chose that for an account of their own; it is evidence, not a recommendation. Follow-up wrapper runs used `gemini-3.8-flash-medium` (observed `2026-11-14`, CLI 1.5.8, macOS).
 
@@ -27,14 +22,14 @@ The CLI recipes were run on `2026-11-14`, Antigravity CLI 1.5.8, macOS, on a pai
 
 ## The partner discipline (compact)
 
-**Apply `delegation` for the full discipline of working with a partner.** These rules must hold even when this folder is copied alone.
+**Read `SKILL.md` for the full discipline of working with a partner.** These rules must hold even when the skill folder is copied alone.
 
 1. **A delegate gets the why, not just the what.** Give the goal in the owner's terms, the decision it feeds, facts and reasoning behind non-obvious choices. Include binding constraints, traps a smart newcomer would walk into, and how the result will be proved. Never a keystroke script.
 2. **Treat the delegate as a peer, not a tool.** Its view is not binding, and neither is yours. A choice you would not have made is a disagreement to surface, not a defect.
 3. **Bring the partner in at framing and keep iterating.** The cheapest wins are at framing; three to eight turns is normal.
 4. **Converge before surfacing.** Bring the human one result, or a disagreement stated cleanly.
 5. **A delegated diff is unreviewed code, and the session that wrote it never clears it.** Read it, check the disk and rerun its tests yourself. Apply `release-gate` § Stage and phase close for the checks and fresh review before a deployment.
-6. **Keep product decisions, operational changes and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep operational changes, including development deploys, applied migrations, pushes, provider settings and secrets, plus production credentials. Development suite runs are delegated within the brief's boundaries; apply `delegation`.
+6. **Keep product decisions, operational changes and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep operational changes, including development deploys, applied migrations, pushes, provider settings and secrets, plus production credentials. Development suite runs are delegated within the brief's boundaries. See § What never delegates in `SKILL.md`.
 
 ## Command customizations
 
@@ -118,7 +113,7 @@ python3 <skill dir>/scripts/agy.py --cwd <repo> --reset
 
 ## Builder
 
-**Give the builder its own clone or worktree and exclude operational changes.** Keep deploys, applied migrations, pushes, provider settings, secrets and production credentials with the session agent, including development operational changes. Permit development suites within the `delegation` boundaries. Read the diff and run its tests yourself.
+**Give the builder its own clone or worktree and exclude operational changes.** Keep deploys, applied migrations, pushes, provider settings, secrets and production credentials with the session agent, including development operational changes. Permit development suites within the boundaries in `SKILL.md`. Read the diff and run its tests yourself.
 
 ```bash
 python3 <skill dir>/scripts/agy.py --new --mode build --cwd <clone> --read <stage-brief> --out <scratch>/build.md
@@ -187,12 +182,12 @@ Known workspace hook and plugin entries are refused unless `--allow-hooks` is pa
 - Linux and Windows; the sandbox observations above are macOS's.
 - The API-key and Cloud routes.
 
-Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
+Each rule's origin, the case that taught it, is in `receipts.md` beside `SKILL.md`. Read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 
 The user's agreement covers the run, workspace command customizations were absent or explicitly allowed, and any user-level entries were named; the intended session resumes. Events show successful reads and claimed work, with searches and tool errors counted separately; a review reports clone changes and remaining reach beside the release reviewer's findings.
 
-## Not this skill
+## Related guidance
 
-**Apply the sibling skills for their CLIs and shared discipline.** Apply `claude-agents`, `codex-agents` or `grok-agents` for those partners, and `delegation` to brief and verify them. Apply `independent-review` for the release review loop; Gemini supplies an optional second opinion.
+**Open the sibling references for their CLIs and `SKILL.md` for shared discipline.** Open `references/claude.md`, `references/codex.md` or `references/grok.md` for those partners. Use `SKILL.md` to brief and verify them. Apply `independent-review` for the release review loop; Gemini supplies an optional second opinion.

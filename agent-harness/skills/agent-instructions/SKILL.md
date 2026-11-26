@@ -53,7 +53,7 @@ entry file (loaded every session)   — routes; holds only what every session ne
 
 - **Keep no `CLAUDE.md`, or make its first line `@AGENTS.md`.** Claude Code reads `AGENTS.md` when no `CLAUDE.md` exists; a `CLAUDE.md` or `CLAUDE.local.md` without `@AGENTS.md` silently stops `AGENTS.md` loading (observed on Claude Code 2.1.292, `2026-10-10`). Codex, Cursor and Grok read `AGENTS.md`.
 - **Frameworks write into these files.** Next.js 16's `next dev` appends to `AGENTS.md` and writes a `CLAUDE.md` (observed `2026-08-27`). Set `agentRules: false` in `next.config.ts` to stop it. A generated `CLAUDE.md` holding only `@AGENTS.md` is harmless; anything else is a second, unowned instruction file.
-- **Keep must-follow rules within Codex’s entry-file context budget.** Put them in the first 32 KiB of `AGENTS.md`, or raise `project_doc_max_bytes` in Codex config. A word budget alone does not hold a byte limit. Name needed sections beyond that budget for explicit opening in builder briefs (`codex-agents`). Codex CLI 0.169.0 on Windows logged 32,768 bytes and omitted a role table from a 104,297-byte file (observed `2026-11-16`).
+- **Keep must-follow rules within Codex’s entry-file context budget.** Put them in the first 32 KiB of `AGENTS.md`, or raise `project_doc_max_bytes` in Codex config. A word budget alone does not hold a byte limit. Name needed sections beyond that budget for explicit opening in builder briefs (see the `delegation` skill's Codex reference). Codex CLI 0.169.0 on Windows logged 32,768 bytes and omitted a role table from a 104,297-byte file (observed `2026-11-16`).
 - **After changing either file, ask a fresh session to quote its unique rule.** Choose a rule only the entry file holds.
 
 ## The router — what opens when

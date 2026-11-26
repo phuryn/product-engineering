@@ -121,7 +121,7 @@ By default, each stage ends with implemented end-to-end tests of the journeys it
 
 **The agent generates secrets nobody issues; dashboard-issued secrets come from their dashboard.** A cookie-signing secret is generated. A webhook's signing secret comes from its dashboard, like any other key.
 
-Apply the `delegation`, `codex-agents`, `test-harness`, `code-review` and `independent-review` skills. In Claude Code, use `/ai-shipping:code-review`, not the built-in `/code-review`. Before the first stranger is asked for anything, apply the `legal-pages` skill.
+Apply the `delegation`, `test-harness`, `code-review` and `independent-review` skills. Apply the `delegation` skill's Codex reference when handing the build to Codex. In Claude Code, use `/ai-shipping:code-review`, not the built-in `/code-review`. Before the first stranger is asked for anything, apply the `legal-pages` skill.
 
 ### 5. Click-through
 

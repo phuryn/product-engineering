@@ -1,6 +1,6 @@
 ---
 name: delegation
-description: "Before spawning a subagent or dispatching a build, review or research, and before trusting its report: the brief, the delegate, parallel runs, the handoff."
+description: "'Spawn a subagent', 'delegate this build, review or research', 'can I trust its report?', 'ask Codex', 'check with Codex', 'ask Claude', 'ask Grok', 'ask Gemini', 'have them build or review this', or stuck between two framings: choose and brief the delegate, drive its CLI, and verify the handoff."
 ---
 
 # Delegation — a delegate is a partner
@@ -11,7 +11,7 @@ description: "Before spawning a subagent or dispatching a build, review or resea
 
 **Manage a delegate the way a good owner manages you.** Give it the goal and context, then trust its judgement on the means instead of prescribing steps. Push back where you disagree; its view doesn't bind you.
 
-**Apply the delegate's own skill for its mechanics.** Apply `codex-agents`, `grok-agents` or `claude-agents` for a headless CLI peer, builder or reviewer. Apply `independent-review` for unsteered review in fresh Codex by default, then headless Claude Code, then Grok. This skill covers their shared discipline. For a requested Gemini partner, apply `gemini-agents`: the user agrees first, per run or by an informed standing preference; Gemini is never a default. Never drive `agy` from memory.
+**Read the selected CLI's reference before the first call.** Use it every time you drive the CLI as a peer, builder or reviewer; never drive one from memory. The table under Choosing the delegate lists the references. Apply the `independent-review` skill for unsteered review in fresh Codex by default, then headless Claude Code, then Grok. Use Gemini only when requested. Before a Gemini model turn, explain Google's support status and get the user's agreement for that run or rely on an informed standing preference.
 
 ## What never delegates
 
@@ -80,10 +80,10 @@ For a contract shared by sessions in separate repositories, apply the `release-g
 | Delegate | Strong at | Watch for |
 |---|---|---|
 | **A Claude subagent** (the Agent tool) | Work that needs this repository's context: it loads the project instructions automatically | Fresh context: none of your conversation or tool results. It loads project instructions and your settings and inherits your framing, so it never reviews your work. A review starts from the repository and brief alone (`independent-review`). A subagent may have no Agent tool of its own (observed `2026-06-10`). |
-| **The Codex CLI** (`codex-agents`) | Build a stage to a brief, debate decisions across turns, or review by default (`independent-review`) | A new session is read-only unless told otherwise. A build that changed nothing can sound successful; check the disk. |
-| **The Grok CLI** (`grok-agents`) | A peer, builder or reviewer from a different model family | A round that could not read exits 0 after a sentence; length is the tell. |
-| **Headless Claude Code** (`claude-agents`) | A session with none of your conversation: a builder or peer for a non-Claude agent, or a reviewer | Plain `-p` loads project and user instructions and auto-memory; only a restricted review starts from the repository alone. Resume keeps the model but drops effort, permission mode and tools unless re-sent (observed `2026-10-24`). |
-| **The Antigravity CLI** (`gemini-agents`) | A requested second opinion from another model family, never a default; apply `gemini-agents` and get agreement first | Unsupported by Google on consumer plans (FAQ read `2026-11-13`); headless commands and writes ran unasked, and a refused permission ended the turn with exit 0 (observed `2026-11-14`, CLI 1.5.8, macOS). |
+| **The Codex CLI** (`references/codex.md`) | Build a stage to a brief, debate decisions across turns, or review by default (`independent-review`) | A new session is read-only unless told otherwise. A build that changed nothing can sound successful; check the disk. |
+| **The Grok CLI** (`references/grok.md`) | A peer, builder or reviewer from a different model family | A round that could not read exits 0 after a sentence; length is the tell. |
+| **Headless Claude Code** (`references/claude.md`) | A session with none of your conversation: a builder or peer for a non-Claude agent, or a reviewer | Plain `-p` loads project and user instructions and auto-memory; only a restricted review starts from the repository alone. Resume keeps the model but drops effort, permission mode and tools unless re-sent (observed `2026-10-24`). |
+| **The Antigravity CLI** (`references/gemini.md`) | A requested second opinion from another model family, with the user's informed agreement | Unsupported by Google on consumer plans (FAQ read `2026-11-13`); headless commands and writes ran unasked, and a refused permission ended the turn with exit 0 (observed `2026-11-14`, CLI 1.5.8, macOS). |
 
 **The session that wrote the code never clears it.** Use a fresh reviewer who did not build the code. Prefer another model family, or use a fresh session of the builder's family when no other family can run. Never resume or fork the building thread, or use its subagent as reviewer. Apply `independent-review` for the loop and its stopping rule.
 
