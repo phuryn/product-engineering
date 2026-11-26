@@ -11,7 +11,7 @@ and an adversary will construct the unlikely execution deliberately.
 
 ## Where the procedure lives
 
-The `security-audit-static` skill owns the full specialised procedure — entry-point mapping, the four
+The `static-audit` skill's security audit owns the full specialised procedure — entry-point mapping, the four
 high-value paths, the keep/drop rule with its attacker-and-victim test, the OWASP Top 10 coverage
 backstop, and the high-miss checklist. **Run it rather than restating it.** This file exists to say
 what changes when security is selected as a dimension of a code review, and to supply the part of the
@@ -48,7 +48,7 @@ account, tenant or data, and no shared system or privilege boundary is crossed, 
 
 The carve-outs where that refutation is **forbidden** — outbound-network sinks, shared billing or
 quota, data exposure, cross-tenant or cross-principal flows, and server-side execution or rendering —
-are listed in the `security-audit-static` skill. Use its list; do not reinvent one.
+are listed in the `static-audit` skill's security audit. Use its list; do not reinvent one.
 
 **Do not let the two rules leak into each other.** Running both dimensions in one review, keep the
 tests separate per finding: a defect dropped as a security finding may still be a correctness finding

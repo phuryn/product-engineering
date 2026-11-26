@@ -16,13 +16,13 @@ From the publishing account to the months after publication, in the order the wo
 
 1. **Upload new or existing plugin**, choose the verified **Developer identity**, then **Upload plugin** with the ZIP. A server goes in the first ZIP: one cannot be added to a skills-only plugin later.
 2. **Metadata & Skills** shows the package version and its findings. **Copy issues**, fix the package, **Upload plugin to fix issues**. Skill scans must finish before submission and can take up to 2 hours.
-3. **Open MCPs and read the Authentication field before pressing Connect.** It comes from the uploaded version's `mcp.json`, and the portal has no editor for it. If it is not what the package declares, stop and fix the package before any sign-in: "Existing client registration can lock credential changes", and a draft that was taken for OAuth and signed in stayed OAuth through a new version; only a new plugin fixed it (`package.md § mcp.json`).
+3. **Open MCPs and read the Authentication field before pressing Connect.** It comes from the uploaded version's `mcp.json`, and the portal has no editor for it. If it is not what the package declares, stop and fix the package before any sign-in: "Existing client registration can lock credential changes", and a draft that was taken for OAuth and signed in stayed OAuth through a new version; only a new plugin fixed it (`chatgpt-package.md § mcp.json`).
 
 ## Connect and scan
 
 - **Connect**: check the URL and Authentication, complete the domain challenge, then connect and authenticate if the server requires it, with the test account. For a `provided` OAuth client, first register the portal's callback URL with the provider, and type the client secret into the portal's field, which shows unless `tokenEndpointAuthMethod` is `none`.
 - **The scan imports** every tool's name, title, description, input and output schema, `securitySchemes`, `_meta` and annotations, any UI resource metadata with its CSP, and the server's `instructions`, and stores that snapshot with the draft. **Submitting sends the snapshot**, so rescan after the last deploy before submitting, and keep the server matching the snapshot until the decision.
-- **"Authorization required" has two causes**: the server refusing the scanner, which called from outside ChatGPT's address ranges on 2026-10-23 (`server-and-auth.md § A surface with no sign-in`), and the portal taking a server without sign-in for an OAuth one. For the second, never sign in.
+- **"Authorization required" has two causes**: the server refusing the scanner, which called from outside ChatGPT's address ranges on 2026-10-23 (`chatgpt-server-and-auth.md § A surface with no sign-in`), and the portal taking a server without sign-in for an OAuth one. For the second, never sign in.
 - **Findings.** Required setup and validation errors must be resolved; other automated findings can go to the review team for consideration. Only one MCP server can be connected per plugin.
 
 ## Review information
@@ -37,7 +37,7 @@ In Metadata & Skills → Review information → **Review details**. What the ZIP
   - The login URL, workspace or tenant details, and step-by-step sign-in instructions.
   - It works immediately "without MFA approval, email or SMS codes, magic links, or private-network access". The guidelines ask for "a login and password", and sign-in that needs "a new account sign-up or 2FA through an inaccessible account" is rejected. So it is an email-and-password account, and someone has signed in with it from a fresh browser on another network and confirmed the provider sends no new-device code.
   - It does not expire, and it stays available for later reviews. If the credentials or the sign-in steps change, submit an updated draft.
-- **Country availability and translations** come from the package (`package.md § plugin.json`).
+- **Country availability and translations** come from the package (`chatgpt-package.md § plugin.json`).
 - A plugin with UI that embeds pages in iframes needs a justification for each.
 
 ## Submit
@@ -48,7 +48,7 @@ OpenAI gives no estimate for a review and asks that nobody contact support to ex
 
 ## Rejection and appeal
 
-The rejection email names the checks that failed. The common ones, in OpenAI's own list: the reviewers could not connect with the URL and credentials given; a test case did not produce the expected result; replies carry user-related data the privacy policy does not name; annotations do not match behaviour. Add one more: an unverified or mismatched publishing identity. One product's first rejection (2026-10-23) cited three at once: identifiers the request did not need, fields the privacy policy did not name, and the identity (`tools-and-data.md § Replies` and § The privacy policy, and § Before the first upload above).
+The rejection email names the checks that failed. The common ones, in OpenAI's own list: the reviewers could not connect with the URL and credentials given; a test case did not produce the expected result; replies carry user-related data the privacy policy does not name; annotations do not match behaviour. Add one more: an unverified or mismatched publishing identity. One product's first rejection (2026-10-23) cited three at once: identifiers the request did not need, fields the privacy policy did not name, and the identity (`chatgpt-tools-and-data.md § Replies` and § The privacy policy, and § Before the first upload above).
 
 - **Fix, then submit a corrected ZIP**, which is what the submission page says. To argue instead, **appeal by replying to the rejection email** with the reasoning and any new information.
 - **If the rejected plugin cannot take an update**, which OpenAI support called a known issue on 2026-10-19, the fallback is a new plugin: the same identity and domain, a new plugin id, the corrected package, and the Authentication field checked again before connecting.

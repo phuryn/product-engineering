@@ -11,7 +11,7 @@ claude plugin install app-stack@product-engineering
 
 Codex, Cursor and other agents: see the collection's root `README.md`.
 
-## Skills (16)
+## Skills (15)
 
 - **app-lifecycle** — The detailed path for a SaaS from idea to production, stage by stage: what each produces, when it is done, what each product shape skips, and which capability to propose next when its trigger fires. It takes the accepted artifact from the `product` pack's `propose` as its first stages.
 - **saas-authorization** — Who may do what in a multi-tenant app: workspaces, the three functions every route goes through, permissions vs roles vs entitlements, invariants as database constraints, and the threat model every app has.
@@ -19,8 +19,7 @@ Codex, Cursor and other agents: see the collection's root `README.md`.
 - **clerk-production** — The choices Clerk's own skills can't make: verify never decode, sign-in landing, organizations and billing, the CSP header, MCP OAuth, the authenticated test mile and the gotchas that failed silently.
 - **environments** — Development and production kept apart: the verified mapping, branches, the migrations window, variables and secrets (with a schema that runs at build), backups, incidents, the domain and the agent's access to each provider, and showing development to the owner.
 - **ui-design** — How product UI is designed, built and judged: the method every kit and screen satisfies, which design skill collection leads at each stage, what a screen may claim, and reviewing the look with its owner.
-- **mcp-server** — Ship an authenticated hosted MCP endpoint, test its tool surface, and prove it with one client. Choose a companion package or listings when you want them.
-- **chatgpt-plugin** — Getting a plugin into OpenAI's plugin directory through review the first time, on any stack: the authentication decided before the first upload, the package and a script that checks it, ChatGPT's OAuth client and request metadata, the data and annotation rules review enforces, the reviewer account, the portal's traps, rejection, and what changes after publication.
+- **mcp-server** — Ship an authenticated hosted MCP endpoint, test its tool surface, and prove it with one client. Choose a companion package or listings when you want them. The ChatGPT plugin reference covers OpenAI's directory review on any stack, including authentication before the first upload, the package checker, OAuth, request metadata and data rules. It also covers annotations, the reviewer account, the portal, rejection and changes after publication.
 - **embedded-agents-design** — What an agent in the app may do, decided before it is built: its card (job, tools by kind, what code enforces, what its instructions ask, what is left to it), and the code and tests for an action that only a person's click runs.
 - **embedded-agents-messages-api** — Embedding Claude agents in the app on the Claude API — the default: one wrapper, agents as directories, exactly the tools the app gives them, streamed to a chat UI.
 - **embedded-agents-agent-sdk** — The same agent directories on the Claude Agent SDK, for an agent that needs Claude Code's built-in tools.

@@ -1,6 +1,6 @@
 ---
 name: mcp-server
-description: "Before adding a remote MCP server or tool to a web product, adding OAuth to it, or listing it in a directory: ship it right the first time, tests included."
+description: "Before adding a remote MCP server or tool to a web product, adding OAuth to it, listing it in a directory, or building, submitting or changing a ChatGPT plugin or Apps SDK app: ship it right the first time, tests included, and through OpenAI's directory review."
 ---
 
 # MCP server
@@ -18,6 +18,10 @@ description: "Before adding a remote MCP server or tool to a web product, adding
 
 **Apply `clerk-production` § MCP OAuth before writing the route.** Discovery lists differ from token shape. Return `503` on verifier outages, refuse unknown `kid` values before calling Clerk and recheck live workspace access on every call because revocation remains unseen until expiry.
 
+## ChatGPT plugins and Apps SDK apps
+
+**Open the ChatGPT plugin reference before building, submitting or changing a ChatGPT plugin or Apps SDK app.** Read `references/chatgpt-plugin.md`. Its directory rules cover any stack, with or without OAuth.
+
 ## What binds, in order
 
 1. **Apply `saas-authorization` first because a tool is a route.** Its caller is resolved by the three functions, deterministic code decides what it may do, and everything it returns that a person wrote is untrusted text.
@@ -31,7 +35,7 @@ description: "Before adding a remote MCP server or tool to a web product, adding
 
 | Decision | The default | The other choice, and what it costs | Where |
 |---|---|---|---|
-| Does anything answer without sign-in? | **Authenticate every call, including `initialize`, by default.** Use Clerk OAuth or a workspace API token | An anonymous surface buys users who have no account, such as a ChatGPT plugin that makes a room with no sign-up. It costs a new kind of caller, an identity only the platform can vouch for, limits and a lifetime of its own, a disclosure burden, and in OpenAI's directory a package that declares it before the first upload. | `references/server.md § Who may call it` · the `chatgpt-plugin` skill |
+| Does anything answer without sign-in? | **Authenticate every call, including `initialize`, by default.** Use Clerk OAuth or a workspace API token | An anonymous surface buys users who have no account, such as a ChatGPT plugin that makes a room with no sign-up. It costs a new kind of caller, an identity only the platform can vouch for, limits and a lifetime of its own, a disclosure burden, and in OpenAI's directory a package that declares it before the first upload. | `references/server.md § Who may call it` · `references/chatgpt-plugin.md` |
 | Who may connect? | An admitted OAuth caller gets the full grant a new API token carries, so admit by the permission that mints such a token, checked through the three functions on every call | A role compared by name, or a neighbouring permission the same role happens to hold today, hands write to whichever role is given that permission later. A caller without the permission gets a clear `403`, never a narrower connection | `references/server.md § Who may call it` |
 | What must an agent never do? | A written list, held in code, and said in the instructions and the README | Examples: an audience product's agents cannot ask, vote or delete; a monitoring product's cannot delete, change billing, manage tokens or publish an incident note | `references/tools.md § Choosing the tools` |
 | What if the workspace has yet to be created? | Return `403 organization_not_found` with a message to open the organization's dashboard first | When the owner chooses agent-started sign-up, configure Clerk and provision the workspace on the first authorized call | `references/server.md § The first call` |
@@ -56,7 +60,7 @@ description: "Before adding a remote MCP server or tool to a web product, adding
 4. **Configure OAuth for the member endpoint, then prove a real grant and one real client.** Apply `clerk-production` § MCP OAuth, then `references/server.md § Proving it`. An anonymous surface the owner chose keeps its own checks (`references/server.md § Who may call it`).
 5. **Write the API contract, public developer page and distribution record.** Include the API contract, a public page for developers pinned to the code by a test, and the distribution record.
 6. **Release with independent review of the whole release.** Apply `independent-review`; descriptions and instructions are in the subject, not context.
-7. **Publish the chosen listings or package from production after promotion and on the owner's go.** Read `references/directories.md` for listings and `references/companion-repo.md` for the package. Apply `chatgpt-plugin` for a ChatGPT plugin.
+7. **Publish the chosen listings or package from production after promotion and on the owner's go.** Read `references/directories.md` for listings and `references/companion-repo.md` for the package. For a ChatGPT plugin, read `references/chatgpt-plugin.md`.
 
 Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
 

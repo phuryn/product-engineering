@@ -22,7 +22,7 @@ Give the narrowed route its own protected-resource document and audience (ChatGP
 
 - **Only what the task needs**: each field tied to the tool's purpose; no "just in case" fields or broad profile data. A short, task-specific intent field is allowed when it really improves the result.
 - **Never the conversation**: no history, transcripts, prior-turn arrays or accumulated context; never pull, rebuild or infer the chat log from anywhere.
-- **No location field.** Use the coarse location ChatGPT sends in `_meta` (`server-and-auth.md`); never ask for GPS coordinates or addresses.
+- **No location field.** Use the coarse location ChatGPT sends in `_meta` (`chatgpt-server-and-auth.md`); never ask for GPS coordinates or addresses.
 - **Every operation is its own tool**, with its own description, schema and annotations. No generic executor, operation selector or schema fetcher that reaches operations the review never saw.
 - **Tools stand alone**: none tells the model to call another plugin or connector to finish its job.
 - **A file input** is a top-level field listed in `_meta["openai/fileParams"]`, whose schema declares `download_url`, `file_id`, `mime_type` and `file_name`, requiring only the first two; the scan and submission refuse any other shape.
@@ -46,7 +46,7 @@ Two passages on the page, for a plugin:
 - **What ChatGPT sends us**: the `_meta` hints, the anonymized user and session ids (which also arrive as headers), what is kept of them (ideally nothing), and what the server never receives (the conversation).
 - **What reaches OpenAI**: every field each tool returns, by name, nested and error fields included, and what is never returned.
 
-**A test holds the page to the server both ways**: it walks every leaf of every structured reply the suite produces, refusals included, and fails on a leaf the page does not name and on a named field the page dropped. Mark the passage in the page's markup so the test reads that passage alone. The legal entity the page names is the verified identity the plugin publishes under (`portal-and-review.md § Before the first upload`).
+**A test holds the page to the server both ways**: it walks every leaf of every structured reply the suite produces, refusals included, and fails on a leaf the page does not name and on a named field the page dropped. Mark the passage in the page's markup so the test reads that passage alone. The legal entity the page names is the verified identity the plugin publishes under (`chatgpt-portal-and-review.md § Before the first upload`).
 
 ## Annotations
 
@@ -84,5 +84,5 @@ Each rule above that code can check gets a test in the product's suite, so a lat
 3. **Replies allowlisted**: real-shaped fixtures through every tool, refusals included, every leaf in the disclosed set.
 4. **The privacy page equals the disclosed set**, both ways (§ The privacy policy).
 5. **Annotations equal the decision table** in the product's own docs, one row per tool with its reason.
-6. **`_meta` accepted** on `initialize` and `tools/call` (`server-and-auth.md § What every request carries`); for a surface without sign-in, discovery open and calls gated (`server-and-auth.md § A surface with no sign-in`).
-7. **The package pins**: the ZIP equals the package, the review cases equal the evals' cases, the skill names exactly the served tools (`package.md § Pinning the ZIP to the package`).
+6. **`_meta` accepted** on `initialize` and `tools/call` (`chatgpt-server-and-auth.md § What every request carries`); for a surface without sign-in, discovery open and calls gated (`chatgpt-server-and-auth.md § A surface with no sign-in`).
+7. **The package pins**: the ZIP equals the package, the review cases equal the evals' cases, the skill names exactly the served tools (`chatgpt-package.md § Pinning the ZIP to the package`).

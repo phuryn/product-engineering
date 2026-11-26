@@ -1,10 +1,3 @@
----
-name: security-audit-static
-description: "Only when a security audit is asked for (ship-check asks by name; a release proposes one, never runs it): a static audit of AI-built code against its documented trust boundaries."
-argument-hint: "<path or area> | <base>..<head> | changes; defaults to the whole repository"
-allowed-tools: Read, Grep, Glob, Task, Bash(git status:*), Write(reports/**)
----
-
 # Static security audit -- Audit the Code You Already Have
 
 **Map boundaries, compare intent with implementation, and refute before reporting.** This is a focused, self-contained audit for AI-built code. Report only findings backed by cited evidence.
@@ -19,11 +12,11 @@ allowed-tools: Read, Grep, Glob, Task, Bash(git status:*), Write(reports/**)
 ## Invocation
 
 ```
-/ai-shipping:security-audit-static                       Claude Code
-/ai-shipping:security-audit-static supabase/functions
-/ai-shipping:security-audit-static v2.1.0..HEAD
-$ai-shipping:security-audit-static changes               Codex
-$ai-shipping:security-audit-static v2.1.0..HEAD changes
+/ai-shipping:static-audit security                       Claude Code
+/ai-shipping:static-audit security supabase/functions
+/ai-shipping:static-audit security v2.1.0..HEAD
+$ai-shipping:static-audit security changes               Codex
+$ai-shipping:static-audit security v2.1.0..HEAD changes
 ```
 
 ## Scope
@@ -167,7 +160,7 @@ Security Audit: [scope — path, or range / changes and N changed files]
 
 - **Report concrete security impact and reachable paths, including logic and authorization bugs.** Those bugs count without a classic sink. Don't report generic hardening with no concrete impact, outdated deps without a reachable path, or test/mock code unless it ships.
 - **The audit never edits the code it audits.** In Claude Code, the pre-approved toolset covers reading, searching, subagent fan-out, `git status` and writing under `reports/`. Other git commands ask first: `git log`, `git diff` and `git show` take `--output=<file>`, which writes. Writing to the repo's own reports location instead falls outside that pre-approval, so ask the user before that write.
-- **Use the `performance-audit-static` skill for over-fetching, indexes and caching.** This audit covers security only.
+- **Use the performance audit in `performance.md` for over-fetching, indexes and caching.** This audit covers security only.
 - **Use the `code-review` skill for logic, state or several review dimensions.** This audit is the specialized procedure behind that skill's security sub-case.
 - **Use the ship check for documentation and a shipping packet.** It documents first in an end-to-end pass. Type `/ai-shipping:ship-check`, or `$ai-shipping:ship-check` in Codex.
 

@@ -55,7 +55,7 @@ Advertising support and then omitting `iss` from one response, or returning a di
 
 **Keep the client valid.** If the authorization server expires, deletes or replaces the registered client or its secret, users and reviewers get `invalid_client` when they connect. Access and refresh tokens rotate normally.
 
-**What ChatGPT cannot do**: client-credentials, service-account or JWT-bearer grants; custom API keys; customer-provided mTLS certificates. A server whose only credential is a long-lived API token needs OAuth before it can be a directory plugin; the portal has no API-key flow either (`package.md § mcp.json`).
+**What ChatGPT cannot do**: client-credentials, service-account or JWT-bearer grants; custom API keys; customer-provided mTLS certificates. A server whose only credential is a long-lived API token needs OAuth before it can be a directory plugin; the portal has no API-key flow either (`chatgpt-package.md § mcp.json`).
 
 **Ask for the least.** Users are told every permission requested, and requests are limited to what the plugin needs to work: request only the scopes the listed tools use.
 
@@ -89,7 +89,7 @@ A product with accounts should default to OAuth. A surface with none is a produc
 - **The address checked must be the caller's.** With a CDN's proxy in front of the host, every caller was the proxy's edge: ChatGPT's connector check was refused ("MCP server refused access") and every per-address limit fell on a few shared addresses, while every page still answered `200` (October 2026). Keep the host's DNS records unproxied, or trust the proxy's client-address header only on an origin that refuses traffic not sent through the proxy.
 - **No subject, no action**: a tool error, and nothing created.
 - **A test mode that never reaches production.** Off the platform no subject arrives, so local evals need a flag that admits any caller under a fixed test identity. Give it its own flag beside the one that enables the surface; apply the `environments` skill's loopback app-URL guard in the env schema, unit-tested both ways under `NODE_ENV=production`. Put both on the pre-submission list: surface on in production, test mode off.
-- **Declare `auth.type: "none"` in the package, and never complete an OAuth sign-in in the portal** (`package.md § mcp.json`). An address check on tool calls is not a sign-in; a server that does require sign-in is never declared `none`.
+- **Declare `auth.type: "none"` in the package, and never complete an OAuth sign-in in the portal** (`chatgpt-package.md § mcp.json`). An address check on tool calls is not a sign-in; a server that does require sign-in is never declared `none`.
 
 ## Shared addresses and limits
 
@@ -103,4 +103,4 @@ Before approval a plugin runs only from a local source, installed from a local m
 2. **In ChatGPT**: Plugins → + → Add custom MCP server → name, description, the URL with its path → authentication → "I understand and want to continue" → **Create as a plugin**. Install it, start a new conversation, type `@` and pick it. Run an evaluation set of direct requests, indirect ones, follow-ups that reuse ids from an earlier result, writes that need confirmation, and requests that should call nothing; record the tool, arguments, result and confirmation for each, and the date. After changing tool metadata: deploy, open the connection, **Refresh**, confirm the metadata changed, new conversation, rerun. The API Playground (Tools → Add → MCP Server) shows raw requests and responses.
 3. **The complete plugin, from a local source**: add the package to a local marketplace, install it from the Plugins Directory, and run the set again with the skills in play: each skill activates for its intended requests, similar phrasing behaves the same, unsupported requests do not activate the plugin, and every starter prompt completes.
 4. **Routing evals that run in CI or on demand**, the five and three review cases from one file: each run through `codex exec --json` with the server attached, a read-only sandbox and tool approval set to approve, resuming the thread for a follow-up case, checking which tools fired. Pass the prompt on standard input with no shell: through `cmd.exe`, a prompt was split at `&` (2026-10-02). It is evidence about the metadata, not a promise about ChatGPT. Run it against a local server in the test mode above, or with a test account's token.
-5. **The video**, last, against production: `portal-and-review.md § Review information`.
+5. **The video**, last, against production: `chatgpt-portal-and-review.md § Review information`.

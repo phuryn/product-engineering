@@ -42,7 +42,7 @@ Identity at the root; everything OpenAI-specific under `extensions["com.openai"]
 | `onboardingSkill` | optional path to one of the package's skills (`./skills/<name>/SKILL.md`) | |
 | `review.test_cases.positive` | **exactly 5**: `description`, `prompt`, `tools_triggered` (one string, tool names separated by commas), `expected_behavior`; optional `file_attachment_urls`, `expected_output_url` | The portal refused a draft whose cases lived only in docs: "No test cases provided" (October 2026) |
 | `review.test_cases.negative` | **exactly 3**: `description`, `prompt`; requests where the plugin should not act, with why, and the expected refusal, clarification or safe fallback | |
-| `review.demo_recording_url` | required for MCP review; opens for a reviewer without an account; shows "the main use cases and tools across supported platforms" | § Review information in `portal-and-review.md` |
+| `review.demo_recording_url` | required for MCP review; opens for a reviewer without an account; shows "the main use cases and tools across supported platforms" | § Review information in `chatgpt-portal-and-review.md` |
 | `review.commerce`, `commerce_description` | declare whether it sells; commerce is for physical goods only, without freemium upsells | |
 | `publication.release_notes` | "Notes describing this version's changes"; required at final submission for a plugin with an MCP server | Say what this version changed, plainly: each resubmission is a new review, and OpenAI asks the notes to describe what changed |
 | `publication.countries` | uppercase country codes; omitted preserves the existing targeting (everywhere, on a first upload); `[]` removes restrictions; "applies when the plugin is published" | |
@@ -89,7 +89,7 @@ For `oauth` and `mixed`, `auth.client` chooses how ChatGPT registers:
 - Field names are case-sensitive: `client.clientId`, never `oauth.client_id`.
 - `headers` stays empty: public submission rejects non-empty server headers.
 
-What ChatGPT's client then needs from the server is `server-and-auth.md § OAuth`.
+What ChatGPT's client then needs from the server is `chatgpt-server-and-auth.md § OAuth`.
 
 ## The skill inside the package
 

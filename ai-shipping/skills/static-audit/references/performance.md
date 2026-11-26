@@ -1,10 +1,3 @@
----
-name: performance-audit-static
-description: "Only when a performance audit is asked for (ship-check asks by name; a release proposes, never runs it): static audit of N+1 queries, over-fetching, indexes, caching."
-argument-hint: "<path or area> | <base>..<head> | changes; defaults to the whole repository"
-allowed-tools: Read, Grep, Glob, Task, Bash(git status:*), Write(reports/**)
----
-
 # Static performance audit -- Find What Won't Scale
 
 **Review AI-built code for failures that emerge as data grows.** Agents optimize for "it works on my seed data," not "it holds at 100× the rows." Check N+1 queries and request waterfalls, over-fetching, missing indexes and absent caching. Rank fixes by effort and impact.
@@ -14,10 +7,10 @@ allowed-tools: Read, Grep, Glob, Task, Bash(git status:*), Write(reports/**)
 ## Invocation
 
 ```
-/ai-shipping:performance-audit-static                    Claude Code
-/ai-shipping:performance-audit-static src/views
-$ai-shipping:performance-audit-static v2.1.0..HEAD       Codex
-$ai-shipping:performance-audit-static changes
+/ai-shipping:static-audit performance                    Claude Code
+/ai-shipping:static-audit performance src/views
+$ai-shipping:static-audit performance v2.1.0..HEAD       Codex
+$ai-shipping:static-audit performance changes
 ```
 
 ## Scope
@@ -95,7 +88,7 @@ Performance Audit: [scope — path, or range / changes and N changed files]
 - **Rank by impact per effort.** One missing index on a hot table usually beats ten micro-optimizations.
 - **The audit never edits the code it audits.** In Claude Code, the pre-approved toolset covers reading, searching, subagent fan-out, `git status` and writing under `reports/`. Other git commands ask first: `git log`, `git diff` and `git show` take `--output=<file>`, which writes. Writing to the repo's own reports location instead falls outside that pre-approval, so ask the user before that write.
 - **Flag what breaks as rows or traffic scale.** Don't flag theoretical inefficiency with no growth path.
-- **Use the `security-audit-static` skill for security risks.** This audit covers performance only. Authorization, injection and data-exposure risks belong there.
+- **Use the security audit in `security.md` for security risks.** This audit covers performance only. Authorization, injection and data-exposure risks belong there.
 - **Use the `code-review` skill for logic, state or several review dimensions.** This audit specializes that skill's performance sub-case for data-backed applications.
 - **Use the ship check for an end-to-end pass with documentation and a shipping packet.** Type `/ai-shipping:ship-check`, or `$ai-shipping:ship-check` in Codex.
 

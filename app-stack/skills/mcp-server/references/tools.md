@@ -76,7 +76,7 @@ Glama scores each tool definition (TDQS): an LLM judge rates it 1 to 5 on purpos
 - **`idempotentHint`** is true for a lifecycle action whose repeat is a no-op, false for a create whose `request_id` is optional.
 - **`openWorldHint`**: OpenAI's guideline keeps it false for a tool confined to a bounded private account or catalog. A tool that publishes or ends something the public sees is true: OpenAI's listing check flagged a close declared false, though the room it closes is public.
 - **Open question**: whether Claude's reviewers want creates marked destructive. If a reviewer objects, that is the change to make.
-- **A tool callable without sign-in on ChatGPT declares OpenAI's per-tool security scheme**, `[{ "type": "noauth" }]`, as `securitySchemes` and in `_meta.securitySchemes`. A tool without it "inherits whatever default the server advertises" (OpenAI's auth docs, read October 2026). It does not decide how OpenAI's plugin portal classifies the connection: the package's `mcp.json` does (the `chatgpt-plugin` skill).
+- **A tool callable without sign-in on ChatGPT declares OpenAI's per-tool security scheme**, `[{ "type": "noauth" }]`, as `securitySchemes` and in `_meta.securitySchemes`. A tool without it "inherits whatever default the server advertises" (OpenAI's auth docs, read October 2026). It does not decide how OpenAI's plugin portal classifies the connection: the package's `mcp.json` does (the `mcp-server` skill's ChatGPT plugin reference).
 
 ## The server's instructions
 
@@ -106,5 +106,5 @@ Two unit tests, with no network and no database.
 
 - the public developer page pinned to the routes, request schemas, limits, DTOs and error codes it documents;
 - for an anonymous surface, each reply allowlisted at every depth by exact equality, plus a check that no UUID appears anywhere in it, and the privacy page's list of returned fields held against the payload both ways;
-- for a listing package, the review cases pinned to the ones the eval harness runs, and the uploaded ZIP pinned byte for byte to the package's files (the `chatgpt-plugin` skill, whose checker does the same before an upload);
+- for a listing package, the review cases pinned to the ones the eval harness runs, and the uploaded ZIP pinned byte for byte to the package's files (the `mcp-server` skill's ChatGPT plugin reference, whose checker does the same before an upload);
 - outside the gate, routing evals: run the listing's positive and negative prompts through Codex against a local server. Codex reads the same names, descriptions and annotations ChatGPT reads, so a miss there is a metadata problem; a pass is not a promise about ChatGPT.
