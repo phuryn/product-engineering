@@ -55,7 +55,7 @@ The rejection email names the checks that failed. The common ones, in OpenAI's o
 
 ## Publish
 
-Approval does not publish. Open the approved version and **Publish plugin** when ready. A published plugin is found by its direct link or by searching its exact name; the directory's main pages and proactive suggestions are OpenAI's choice ("enhanced distribution"), never requested. **Before any press release or public announcement, write to press@openai.com** to coordinate. A country allowlist in the package applies from publication.
+Approval does not publish. Open the approved version and **Publish plugin** on the owner's go. A published plugin is found by its direct link or by searching its exact name; the directory's main pages and proactive suggestions are OpenAI's choice ("enhanced distribution"), never requested. **Before any press release or public announcement, write to press@openai.com** to coordinate. A country allowlist in the package applies from publication.
 
 ## After publication
 
@@ -72,7 +72,7 @@ Approval does not publish. Open the approved version and **Publish plugin** when
 | UI content at the same resource URI | deploy | immediately; ChatGPT may serve cached content for up to an hour |
 | listing fields, assets, skills, review materials, countries | a new ZIP with a raised version, uploaded to the same plugin, reviewed, then published (the current version stays published meanwhile) | when the approved version is published |
 | the server's origin (scheme, host, port) | a new plugin | when it is published |
-| the server's path | SKILL.md § Where OpenAI's pages disagree | |
+| the server's path | `chatgpt-plugin.md` § Where OpenAI's pages disagree | |
 
 - **Keep the server compatible with the live definitions while an update is held.** A deploy takes effect at once, before any scan, while ChatGPT keeps calling with the old schema. Change schemas additively (a new optional argument), add a tool rather than reshape one, and roll back a deploy that breaks the live contract instead of waiting for review.
 - **Appeal a tool finding** in the portal (Issues → Appeal). It covers the held tool changes from that scan, automatic updates pause while it is open (Withdraw appeal to change the server), and it does not cover package changes, authentication or the shared instructions. Fixing a valid finding and rescanning is usually faster.
@@ -82,7 +82,7 @@ Approval does not publish. Open the approved version and **Publish plugin** when
 
 ## Before you submit
 
-- [ ] The decisions in SKILL.md recorded in the product's decision log.
+- [ ] The decisions in `chatgpt-plugin.md` recorded in the product's decision log.
 - [ ] `check_package.py` passes on the package and its ZIP, and a test pins the ZIP to the package.
 - [ ] Every tool called in ChatGPT through a custom connector against production, with the date recorded.
 - [ ] A `tools/call` carrying `_meta` succeeds (a test).

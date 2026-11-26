@@ -20,7 +20,7 @@ description: "Before adding a remote MCP server or tool to a web product, adding
 
 ## ChatGPT plugins and Apps SDK apps
 
-**Open the ChatGPT plugin reference before building, submitting or changing a ChatGPT plugin or Apps SDK app.** Read `references/chatgpt-plugin.md`. Its directory rules cover any stack, with or without OAuth. For a server that already exists, that reference is the procedure and the server keeps its own sign-in: the stage below builds a server, and its Clerk steps apply only to one that signs in through Clerk.
+**Open the ChatGPT plugin reference before building, submitting or changing a ChatGPT plugin or Apps SDK app.** Read `references/chatgpt-plugin.md`. Its directory rules cover any stack, with or without OAuth. The Clerk steps in this skill apply only to a server that signs in through Clerk; on another OAuth provider, make the same checks there.
 
 ## What binds, in order
 

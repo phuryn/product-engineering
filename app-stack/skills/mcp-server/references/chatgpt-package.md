@@ -38,7 +38,7 @@ Identity at the root; everything OpenAI-specific under `extensions["com.openai"]
 | `interface.brandColor` | at least 2:1 contrast against white | A brand's own light accent can fail it; pick the darker shade the checker accepts |
 | `interface.brandColorDark` | optional; at least 2:1 against `#212121` | |
 | `interface.composerIcon`, `interface.logo` | `./` paths to files in the package; PNG, JPEG, WebP or SVG; at most 5 MiB; icons square and at least 48 px; rasters at most 4,096 px | |
-| `interface.screenshots` | only when the tool scan reports a UI output template: one per starter prompt, exactly 706 px wide, 400–860 px tall | § Where OpenAI's pages disagree, in SKILL.md |
+| `interface.screenshots` | only when the tool scan reports a UI output template: one per starter prompt, exactly 706 px wide, 400–860 px tall | § Where OpenAI's pages disagree, in `chatgpt-plugin.md` |
 | `onboardingSkill` | optional path to one of the package's skills (`./skills/<name>/SKILL.md`) | |
 | `review.test_cases.positive` | **exactly 5**: `description`, `prompt`, `tools_triggered` (one string, tool names separated by commas), `expected_behavior`; optional `file_attachment_urls`, `expected_output_url` | The portal refused a draft whose cases lived only in docs: "No test cases provided" (October 2026) |
 | `review.test_cases.negative` | **exactly 3**: `description`, `prompt`; requests where the plugin should not act, with why, and the expected refusal, clarification or safe fallback | |

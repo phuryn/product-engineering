@@ -53,7 +53,7 @@ OpenAI's pages, each available as Markdown by appending `.md`: `developers.opena
 5. **Run routing evals against a local server; record video against production.** Record the video in ChatGPT (`references/chatgpt-server-and-auth.md § Testing before approval`).
 6. **Prepare a reviewer account when the server has sign-in.** Give it sample data, no emailed or texted code, a plan on which every case succeeds (`references/chatgpt-portal-and-review.md § Review information`).
 7. **Create the draft under the right identity and check authentication before connecting.** Complete the draft under the right identity, the Authentication field checked before connecting, domain verification, the scan, review details, then the checklist in `references/chatgpt-portal-and-review.md § Before you submit`.
-8. **Respond to the decision and keep live definitions working after publication.** Then answer or appeal, publish when ready, and keep the live definitions working through every later deploy (`references/chatgpt-portal-and-review.md § After publication`).
+8. **Respond to the decision and keep live definitions working after publication.** Then answer or appeal, publish on the owner's go, and keep the live definitions working through every later deploy (`references/chatgpt-portal-and-review.md § After publication`).
 
 Each rule's origin, the case that taught it, is in `receipts.md` in the skill folder; read it when a rule's edge is unclear.
 

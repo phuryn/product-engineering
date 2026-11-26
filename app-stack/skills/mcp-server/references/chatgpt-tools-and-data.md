@@ -62,7 +62,7 @@ Every tool sets `readOnlyHint`, `destructiveHint` and `openWorldHint` to explici
 - **Anything the public sees makes the tool open-world.** The same day, the check flagged a close of a public room declared `openWorldHint: false`. Apply it to every tool that changes what a public page shows: a pause that a public status page reports is open-world too.
 - **A reopen is additive; a close is not.** A tool that reopens what another closed can be non-destructive because it adds back. The close stays destructive even though the reopen exists.
 - **Annotations are not consent.** "Requiring human confirmation for irreversible operations" is OpenAI's rule, and the host's own confirmation prompt is the one to use; annotations "do not grant permission or replace authentication, authorization and scope checks, input validation, or human confirmation".
-- Keep one sentence per hint per tool ready, saying what is irreversible or public and under what conditions: one OpenAI page still asks for it at submission (SKILL.md § Where OpenAI's pages disagree).
+- Keep one sentence per hint per tool ready, saying what is irreversible or public and under what conditions: one OpenAI page still asks for it at submission (`chatgpt-plugin.md` § Where OpenAI's pages disagree).
 
 ## Names, descriptions and copy
 
