@@ -1,6 +1,6 @@
 # Claude Code headless troubleshooting
 
-Use these checks when running the raw CLI, diagnosing a wrapper turn or testing what the installed version does. The mode and permission boundary in `SKILL.md` applies on every turn.
+Use these checks when running the raw CLI, diagnosing a wrapper turn or testing what the installed version does. The mode and permission boundary in the Claude Code reference (`claude.md`) applies on every turn.
 
 ## Session continuity
 
@@ -38,7 +38,7 @@ Measured 2026-10-24, a plain `claude -p` in a scratch folder loaded 145 tools an
 
 Observed 2026-10-24: consult had no Write tool; `echo x > f` and a `python -c` file write were denied (two `permission_denials`). `git status` ran, and the disk was unchanged. Review had only Read, Grep and Glob and attempted no write. Build, in auto mode on Haiku 5.5, edited a file, ran it and ran `git status`.
 
-**Keep operational changes and production credentials out of auto-mode builds.** Auto mode is a safety net, not a boundary. It needs a supported model and an organization that hasn't disabled it; otherwise the session starts in Manual (permission-modes docs, read 2026-10-24). Supported Anthropic API models are Opus 4.6+, Sonnet 4.6+, Haiku 5.5 and Fable; cloud providers support fewer. The wrapper's stderr line shows the mode that actually ran. Permit development suite runs only within the brief's `delegation` boundaries; production access and operational changes stay out.
+**Keep operational changes and production credentials out of auto-mode builds.** Auto mode is a safety net, not a boundary. It needs a supported model and an organization that hasn't disabled it; otherwise the session starts in Manual (permission-modes docs, read 2026-10-24). Supported Anthropic API models are Opus 4.6+, Sonnet 4.6+, Haiku 5.5 and Fable; cloud providers support fewer. The wrapper's stderr line shows the mode that actually ran. Permit development suite runs only within the brief's boundaries in `SKILL.md`; production access and operational changes stay out.
 
 ## Calling it from inside a sandbox
 

@@ -22,7 +22,7 @@ Each heading is a rule from `SKILL.md`, with the case that taught it.
 
 ## The builder runs its tests and fixes failures before the handoff.
 
-- `2026-11-14`, the owner chose builder-run development tests, with operational changes and final verification kept by the session agent. Earlier sandboxed builds could not launch Chromium or resolve DNS; the `codex-agents` skill records the dated probe and test-running default.
+- `2026-11-14`, the owner chose builder-run development tests, with operational changes and final verification kept by the session agent. Earlier sandboxed builds could not launch Chromium or resolve DNS; the `delegation` skill's Codex reference records the dated probe and test-running default.
 
 ## Every preview and go message names each suite that did not run.
 

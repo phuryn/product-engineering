@@ -1,24 +1,19 @@
----
-name: grok-agents
-description: "'Ask Grok', 'have Grok build or review this': drive the Grok CLI headless from another agent as a peer, builder or fresh reviewer."
----
-
 # Grok agents — the Grok CLI headless as a partner
 
-**Run headless Grok as a peer, builder or fresh reviewer.** Any agent can get a full Grok session: tools, repository instructions where Grok reads them, and a conversation that can continue. It is a partner from another model family, with the same standing as its caller. A peer argues a decision through, a builder takes a stage, and a reviewer has never seen the build. This skill covers briefs, modes and commands.
+**Run headless Grok as a peer, builder or fresh reviewer.** Any agent can get a full Grok session: tools, repository instructions where Grok reads them, and a conversation that can continue. It is a partner from another model family, with the same standing as its caller. A peer argues a decision through, a builder takes a stage, and a reviewer has never seen the build. This reference covers briefs, modes and commands.
 
 Everything here was read from `grok --help` and run on Grok CLI 1.0.70, 2026-11-02, unless stated otherwise. The CLI changes often; check `grok --help` before relying on a flag.
 
 ## The partner discipline (compact)
 
-**Apply `delegation` for the full discipline of working with a partner.** These rules must hold even when this folder is copied alone.
+**Read `SKILL.md` for the full discipline of working with a partner.** These rules must hold even when the skill folder is copied alone.
 
 1. **A delegate gets the why, not just the what.** Give the goal in the owner's terms, the decision it feeds, facts and reasoning behind non-obvious choices. Include binding constraints, traps a smart newcomer would walk into, and how the result will be proved. Never a keystroke script.
 2. **Treat the delegate as a peer, not a tool.** Its view is not binding, and neither is yours. A choice you would not have made is a disagreement to surface, not a defect.
 3. **Bring the partner in at framing and keep iterating.** The cheapest wins are at framing; three to eight turns is normal.
 4. **Converge before surfacing.** Bring the human one result, or a disagreement stated cleanly.
 5. **A delegated diff is unreviewed code, and the session that wrote it never clears it.** Read it, check the disk and rerun its tests yourself. Apply `release-gate` § Stage and phase close for the checks and fresh review before a deployment.
-6. **Keep product decisions, operational changes and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep operational changes, including development deploys, applied migrations, pushes, provider settings and secrets, plus production credentials. Development suite runs are delegated within the brief's boundaries; apply `delegation`.
+6. **Keep product decisions, operational changes and final judgement with you.** Decide what the product should do, accept or reject review findings, perform final verification and judge whether a stage is done. Keep operational changes, including development deploys, applied migrations, pushes, provider settings and secrets, plus production credentials. Development suite runs are delegated within the brief's boundaries. See § What never delegates in `SKILL.md`.
 
 ## Three modes
 
@@ -58,7 +53,7 @@ grok --resume "$SID" --prompt-file "$S/turn-2.md" --cwd <repo> \
 
 ## Builder
 
-**Give a builder its own worktree and exclude operational changes.** Permit development suites within the `delegation` boundaries; keep production credentials with the session agent.
+**Give a builder its own worktree and exclude operational changes.** Permit development suites within the boundaries in `SKILL.md`; keep production credentials with the session agent.
 
 ```bash
 grok --prompt-file "$S/stage-brief.md" --cwd <worktree> --session-id "$SID" \
@@ -102,12 +97,12 @@ Every part is load-bearing:
 - **A signed-in CLI can still be out of credit.** It answers `402 usage balance exhausted` and stops (observed 2026-10-31). In a review round, the `independent-review` wrapper exits 3 and prints the same round for the fallback reviewer. In peer or builder mode, wait for reset or do the work yourself, and say so.
 - **Read persisted usage and session ids through the CLI.** `grok usage` prints a session's persisted token and cost usage; `grok sessions list` lists recent sessions and ids.
 
-Each rule's origin, the case that taught it, is in `receipts.md` beside this file; read it when a rule's edge is unclear.
+Each rule's origin, the case that taught it, is in `receipts.md` beside `SKILL.md`. Read it when a rule's edge is unclear.
 
 ## How you can tell it worked
 
 The session started with only your brief and used its mode's flags; you read its exit code and output from the run itself. A resumed turn named its session, and anything built was on disk and reviewed before it was trusted.
 
-## Not this skill
+## Related guidance
 
-**Apply `independent-review` for the review loop and its wrapper.** Use `claude-agents` and `codex-agents` to drive those CLIs the same way. Apply `delegation` to brief and verify any delegate.
+**Apply `independent-review` for the review loop and its wrapper.** Open `references/claude.md` and `references/codex.md` to drive those CLIs the same way. Use `SKILL.md` to brief and verify any delegate.

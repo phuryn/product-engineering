@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""codex.py — Bridge to OpenAI Codex CLI for the codex-agents skill.
+"""codex.py — Bridge to OpenAI Codex CLI for the delegation skill.
 
 Read ../SKILL.md for the invocation and handoff rules before using this wrapper.
 
@@ -386,7 +386,7 @@ def run_codex_resume_or_new(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Codex CLI bridge for the codex-agents skill.",
+        description="Codex CLI bridge for the delegation skill.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__.split("Usage:", 1)[1] if __doc__ else "",
     )

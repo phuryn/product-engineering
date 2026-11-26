@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression checks for the codex-agents wrapper's session handling, without starting Codex.
+"""Regression checks for session handling in the delegation skill's Codex wrapper, without starting Codex.
 
 Run with `python -B tools/test_codex.py`.
 """
@@ -18,7 +18,7 @@ from pathlib import Path
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
-SCRIPT = ROOT / "agent-teams/skills/codex-agents/scripts/codex.py"
+SCRIPT = ROOT / "agent-teams/skills/delegation/scripts/codex.py"
 spec = importlib.util.spec_from_file_location("codex_wrapper", SCRIPT)
 codex = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(codex)

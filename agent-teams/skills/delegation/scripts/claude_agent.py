@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """claude_agent.py — Drive Claude Code headless (`claude -p`) as a partner, for the
-claude-agents skill.
+delegation skill.
 
 Read ../SKILL.md for the invocation and handoff rules before using this wrapper.
 
@@ -415,7 +415,7 @@ def report(run: dict, started_new: bool, mode: str, model: str | None, effort: s
 
 def main() -> None:
     p = argparse.ArgumentParser(
-        description="Drive Claude Code headless as a partner (claude-agents skill).",
+        description="Drive Claude Code headless as a partner (delegation skill).",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__.split("Usage:", 1)[1] if __doc__ else "")
     p.add_argument("message", nargs="?", help="Message to send")
